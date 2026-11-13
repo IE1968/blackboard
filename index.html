@@ -35,19 +35,19 @@ button:focus-visible,.pal:focus-visible{outline:2px solid var(--accent);outline-
 button:disabled{opacity:.35;cursor:default}
 
 header{position:relative;min-width:0;border-bottom:1px solid var(--line);background:var(--panel)}
-.bar{display:flex;align-items:center;gap:14px;padding:6px 12px;overflow-x:auto;scrollbar-width:none}
+.bar{display:flex;align-items:center;gap:8px;padding:6px 12px;overflow-x:auto;scrollbar-width:none}
 .bar::-webkit-scrollbar{display:none}
 .brand{display:flex;align-items:center;gap:8px;font:800 28px/1 var(--display);letter-spacing:-.02em;white-space:nowrap;padding:2px 6px 2px 0}
 .brand .logo{width:32px;height:32px;fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .brand i{font-style:normal;color:var(--accent)}
 .grp{display:flex;align-items:center;gap:2px}
 .sep{width:1px;align-self:stretch;background:var(--line);margin:4px 0}
-.tb{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:52px;padding:5px 6px 4px;font-size:11px;font-weight:500;color:var(--muted);white-space:nowrap}
+.tb{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:46px;padding:5px 4px 4px;font-size:11px;font-weight:500;color:var(--muted);white-space:nowrap}
 .tb svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tb:hover:not(:disabled){background:var(--hover);color:var(--ink)}
 .tb[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .spacer{flex:1}
-#boardName{width:150px;flex:none;font:500 14px/1.2 var(--body);color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:7px 9px}
+#boardName{width:130px;flex:none;font:500 14px/1.2 var(--body);color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:7px 9px}
 #boardName:hover,#boardName:focus{border-color:var(--accent);outline:none}
 .mh{font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 12px 4px}
 #boardList{display:flex;flex-direction:column}
@@ -119,14 +119,15 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 .lw{display:inline-block;width:18px;background:currentColor;border-radius:3px;vertical-align:middle}
 #toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);font-weight:500;padding:8px 14px;border-radius:10px;font-size:13px;z-index:20;max-width:calc(100% - 24px)}
 
+@media (max-width:1100px){ .tb span{display:none} .tb{min-width:38px;padding:8px 6px} }
 /* Kompakt (Smartphone, kleines Fenster): Kopf in zwei Zeilen, beide Leisten als einklappbare Überlagerung */
-body.compact .bar{flex-wrap:wrap;gap:4px 6px;padding:5px 8px;overflow:visible}
+body.compact .bar{display:grid;grid-template-columns:auto minmax(40px,1fr) auto auto auto;align-items:center;gap:4px 6px;padding:5px 8px;overflow:visible}
 body.compact .brand{font-size:18px;gap:6px;padding:0}
 body.compact .brand .logo{width:24px;height:24px}
-body.compact #boardName{flex:1 1 60px;width:auto;min-width:56px;padding:6px 8px;font-size:16px}
+body.compact #boardName{width:100%;min-width:0;padding:6px 8px;font-size:16px}
 body.compact .tb{min-width:38px;padding:8px 6px}
-body.compact .tb span,body.compact .sep,body.compact .spacer,body.compact #zoomIn,body.compact #zoomOut,body.compact #zoomLabel,body.compact #hint{display:none}
-body.compact #tools{order:10;flex:1 0 100%;justify-content:space-between;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--line);padding-top:4px}
+body.compact .tb span,body.compact .sep,body.compact .spacer,body.compact #zoomGrp,body.compact #hint{display:none}
+body.compact #tools{grid-row:2;grid-column:1/-1;min-width:0;justify-content:space-between;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--line);padding-top:4px}
 body.compact main{grid-template-columns:minmax(0,1fr)}
 body.compact #palette,body.compact #props{position:absolute;top:0;bottom:0;width:104px;z-index:14}
 body.compact #palette{left:0;box-shadow:8px 0 24px rgba(0,0,0,.35)}
@@ -137,9 +138,17 @@ body.compact #menu{right:6px;overscroll-behavior:contain}
 body.compact #menu button{padding:8px 12px}
 body.compact #menu .mh{padding:6px 12px 2px}
 body.compact #editor{font-size:16px}
+@media (max-width:480px){
+  body.compact .bar{gap:4px;padding:5px 6px}
+  body.compact .brand{font-size:15px;gap:4px}
+  body.compact .brand .logo{width:20px;height:20px}
+  body.compact .tb{min-width:34px;padding:8px 4px}
+  body.compact #boardName{padding:6px}
+  body.compact .grp{gap:0}
+}
 @media (min-width:640px){
-  body.compact #tools{order:0;flex:0 0 auto;border-top:0;padding-top:0;justify-content:flex-start}
-  body.compact #boardName{flex:1 1 90px}
+  body.compact .bar{grid-template-columns:auto minmax(60px,1fr) auto auto auto auto}
+  body.compact #tools{grid-row:1;grid-column:auto;border-top:0;padding-top:0;justify-content:flex-start}
 }
 </style>
 </head>
@@ -164,7 +173,7 @@ body.compact #editor{font-size:16px}
     </div>
     <div class="spacer"></div>
     <button class="tb" id="bgBtn" title="Tafel zwischen Schwarz und Weiß umschalten"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 010 16z" fill="currentColor"/></svg><span>Tafel</span></button>
-    <div class="grp">
+    <div class="grp" id="zoomGrp">
       <button class="tb" id="zoomOut" title="Verkleinern"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
       <button id="zoomLabel" title="Alles einpassen">100 %</button>
       <button class="tb" id="zoomIn" title="Vergrößern"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button>
@@ -1038,7 +1047,7 @@ function iconFor(kind,W,H){
   const body=shapeBody({kind:d.as||kind,w,h,fill:kind==='note'?'#f4d95a':'none',stroke:'currentColor',sw:1.6});
   return `<svg viewBox="${-(W-w)/2-1} ${-(H-h)/2-1} ${W+2} ${H+2}">${body}</svg>`;
 }
-const mqCompact=window.matchMedia('(max-width:720px),(max-height:500px)');
+const mqCompact=window.matchMedia('(max-width:1000px),(max-height:500px)');
 function applyCompact(){ document.body.classList.toggle('compact',mqCompact.matches); }
 applyCompact();
 if(mqCompact.matches){ palState.closed=true; palState.propsClosed=true; }
