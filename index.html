@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Blackboard</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#101617">
@@ -27,7 +27,8 @@
 #stage.dark{--paper:#0d1011;--dot:#333d40;--paper-muted:#8e9fa2;--hint-bg:rgba(13,16,17,.85)}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{height:100%;margin:0}
+html,body{height:100%;margin:0;overscroll-behavior:none;touch-action:pan-x pan-y}
+body{position:fixed;inset:0;width:100%}
 body{background:var(--chrome);color:var(--ink);font:400 14px/1.35 var(--body);display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);overflow:hidden}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;border-radius:8px}
 button:focus-visible,.pal:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
@@ -118,21 +119,25 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 .lw{display:inline-block;width:18px;background:currentColor;border-radius:3px;vertical-align:middle}
 #toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);font-weight:500;padding:8px 14px;border-radius:10px;font-size:13px;z-index:20;max-width:calc(100% - 24px)}
 
-@media (max-width:720px){
-  #boardName{width:110px}
-  main{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
-  #palette{border-right:0;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:8px 10px}
-  .gh{width:auto;flex:none;white-space:nowrap;margin:0;border:1px solid var(--line)}
-  #palToggle{margin:0}
-  main.pal-closed #palette{padding:0;border:0;height:0}
-  #palHandle{left:0}
-  #props{position:absolute;right:0;top:0;bottom:0;width:104px;z-index:14;box-shadow:-8px 0 24px rgba(0,0,0,.35)}
-  main.props-closed #props{display:none}
-  .palgrid{display:flex;gap:6px}
-  .pal{min-width:48px;touch-action:pan-x}
-  .tb{min-width:40px}.tb span{display:none}
-  .brand{font-size:21px}.brand .logo{width:24px;height:24px}
-  #hint{display:none}
+/* Kompakt (Smartphone, kleines Fenster): Kopf in zwei Zeilen, beide Leisten als einklappbare Überlagerung */
+body.compact .bar{flex-wrap:wrap;gap:4px 6px;padding:5px 8px;overflow:visible}
+body.compact .brand{font-size:18px;gap:6px;padding:0}
+body.compact .brand .logo{width:24px;height:24px}
+body.compact #boardName{flex:1 1 60px;width:auto;min-width:56px;padding:6px 8px;font-size:16px}
+body.compact .tb{min-width:38px;padding:8px 6px}
+body.compact .tb span,body.compact .sep,body.compact .spacer,body.compact #zoomIn,body.compact #zoomOut,body.compact #zoomLabel,body.compact #hint{display:none}
+body.compact #tools{order:10;flex:1 0 100%;justify-content:space-between;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--line);padding-top:4px}
+body.compact main{grid-template-columns:minmax(0,1fr)}
+body.compact #palette,body.compact #props{position:absolute;top:0;bottom:0;width:104px;z-index:14}
+body.compact #palette{left:0;box-shadow:8px 0 24px rgba(0,0,0,.35)}
+body.compact #props{right:0;box-shadow:-8px 0 24px rgba(0,0,0,.35)}
+body.compact main.pal-closed #palette,body.compact main.props-closed #props{display:none}
+body.compact #palHandle,body.compact #propsToggle{width:24px;height:72px;font-size:20px}
+body.compact #menu{right:6px;max-height:calc(100vh - 110px)}
+body.compact #editor{font-size:16px}
+@media (min-width:640px){
+  body.compact #tools{order:0;flex:0 0 auto;border-top:0;padding-top:0;justify-content:flex-start}
+  body.compact #boardName{flex:1 1 90px}
 }
 </style>
 </head>
@@ -180,6 +185,7 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
     <button data-m="json">Board als Datei sichern (.json)</button>
     <button data-m="open">Board aus Datei laden …</button>
     <hr>
+    <button data-m="fit">Alles einpassen</button>
     <button data-m="example">Beispiel laden</button>
     <button data-m="clear">Board leeren</button>
   </div>
@@ -1006,6 +1012,11 @@ svg.addEventListener('wheel',e=>{
   else { view.x-=e.deltaX; view.y-=e.deltaY; applyView(); }
 },{passive:false});
 svg.addEventListener('contextmenu',e=>e.preventDefault());
+/* Touch-Geräte: Der Browser darf nicht die ganze Seite zoomen, nur die Tafel zoomt. */
+['gesturestart','gesturechange','gestureend'].forEach(n=>document.addEventListener(n,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{ if(e.touches.length>1) e.preventDefault(); },{passive:false});
+svg.addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
+svg.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
 
 /* ---------- Palette ---------- */
 function iconFor(kind,W,H){
@@ -1025,7 +1036,12 @@ function iconFor(kind,W,H){
   const body=shapeBody({kind:d.as||kind,w,h,fill:kind==='note'?'#f4d95a':'none',stroke:'currentColor',sw:1.6});
   return `<svg viewBox="${-(W-w)/2-1} ${-(H-h)/2-1} ${W+2} ${H+2}">${body}</svg>`;
 }
+const mqCompact=window.matchMedia('(max-width:720px),(max-height:500px)');
+function applyCompact(){ document.body.classList.toggle('compact',mqCompact.matches); }
+applyCompact();
+if(mqCompact.matches){ palState.closed=true; palState.propsClosed=true; }
 try{ const ps=JSON.parse(localStorage.getItem('blackboard-pal')); if(ps&&ps.open) palState=ps; }catch(e){}
+(mqCompact.addEventListener?mqCompact.addEventListener.bind(mqCompact,'change'):mqCompact.addListener.bind(mqCompact))(()=>{ applyCompact(); applyView(); });
 function savePal(){ try{ localStorage.setItem('blackboard-pal',JSON.stringify(palState)); }catch(e){} }
 function renderPal(){
   document.querySelector('main').classList.toggle('pal-closed',!!palState.closed);
@@ -1149,6 +1165,7 @@ menu.addEventListener('click',e=>{
   menu.hidden=true; finishEdit();
   switch(b.dataset.m){
     case 'new': newBoard(); break;
+    case 'fit': fit(); break;
     case 'delboard': deleteBoard(); break;
     case 'png': case 'svg': case 'pdf': exportAs(b.dataset.m); break;
     case 'json': saveFile(fileBase()+'.json',JSON.stringify(doc)); break;
