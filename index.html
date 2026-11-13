@@ -133,7 +133,9 @@ body.compact #palette{left:0;box-shadow:8px 0 24px rgba(0,0,0,.35)}
 body.compact #props{right:0;box-shadow:-8px 0 24px rgba(0,0,0,.35)}
 body.compact main.pal-closed #palette,body.compact main.props-closed #props{display:none}
 body.compact #palHandle,body.compact #propsToggle{width:24px;height:72px;font-size:20px}
-body.compact #menu{right:6px;max-height:calc(100vh - 110px)}
+body.compact #menu{right:6px;overscroll-behavior:contain}
+body.compact #menu button{padding:8px 12px}
+body.compact #menu .mh{padding:6px 12px 2px}
 body.compact #editor{font-size:16px}
 @media (min-width:640px){
   body.compact #tools{order:0;flex:0 0 auto;border-top:0;padding-top:0;justify-content:flex-start}
@@ -1082,7 +1084,9 @@ function setBoardBg(d,keep){
 $('bgBtn').onclick=()=>{ finishEdit(); setBoardBg(!darkBoard); };
 $('undo').onclick=undo; $('redo').onclick=redo;
 $('zoomIn').onclick=()=>zoomCenter(1.25); $('zoomOut').onclick=()=>zoomCenter(0.8); $('zoomLabel').onclick=fit;
-$('menuBtn').onclick=e=>{ e.stopPropagation(); renderBoardList(); menu.hidden=!menu.hidden; $('menuBtn').setAttribute('aria-expanded',!menu.hidden); };
+function fitMenu(){ const top=document.querySelector('header').getBoundingClientRect().bottom, vh=(window.visualViewport&&window.visualViewport.height)||window.innerHeight; menu.style.maxHeight=Math.max(160,vh-top-14)+'px'; }
+window.addEventListener('resize',()=>{ if(!menu.hidden) fitMenu(); });
+$('menuBtn').onclick=e=>{ e.stopPropagation(); renderBoardList(); fitMenu(); menu.hidden=!menu.hidden; $('menuBtn').setAttribute('aria-expanded',!menu.hidden); };
 document.addEventListener('click',e=>{ if(!menu.hidden&&!menu.contains(e.target)){ menu.hidden=true; $('menuBtn').setAttribute('aria-expanded','false'); } });
 
 function buildSVG(){
