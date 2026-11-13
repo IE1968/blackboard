@@ -28,12 +28,12 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%;margin:0}
-body{background:var(--chrome);color:var(--ink);font:400 14px/1.35 var(--body);display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
+body{background:var(--chrome);color:var(--ink);font:400 14px/1.35 var(--body);display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);overflow:hidden}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;border-radius:8px}
 button:focus-visible,.pal:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 button:disabled{opacity:.35;cursor:default}
 
-header{position:relative;border-bottom:1px solid var(--line);background:var(--panel)}
+header{position:relative;min-width:0;border-bottom:1px solid var(--line);background:var(--panel)}
 .bar{display:flex;align-items:center;gap:14px;padding:6px 12px;overflow-x:auto;scrollbar-width:none}
 .bar::-webkit-scrollbar{display:none}
 .brand{display:flex;align-items:center;gap:8px;font:800 28px/1 var(--display);letter-spacing:-.02em;white-space:nowrap;padding:2px 6px 2px 0}
@@ -58,11 +58,12 @@ header{position:relative;border-bottom:1px solid var(--line);background:var(--pa
 #menu button:hover{background:var(--hover)}
 #menu hr{border:0;border-top:1px solid var(--line);margin:4px 2px;width:auto}
 
-main{--palw:184px;position:relative;display:grid;grid-template-columns:var(--palw) minmax(0,1fr);min-height:0}
+main{--palw:184px;--propw:104px;position:relative;display:grid;grid-template-columns:var(--palw) minmax(0,1fr) var(--propw);min-height:0}
+main.props-closed{--propw:0px}
 main.pal-closed{--palw:0px}
 #palHandle{position:absolute;left:var(--palw);top:50%;transform:translateY(-50%);z-index:15;width:28px;height:92px;padding:0;border-radius:0 12px 12px 0;background:var(--panel);border:1px solid var(--line);border-left:0;color:var(--ink);font-size:24px;line-height:1}
 #palHandle:hover,#propsToggle:hover{color:var(--ink);background:var(--hover)}
-#propsToggle{position:absolute;left:50%;bottom:0;transform:translateX(-50%);z-index:6;width:100px;height:28px;padding:0;border-radius:12px 12px 0 0;background:var(--panel);border:1px solid var(--line);border-bottom:0;color:var(--ink);font-size:17px;line-height:1}
+#propsToggle{position:absolute;right:var(--propw);top:50%;transform:translateY(-50%);z-index:6;width:28px;height:92px;padding:0;border-radius:12px 0 0 12px;background:var(--panel);border:1px solid var(--line);border-right:0;color:var(--ink);font-size:24px;line-height:1}
 #palette{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:10px 10px 20px}
 .gh{display:flex;align-items:center;gap:6px;width:100%;font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:9px 4px;margin-top:4px;text-align:left}
 .gh:hover{background:var(--hover);color:var(--ink)}
@@ -82,9 +83,9 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
 
 #stage{position:relative;min-width:0;min-height:0;background:var(--paper);overflow:hidden}
 #board{display:block;width:100%;height:100%;touch-action:none;user-select:none;-webkit-user-select:none;cursor:default}
-#board.t-pen{cursor:crosshair}#board.t-conn{cursor:crosshair}#board.t-text{cursor:text}#board.t-erase{cursor:cell}#board.t-pan{cursor:grab}
+#board.t-pen,#board.t-brush,#board.t-marker{cursor:crosshair}#board.t-conn{cursor:crosshair}#board.t-text{cursor:text}#board.t-erase{cursor:cell}#board.t-pan{cursor:grab}
 #board .it{cursor:move}
-#board.t-pen .it,#board.t-conn .it,#board.t-text .it{cursor:inherit}
+#board.t-pen .it,#board.t-brush .it,#board.t-marker .it,#board.t-conn .it,#board.t-text .it{cursor:inherit}
 #board.noconn .conn,#board.noconn #overlay{pointer-events:none}
 #board [data-h^="rs:n"],#board [data-h^="rs:s"]{cursor:ns-resize}
 #board [data-h="rs:e"],#board [data-h="rs:w"]{cursor:ew-resize}
@@ -93,13 +94,23 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
 #board [data-h^="cn"],#board [data-h^="ce"]{cursor:crosshair}
 #editor{position:absolute;z-index:10;margin:0;border:2px solid #0a7f88;border-radius:4px;background:#fff;color:#1c2a2e;resize:none;outline:none;text-align:center;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
 #hint{position:absolute;left:12px;top:10px;font-size:12px;color:var(--paper-muted);background:var(--hint-bg);padding:4px 8px;border-radius:6px;pointer-events:none;max-width:calc(100% - 24px)}
-#props{position:absolute;left:50%;bottom:38px;transform:translateX(-50%);max-width:calc(100% - 24px);display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 26px rgba(0,0,0,.16);overflow-x:auto;white-space:nowrap}
-.pg{display:flex;align-items:center;gap:5px}
-.pg>b{font-weight:500;font-size:11px;color:var(--muted);margin-right:2px}
-.sw{width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,0,0,.25);padding:0;flex:none}
+#props{min-width:0;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:12px 8px 20px;background:var(--panel);border-left:1px solid var(--line)}
+main.props-closed #props{padding:0;border:0;overflow:hidden}
+.pg{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;align-items:center;min-width:0}
+.pg>b{grid-column:1/-1;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sws{grid-column:1/-1;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;justify-items:center}
+.sws.two{grid-template-columns:repeat(2,minmax(0,1fr));justify-items:stretch;gap:6px}
+.wbtn{min-height:28px;display:flex;align-items:center;justify-content:center}
+.wbtn .lw{width:58px}
+.sws.three{grid-template-columns:repeat(3,minmax(0,1fr));justify-items:stretch;gap:6px}
+.sws.five{grid-template-columns:repeat(5,minmax(0,1fr));justify-items:stretch;gap:4px}
+.sws.five .pb{padding:0;min-height:32px;display:flex;align-items:center;justify-content:center}
+.sws.five .lw{width:16px}
+.sw{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.35);padding:0;flex:none}
 .sw.none{background:linear-gradient(135deg,#fff 44%,#c8321f 46%,#c8321f 54%,#fff 56%)}
 .sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--accent)}
-.pb{padding:6px 9px;font-size:12px;font-weight:500;border:1px solid var(--line)}
+.pb{padding:7px 2px;font-size:12px;font-weight:500;border:1px solid var(--line);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pb.wide{grid-column:1/-1}
 .pb:hover{background:var(--hover)}
 .pb[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .pb.danger{color:#ff8f7a}
@@ -114,6 +125,8 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
   #palToggle{margin:0}
   main.pal-closed #palette{padding:0;border:0;height:0}
   #palHandle{left:0}
+  #props{position:absolute;right:0;top:0;bottom:0;width:104px;z-index:14;box-shadow:-8px 0 24px rgba(0,0,0,.35)}
+  main.props-closed #props{display:none}
   .palgrid{display:flex;gap:6px}
   .pal{min-width:68px;touch-action:pan-x}
   .tb{min-width:40px}.tb span{display:none}
@@ -130,7 +143,8 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
     <div class="grp" id="tools" role="toolbar" aria-label="Werkzeuge">
       <button class="tb" data-tool="select" title="Auswählen und verschieben (V)"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 2-2 6z"/></svg><span>Auswahl</span></button>
       <button class="tb" data-tool="pen" title="Freihand zeichnen (P)"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span>Stift</span></button>
-      <button class="tb" data-tool="conn" title="Pfeil zwischen Formen ziehen (L)"><svg viewBox="0 0 24 24"><path d="M4 19L19 5M19 5h-7M19 5v7"/></svg><span>Pfeil</span></button>
+      <button class="tb" data-tool="brush" title="Pinsel: Strich wird je nach Tempo oder Stiftdruck dicker und dünner (B)"><svg viewBox="0 0 24 24"><path d="M19 4l1.5 1.5-8 9-2.5 1 1-2.5zM9.5 16.5c-2 0-3 1.2-3 2.3S5.500 20 4 20c2.500 1 6.500.500 6.500-2.500"/></svg><span>Pinsel</span></button>
+      <button class="tb" data-tool="marker" title="Marker: breit und durchscheinend (M)"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-8 8H7v-5zM4 21h9"/></svg><span>Marker</span></button>
       <button class="tb" data-tool="text" title="Text setzen (T)"><svg viewBox="0 0 24 24"><path d="M5 6h14M12 6v13M9 19h6"/></svg><span>Text</span></button>
       <button class="tb" data-tool="erase" title="Radieren (E)"><svg viewBox="0 0 24 24"><path d="M9 19h11M4 14l9-9 6 6-8 8H8z"/></svg><span>Radierer</span></button>
       <button class="tb" data-tool="pan" title="Tafel verschieben (H oder Leertaste halten)"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg><span>Hand</span></button>
@@ -179,11 +193,11 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
       <g id="world"><g id="items"></g><g id="overlay"></g></g>
     </svg>
     <textarea id="editor" hidden spellcheck="false" aria-label="Text der Form"></textarea>
-    <div id="hint">Form reinziehen · Doppelklick oder „Text ändern“ bearbeitet Text · Punkte am Rand ziehen einen Pfeil · Karten auf Boards verschieben</div>
-    <div id="props" hidden></div>
-    <button id="propsToggle" aria-controls="props"></button>
+    <div id="hint">Form reinziehen · Doppelklick bearbeitet Text · Punkte am Rand einer Form ziehen einen Pfeil</div>
     <div id="toast" hidden role="status"></div>
   </section>
+  <aside id="props" aria-label="Farben und Optionen"></aside>
+  <button id="propsToggle" aria-controls="props"></button>
 </main>
 <input type="file" id="file" accept=".json,application/json" hidden>
 <script>
@@ -200,13 +214,27 @@ const FONT='system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif';
 let FS=14, LH=18, BOLD=false, lastCell=null;
 const GRID=10, KEY='blackboard-v1';
 function useFont(it){ FS=(it&&it.fs)||14; LH=Math.round(FS*1.3); BOLD=!!(it&&it.bold); }
-const FILLS=['#ffffff','#fff3b0','#ffd9c7','#cfe8ff','#d3f0dc','#e6dcff','#e3e8ea','none'];
-const STROKES=['#1c2a2e','#c8321f','#d97a00','#1f8a4c','#1e63d0','#7446c9','#7a8790'];
+const COLORS=['none','#1c2a2e','#ffffff','#7a8790','#c8321f','#d97a00','#f2c200','#1f8a4c','#1e63d0','#7446c9','#fff3b0','#ffd9c7','#cfe8ff','#d3f0dc','#e6dcff','#e3e8ea'];
+const WIDTHS={shape:[1,2,3,5,8],pen:[1.5,3,5,8,12],brush:[4,8,12,18,26],marker:[8,14,20,28,40]};
+const DRAW={pen:'Stift',brush:'Pinsel',marker:'Marker'};
 const KINDS={
   rect:{label:'Rechteck',w:140,h:80},
   ellipse:{label:'Ellipse',w:130,h:80},
   text:{label:'Text',w:160,h:30,fill:'none',text:'Text'},
   note:{label:'Notiz',w:150,h:110,fill:'#fff3b0'},
+  lineArrow:{label:'Pfeil',line:'arrow',w:140,h:40},
+  linePlain:{label:'Linie',line:'none',w:140,h:40},
+  gRound:{label:'Abgerundet',as:'round',w:140,h:80},
+  gCircle:{label:'Kreis',as:'ellipse',w:90,h:90},
+  gDia:{label:'Raute',as:'diamond',w:120,h:90},
+  tri:{label:'Dreieck',w:120,h:100},
+  hex:{label:'Sechseck',w:140,h:90},
+  star:{label:'Stern',w:110,h:110},
+  arrowr:{label:'Blockpfeil',w:140,h:70},
+  arrowlr:{label:'Doppelpfeil',w:150,h:70},
+  bubble:{label:'Sprechblase',w:160,h:110},
+  cloud:{label:'Wolke',w:160,h:100},
+  cross:{label:'Kreuz',w:90,h:90},
   card:{label:'Karte',w:140,h:70,fill:'#fff3b0'},
   table:{label:'Tabelle',tpl:1,w:360,h:144},
   kanban:{label:'Kanban-Board',tpl:1,w:600,h:400},
@@ -248,7 +276,7 @@ const KINDS={
   nsloopf:{label:'Schleife (Fuß)',w:240,h:120,text:'bis …'},
   nscall:{label:'Aufruf',w:240,h:40}
 };
-const GROUPS=[['Allgemein',['rect','ellipse','text','note']],
+const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gRound','ellipse','gCircle','tri','gDia','hex','star','arrowr','arrowlr','bubble','cloud','cross','note']],
   ['Tabellen & Boards',['table','kanban','scrum','card']],
   ['Flussdiagramm',['term','diamond','io','doc','db']],
   ['BPMN',['evstart','evmid','evend','evmsg','evtimer','round','subproc','gwx','gwplus','gwo','data','pool','annot']],
@@ -265,7 +293,8 @@ let doc={items:[],n:0};
 let view={x:0,y:0,k:1};
 let sel=new Set();
 let tool='select';
-let pen={stroke:INK,sw:3};
+let drawTool='pen';
+const penStyles={pen:{stroke:INK,sw:3,tip:'round'},brush:{stroke:INK,sw:12,tip:'round'},marker:{stroke:'#f2c200',sw:20,tip:'flat'}};
 let hist=[],hi=-1;
 let editCell=null;
 let palState={closed:false,open:{Allgemein:true}};
@@ -330,6 +359,15 @@ function shapeBody(s){
     case 'annot': return `<rect width="${w}" height="${h}" fill="${s.fill==='none'?'transparent':s.fill}"/><path d="M${Math.min(10,w*0.25)} 0H0V${h}H${Math.min(10,w*0.25)}" ${ln}/>`;
     case 'note': { const c=Math.min(16,m*0.25); return `<rect width="${w}" height="${h}" fill="${s.fill==='none'?'transparent':s.fill}"/><path d="M${w-c} ${h}H${w}V${h-c}Z" fill="rgba(0,0,0,.16)"/>`; }
     case 'text': return `<rect width="${w}" height="${h}" fill="${s.fill==='none'?'transparent':s.fill}"/>`;
+    case 'tri': return `<polygon points="${cx},0 ${w},${h} 0,${h}" ${f}/>`;
+    case 'hex': { const d=Math.min(w*0.25,h*0.5); return `<polygon points="${d},0 ${w-d},0 ${w},${cy} ${w-d},${h} ${d},${h} 0,${cy}" ${f}/>`; }
+    case 'star': { let pts=[]; for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5, q=i%2?0.42:1; pts.push(r(cx+Math.cos(a)*cx*q)+','+r(cy+Math.sin(a)*cy*q)); } return `<polygon points="${pts.join(' ')}" ${f}/>`; }
+    case 'arrowr': { const d=Math.min(w*0.4,h*0.7); return `<polygon points="0,${h*0.28} ${w-d},${h*0.28} ${w-d},0 ${w},${cy} ${w-d},${h} ${w-d},${h*0.72} 0,${h*0.72}" ${f}/>`; }
+    case 'arrowlr': { const d=Math.min(w*0.3,h*0.7); return `<polygon points="0,${cy} ${d},0 ${d},${h*0.28} ${w-d},${h*0.28} ${w-d},0 ${w},${cy} ${w-d},${h} ${w-d},${h*0.72} ${d},${h*0.72} ${d},${h}" ${f}/>`; }
+    case 'bubble': { const b=h*0.78, q=Math.min(14,m*0.2);
+      return `<path d="M${q} 0H${w-q}Q${w} 0 ${w} ${q}V${b-q}Q${w} ${b} ${w-q} ${b}H${w*0.42}L${w*0.2} ${h}L${w*0.24} ${b}H${q}Q0 ${b} 0 ${b-q}V${q}Q0 0 ${q} 0Z" ${f}/>`; }
+    case 'cloud': return `<path d="M${w*0.25} ${h*0.88}C${-w*0.04} ${h*0.9} ${-w*0.02} ${h*0.44} ${w*0.17} ${h*0.42}C${w*0.14} ${h*0.08} ${w*0.5} ${-h*0.04} ${w*0.58} ${h*0.24}C${w*0.74} ${h*0.03} ${w*1.02} ${h*0.2} ${w*0.88} ${h*0.48}C${w*1.04} ${h*0.6} ${w*0.97} ${h*0.9} ${w*0.75} ${h*0.88}Z" ${f}/>`;
+    case 'cross': { const a=w/3,b=h/3; return `<polygon points="${a},0 ${2*a},0 ${2*a},${b} ${w},${b} ${w},${2*b} ${2*a},${2*b} ${2*a},${h} ${a},${h} ${a},${2*b} 0,${2*b} 0,${b} ${a},${b}" ${f}/>`; }
     case 'erweak': return `<rect width="${w}" height="${h}" ${f}/><rect x="${m*0.08}" y="${m*0.08}" width="${w-m*0.16}" height="${h-m*0.16}" ${ln}/>`;
     case 'umlactor': { const q=h*0.14;
       return `<rect width="${w}" height="${h}" fill="transparent"/><circle cx="${cx}" cy="${q+1}" r="${q}" ${f}/><path d="M${cx} ${2*q+1}V${h*0.62}M${w*0.08} ${h*0.4}H${w*0.92}M${cx} ${h*0.62}L${w*0.12} ${h}M${cx} ${h*0.62}L${w*0.88} ${h}" ${ln}/>`; }
@@ -338,7 +376,7 @@ function shapeBody(s){
     case 'umllife': { const t=Math.min(40,h*0.3);
       return `<path d="M${cx} ${t}V${h}" fill="none" stroke="transparent" stroke-width="16"/><path d="M${cx} ${t}V${h}" ${ln} stroke-dasharray="${sw*3.5} ${sw*3}"/><rect width="${w}" height="${t}" ${f}/>`; }
     case 'nsif': return `<rect width="${w}" height="${h}" ${f}/><path d="M0 0L${cx} ${h}L${w} 0" ${ln}/>`+
-      (h>=40?`<text font-family="${FONT}" font-size="12" fill="${s.fill==='none'?s.stroke:(isDark(s.fill)?'#ffffff':INK)}" pointer-events="none"><tspan x="6" y="${h-6}">J</tspan><tspan x="${w-6}" y="${h-6}" text-anchor="end">N</tspan></text>`:'');
+      (h>=40?`<text font-family="${FONT}" font-size="12" fill="${s.fill==='none'?tink():(isDark(s.fill)?'#ffffff':INK)}" pointer-events="none"><tspan x="6" y="${h-6}">J</tspan><tspan x="${w-6}" y="${h-6}" text-anchor="end">N</tspan></text>`:'');
     case 'nsloop': { const t=Math.min(36,h*0.4),b=Math.min(24,w*0.2); return `<polygon points="0,0 ${w},0 ${w},${t} ${b},${t} ${b},${h} 0,${h}" ${f}/>`; }
     case 'nsloopf': { const t=Math.min(36,h*0.4),b=Math.min(24,w*0.2); return `<polygon points="0,0 ${b},0 ${b},${h-t} ${w},${h-t} ${w},${h} 0,${h}" ${f}/>`; }
     case 'nscall': { const b=Math.min(10,w*0.1); return `<rect width="${w}" height="${h}" ${f}/><path d="M${b} 0V${h}M${w-b} 0V${h}" ${ln}/>`; }
@@ -359,6 +397,14 @@ function textBox(s){
   if(k==='io') return {mode:'center',maxW:s.w*0.7};
   if(k==='annot') return {mode:'left',maxW:s.w-22,pad:16};
   if(k==='text') return {mode:'left',maxW:s.w-15,pad:8};
+  if(k==='tri') return {mode:'center',maxW:s.w*0.5,dy:s.h*0.16,grow:1.4};
+  if(k==='hex') return {mode:'center',maxW:s.w*0.7};
+  if(k==='star') return {mode:'center',maxW:s.w*0.4,dy:s.h*0.04};
+  if(k==='arrowr') return {mode:'center',maxW:s.w*0.68};
+  if(k==='arrowlr') return {mode:'center',maxW:s.w*0.6};
+  if(k==='bubble') return {mode:'center',maxW:s.w-18,dy:-s.h*0.11};
+  if(k==='cloud') return {mode:'center',maxW:s.w*0.62,dy:s.h*0.06};
+  if(k==='cross') return {mode:'center',maxW:s.w-12};
   if(k==='nsif') return {mode:'center',maxW:s.w*0.5,dy:-s.h*0.22};
   if(k==='nsloop') return {mode:'center',maxW:s.w-16,dy:-(s.h/2-Math.min(36,s.h*0.4)/2)};
   if(k==='nsloopf') return {mode:'center',maxW:s.w-16,dy:s.h/2-Math.min(36,s.h*0.4)/2};
@@ -397,7 +443,7 @@ function shapeText(s){
   else { y0=s.h/2+(tb.dy||0)-(n-1)*LH/2+FS*0.35;
     if(tb.mode==='left'){ x=tb.pad; anchor='start'; }
     fill=onFill(s.fill);
-    if(s.kind==='text'&&s.fill==='none') fill=mapC(s.stroke); }
+    if(s.kind==='text'&&s.fill==='none') fill=s.stroke==='none'?tink():mapC(s.stroke); }
   return `<text${extra}${BOLD?' font-weight="600"':''}${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
     lines.map((l,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}">${esc(l)}</tspan>`).join('')+`</text>`;
 }
@@ -477,10 +523,27 @@ function pathD(pts){
   for(let i=1;i<pts.length-1;i++){ const p=pts[i],q=pts[i+1]; d+=`Q${p[0]} ${p[1]} ${r((p[0]+q[0])/2)} ${r((p[1]+q[1])/2)}`; }
   const l=pts[pts.length-1]; return d+`L${l[0]} ${l[1]}`;
 }
+function strokeSVG(it){
+  const pts=it.pts, tl=it.tool||'pen', tip=it.tip||'round', col=mapC(it.stroke), n=pts.length;
+  let o='';
+  if(n<2){ const q=it.sw/2; o=tip==='round'?`<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="${q}" fill="${col}"/>`:`<rect x="${pts[0][0]-q}" y="${pts[0][1]-q}" width="${it.sw}" height="${it.sw}" fill="${col}"/>`; }
+  else if(tl!=='brush'&&tip!=='calli'){
+    o=`<path d="${pathD(pts)}" fill="none" stroke="${col}" stroke-width="${it.sw}" stroke-linecap="${tip==='flat'?'square':'round'}" stroke-linejoin="${tip==='flat'?'bevel':'round'}"/>`;
+  } else {
+    const L=[],B=[], ws=it.ws||[], hwAt=i=>it.sw*(tl==='brush'&&ws[i]!=null?ws[i]:1)/2;
+    for(let i=0;i<n;i++){ const p=pts[i], hw=hwAt(i); let ox,oy;
+      if(tip==='calli'){ ox=hw*0.7071; oy=-hw*0.7071; }
+      else { const a=pts[Math.max(0,i-1)], b=pts[Math.min(n-1,i+1)], dx=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dx,dy)||1; ox=-dy/l*hw; oy=dx/l*hw; }
+      L.push(r(p[0]+ox)+' '+r(p[1]+oy)); B.unshift(r(p[0]-ox)+' '+r(p[1]-oy)); }
+    o=`<path d="M${L.concat(B).join('L')}Z" fill="${col}" stroke="${col}" stroke-width="${tip==='calli'?Math.max(1,it.sw*0.12):0.8}" stroke-linejoin="round"/>`;
+    if(tip==='round') o+=`<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="${r(hwAt(0))}" fill="${col}"/><circle cx="${pts[n-1][0]}" cy="${pts[n-1][1]}" r="${r(hwAt(n-1))}" fill="${col}"/>`;
+  }
+  return tl==='marker'?`<g opacity="0.45">${o}</g>`:o;
+}
 function itemSVG(it){
   if(it.type==='shape') return `<g class="it" data-id="${it.id}" transform="translate(${r(it.x)} ${r(it.y)})">${shapeBody(vis(it))}${shapeText(it)}</g>`;
-  if(it.type==='path'){ const d=pathD(it.pts);
-    return `<g class="it" data-id="${it.id}"><path d="${d}" fill="none" stroke="transparent" stroke-width="${Math.max(16,it.sw+8)}" stroke-linecap="round" pointer-events="stroke"/><path d="${d}" fill="none" stroke="${mapC(it.stroke)}" stroke-width="${it.sw}" stroke-linecap="round" stroke-linejoin="round"/></g>`; }
+  if(it.type==='path')
+    return `<g class="it" data-id="${it.id}"><path d="${pathD(it.pts)}" fill="none" stroke="transparent" stroke-width="${Math.max(16,it.sw+8)}" stroke-linecap="round" pointer-events="stroke"/>${strokeSVG(it)}</g>`;
   return connSVG(it);
 }
 function bbox(it){
@@ -619,6 +682,10 @@ function addTemplate(kind,c,ptype){
 }
 function addShape(kind,c,ptype){
   if(KINDS[kind].tpl) return addTemplate(kind,c,ptype);
+  if(KINDS[kind].line){
+    const cn={id:nid(),type:'conn',from:null,to:null,p1:{x:snap(c.x-70),y:snap(c.y+30)},p2:{x:snap(c.x+70),y:snap(c.y-30)},text:'',stroke:INK,sw:2,style:'straight',dash:false,head:KINDS[kind].line};
+    doc.items.push(cn); sel=new Set([cn.id]); setTool('select'); commit(); render(); return;
+  }
   const s=mkShape(kind,c.x,c.y);
   if(kind==='pool') doc.items.unshift(s); else doc.items.push(s);
   sel=new Set([s.id]); setTool('select'); commit(); render();
@@ -690,31 +757,33 @@ function newTextAt(w){
   const s=mkShape('text',w.x+80,w.y); s.text=''; s.fresh=true; doc.items.push(s); startEdit(s.id);
 }
 function setTool(t){
-  tool=t; svg.setAttribute('class','t-'+t);
+  tool=t; if(DRAW[t]) drawTool=t; svg.setAttribute('class','t-'+t);
   document.querySelectorAll('#tools .tb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t));
   if(t!=='select'&&sel.size){ sel.clear(); render(); } else updateProps();
 }
 
 /* ---------- Eigenschaftenleiste ---------- */
 function updateProps(){
-  const items=[...sel].map(byId).filter(Boolean), penMode=!items.length;
-  const pt=$('propsToggle');
-  const shut=!!palState.propsClosed;
-  pt.hidden=false; pt.textContent=shut?'▴':'▾'; pt.setAttribute('aria-expanded',!shut); pt.title=shut?'Farben und Optionen ausklappen':'Farben und Optionen einklappen';
-  if(editing||shut){ propsEl.hidden=true; return; }
-  const cur=items[0]||pen, hasShape=items.some(i=>i.type==='shape'), conns=items.filter(i=>i.type==='conn');
+  const items=[...sel].map(byId).filter(Boolean), penMode=!items.length, pt=$('propsToggle'), shut=!!palState.propsClosed;
+  document.querySelector('main').classList.toggle('props-closed',shut);
+  pt.textContent=shut?'‹':'›'; pt.setAttribute('aria-expanded',!shut); pt.title=shut?'Farben und Optionen ausklappen':'Farben und Optionen einklappen';
+  const ps=penStyles[drawTool], cur=items[0]||ps, hasShape=items.some(i=>i.type==='shape'), conns=items.filter(i=>i.type==='conn'), paths=items.filter(i=>i.type==='path');
+  const sws=(act,on,none)=>`<div class="sws">`+COLORS.filter(c=>none||c!=='none').map(c=>`<button class="sw${c==='none'?' none':''}" data-act="${act}" data-val="${c}" aria-pressed="${on===c}" title="${c==='none'?'Ohne':'Farbe wählen'}" style="${c==='none'?'':'background:'+mapC(c)}"></button>`).join('')+`</div>`;
   let h='';
   const texty=items.filter(i=>i.type!=='path');
-  if(texty.length) h+=`<div class="pg">`+(items.length===1?`<button class="pb" data-act="edit">Text ändern</button>`:'')+`<button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><button class="pb" data-act="fsup" title="Schrift größer">A+</button><button class="pb" data-act="bold" aria-pressed="${!!texty[0].bold}" title="Fett"><strong>F</strong></button></div>`;
-  if(hasShape){ const f=(items.find(i=>i.type==='shape')||{}).fill;
-    h+=`<div class="pg"><b>Füllung</b>`+FILLS.map(c=>`<button class="sw${c==='none'?' none':''}" data-act="fill" data-val="${c}" aria-pressed="${f===c}" title="${c==='none'?'Ohne Füllung':'Füllfarbe'}" style="${c==='none'?'':'background:'+mapC(c)}"></button>`).join('')+`</div>`; }
-  h+=`<div class="pg"><b>${penMode?'Stift':'Linie'}</b>`+STROKES.map(c=>`<button class="sw" data-act="stroke" data-val="${c}" aria-pressed="${cur.stroke===c}" title="Linienfarbe" style="background:${mapC(c)}"></button>`).join('')+`</div>`;
-  h+=`<div class="pg"><b>Stärke</b>`+[[1.5,'Dünn'],[3,'Mittel'],[5,'Dick']].map(([v,t])=>`<button class="pb" data-act="sw" data-val="${v}" aria-pressed="${Math.abs(cur.sw-v)<0.8}" title="${t}"><i class="lw" style="height:${v}px"></i></button>`).join('')+`</div>`;
+  if(texty.length) h+=`<div class="pg"><b>Text</b>`+(items.length===1?`<button class="pb wide" data-act="edit">Text ändern</button>`:'')+`<div class="sws two"><button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><button class="pb" data-act="fsup" title="Schrift größer">A+</button></div><button class="pb wide" data-act="bold" aria-pressed="${!!texty[0].bold}">Fett</button></div>`;
+  if(hasShape) h+=`<div class="pg"><b>Füllung</b>${sws('fill',(items.find(i=>i.type==='shape')||{}).fill,true)}</div>`;
+  h+=`<div class="pg"><b>${penMode?DRAW[drawTool]+'farbe':'Linie'}</b>${sws('stroke',cur.stroke,hasShape&&!conns.length&&!paths.length)}</div>`;
+  const wl=penMode?WIDTHS[drawTool]:(cur.type==='path'?WIDTHS[cur.tool||'pen']:WIDTHS.shape);
+  let near=0; wl.forEach((v,i)=>{ if(Math.abs(v-cur.sw)<Math.abs(wl[near]-cur.sw)) near=i; });
+  h+=`<div class="pg"><b>Stärke</b>`+wl.map((v,i)=>`<button class="pb wbtn" data-act="sw" data-val="${v}" aria-pressed="${i===near}" title="Stärke ${i+1} von 5"><i class="lw" style="height:${1.5+i*2.5}px"></i></button>`).join('')+`</div>`;
+  if(penMode||paths.length){ const tip=(paths[0]||ps).tip||'round';
+    h+=`<div class="pg"><b>Pinselform</b>`+[['round','Rund'],['flat','Flach'],['calli','Schräg']].map(([v,t])=>`<button class="pb" data-act="tip" data-val="${v}" aria-pressed="${tip===v}">${t}</button>`).join('')+`</div>`; }
   if(conns.length){ const c=conns[0];
-    h+=`<div class="pg"><b>Pfeil</b><button class="pb" data-act="style" aria-pressed="${c.style==='straight'}">Gerade</button><button class="pb" data-act="dash" aria-pressed="${!!c.dash}">Gestrichelt</button><button class="pb" data-act="head" title="Pfeilspitze wechseln">Spitze: ${HEADS.find(x=>x[0]===headOf(c))[1]}</button></div>`; }
+    h+=`<div class="pg"><b>Pfeil</b><button class="pb" data-act="style" aria-pressed="${c.style==='straight'}">Gerade</button><button class="pb" data-act="dash" aria-pressed="${!!c.dash}" >Gestrichelt</button></div><div class="pg"><b>Spitze</b><button class="pb" data-act="head" title="Pfeilspitze wechseln">${HEADS.find(x=>x[0]===headOf(c))[1]}</button></div>`; }
   if(items.length===1&&items[0].kind==='table') h+=`<div class="pg"><b>Tabelle</b><button class="pb" data-act="addcol">+ Spalte</button><button class="pb" data-act="delcol">− Spalte</button><button class="pb" data-act="addrow">+ Zeile</button><button class="pb" data-act="delrow">− Zeile</button></div>`;
-  if(items.length) h+=`<div class="pg"><button class="pb" data-act="front">Nach vorn</button><button class="pb" data-act="back">Nach hinten</button><button class="pb" data-act="dup">Duplizieren</button><button class="pb danger" data-act="del">Löschen</button></div>`;
-  propsEl.innerHTML=h; propsEl.hidden=false;
+  if(items.length) h+=`<div class="pg"><b>Element</b><button class="pb" data-act="front">Nach vorn</button><button class="pb" data-act="back">Nach hinten</button><button class="pb" data-act="dup">Duplizieren</button><button class="pb danger" data-act="del">Löschen</button></div>`;
+  propsEl.innerHTML=h;
 }
 propsEl.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]'); if(!b) return;
@@ -724,7 +793,7 @@ propsEl.addEventListener('click',e=>{
   if(act==='dup') return duplicateSel();
   if(act==='del') return deleteSel();
   if(act==='edit'){ const it=items[0]; if(it) startEdit(it.id,lastCell&&lastCell.id===it.id?lastCell.cell:null); return; }
-  if(!items.length){ if(act==='stroke') pen.stroke=val; if(act==='sw') pen.sw=+val; updateProps(); return; }
+  if(!items.length){ const ps=penStyles[drawTool]; if(act==='stroke') ps.stroke=val; if(act==='sw') ps.sw=+val; if(act==='tip') ps.tip=val; updateProps(); return; }
   const tb=items[0];
   if(tb.kind==='table'){
     if(act==='addcol'){ tb.colW.push(tb.colW[tb.colW.length-1]); tb.cells.forEach(row=>row.push('')); }
@@ -738,7 +807,8 @@ propsEl.addEventListener('click',e=>{
       if(act==='bold') it.bold=!it.bold; else it.fs=clamp((it.fs||14)+(act==='fsup'?2:-2),10,40);
       if(it.kind==='text') it.fresh=true; autosize(it); }
     if(act==='fill'&&it.type==='shape') it.fill=val;
-    if(act==='stroke') it.stroke=val;
+    if(act==='stroke'&&(val!=='none'||it.type==='shape')) it.stroke=val;
+    if(act==='tip'&&it.type==='path') it.tip=val;
     if(act==='sw') it.sw=+val;
     if(it.type==='conn'){ if(act==='style') it.style=it.style==='straight'?'ortho':'straight'; if(act==='dash') it.dash=!it.dash; if(act==='head'){ const i=HEADS.findIndex(x=>x[0]===headOf(it)); it.head=HEADS[(i+1)%HEADS.length][0]; delete it.arrow; } }
   }
@@ -787,11 +857,10 @@ svg.addEventListener('pointerdown',e=>{
   const base={pid:e.pointerId,sx:e.clientX,sy:e.clientY,w0:w,moved:false};
   if(e.button===1||spaceDown||tool==='pan'){ action={...base,type:'pan',vx:view.x,vy:view.y}; return; }
   const hEl=e.target.closest('[data-h]'), iEl=e.target.closest('#items [data-id]'), item=iEl?byId(iEl.dataset.id):null;
-  if(tool==='pen'){
-    action={...base,type:'pen',pts:[[r(w.x),r(w.y)]]};
-    liveEl=document.createElementNS('http://www.w3.org/2000/svg','path');
-    liveEl.setAttribute('fill','none'); liveEl.setAttribute('stroke',mapC(pen.stroke)); liveEl.setAttribute('stroke-width',pen.sw);
-    liveEl.setAttribute('stroke-linecap','round'); liveEl.setAttribute('stroke-linejoin','round'); liveEl.setAttribute('d',pathD(action.pts));
+  if(DRAW[tool]){
+    action={...base,type:'pen',tool,pts:[[r(w.x),r(w.y)]],ws:[0.45],f:0.45,t:performance.now(),lx:e.clientX,ly:e.clientY};
+    liveEl=document.createElementNS('http://www.w3.org/2000/svg','g'); liveEl.setAttribute('pointer-events','none');
+    liveEl.innerHTML=strokeSVG(Object.assign({pts:action.pts,ws:action.ws,tool},penStyles[tool]));
     itemsG.appendChild(liveEl); return;
   }
   if(tool==='erase'){ action={...base,type:'erase',dirty:false}; eraseAt(e); return; }
@@ -822,7 +891,13 @@ svg.addEventListener('pointermove',e=>{
   const a=action; if(!a||a.pid!==e.pointerId) return;
   const w=toWorld(e.clientX,e.clientY);
   if(a.type==='pen'){ const l=a.pts[a.pts.length-1];
-    if(Math.hypot(w.x-l[0],w.y-l[1])*view.k>=2){ a.pts.push([r(w.x),r(w.y)]); liveEl.setAttribute('d',pathD(a.pts)); } return; }
+    if(Math.hypot(w.x-l[0],w.y-l[1])*view.k>=2){
+      if(a.tool==='brush'){ const now=performance.now(), v=Math.hypot(e.clientX-a.lx,e.clientY-a.ly)/Math.max(1,now-a.t);
+        const target=(e.pointerType==='pen'&&e.pressure>0)?0.3+e.pressure*1.4:clamp(1.45-v*0.55,0.35,1.45);
+        a.f=a.f*0.65+target*0.35; a.ws.push(r(a.f)); a.t=now; a.lx=e.clientX; a.ly=e.clientY; }
+      a.pts.push([r(w.x),r(w.y)]);
+      liveEl.innerHTML=strokeSVG(Object.assign({pts:a.pts,ws:a.ws,tool:a.tool},penStyles[a.tool])); }
+    return; }
   if(a.type==='erase'){ eraseAt(e); return; }
   if(!a.moved&&Math.hypot(e.clientX-a.sx,e.clientY-a.sy)<4) return;
   a.moved=true;
@@ -869,7 +944,10 @@ function onUp(e){
   if(e.type==='pointercancel'){ action=a; cancelAction(); return; }
   switch(a.type){
     case 'pen': if(liveEl){ liveEl.remove(); liveEl=null; }
-      doc.items.push({id:nid(),type:'path',pts:a.pts,stroke:pen.stroke,sw:pen.sw}); commit(); break;
+      { const ps=penStyles[a.tool], it={id:nid(),type:'path',pts:a.pts,stroke:ps.stroke,sw:ps.sw,tool:a.tool,tip:ps.tip};
+        if(a.tool==='brush'){ const n=a.ws.length; [0.45,0.7,0.88].forEach((q,k)=>{ if(n-1-k>0) a.ws[n-1-k]=r(a.ws[n-1-k]*q); }); it.ws=a.ws; }
+        doc.items.push(it); commit(); }
+      break;
     case 'erase': if(a.dirty) commit(); break;
     case 'textclick': if(!a.moved){ setTool('select'); newTextAt(a.w0); return; } break;
     case 'connEnd': {
@@ -902,6 +980,7 @@ svg.addEventListener('contextmenu',e=>e.preventDefault());
 /* ---------- Palette ---------- */
 function iconFor(kind,W,H){
   const d=KINDS[kind];
+  if(d.line) return `<svg viewBox="0 0 ${W} ${H}"><path d="M4 ${H-6}L${W-(d.line==='arrow'?9:4)} ${d.line==='arrow'?9:6}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>${d.line==='arrow'?`<polygon points="${W-3},5 ${W-13},7 ${W-7},14" fill="currentColor"/>`:''}</svg>`;
   if(kind==='text') return `<svg viewBox="0 0 ${W} ${H}"><text x="${W/2}" y="${H*0.75}" text-anchor="middle" font-size="${H*0.7}" font-weight="600" fill="currentColor">Aa</text></svg>`;
   if(d.tpl){
     const one=kind==='ertable'||kind==='umlclass'||kind==='umliface', n=one?1:kind==='scrum'?5:3, tw=one?W*0.55:W;
@@ -1071,7 +1150,7 @@ document.addEventListener('keydown',e=>{
   if(e.key.startsWith('Arrow')&&sel.size){ e.preventDefault(); const st=e.shiftKey?1:GRID, dx=k==='arrowleft'?-st:k==='arrowright'?st:0, dy=k==='arrowup'?-st:k==='arrowdown'?st:0;
     for(const it of [...sel].map(byId)){ if(!it) continue; if(it.type==='shape'){ it.x+=dx; it.y+=dy; } else if(it.type==='path') it.pts=it.pts.map(p=>[p[0]+dx,p[1]+dy]); }
     commit(); render(); return; }
-  const map={v:'select',p:'pen',l:'conn',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
+  const map={v:'select',p:'pen',b:'brush',m:'marker',l:'conn',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
 });
 document.addEventListener('keyup',e=>{ if(e.key===' ') spaceDown=false; });
 window.addEventListener('resize',()=>applyView());
