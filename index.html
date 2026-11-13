@@ -423,7 +423,7 @@ function cellAt(s,w){ let c=0,rr=0,x=w.x-s.x,y=w.y-s.y;
   while(rr<s.rowH.length-1&&y>s.rowH[rr]){ y-=s.rowH[rr]; rr++; }
   return {r:rr,c}; }
 function tableText(s){
-  let o=''; const fill=onFill(s.fill);
+  let o=''; const fill=s.tc?mapC(s.tc):onFill(s.fill);
   s.cells.forEach((row,rr)=>row.forEach((t,cc)=>{
     if(!t||(editing===s.id&&editCell&&editCell.r===rr&&editCell.c===cc)) return;
     const R=cellRect(s,rr,cc), ls=wrap(t,R.w-14), y0=R.y+R.h/2-(ls.length-1)*LH/2+FS*0.35;
@@ -443,7 +443,8 @@ function shapeText(s){
   else { y0=s.h/2+(tb.dy||0)-(n-1)*LH/2+FS*0.35;
     if(tb.mode==='left'){ x=tb.pad; anchor='start'; }
     fill=onFill(s.fill);
-    if(s.kind==='text'&&s.fill==='none') fill=s.stroke==='none'?tink():mapC(s.stroke); }
+    if(s.kind==='text') fill=s.stroke==='none'?onFill(s.fill):mapC(s.stroke); }
+  if(s.tc) fill=mapC(s.tc);
   return `<text${extra}${BOLD?' font-weight="600"':''}${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
     lines.map((l,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}">${esc(l)}</tspan>`).join('')+`</text>`;
 }
@@ -513,7 +514,7 @@ function connSVG(c){
     o+=`<polygon points="${pp.map(q=>r(q[0])+','+r(q[1])).join(' ')}" fill="${head==='arrow'||head==='diaf'?cs:paper()}" stroke="${cs}" stroke-width="${head==='arrow'?0:c.sw}" stroke-linejoin="round"/>`; }
   if(c.text&&editing!==c.id){ const m=connMid(pts),ls=wrap(c.text,170),tw=Math.max(...ls.map(measure))+10,th=ls.length*LH+4;
     o+=`<rect x="${r(m.x-tw/2)}" y="${r(m.y-th/2)}" width="${r(tw)}" height="${th}" rx="3" fill="${paper()}"/>`+
-      `<text text-anchor="middle" font-family="${FONT}" font-size="${FS}"${BOLD?' font-weight="600"':''} fill="${tink()}" pointer-events="none">`+
+      `<text text-anchor="middle" font-family="${FONT}" font-size="${FS}"${BOLD?' font-weight="600"':''} fill="${c.tc?mapC(c.tc):tink()}" pointer-events="none">`+
       ls.map((l,i)=>`<tspan x="${r(m.x)}" y="${r(m.y-(ls.length-1)*LH/2+FS*0.35+i*LH)}">${esc(l)}</tspan>`).join('')+`</text>`; }
   return o+'</g>';
 }
@@ -772,11 +773,13 @@ function updateProps(){
   let h='';
   const texty=items.filter(i=>i.type!=='path');
   if(texty.length) h+=`<div class="pg"><b>Text</b>`+(items.length===1?`<button class="pb wide" data-act="edit">Text ändern</button>`:'')+`<div class="sws two"><button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><button class="pb" data-act="fsup" title="Schrift größer">A+</button></div><button class="pb wide" data-act="bold" aria-pressed="${!!texty[0].bold}">Fett</button></div>`;
-  if(hasShape) h+=`<div class="pg"><b>Füllung</b>${sws('fill',(items.find(i=>i.type==='shape')||{}).fill,true)}</div>`;
-  h+=`<div class="pg"><b>${penMode?DRAW[drawTool]+'farbe':'Linie'}</b>${sws('stroke',cur.stroke,hasShape&&!conns.length&&!paths.length)}</div>`;
+  const onlyText=items.length>0&&items.every(i=>i.type==='shape'&&i.kind==='text');
+  if(texty.length){ const t0=texty[0]; h+=`<div class="pg"><b>Schriftfarbe</b>${sws('tc',t0.tc||(t0.kind==='text'?t0.stroke:''),false)}</div>`; }
+  if(hasShape) h+=`<div class="pg"><b>${onlyText?'Hintergrund':'Füllung'}</b>${sws('fill',(items.find(i=>i.type==='shape')||{}).fill,true)}</div>`;
+  if(!onlyText) h+=`<div class="pg"><b>${penMode?DRAW[drawTool]+'farbe':'Linie'}</b>${sws('stroke',cur.stroke,hasShape&&!conns.length&&!paths.length)}</div>`;
   const wl=penMode?WIDTHS[drawTool]:(cur.type==='path'?WIDTHS[cur.tool||'pen']:WIDTHS.shape);
   let near=0; wl.forEach((v,i)=>{ if(Math.abs(v-cur.sw)<Math.abs(wl[near]-cur.sw)) near=i; });
-  h+=`<div class="pg"><b>Stärke</b>`+wl.map((v,i)=>`<button class="pb wbtn" data-act="sw" data-val="${v}" aria-pressed="${i===near}" title="Stärke ${i+1} von 5"><i class="lw" style="height:${1.5+i*2.5}px"></i></button>`).join('')+`</div>`;
+  if(!onlyText) h+=`<div class="pg"><b>Stärke</b>`+wl.map((v,i)=>`<button class="pb wbtn" data-act="sw" data-val="${v}" aria-pressed="${i===near}" title="Stärke ${i+1} von 5"><i class="lw" style="height:${1.5+i*2.5}px"></i></button>`).join('')+`</div>`;
   if(penMode||paths.length){ const tip=(paths[0]||ps).tip||'round';
     h+=`<div class="pg"><b>Pinselform</b>`+[['round','Rund'],['flat','Flach'],['calli','Schräg']].map(([v,t])=>`<button class="pb" data-act="tip" data-val="${v}" aria-pressed="${tip===v}">${t}</button>`).join('')+`</div>`; }
   if(conns.length){ const c=conns[0];
@@ -809,6 +812,7 @@ propsEl.addEventListener('click',e=>{
     if(act==='fill'&&it.type==='shape') it.fill=val;
     if(act==='stroke'&&(val!=='none'||it.type==='shape')) it.stroke=val;
     if(act==='tip'&&it.type==='path') it.tip=val;
+    if(act==='tc'&&it.type!=='path') it.tc=val;
     if(act==='sw') it.sw=+val;
     if(it.type==='conn'){ if(act==='style') it.style=it.style==='straight'?'ortho':'straight'; if(act==='dash') it.dash=!it.dash; if(act==='head'){ const i=HEADS.findIndex(x=>x[0]===headOf(it)); it.head=HEADS[(i+1)%HEADS.length][0]; delete it.arrow; } }
   }
