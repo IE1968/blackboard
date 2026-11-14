@@ -117,6 +117,21 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 .pb[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .pb.danger{color:#ff8f7a}
 .lw{display:inline-block;width:18px;background:currentColor;border-radius:3px;vertical-align:middle}
+#syncDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+#syncForm{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:400px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+#syncForm h2{margin:0 0 4px;font:700 18px/1.2 var(--display)}
+#syncForm p{margin:0 0 8px;color:var(--muted);font-size:13px}
+#syncForm label{font-size:12px;font-weight:500;color:var(--muted);margin-top:6px}
+#syncForm input{font:400 16px/1.2 var(--body);color:var(--ink);background:var(--chrome);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-width:0}
+#syncForm input:focus{outline:none;border-color:var(--accent)}
+#syMsg{min-height:20px;font-size:13px;margin-top:8px}
+.dlgBtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.dlgBtns .pb{padding:9px 14px;font-size:14px}
+#syGo{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#menuBtn{position:relative}
+#menuBtn[data-sync]::after{content:'';position:absolute;top:4px;right:6px;width:9px;height:9px;border-radius:50%;background:#3ecf6e;border:2px solid var(--panel)}
+#menuBtn[data-sync="busy"]::after,#menuBtn[data-sync="wait"]::after{background:#f2c200}
+#menuBtn[data-sync="err"]::after,#menuBtn[data-sync="auth"]::after{background:#ff6b57}
 #toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);font-weight:500;padding:8px 14px;border-radius:10px;font-size:13px;z-index:20;max-width:calc(100% - 24px)}
 
 @media (max-width:1100px){ .tb span{display:none} .tb{min-width:38px;padding:8px 6px} }
@@ -196,6 +211,13 @@ body.compact #editor{font-size:16px}
     <button data-m="json">Board als Datei sichern (.json)</button>
     <button data-m="open">Board aus Datei laden …</button>
     <hr>
+    <div id="syncSec">
+      <div class="mh">Synchronisierung</div>
+      <div class="mh" id="syncInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nicht eingerichtet</div>
+      <button data-m="syncnow" id="syncNowBtn" hidden>Jetzt synchronisieren</button>
+      <button data-m="synccfg" id="syncCfgBtn">Einrichten …</button>
+      <hr>
+    </div>
     <button data-m="fit">Alles einpassen</button>
     <button data-m="example">Beispiel laden</button>
     <button data-m="clear">Board leeren</button>
@@ -217,6 +239,17 @@ body.compact #editor{font-size:16px}
   <aside id="props" aria-label="Farben und Optionen"></aside>
   <button id="propsToggle" aria-controls="props"></button>
 </main>
+<div id="syncDlg" hidden>
+  <form id="syncForm" autocomplete="off">
+    <h2>Synchronisierung über GitHub</h2>
+    <p>Blackboard legt deine Boards als Dateien in einem privaten GitHub-Repository ab. Die Angaben bleiben nur auf diesem Gerät gespeichert.</p>
+    <label for="syOwner">GitHub-Benutzername</label><input id="syOwner" type="text" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <label for="syRepo">Repository für die Boards</label><input id="syRepo" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="z. B. Boards">
+    <label for="syToken">Zugangsschlüssel (Token)</label><input id="syToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+    <div id="syMsg" role="status"></div>
+    <div class="dlgBtns"><button type="submit" class="pb" id="syGo">Verbinden</button><button type="button" class="pb danger" id="syOff" hidden>Trennen</button><button type="button" class="pb" id="syClose">Schließen</button></div>
+  </form>
+</div>
 <input type="file" id="file" accept=".json,application/json" hidden>
 <script>
 (function(){
@@ -659,7 +692,9 @@ function fit(){
 
 /* ---------- Verlauf und Speicher ---------- */
 const IDX='blackboard-boards', BK='blackboard-b-';
-let boards={cur:'b1',list:[{id:'b1',name:'Board 1'}]};
+let boards={cur:'b1',list:[{id:'b1',name:'Board 1'}],del:[],v:2};
+function genId(){ return 'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function markDirty(b){ b=b||curBoard(); b.dirty=true; b.rev=(b.rev||0)+1; b.updated=Date.now(); saveIdx(); scheduleSync(4000); }
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } }
 function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
@@ -667,8 +702,10 @@ function curBoard(){ return boards.list.find(b=>b.id===boards.cur)||boards.list[
 function saveIdx(){ lsSet(IDX,JSON.stringify(boards)); }
 function persist(){ if(!lsSet(BK+boards.cur,JSON.stringify(doc))&&!persist.warned){ persist.warned=true; toast('Der Browser-Speicher ist nicht verfügbar. Sichere das Board über „Datei“.'); } }
 function loadBoards(){
-  try{ const b=JSON.parse(lsGet(IDX)); if(b&&Array.isArray(b.list)&&b.list.length){ boards=b; if(!boards.list.some(x=>x.id===boards.cur)) boards.cur=boards.list[0].id; return; } }catch(e){}
-  const old=lsGet(KEY)||lsGet('prozesstafel-v1'); if(old) lsSet(BK+'b1',old); saveIdx();
+  try{ const b=JSON.parse(lsGet(IDX)); if(b&&Array.isArray(b.list)&&b.list.length){ boards=b; if(!boards.list.some(x=>x.id===boards.cur)) boards.cur=boards.list[0].id;
+    if(!boards.v){ boards.list.forEach(x=>{ x.dirty=true; x.updated=x.updated||Date.now(); }); boards.v=2; }   /* Boards aus älteren Versionen gelten als geändert, damit nichts verloren geht */
+    boards.del=boards.del||[]; saveIdx(); return; } }catch(e){}
+  const old=lsGet(KEY)||lsGet('prozesstafel-v1'); if(old){ lsSet(BK+'b1',old); boards.list[0].dirty=true; boards.list[0].updated=Date.now(); } saveIdx();
 }
 function storedDoc(id){ try{ const d=JSON.parse(lsGet(BK+id)); return d&&Array.isArray(d.items)?d:null; }catch(e){ return null; } }
 function openBoard(id){
@@ -676,22 +713,26 @@ function openBoard(id){
   hist=[]; hi=-1; sel.clear(); commit(); setTool('select'); render(); fit(); $('boardName').value=curBoard().name;
 }
 function newBoard(){
-  const id='b'+Date.now().toString(36); let n=boards.list.length+1; while(boards.list.some(b=>b.name==='Board '+n)) n++;
-  boards.list.push({id,name:'Board '+n}); lsSet(BK+id,JSON.stringify({items:[],n:0})); openBoard(id);
+  const id=genId(); let n=boards.list.length+1; while(boards.list.some(b=>b.name==='Board '+n)) n++;
+  const nb={id,name:'Board '+n}; boards.list.push(nb); lsSet(BK+id,JSON.stringify({items:[],n:0})); openBoard(id); markDirty(nb);
 }
 function deleteBoard(){
-  if(boards.list.length<2) return; lsDel(BK+boards.cur); boards.list=boards.list.filter(b=>b.id!==boards.cur); openBoard(boards.list[0].id);
+  if(boards.list.length<2) return; const gone=curBoard(); if(gone.sha) boards.del.push({id:gone.id,sha:gone.sha});
+  lsDel(BK+boards.cur); boards.list=boards.list.filter(b=>b.id!==boards.cur); openBoard(boards.list[0].id); scheduleSync(1500);
 }
 function renderBoardList(){
+  renderSyncInfo();
   $('boardList').innerHTML=boards.list.map(b=>`<button data-b="${b.id}" aria-current="${b.id===boards.cur}">${b.id===boards.cur?'✓ ':''}${esc(b.name)}</button>`).join('');
   const d=$('delBoard'); d.textContent='Dieses Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
 }
 function fileBase(){ return (curBoard().name||'').trim().replace(/[^\wäöüÄÖÜß -]+/g,'').replace(/\s+/g,'-')||'blackboard'; }
 function commit(){
   const s=JSON.stringify(doc); if(hist[hi]===s) return;
+  const first=hi<0;
   hist=hist.slice(0,hi+1); hist.push(s); if(hist.length>150) hist.shift(); hi=hist.length-1; persist();
+  if(!first) markDirty();
 }
-function restore(i){ hi=i; doc=JSON.parse(hist[hi]); sel.clear(); persist(); render(); }
+function restore(i){ hi=i; doc=JSON.parse(hist[hi]); sel.clear(); persist(); markDirty(); render(); }
 function undo(){ finishEdit(); if(hi>0) restore(hi-1); }
 function redo(){ finishEdit(); if(hi<hist.length-1) restore(hi+1); }
 function toast(msg){ toastEl.textContent=msg; toastEl.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>toastEl.hidden=true,3200); }
@@ -1179,6 +1220,8 @@ menu.addEventListener('click',e=>{
   switch(b.dataset.m){
     case 'new': newBoard(); break;
     case 'fit': fit(); break;
+    case 'syncnow': syncNow(true); break;
+    case 'synccfg': openSyncDlg(); break;
     case 'delboard': deleteBoard(); break;
     case 'png': case 'svg': case 'pdf': exportAs(b.dataset.m); break;
     case 'json': saveFile(fileBase()+'.json',JSON.stringify(doc)); break;
@@ -1187,7 +1230,7 @@ menu.addEventListener('click',e=>{
     case 'clear': doc={items:[],n:doc.n}; sel.clear(); commit(); render(); toast('Board geleert. Mit „Zurück“ holst du alles wieder.'); break;
   }
 });
-$('boardName').addEventListener('input',e=>{ curBoard().name=e.target.value.trim()||'Board'; saveIdx(); });
+$('boardName').addEventListener('input',e=>{ curBoard().name=e.target.value.trim()||'Board'; markDirty(); });
 $('boardName').addEventListener('keydown',e=>{ if(e.key==='Enter') e.target.blur(); });
 $('file').addEventListener('change',async e=>{
   const f=e.target.files[0]; if(!f) return;
@@ -1215,6 +1258,130 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('keyup',e=>{ if(e.key===' ') spaceDown=false; });
 window.addEventListener('resize',()=>applyView());
 
+/* ---------- Synchronisierung über ein privates GitHub-Repository ---------- */
+const SYNC_KEY='blackboard-sync', canSync=!window.claude;
+let syncCfg=null, syncBusy=false, syncAgain=false, syncTimer=null, syncState='off', syncAt=0, syncErr='';
+try{ const c=JSON.parse(lsGet(SYNC_KEY)); if(c&&c.owner&&c.repo&&c.token) syncCfg=c; }catch(e){}
+function b64(str){ const u=new TextEncoder().encode(str); let t=''; for(let i=0;i<u.length;i+=8192) t+=String.fromCharCode.apply(null,u.subarray(i,i+8192)); return btoa(t); }
+function ghApi(cfg,path,opt){
+  opt=opt||{}; const get=!opt.method||opt.method==='GET';
+  const h={Authorization:'Bearer '+cfg.token,Accept:opt.raw?'application/vnd.github.raw+json':'application/vnd.github+json'};
+  if(opt.body) h['Content-Type']='application/json';
+  return fetch((cfg.api||'https://api.github.com')+'/repos/'+encodeURIComponent(cfg.owner)+'/'+encodeURIComponent(cfg.repo)+path+(get?'?_='+Date.now():''),
+    {method:opt.method||'GET',cache:'no-store',headers:h,body:opt.body?JSON.stringify(opt.body):undefined});
+}
+function setSync(st,err){
+  syncState=st; syncErr=err||''; if(st==='ok') syncAt=Date.now();
+  if(syncCfg) $('menuBtn').dataset.sync=st; else delete $('menuBtn').dataset.sync;
+  renderSyncInfo();
+}
+function renderSyncInfo(){
+  $('syncSec').hidden=!canSync; if(!canSync) return;
+  const t=syncAt?new Date(syncAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}):'';
+  $('syncInfo').textContent=!syncCfg?'Nicht eingerichtet':syncState==='busy'?'Wird synchronisiert …':syncState==='wait'?'Änderungen warten auf den Abgleich':
+    syncState==='auth'?'Zugang abgelehnt: Schlüssel prüfen':syncState==='err'?(syncErr||'Keine Verbindung')+' – wird erneut versucht':t?'Synchronisiert um '+t+' Uhr':'Verbunden mit '+syncCfg.owner+'/'+syncCfg.repo;
+  $('syncNowBtn').hidden=!syncCfg; $('syncCfgBtn').textContent=syncCfg?'Einstellungen …':'Einrichten …';
+}
+function scheduleSync(ms){
+  if(!syncCfg||!canSync) return;
+  if(syncState!=='busy'&&boards.list.some(b=>b.dirty)) setSync('wait');
+  clearTimeout(syncTimer); syncTimer=setTimeout(()=>syncNow(false),ms);
+}
+function localDoc(id){ return id===boards.cur?doc:(storedDoc(id)||{items:[],n:0}); }
+function takeRemote(id,data,sha){
+  let b=boards.list.find(x=>x.id===id); if(!b){ b={id}; boards.list.push(b); }
+  b.name=String(data.name||'Board'); b.sha=sha; b.dirty=false; b.updated=data.updated||Date.now();
+  lsSet(BK+id,JSON.stringify(data.doc));
+  if(id===boards.cur){ doc=data.doc; hist=[]; hi=-1; sel.clear(); commit(); render(); $('boardName').value=b.name; }
+}
+function keepLocalCopy(b){
+  const id=genId(); lsSet(BK+id,JSON.stringify(localDoc(b.id)));
+  boards.list.push({id,name:b.name+' (lokale Kopie)',dirty:true,rev:1,updated:Date.now()});
+  toast('„'+b.name+'“ wurde auf einem anderen Gerät geändert. Deine Fassung liegt als „'+b.name+' (lokale Kopie)“ bereit.');
+}
+function dropLocalBoard(id){
+  lsDel(BK+id); boards.list=boards.list.filter(b=>b.id!==id);
+  if(!boards.list.length){ const nb={id:genId(),name:'Board 1'}; boards.list.push(nb); lsSet(BK+nb.id,JSON.stringify({items:[],n:0})); }
+  if(boards.cur===id) openBoard(boards.list[0].id);
+}
+async function syncNow(manual){
+  if(!syncCfg||!canSync) return;
+  if(syncBusy){ syncAgain=true; return; }
+  if(action||editing){ scheduleSync(2000); return; }
+  syncBusy=true; setSync('busy'); const cfg=syncCfg;
+  const fail=r=>{ throw {code:(r.status===401||r.status===403)?'auth':'http',status:r.status}; };
+  try{
+    /* 1. Was liegt auf dem Server? */
+    const remote={}, lr=await ghApi(cfg,'/contents/boards');
+    if(lr.ok){ for(const f of await lr.json()) if(f.type==='file'&&/\.json$/.test(f.name)) remote[f.name.slice(0,-5)]=f.sha; }
+    else if(lr.status!==404) fail(lr);
+    /* 2. Neues und Geändertes vom Server holen */
+    for(const id in remote){
+      if(boards.del.some(d=>d.id===id)) continue;
+      const loc=boards.list.find(b=>b.id===id); if(loc&&loc.sha===remote[id]) continue;
+      const r=await ghApi(cfg,'/contents/boards/'+id+'.json',{raw:true}); if(!r.ok){ if(r.status===401||r.status===403) fail(r); continue; }
+      let data=null; try{ data=JSON.parse(await r.text()); }catch(e){}
+      if(!data||!data.doc||!Array.isArray(data.doc.items)) continue;
+      if(action||editing){ syncAgain=true; continue; }
+      if(loc&&loc.dirty) keepLocalCopy(loc);
+      takeRemote(id,data,remote[id]);
+    }
+    /* 3. Auf einem anderen Gerät gelöschte Boards entfernen */
+    for(const b of boards.list.slice()) if(b.sha&&!(b.id in remote)){ if(b.dirty) delete b.sha; else dropLocalBoard(b.id); }
+    /* 4. Eigene Änderungen hochladen */
+    for(const b of boards.list.slice()){
+      if(!b.dirty) continue; const rev=b.rev||0;
+      const body={message:'Blackboard: '+b.name,content:b64(JSON.stringify({id:b.id,name:b.name,updated:b.updated||Date.now(),doc:localDoc(b.id)}))}; if(b.sha) body.sha=b.sha;
+      const r=await ghApi(cfg,'/contents/boards/'+b.id+'.json',{method:'PUT',body});
+      if(r.ok){ const j=await r.json(); b.sha=j.content.sha; if((b.rev||0)===rev) b.dirty=false; else syncAgain=true; }
+      else if(r.status===409||r.status===422) syncAgain=true;
+      else fail(r);
+    }
+    /* 5. Hier gelöschte Boards auch auf dem Server löschen */
+    for(const d of boards.del.slice()){
+      if(d.id in remote){ const r=await ghApi(cfg,'/contents/boards/'+d.id+'.json',{method:'DELETE',body:{message:'Blackboard: Board gelöscht',sha:remote[d.id]}});
+        if(!r.ok&&r.status!==404&&r.status!==409&&r.status!==422) fail(r); if(r.status===409||r.status===422){ syncAgain=true; continue; } }
+      boards.del=boards.del.filter(x=>x.id!==d.id);
+    }
+    saveIdx(); setSync(boards.list.some(b=>b.dirty)?'wait':'ok'); if(manual) toast('Boards sind synchronisiert.');
+  }catch(e){
+    saveIdx();
+    if(e&&e.code==='auth') setSync('auth'); else setSync('err',e&&e.status?'Serverfehler '+e.status:'Keine Verbindung');
+    if(manual) toast(e&&e.code==='auth'?'GitHub lehnt den Zugang ab. Prüfe den Schlüssel unter „Einstellungen“.':'Der Abgleich hat nicht geklappt. Es wird später erneut versucht.');
+    if(!e||e.code!=='auth'){ clearTimeout(syncTimer); syncTimer=setTimeout(()=>syncNow(false),30000); }
+  }finally{
+    syncBusy=false; if(syncAgain){ syncAgain=false; scheduleSync(1500); }
+  }
+}
+function openSyncDlg(){
+  const m=location.hostname.match(/^([^.]+)\.github\.io$/);
+  $('syOwner').value=syncCfg?syncCfg.owner:(m?m[1]:''); $('syRepo').value=syncCfg?syncCfg.repo:''; $('syToken').value=syncCfg?syncCfg.token:'';
+  $('syMsg').textContent=syncCfg?'Verbunden mit '+syncCfg.owner+'/'+syncCfg.repo+'.':''; $('syOff').hidden=!syncCfg; $('syncDlg').hidden=false;
+}
+$('syClose').onclick=()=>{ $('syncDlg').hidden=true; };
+$('syncDlg').addEventListener('pointerdown',e=>{ if(e.target===$('syncDlg')) $('syncDlg').hidden=true; });
+$('syOff').onclick=()=>{ syncCfg=null; lsDel(SYNC_KEY); clearTimeout(syncTimer); setSync('off'); $('syncDlg').hidden=true; toast('Synchronisierung getrennt. Die Boards bleiben auf diesem Gerät und auf GitHub erhalten.'); };
+$('syncForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const cfg={owner:$('syOwner').value.trim(),repo:$('syRepo').value.trim(),token:$('syToken').value.trim()}, msg=$('syMsg');
+  if(syncCfg&&syncCfg.api) cfg.api=syncCfg.api;
+  if(!cfg.owner||!cfg.repo||!cfg.token){ msg.textContent='Bitte alle drei Felder ausfüllen.'; return; }
+  msg.textContent='Verbindung wird geprüft …'; $('syGo').disabled=true;
+  try{
+    const r=await ghApi(cfg,'');
+    if(r.status===401){ msg.textContent='GitHub erkennt den Schlüssel nicht. Prüfe, ob er vollständig kopiert und noch gültig ist.'; return; }
+    if(r.status===404||r.status===403){ msg.textContent='Repository nicht gefunden, oder der Schlüssel darf nicht darauf zugreifen. Prüfe Benutzername, Repository-Name und die Auswahl beim Schlüssel.'; return; }
+    if(!r.ok){ msg.textContent='GitHub meldet Fehler '+r.status+'. Versuch es später noch einmal.'; return; }
+    const info=await r.json();
+    if(info.permissions&&info.permissions.push===false){ msg.textContent='Der Schlüssel darf nur lesen. Stelle bei GitHub „Contents“ auf „Read and write“.'; return; }
+    syncCfg=cfg; lsSet(SYNC_KEY,JSON.stringify(cfg)); $('syncDlg').hidden=true; setSync('busy'); syncNow(true);
+  }catch(err){ msg.textContent='Keine Verbindung zu GitHub. Prüfe die Internetverbindung.'; }
+  finally{ $('syGo').disabled=false; }
+});
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) scheduleSync(600); });
+window.addEventListener('online',()=>scheduleSync(600));
+setInterval(()=>{ if(syncCfg&&!document.hidden&&!syncBusy) syncNow(false); },90000);
+
 /* ---------- Beispiel und Start ---------- */
 function exampleDoc(){
   const d={items:[],n:0}, id=()=>'i'+(++d.n);
@@ -1239,6 +1406,7 @@ function start(data){
   doc=hot||storedDoc(boards.cur)||exampleDoc(); hist=[]; hi=-1; commit(); setTool('select'); render();
   $('boardName').value=curBoard().name;
   if(data&&data.view){ view=data.view; applyView(); } else fit();
+  setSync(syncCfg?'wait':'off'); if(syncCfg) scheduleSync(800);
 }
 try{ window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.hot.snapshot(()=>({doc,view})); }catch(e){}
 if(window.claude&&window.claude.hot&&window.claude.hot.ready) window.claude.hot.ready(start); else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{});
