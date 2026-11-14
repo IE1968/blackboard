@@ -1005,13 +1005,23 @@ svg.addEventListener('pointermove',e=>{
       let x1=o.x,y1=o.y,x2=o.x+o.w,y2=o.y+o.h;
       if(d.includes('w')) x1=Math.min(sn(w.x),x2-20); if(d.includes('e')) x2=Math.max(sn(w.x),x1+20);
       if(d.includes('n')) y1=Math.min(sn(w.y),y2-20); if(d.includes('s')) y2=Math.max(sn(w.y),y1+20);
+      if(d.length===2&&!e.shiftKey&&it.kind!=='text'){   /* Ecke: Seitenverhältnis bleibt, Umschalttaste gibt es frei */
+        const sx=(x2-x1)/o.w, sy=(y2-y1)/o.h, q=Math.max(Math.abs(sx-1)>Math.abs(sy-1)?sx:sy,20/Math.min(o.w,o.h)), nw=r(o.w*q), nh=r(o.h*q);
+        if(d.includes('w')) x1=x2-nw; else x2=x1+nw;
+        if(d.includes('n')) y1=y2-nh; else y2=y1+nh;
+      }
       it.x=x1; it.y=y1; it.w=x2-x1; it.h=y2-y1;
       if(it.kind==='table'){ it.colW=o.colW.map(v=>r(v*it.w/o.w)); it.rowH=o.rowH.map(v=>r(v*it.h/o.h)); }
       if(isSq(it.kind)){ const m=Math.max(it.w,it.h); if(d.includes('w')) it.x=x2-m; if(d.includes('n')) it.y=y2-m; it.w=it.h=m; }
       break; }
     case 'connEnd': {
       const c=byId(a.id); if(!c) break;
-      if(a.end==='a'){ c.from=null; c.p1={x:w.x,y:w.y}; } else { c.to=null; c.p2={x:w.x,y:w.y}; }
+      const oa=anchor(c,a.end==='a'?'b':'a'), ox=oa.x+oa.w/2, oy=oa.y+oa.h/2; let px=w.x, py=w.y;
+      if(!e.altKey){   /* Umschalttaste: in 45°-Schritten einrasten; sonst nur knapp neben waagerecht/senkrecht */
+        const dx=px-ox, dy=py-oy, ang=Math.atan2(dy,dx), step=e.shiftKey?Math.PI/4:Math.PI/2, near=Math.round(ang/step)*step;
+        if((dx||dy)&&(e.shiftKey||Math.abs(ang-near)<0.045)){ const l=dx*Math.cos(near)+dy*Math.sin(near); px=r(ox+Math.cos(near)*l); py=r(oy+Math.sin(near)*l); }
+      }
+      if(a.end==='a'){ c.from=null; c.p1={x:px,y:py}; } else { c.to=null; c.p2={x:px,y:py}; }
       const t=shapeAt(e.clientX,e.clientY,a.end==='a'?c.to:c.from); hoverId=t?t.id:null; break; }
     case 'marquee': a.cur=w; renderOverlay(); return;
     default: return;
