@@ -124,6 +124,31 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 #syncDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
 #syncForm{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:400px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
 #syncForm h2,#keysBox h2{margin:0 0 4px;font:600 17px/1.2 var(--body)}
+#slides{position:absolute;left:0;right:0;bottom:0;zoom:var(--ui);z-index:15;background:var(--panel);border-top:1px solid var(--line);display:flex;flex-direction:column}
+#slides[hidden]{display:none}
+#slides .sh{display:flex;align-items:center;gap:6px;padding:6px 10px 0}
+#slides .sh b{font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:auto}
+#slides .sh button{height:30px;padding:0 10px;border:1px solid var(--line);border-radius:8px;font-size:12px}
+#slides .sh button:hover{background:var(--hover)}
+#slList{display:flex;gap:10px;overflow-x:auto;padding:8px 10px 10px;scrollbar-width:thin;touch-action:pan-x}
+.st{flex:0 0 auto;position:relative;width:150px;padding:4px;border:2px solid transparent;border-radius:10px;cursor:pointer;touch-action:pan-x;user-select:none;-webkit-user-select:none}
+.st:hover{background:var(--hover)}
+.st[aria-selected="true"]{border-color:var(--accent)}
+.st svg{display:block;width:100%;height:84px;border-radius:5px;pointer-events:none}
+.st span{display:block;font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.st.drag{opacity:.4}
+#slIns{position:absolute;top:8px;bottom:10px;width:3px;margin-left:-6px;background:var(--accent);border-radius:2px;pointer-events:none}
+.slEmpty{padding:18px 6px;font-size:13px;color:var(--muted)}
+#tplDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+#tplDlg[hidden]{display:none}
+#tplBox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:920px;max-height:calc((100vh - 32px)/var(--ui));overflow-y:auto;zoom:var(--ui);outline:none}
+#tplBox h2{margin:0 0 12px;font:600 17px/1.2 var(--body)}
+#tplGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.tc{display:flex;flex-direction:column;align-items:stretch;text-align:left;padding:8px;border:1px solid var(--line);border-radius:10px;gap:6px}
+.tc:hover,.tc:focus-visible{background:var(--hover);border-color:var(--accent)}
+.tc svg{width:100%;height:110px;background:var(--tpl-bg,#fbfbf8);border-radius:6px}
+.tc b{font-size:13px}
+.tc small{font-size:11px;color:var(--muted);line-height:1.35}
 #keysDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
 #keysBox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:560px;max-height:calc((100vh - 32px)/var(--ui));overflow-y:auto;zoom:var(--ui);outline:none}
 #keysBox h3{margin:14px 0 6px;font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -245,6 +270,7 @@ body.compact #playBtn{display:none}
     <hr>
     <div class="mh">Präsentation</div>
     <button data-m="play">Präsentation starten</button>
+    <button data-m="slides">Folienübersicht</button>
     <hr>
     <div class="mh">Exportieren</div>
     <button data-m="png">Als Bild (PNG)</button>
@@ -269,6 +295,8 @@ body.compact #playBtn{display:none}
     <button data-m="gridv" id="gridBtn">Rasterpunkte: an</button>
     <hr>
     <button data-m="fit">Alles einpassen</button>
+    <button data-m="tpl">Vorlage einfügen …</button>
+    <button data-m="img">Bild einfügen …</button>
     <button data-m="keys">Tastenkürzel (?)</button>
     <button data-m="example">Beispiel laden</button>
     <button data-m="clear">Board leeren</button>
@@ -285,6 +313,7 @@ body.compact #playBtn{display:none}
     </svg>
     <textarea id="editor" hidden spellcheck="false" aria-label="Text der Form"></textarea>
     <div id="hint">Form reinziehen · Doppelklick bearbeitet Text · Punkte am Rand einer Form ziehen einen Pfeil · Pfeilenden rasten an Formen ein</div>
+    <div id="slides" hidden aria-label="Folienübersicht"><div class="sh"><b>Folien</b><button type="button" id="slAdd" title="Neue Folie rechts neben der letzten">+ Folie</button><button type="button" id="slPlay" title="Präsentation ab der markierten Folie">▶ Zeigen</button><button type="button" id="slClose" aria-label="Übersicht schließen" title="Schließen">✕</button></div><div id="slList" role="listbox" aria-label="Folien, zum Umsortieren ziehen"></div></div>
     <div id="toast" hidden role="status"></div>
     <div id="sr" role="status" aria-live="polite"></div>
   </section>
@@ -302,6 +331,7 @@ body.compact #playBtn{display:none}
     <div class="dlgBtns"><button type="submit" class="pb" id="syGo">Verbinden</button><button type="button" class="pb danger" id="syOff" hidden>Trennen</button><button type="button" class="pb" id="syClose">Schließen</button></div>
   </form>
 </div>
+<div id="tplDlg" hidden role="dialog" aria-modal="true" aria-labelledby="tplTitle"><div id="tplBox" tabindex="-1"><h2 id="tplTitle">Vorlage einfügen</h2><div id="tplGrid"></div><div class="dlgBtns"><button type="button" class="pb" id="tplClose">Schließen</button></div></div></div>
 <div id="keysDlg" hidden role="dialog" aria-modal="true" aria-labelledby="keysTitle"><div id="keysBox" tabindex="-1"><h2 id="keysTitle">Tastenkürzel</h2><h3>Werkzeuge</h3><dl><dt><kbd>V</kbd></dt><dd>Auswählen</dd><dt><kbd>P</kbd></dt><dd>Stift</dd><dt><kbd>B</kbd></dt><dd>Pinsel</dd><dt><kbd>M</kbd></dt><dd>Marker</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>E</kbd></dt><dd>Radierer</dd><dt><kbd>H</kbd> oder <kbd>Leertaste</kbd> halten</dt><dd>Tafel verschieben</dd></dl><h3>Bearbeiten</h3><dl><dt><kbd>Strg</kbd>+<kbd>Z</kbd> / <kbd>Strg</kbd>+<kbd>Y</kbd></dt><dd>Rückgängig / Wiederholen</dd><dt><kbd>Strg</kbd>+<kbd>C</kbd> <kbd>Strg</kbd>+<kbd>X</kbd> <kbd>Strg</kbd>+<kbd>V</kbd></dt><dd>Kopieren, Ausschneiden, Einfügen</dd><dt><kbd>Strg</kbd>+<kbd>D</kbd></dt><dd>Duplizieren</dd><dt><kbd>Strg</kbd>+<kbd>A</kbd></dt><dd>Alles auswählen</dd><dt><kbd>Strg</kbd>+<kbd>G</kbd> / <kbd>Strg</kbd>+<kbd>⇧</kbd>+<kbd>G</kbd></dt><dd>Gruppieren / Gruppe lösen</dd><dt><kbd>Entf</kbd></dt><dd>Löschen</dd><dt><kbd>Enter</kbd> oder <kbd>F2</kbd></dt><dd>Text der Auswahl bearbeiten</dd><dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Verschieben (mit <kbd>⇧</kbd> pixelgenau)</dd><dt><kbd>Esc</kbd></dt><dd>Auswahl aufheben, Aktion abbrechen</dd></dl><h3>Beim Ziehen</h3><dl><dt><kbd>⇧</kbd></dt><dd>Ecken: frei verformen · Pfeilende: in 45°-Schritten</dd><dt><kbd>Alt</kbd></dt><dd>Ohne Einrasten und Hilfslinien</dd><dt><kbd>Strg</kbd> + Mausrad</dt><dd>Zoomen</dd></dl><h3>Beim Schreiben</h3><dl><dt><kbd>Enter</kbd></dt><dd>Fertig</dd><dt><kbd>⇧</kbd>+<kbd>Enter</kbd></dt><dd>Neue Zeile</dd><dt><kbd>Tab</kbd></dt><dd>Tabelle: nächste Zelle · Mindmap: neuer Zweig</dd><dt><kbd>Esc</kbd></dt><dd>Abbrechen</dd></dl><h3>Präsentation</h3><dl><dt><kbd>→</kbd> <kbd>Leertaste</kbd></dt><dd>Weiter</dd><dt><kbd>←</kbd></dt><dd>Zurück</dd><dt><kbd>L</kbd></dt><dd>Laserpointer</dd><dt><kbd>A</kbd></dt><dd>Quiz-Lösung zeigen</dd><dt><kbd>Esc</kbd></dt><dd>Beenden</dd></dl><h3>Hilfe</h3><dl><dt><kbd>?</kbd></dt><dd>Diese Übersicht</dd></dl><div class="dlgBtns"><button type="button" class="pb" id="keysClose">Schließen</button></div></div></div>
 <div id="pres" hidden tabindex="-1" role="dialog" aria-modal="true" aria-label="Präsentation">
   <svg id="presSvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
@@ -317,6 +347,7 @@ body.compact #playBtn{display:none}
   </div>
 </div>
 <input type="file" id="file" accept=".json,application/json" hidden>
+<input type="file" id="imgFile" accept="image/*" hidden>
 <script>
 (function(){
 'use strict';
@@ -355,6 +386,7 @@ const KINDS={
   cloud:{label:'Wolke',w:160,h:100},
   cross:{label:'Kreuz',w:90,h:90},
   card:{label:'Karte',w:140,h:70,fill:'#fff3b0'},
+  image:{label:'Bild',w:240,h:160},
   mindmap:{label:'Mindmap',tpl:2,w:760,h:420},
   frame:{label:'Folie',w:640,h:360,fill:'none'},
   quiz:{label:'Quizfolie',tpl:2,w:640,h:360},
@@ -428,7 +460,7 @@ const KINDS={
   netcloud:{label:'Internet',as:'cloud',w:150,h:95,text:'Internet'},
   netdb:{label:'Speicher',as:'db',w:80,h:80}
 };
-const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','star','arrowr','arrowlr','bubble','cloud','cross','note','bullets']],
+const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','star','arrowr','arrowlr','bubble','cloud','cross','note','bullets','image']],
   ['Tabellen & Boards',['table','kanban','scrum','card','mindmap']],
   ['Präsentation',['frame','quiz','check']],
   ['Flussdiagramm',['term','diamond','io','doc','db']],
@@ -584,6 +616,7 @@ function shapeBody(s){
     case 'frame': { const c=darkBoard?'#4d9fff':'#1763cf', no=s.id?frameNo(s.id):0, lab=(no?'Folie '+no:'Folie')+(s.text?' · '+String(s.text).replace(/\s+/g,' ').slice(0,40):'');
       mctx.font='600 15px '+FONT; const lw=Math.round(mctx.measureText(lab).width+24), gw=coarse?40:26;   /* unsichtbarer breiter Rand zum Anfassen */
       return `<rect width="${w}" height="${h}" fill="none" stroke="#000" stroke-opacity="0" stroke-width="${gw}" pointer-events="stroke"/><rect width="${w}" height="${h}" fill="none" stroke="${c}" stroke-width="3" stroke-dasharray="12 6" pointer-events="none"/><rect y="-34" width="${lw}" height="32" rx="6" fill="${c}"/><text x="12" y="-12.5" font-family="${FONT}" font-size="15" font-weight="600" fill="${darkBoard?'#031a3a':'#ffffff'}" pointer-events="none">${esc(lab)}</text>`; }
+    case 'image': return s.src?`<image href="${s.src}" width="${w}" height="${h}" preserveAspectRatio="none"/>`+(sw>0?`<rect width="${w}" height="${h}" fill="none" stroke="${s.stroke}" stroke-width="${sw}"/>`:''):`<rect width="${w}" height="${h}" fill="rgba(128,128,128,.15)" stroke="#888" stroke-dasharray="6 4"/>`;
     case 'card': return `<rect width="${w}" height="${h}" rx="${Math.min(6,m*0.2)}" ${F(Math.min(sw,1.5))}/>`;
     case 'table': { let d='',x=0,y=0;
       for(let i=0;i<s.colW.length-1;i++){ x+=s.colW[i]; d+=`M${r(x)} 0V${h}`; }
@@ -631,6 +664,7 @@ function cellAt(s,w){ let c=0,rr=0,x=w.x-s.x,y=w.y-s.y;
   while(rr<s.rowH.length-1&&y>s.rowH[rr]){ y-=s.rowH[rr]; rr++; }
   return {r:rr,c}; }
 function tableText(s){
+  if(noText) return '';
   let o=''; const fill=s.tc?mapC(s.tc):onFill(s.fill);
   s.cells.forEach((row,rr)=>row.forEach((t,cc)=>{
     if(!t||(editing===s.id&&editCell&&editCell.r===rr&&editCell.c===cc)) return;
@@ -650,6 +684,7 @@ function listLines(text,maxW){   /* jeder Absatz bekommt ein Aufzählungszeichen
 }
 function alOf(s){ if(s.al) return s.al; if(s.kind==='table') return s.align==='left'?'left':'center'; const m=textBox(s).mode; return m==='left'?'left':'center'; }
 function shapeText(s){
+  if(noText) return '';
   useFont(s);
   if(s.kind==='table') return tableText(s);
   if(!s.text||editing===s.id||s.kind==='frame') return '';
@@ -767,7 +802,7 @@ function connSVG(c){
       : [[b.x,b.y],[bx+px,by+py],[bx-px,by-py]];
     o+=`<polygon points="${pp.map(q=>r(q[0])+','+r(q[1])).join(' ')}" fill="${head==='arrow'||head==='diaf'?cs:paper()}" stroke="${cs}" stroke-width="${head==='arrow'?0:c.sw}" stroke-linejoin="round"/>`; }
   if(head==='msg') o+=`<circle cx="${r(pts[0].x)}" cy="${r(pts[0].y)}" r="${4+c.sw*0.5}" fill="${paper()}" stroke="${cs}" stroke-width="${c.sw}"/>`;
-  if(c.text&&editing!==c.id){ const m=connMid(pts),ls=wrap(c.text,170),tw=Math.max(...ls.map(measure))+10,th=ls.length*LH+4;
+  if(c.text&&editing!==c.id&&!noText){ const m=connMid(pts),ls=wrap(c.text,170),tw=Math.max(...ls.map(measure))+10,th=ls.length*LH+4;
     o+=`<rect x="${r(m.x-tw/2)}" y="${r(m.y-th/2)}" width="${r(tw)}" height="${th}" rx="3" fill="${paper()}"/>`+
       `<text text-anchor="middle" font-family="${FONT}" font-size="${FS}"${BOLD?' font-weight="600"':''} fill="${c.tc?mapC(c.tc):tink()}" pointer-events="none">`+
       ls.map((l,i)=>`<tspan x="${r(m.x)}" y="${r(m.y-(ls.length-1)*LH/2+FS*0.35+i*LH)}">${esc(l)}</tspan>`).join('')+`</text>`; }
@@ -811,11 +846,28 @@ function bbox(it){
 }
 
 /* ---------- Zeichnen der Oberfläche ---------- */
+/* Große Boards: Gezeichnet wird nur, was im Bild liegt, plus ein Rand. Erst wenn die Ansicht diesen Bereich verlässt
+   oder der Zoom stark wechselt, wird neu gezeichnet. Bei sehr kleinem Zoom entfällt der unlesbare Text. */
+let drawn=null, noText=false, viewRaf=0;
+const CULL_MIN=150;
+function viewRect(){ const rc=svg.getBoundingClientRect(); return {x:-view.x/view.k,y:-view.y/view.k,w:(rc.width||1)/view.k,h:(rc.height||1)/view.k}; }
+const lodNow=()=>view.k<0.28;
+function visibleItems(){
+  if(doc.items.length<CULL_MIN){ drawn={all:true,lod:lodNow()}; return doc.items; }
+  const v=viewRect(), m=Math.max(v.w,v.h)*0.6, R={x:v.x-m,y:v.y-m,w:v.w+2*m,h:v.h+2*m};
+  drawn={R,k:view.k,lod:lodNow()};
+  return doc.items.filter(it=>{ if(sel.has(it.id)||it.id===editing||(it.type==='conn'&&(sel.has(it.from)||sel.has(it.to)))) return true; const b=bbox(it), p=60; return b.x-p<R.x+R.w&&b.x+b.w+p>R.x&&b.y-p<R.y+R.h&&b.y+b.h+p>R.y; });
+}
+function viewNeedsRender(){
+  if(!drawn) return false; const lod=lodNow(); if(drawn.lod!==lod) return true; if(drawn.all) return false;
+  const v=viewRect(), R=drawn.R; return v.x<R.x||v.y<R.y||v.x+v.w>R.x+R.w||v.y+v.h>R.y+R.h||view.k<drawn.k/2.5;
+}
 function render(){
   for(const id of [...sel]) if(!byId(id)) sel.delete(id);
-  itemsG.innerHTML=doc.items.map(itemSVG).join('');
+  const vis=visibleItems(); noText=drawn.lod&&!editing;
+  itemsG.innerHTML=vis.map(itemSVG).join(''); noText=false;
   elById.clear(); for(const el of itemsG.children) if(el.dataset.id) elById.set(el.dataset.id,el);
-  renderOverlay(); updateProps();
+  renderOverlay(); updateProps(); scheduleSlides();
   $('undo').disabled=hi<=0; $('redo').disabled=hi>=hist.length-1;
 }
 /* Beim Ziehen werden nur die betroffenen Elemente neu gezeichnet, nicht die ganze Tafel. */
@@ -897,6 +949,7 @@ function applyView(){
   gridP.setAttribute('x',r(view.x%g-1.5)); gridP.setAttribute('y',r(view.y%g-1.5));
   $('zoomLabel').textContent=Math.round(view.k*100)+' %';
   renderOverlay(); if(editing) placeEditor();
+  if(viewNeedsRender()&&!viewRaf) viewRaf=requestAnimationFrame(()=>{ viewRaf=0; if(viewNeedsRender()) render(); });
 }
 function toWorld(cx,cy){ const rc=svg.getBoundingClientRect(); return {x:(cx-rc.left-view.x)/view.k,y:(cy-rc.top-view.y)/view.k}; }
 function zoomAt(sx,sy,f){ const k=clamp(view.k*f,0.15,4),wx=(sx-view.x)/view.k,wy=(sy-view.y)/view.k; view.k=k; view.x=sx-wx*k; view.y=sy-wy*k; applyView(); }
@@ -932,7 +985,7 @@ function applyExternal(json){
   extPending=null; let d=null; try{ d=cleanDoc(JSON.parse(json)); }catch(e){} if(!d) return;
   if(JSON.stringify(d)===JSON.stringify(doc)) return;
   doc=d; fitTexts(); for(const id of [...sel]) if(!byId(id)) sel.delete(id);
-  hist=[JSON.stringify(doc)]; hi=0; render(); toast('In einem anderen Fenster geändert – hier aktualisiert.');
+  resetHist(); render(); toast('In einem anderen Fenster geändert – hier aktualisiert.');
 }
 function onExternal(m){
   if(!m||typeof m!=='object') return;
@@ -993,7 +1046,7 @@ window.addEventListener('pagehide',()=>idbFlush());
 function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
 function curBoard(){ return boards.list.find(b=>b.id===boards.cur)||boards.list[0]; }
 function saveIdx(){ lsSet(IDX,JSON.stringify(boards)); announce({t:'idx'}); }
-function persist(){ if(!docSet(boards.cur,JSON.stringify(doc))&&!persist.warned){ persist.warned=true; toast(lsSet.full?'Speicher voll: Lösche nicht benötigte Boards oder sichere das Board über „Datei“.':'Der Browser-Speicher ist nicht verfügbar. Sichere das Board über „Datei“.'); } }
+function persist(json){ if(!docSet(boards.cur,json||JSON.stringify(doc))&&!persist.warned){ persist.warned=true; toast(lsSet.full?'Speicher voll: Lösche nicht benötigte Boards oder sichere das Board über „Datei“.':'Der Browser-Speicher ist nicht verfügbar. Sichere das Board über „Datei“.'); } }
 function loadBoards(){
   try{ const b=JSON.parse(lsGet(IDX)); if(b&&Array.isArray(b.list)&&b.list.length){ boards=b; if(!boards.list.some(x=>x.id===boards.cur)) boards.cur=boards.list[0].id;
     if(!boards.v){ boards.list.forEach(x=>{ x.dirty=true; x.updated=x.updated||Date.now(); }); boards.v=2; }   /* Boards aus älteren Versionen gelten als geändert, damit nichts verloren geht */
@@ -1002,7 +1055,7 @@ function loadBoards(){
 }
 /* Prüft und bereinigt ein Board aus Datei, Speicher oder Abgleich: nur bekannte Elemente, Zahlen, Farben und Texte bleiben übrig. */
 const DOC_FMT=3;   /* Version des Datenformats; ältere Apps erkennen daran Boards aus neueren Versionen */
-const KNOWN_KEYS=new Set('id type kind x y w h text fill stroke sw colW rowH cells align ord ok pts tool tip ws from to p1 p2 style dash head arrow fa ta mm fs bold list al mc tc g lock fr fresh'.split(' '));
+const KNOWN_KEYS=new Set('src id type kind x y w h text fill stroke sw colW rowH cells align ord ok pts tool tip ws from to p1 p2 style dash head arrow fa ta mm fs bold list al mc tc g lock fr fresh'.split(' '));
 function keepExtra(s,o){   /* Eigenschaften, die diese Version nicht kennt, unverändert mitnehmen */
   for(const k in s){ if(KNOWN_KEYS.has(k)||k in o||!/^[a-zA-Z]\w{0,30}$/.test(k)||/^(constructor|toString|valueOf|hasOwnProperty)$/.test(k)) continue;
     const v=s[k]; if(v===undefined||typeof v==='function') continue; try{ const j=JSON.stringify(v); if(j&&j.length<=4000) o[k]=JSON.parse(j); }catch(e){} }
@@ -1031,6 +1084,7 @@ function cleanDoc(d){
       }
       if(s.kind==='frame') o.ord=num(s.ord,0,0,1e6);
       if(s.kind==='check'&&s.ok) o.ok=true;
+      if(s.kind==='image'&&typeof s.src==='string'&&s.src.length<8e6&&/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s.src)) o.src=s.src;
     } else if(s.type==='path'&&Array.isArray(s.pts)){
       const ok=s.pts.length<=20000&&s.pts.every(q=>Array.isArray(q)&&Number.isFinite(q[0])&&Number.isFinite(q[1])); if(!ok||!s.pts.length) continue;
       o={id,type:'path',pts:s.pts.map(q=>[q[0],q[1]]),stroke:line(s.stroke),sw:num(s.sw,3,0.5,100),tool:['pen','brush','marker'].includes(s.tool)?s.tool:'pen',tip:['round','flat','calli'].includes(s.tip)?s.tip:'round'};
@@ -1081,16 +1135,28 @@ function assignFrames(){
     let best=null; for(const f of fr) if(inside(b,f)&&(!best||f.w*f.h<best.w*best.h)) best=f;
     if(best) it.fr=best.id; else delete it.fr; }
 }
+/* „Rückgängig“: Jeder Stand besteht aus den Texten der einzelnen Elemente. Unveränderte Elemente teilen sich den Text mit dem
+   vorigen Stand, daher kostet ein Schritt nur so viel Speicher, wie sich wirklich geändert hat. */
+function mkSnap(d,prev){
+  const pm=prev?prev.m||(prev.m=new Map(prev.ids.map((id,i)=>[id,prev.items[i]]))):null, items=[], ids=[]; let bytes=0;
+  for(const it of d.items){ let j=JSON.stringify(it); const o=pm&&pm.get(it.id); if(o===j) j=o; else bytes+=j.length; items.push(j); ids.push(it.id); }
+  const rest=JSON.stringify(Object.assign({},d,{items:0}));
+  return {items,ids,rest,bytes:bytes+rest.length+items.length*8};
+}
+function snapSame(a,b){ if(!a||!b||a.rest!==b.rest||a.items.length!==b.items.length) return false; for(let i=0;i<a.items.length;i++) if(a.items[i]!==b.items[i]) return false; return true; }
+function snapJSON(sn){ return sn.rest.replace('"items":0','"items":['+sn.items.join(',')+']'); }
+function snapDoc(sn){ return JSON.parse(snapJSON(sn)); }
+function resetHist(){ hist=[mkSnap(doc)]; hi=0; }
 function commit(){
   assignFrames();
-  const s=JSON.stringify(doc); if(hist[hi]===s) return;
+  const sn=mkSnap(doc,hist[hi]); if(snapSame(sn,hist[hi])) return;
   const first=hi<0;
-  hist=hist.slice(0,hi+1); hist.push(s); if(hist.length>150) hist.shift();
-  let tot=0; for(const h of hist) tot+=h.length; while(tot>24e6&&hist.length>3){ tot-=hist.shift().length; }   /* Speicher für „Rückgängig“ begrenzen */
-  hi=hist.length-1; persist();
+  hist=hist.slice(0,hi+1); hist.push(sn); if(hist.length>300) hist.shift();
+  let tot=0; for(const h of hist) tot+=h.bytes; while(tot>24e6&&hist.length>3){ tot-=hist.shift().bytes; }   /* Speicher für „Rückgängig“ begrenzen */
+  hi=hist.length-1; persist(snapJSON(sn));
   if(!first) markDirty();
 }
-function restore(i){ hi=i; doc=JSON.parse(hist[hi]); sel.clear(); persist(); markDirty(); render(); }
+function restore(i){ hi=i; doc=snapDoc(hist[hi]); sel.clear(); persist(); markDirty(); render(); }
 function undo(){ finishEdit(); if(hi>0) restore(hi-1); }
 function redo(){ finishEdit(); if(hi<hist.length-1) restore(hi+1); }
 function toast(msg){ toastEl.textContent=msg; toastEl.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>toastEl.hidden=true,3200); }
@@ -1170,7 +1236,43 @@ function addBranch(id){
   const [f,st]=MMC[ci], n=mmNode(nx,ny,'Neuer Zweig',par?p.fill:f,par?p.stroke:st); if(par){ n.w=120; n.h=44; n.fs=13; n.x=snap(nx-60); n.y=snap(ny-22); } n.mc=ci;
   doc.items.push(n,mmLink(p,n,par?p.stroke:st)); sel=new Set([n.id]); commit(); render(); startEdit(n.id);
 }
+/* Bilder: werden auf höchstens 1600 Pixel verkleinert und direkt im Board gespeichert */
+let imgAt=null;
+function pickImage(c){ imgAt=c||null; const f=$('imgFile'); f.value=''; f.click(); }
+async function imgData(blob){
+  const url=URL.createObjectURL(blob);
+  try{
+    const im=await new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=url; });
+    let w=im.naturalWidth||im.width, h=im.naturalHeight||im.height; if(!w||!h) throw 0;
+    const q=Math.min(1,1600/Math.max(w,h)); w=Math.max(1,Math.round(w*q)); h=Math.max(1,Math.round(h*q));
+    const cv=document.createElement('canvas'); cv.width=w; cv.height=h; const cx=cv.getContext('2d'); cx.drawImage(im,0,0,w,h);
+    let alpha=false; if(!/jpe?g/.test(blob.type)){ const d=cx.getImageData(0,0,w,h).data; for(let i=3;i<d.length;i+=4) if(d[i]<250){ alpha=true; break; } }
+    return {src:alpha?cv.toDataURL('image/png'):cv.toDataURL('image/jpeg',0.85),w,h};
+  } finally { URL.revokeObjectURL(url); }
+}
+async function addImage(blob,c){
+  if(!blob||!/^image\//.test(blob.type||'')){ toast('Diese Datei ist kein Bild.'); return; }
+  let d; try{ d=await imgData(blob); }catch(e){ toast('Das Bild konnte nicht gelesen werden.'); return; }
+  if(!/^data:image\/(png|jpeg);base64,/.test(d.src)||d.src.length>=8e6){ toast('Das Bild ist zu groß.'); return; }
+  if(!c){ const rc=svg.getBoundingClientRect(); c=toWorld(rc.left+rc.width/2,rc.top+rc.height/2); }
+  const k=Math.min(1,480/d.w,360/d.h), w=Math.round(d.w*k), h=Math.round(d.h*k);
+  const it={id:nid(),type:'shape',kind:'image',x:snap(c.x-w/2),y:snap(c.y-h/2),w,h,text:'',fill:'none',stroke:INK,sw:0,src:d.src};
+  finishEdit(); doc.items.push(it); sel=new Set([it.id]); setTool('select'); commit(); render();
+}
+$('imgFile').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) addImage(f,imgAt); imgAt=null; });
+let pastePending=0;
+document.addEventListener('paste',e=>{   /* Bild aus der Zwischenablage */
+  if(editing||(e.target&&e.target.closest&&e.target.closest('input,textarea'))) return;
+  const fl=[...((e.clipboardData&&e.clipboardData.items)||[])].find(i=>i.kind==='file'&&/^image\//.test(i.type)), f=fl&&fl.getAsFile();
+  if(!f) return; e.preventDefault(); clearTimeout(pastePending); pastePending=0; addImage(f);
+});
+svg.addEventListener('dragover',e=>{ if(e.dataTransfer&&[...e.dataTransfer.types].includes('Files')){ e.preventDefault(); e.dataTransfer.dropEffect='copy'; } });
+svg.addEventListener('drop',e=>{
+  const fs=[...((e.dataTransfer&&e.dataTransfer.files)||[])].filter(f=>/^image\//.test(f.type)); if(!fs.length) return;
+  e.preventDefault(); const c=toWorld(e.clientX,e.clientY); fs.slice(0,10).forEach((f,i)=>addImage(f,{x:c.x+i*30,y:c.y+i*30}));
+});
 function addShape(kind,c,ptype){
+  if(kind==='image') return pickImage(c);
   if(kind==='mindmap') return addMindmap(c);
   if(kind==='quiz') return addQuiz(c);
   if(kind==='poollanes') return addLanes(c);
@@ -1465,7 +1567,7 @@ function eraseAt(e){
 function cancelAction(){
   if(!action) return;
   if(liveEl){ liveEl.remove(); liveEl=null; }
-  if(action.type!=='pan'&&action.type!=='pen'&&hist[hi]) doc=JSON.parse(hist[hi]);
+  if(action.type!=='pan'&&action.type!=='pen'&&hist[hi]) doc=snapDoc(hist[hi]);
   action=null; hoverId=null; svg.classList.remove('noconn'); render();
 }
 function touchPair(){ const rc=svg.getBoundingClientRect(),[p,q]=[...touches.values()];
@@ -1624,7 +1726,7 @@ function onUp(e){
     case 'connEnd': {
       const c=byId(a.id); if(!c) break;
       if(a.isNew){ const pts=route(c),f=pts[0],l=pts[pts.length-1];
-        if(!a.moved||Math.hypot(l.x-f.x,l.y-f.y)<12){ removeIds(new Set([c.id])); sel.clear(); if(a.moved) break; doc=JSON.parse(hist[hi]); break; } }
+        if(!a.moved||Math.hypot(l.x-f.x,l.y-f.y)<12){ removeIds(new Set([c.id])); sel.clear(); if(a.moved) break; doc=snapDoc(hist[hi]); break; } }
       commit(); break; }
     case 'move': if(a.moved) commit(); else if(tap(a.hitId,e)) return; break;
     case 'resize': { const it=byId(a.id); if(it&&a.moved){ if(it.kind==='text'||it.kind==='table') autosize(it); commit(); } break; }
@@ -1644,10 +1746,12 @@ function onUp(e){
 }
 svg.addEventListener('pointerup',onUp);
 svg.addEventListener('pointercancel',onUp);
+let wheelQ=null;   /* schnelle Mausrad- und Touchpad-Ereignisse werden pro Bild gebündelt */
 svg.addEventListener('wheel',e=>{
-  e.preventDefault(); const rc=svg.getBoundingClientRect();
-  if(e.ctrlKey||e.metaKey) zoomAt(e.clientX-rc.left,e.clientY-rc.top,Math.exp(-e.deltaY*0.01));
-  else { view.x-=e.deltaX; view.y-=e.deltaY; applyView(); }
+  e.preventDefault(); const rc=svg.getBoundingClientRect(), q=wheelQ||(wheelQ={f:1,dx:0,dy:0,sx:0,sy:0});
+  if(e.ctrlKey||e.metaKey){ q.f*=Math.exp(-e.deltaY*0.01); q.sx=e.clientX-rc.left; q.sy=e.clientY-rc.top; }
+  else { q.dx+=e.deltaX; q.dy+=e.deltaY; }
+  if(!q.raf) q.raf=requestAnimationFrame(()=>{ const w=wheelQ; wheelQ=null; view.x-=w.dx; view.y-=w.dy; if(w.f!==1) zoomAt(w.sx,w.sy,w.f); else applyView(); });
 },{passive:false});
 svg.addEventListener('contextmenu',e=>e.preventDefault());
 /* Touch-Geräte: Der Browser darf nicht die ganze Seite zoomen, nur die Tafel zoomt. */
@@ -1666,6 +1770,7 @@ function iconFor(kind,W,H){
   if(kind==='check') return `<svg viewBox="0 0 ${W} ${H}"><rect x="5" y="${H/2-6}" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 ${H/2}l3 3 5-7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M22 ${H/2}h${W-28}" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>`;
   if(kind==='poollanes') return `<svg viewBox="0 0 ${W} ${H}"><rect x="2" y="3" width="${W-4}" height="${H-6}" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 3v${H-6}M14 3v${H-6}M14 ${H/2}H${W-2}" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>`;
   if(kind==='bullets') return `<svg viewBox="0 0 ${W} ${H}">${[7,14,21].map(y=>`<circle cx="7" cy="${y}" r="1.900" fill="currentColor"/><path d="M13 ${y}h${W-20}" stroke="currentColor" stroke-width="1.800" fill="none"/>`).join('')}</svg>`;
+  if(kind==='image') return `<svg viewBox="0 0 ${W} ${H}"><rect x="6" y="3" width="${W-12}" height="${H-6}" rx="2" fill="none" stroke="currentColor" stroke-width="1.600"/><circle cx="${W*0.36}" cy="${H*0.36}" r="2.600" fill="currentColor"/><path d="M8 ${H-5}l${W*0.22} -${H*0.38} ${W*0.14} ${H*0.2} ${W*0.12} -${H*0.12} ${W*0.2} ${H*0.3}" fill="none" stroke="currentColor" stroke-width="1.600" stroke-linejoin="round"/></svg>`;
   if(kind==='text') return `<svg viewBox="0 0 ${W} ${H}"><text x="${W/2}" y="${H*0.75}" text-anchor="middle" font-size="${H*0.7}" font-weight="600" fill="currentColor">Aa</text></svg>`;
   if(d.tpl){
     const one=kind==='ertable'||kind==='umlclass'||kind==='umliface', n=one?1:kind==='scrum'?5:3, tw=one?W*0.55:W;
@@ -1707,11 +1812,13 @@ function renderPal(){
   document.querySelector('main').classList.toggle('pal-closed',!!palState.closed);
   const ph=$('palHandle'); ph.textContent=palState.closed?'›':'‹'; ph.setAttribute('aria-expanded',!palState.closed); ph.title=palState.closed?'Formenleiste ausklappen':'Formenleiste einklappen';
   palEl.innerHTML=GROUPS.map(([name,kinds])=>`<button class="gh" data-g="${esc(name)}" aria-expanded="${!!palState.open[name]}">${esc(name).replace('Flussd','Fluss&shy;d').replace('Struktog','Strukto&shy;g')}</button><div class="palgrid"${palState.open[name]?'':' hidden'}>`+
-    kinds.map(k=>`<button class="pal" data-kind="${k}" title="${KINDS[k].label.replace('-','')}" aria-label="${KINDS[k].label.replace('-','')}">${iconFor(k,44,28)}<span>${KINDS[k].label}</span></button>`).join('')+(name==='Präsentation'?`<button class="pal palbtn" data-play="1" title="Präsentation starten" aria-label="Präsentation starten"><svg viewBox="0 0 44 28"><path d="M16 5v18l15-9z" fill="currentColor"/></svg></button>`:'')+`</div>`).join('');
+    kinds.map(k=>`<button class="pal" data-kind="${k}" title="${KINDS[k].label.replace('-','')}" aria-label="${KINDS[k].label.replace('-','')}">${iconFor(k,44,28)}<span>${KINDS[k].label}</span></button>`).join('')+(name==='Präsentation'?`<button class="pal palbtn" data-slides="1" title="Folienübersicht: Vorschau aller Folien, Reihenfolge per Ziehen" aria-label="Folienübersicht"><svg viewBox="0 0 44 28"><rect x="3" y="7" width="11" height="14" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/><rect x="17" y="7" width="11" height="14" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/><rect x="31" y="7" width="11" height="14" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/></svg></button>`:'')+(name==='Tabellen & Boards'?`<button class="pal palbtn" data-tpl="1" title="Vorlagen: SWOT, Eisenhower, Retro und mehr" aria-label="Vorlagen"><svg viewBox="0 0 44 28"><rect x="6" y="3" width="14" height="10" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/><rect x="24" y="3" width="14" height="10" rx="1.500" fill="currentColor" opacity=".55"/><rect x="6" y="15" width="14" height="10" rx="1.500" fill="currentColor" opacity=".55"/><rect x="24" y="15" width="14" height="10" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/></svg></button>`:'')+(name==='Präsentation'?`<button class="pal palbtn" data-play="1" title="Präsentation starten" aria-label="Präsentation starten"><svg viewBox="0 0 44 28"><path d="M16 5v18l15-9z" fill="currentColor"/></svg></button>`:'')+`</div>`).join('');
 }
 renderPal();
 palEl.addEventListener('click',e=>{
   if(e.target.closest('[data-play]')){ startPres(); return; }
+  if(e.target.closest('[data-slides]')){ toggleSlides(); return; }
+  if(e.target.closest('[data-tpl]')){ openTpl(); return; }
   const g=e.target.closest('.gh'); if(!g) return;
   palState.open[g.dataset.g]=!palState.open[g.dataset.g];
   savePal(); renderPal();
@@ -1773,7 +1880,7 @@ document.addEventListener('click',e=>{ if(!menu.hidden&&!menu.contains(e.target)
 
 function buildSVG(box){
   const b=box||contentBox(30,true); if(!b) return null;
-  const ed=editing; editing=null; plainOut=true; const body=doc.items.filter(i=>i.kind!=='frame').map(itemSVG).join(''); editing=ed; plainOut=false;
+  const ed=editing, nt=noText; editing=null; noText=false; plainOut=true; const body=doc.items.filter(i=>i.kind!=='frame').map(itemSVG).join(''); editing=ed; noText=nt; plainOut=false;
   return {w:b.w,h:b.h,svg:`<svg xmlns="http://www.w3.org/2000/svg" width="${b.w}" height="${b.h}" viewBox="${b.x} ${b.y} ${b.w} ${b.h}"><rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="${darkBoard?paper():'#ffffff'}"/><style>${$('fontBoard').textContent}</style>${body}</svg>`};
 }
 async function getDl(){
@@ -1836,14 +1943,232 @@ async function makePDF(pages){   /* je Bild eine A4-Seite, quer oder hoch je nac
   add(t+`trailer\n<< /Size ${N} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
   return new Blob(parts,{type:'application/pdf'});
 }
+/* ---------- Vektor-PDF: Formen bleiben scharf, Text ist echter, durchsuchbarer Text (Roboto Mono eingebettet) ---------- */
+const PDFX={fonts:null,cc:new Map()};
+const pdN=v=>{ const t=Math.round(v*100)/100; return Object.is(t,-0)?'0':String(t); };
+async function pdPipe(u8,st){ return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(st)).arrayBuffer()); }
+async function pdDeflate(u8){ if(typeof CompressionStream==='undefined') return null; try{ return await pdPipe(u8,new CompressionStream('deflate')); }catch(e){ return null; } }
+async function woffToSfnt(w){
+  const dv=new DataView(w.buffer,w.byteOffset,w.byteLength); if(dv.getUint32(0)!==0x774F4646) throw 'woff';
+  const nt=dv.getUint16(12), tabs=[];
+  for(let i=0;i<nt;i++){ const o=44+i*20; tabs.push({tag:dv.getUint32(o),off:dv.getUint32(o+4),comp:dv.getUint32(o+8),orig:dv.getUint32(o+12),ck:dv.getUint32(o+16)}); }
+  for(const t of tabs){ const raw=w.subarray(t.off,t.off+t.comp); t.data=t.comp<t.orig?await pdPipe(raw,new DecompressionStream('deflate')):raw; }
+  let size=12+16*nt; for(const t of tabs) size+=(t.orig+3)&~3;
+  const out=new Uint8Array(size), ov=new DataView(out.buffer); let es=0; while((1<<(es+1))<=nt) es++;
+  ov.setUint32(0,dv.getUint32(4)); ov.setUint16(4,nt); ov.setUint16(6,16<<es); ov.setUint16(8,es); ov.setUint16(10,nt*16-(16<<es));
+  let p=12+16*nt; tabs.forEach((t,i)=>{ const o=12+i*16; ov.setUint32(o,t.tag); ov.setUint32(o+4,t.ck); ov.setUint32(o+8,p); ov.setUint32(o+12,t.orig); out.set(t.data.subarray(0,t.orig),p); p+=(t.orig+3)&~3; });
+  return out;
+}
+function ttInfo(b){
+  const dv=new DataView(b.buffer,b.byteOffset,b.byteLength), nt=dv.getUint16(4), T={};
+  for(let i=0;i<nt;i++){ const o=12+i*16; T[String.fromCharCode(b[o],b[o+1],b[o+2],b[o+3])]=dv.getUint32(o+8); }
+  const upm=dv.getUint16(T.head+18), bb=[0,1,2,3].map(i=>dv.getInt16(T.head+36+i*2)), asc=dv.getInt16(T.hhea+4), desc=dv.getInt16(T.hhea+6), nhm=dv.getUint16(T.hhea+34);
+  const cm=new Map(), c0=T.cmap, n=dv.getUint16(c0+2); let f4=-1, f12=-1;
+  for(let i=0;i<n;i++){ const pid=dv.getUint16(c0+4+i*8), eid=dv.getUint16(c0+6+i*8), off=c0+dv.getUint32(c0+8+i*8), f=dv.getUint16(off);
+    if(f===12) f12=off; else if(f===4&&(pid===0||(pid===3&&eid===1))) f4=off; }
+  if(f12>=0){ const ng=dv.getUint32(f12+12); for(let i=0;i<ng;i++){ const o=f12+16+i*12, a=dv.getUint32(o), e=dv.getUint32(o+4), g=dv.getUint32(o+8); for(let c=a;c<=e;c++) cm.set(c,g+c-a); } }
+  else if(f4>=0){ const sx=dv.getUint16(f4+6), ends=f4+14, starts=ends+sx+2, dels=starts+sx, ros=dels+sx;
+    for(let i=0;i<sx/2;i++){ const e=dv.getUint16(ends+i*2), a=dv.getUint16(starts+i*2), d=dv.getInt16(dels+i*2), ro=dv.getUint16(ros+i*2);
+      for(let c=a;c<=e&&c!==0xFFFF;c++){ let g; if(!ro) g=(c+d)&0xFFFF; else { g=dv.getUint16(ros+i*2+ro+(c-a)*2); if(g) g=(g+d)&0xFFFF; } if(g) cm.set(c,g); } } }
+  const gA=cm.get(65)||0, adv=dv.getUint16(T.hmtx+Math.min(gA,nhm-1)*4);
+  return {bytes:b,upm,bb,asc,desc,adv,cm};
+}
+async function pdfFonts(){
+  if(PDFX.fonts) return PDFX.fonts;
+  const css=$('fontBoard').textContent, F={};
+  for(const m of css.matchAll(/font-weight:(\d+);[^}]*?base64,([A-Za-z0-9+\/=]+)/g)){
+    const bin=atob(m[2]), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+    F[m[1]]=ttInfo(await woffToSfnt(u)); }
+  if(!F['400']) throw 'font';
+  return PDFX.fonts=F;
+}
+const pdCtx=document.createElement('canvas').getContext('2d');
+function pdCol(c){
+  if(!c||c==='none'||c==='transparent') return null;
+  if(PDFX.cc.has(c)) return PDFX.cc.get(c);
+  pdCtx.fillStyle='#000'; pdCtx.fillStyle=c; const v=pdCtx.fillStyle; let res;
+  if(v[0]==='#') res=[parseInt(v.slice(1,3),16)/255,parseInt(v.slice(3,5),16)/255,parseInt(v.slice(5,7),16)/255,1];
+  else { const m=(v.match(/[\d.]+/g)||[0,0,0]).map(Number); res=[m[0]/255,m[1]/255,m[2]/255,m.length>3?m[3]:1]; }
+  if(res[3]<=0) res=null; PDFX.cc.set(c,res); return res;
+}
+const PDNUM=/-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi;
+function pdTf(t){
+  let M=[1,0,0,1,0,0]; const mul=N=>{ M=[M[0]*N[0]+M[2]*N[1],M[1]*N[0]+M[3]*N[1],M[0]*N[2]+M[2]*N[3],M[1]*N[2]+M[3]*N[3],M[0]*N[4]+M[2]*N[5]+M[4],M[1]*N[4]+M[3]*N[5]+M[5]]; };
+  for(const m of t.matchAll(/(\w+)\s*\(([^)]*)\)/g)){ const a=(m[2].match(PDNUM)||[]).map(Number);
+    if(m[1]==='translate') mul([1,0,0,1,a[0]||0,a[1]||0]);
+    else if(m[1]==='scale') mul([a[0]??1,0,0,a[1]??a[0]??1,0,0]);
+    else if(m[1]==='rotate'){ const q=(a[0]||0)*Math.PI/180, c=Math.cos(q), sn=Math.sin(q); if(a.length>2) mul([1,0,0,1,a[1],a[2]]); mul([c,sn,-sn,c,0,0]); if(a.length>2) mul([1,0,0,1,-a[1],-a[2]]); }
+    else if(m[1]==='matrix'&&a.length===6) mul(a); }
+  return M;
+}
+function pdArc(x1,y1,rx,ry,phi,fa,fs,x2,y2,o){
+  rx=Math.abs(rx); ry=Math.abs(ry); if(x1===x2&&y1===y2) return; if(!rx||!ry){ o.push(pdN(x2)+' '+pdN(y2)+' l'); return; }
+  const p=phi*Math.PI/180, cs=Math.cos(p), sn=Math.sin(p), dx=(x1-x2)/2, dy=(y1-y2)/2, xp=cs*dx+sn*dy, yp=-sn*dx+cs*dy;
+  let L=xp*xp/(rx*rx)+yp*yp/(ry*ry); if(L>1){ L=Math.sqrt(L); rx*=L; ry*=L; }
+  const num=rx*rx*ry*ry-rx*rx*yp*yp-ry*ry*xp*xp, den=rx*rx*yp*yp+ry*ry*xp*xp; let co=den?Math.sqrt(Math.max(0,num/den)):0; if(fa===fs) co=-co;
+  const cxp=co*rx*yp/ry, cyp=-co*ry*xp/rx, cx=cs*cxp-sn*cyp+(x1+x2)/2, cy=sn*cxp+cs*cyp+(y1+y2)/2;
+  const ang=(ux,uy,vx,vy)=>Math.atan2(ux*vy-uy*vx,ux*vx+uy*vy);
+  const t1=ang(1,0,(xp-cxp)/rx,(yp-cyp)/ry); let dt=ang((xp-cxp)/rx,(yp-cyp)/ry,(-xp-cxp)/rx,(-yp-cyp)/ry);
+  if(!fs&&dt>0) dt-=2*Math.PI; else if(fs&&dt<0) dt+=2*Math.PI;
+  const segs=Math.max(1,Math.ceil(Math.abs(dt)/(Math.PI/2)-1e-9)), d=dt/segs, k=4/3*Math.tan(d/4);
+  const P=(ex,ey)=>pdN(cx+rx*ex*cs-ry*ey*sn)+' '+pdN(cy+rx*ex*sn+ry*ey*cs);
+  for(let i=0;i<segs;i++){ const a=t1+i*d, b=a+d, ca=Math.cos(a), sa=Math.sin(a), cb=Math.cos(b), sb=Math.sin(b);
+    o.push(P(ca-k*sa,sa+k*ca)+' '+P(cb+k*sb,sb-k*cb)+' '+P(cb,sb)+' c'); }
+}
+function pdPath(d,o){
+  const tk=d.match(/[a-df-zA-DF-Z]|-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi)||[]; let i=0, cmd='', x=0,y=0, sx=0,sy=0, cx=0,cy=0, qx=0,qy=0, last='';
+  const n=()=>+tk[i++], has=k=>i+k<=tk.length&&tk.slice(i,i+k).every(t=>!/^[a-zA-Z]$/.test(t)), P=(a,b)=>pdN(a)+' '+pdN(b);
+  while(i<tk.length){
+    if(/^[a-zA-Z]$/.test(tk[i])) cmd=tk[i++]; else if(!cmd){ i++; continue; }
+    const rel=cmd!==cmd.toUpperCase(), U=cmd.toUpperCase(), bx=rel?x:0, by=rel?y:0;
+    if(U==='Z'){ o.push('h'); x=sx; y=sy; last='Z'; continue; }
+    const need={M:2,L:2,H:1,V:1,C:6,S:4,Q:4,T:2,A:7}[U]; if(!need||!has(need)){ i++; continue; }
+    if(U==='M'){ x=bx+n(); y=by+n(); sx=x; sy=y; o.push(P(x,y)+' m'); cmd=rel?'l':'L'; }
+    else if(U==='L'){ x=bx+n(); y=by+n(); o.push(P(x,y)+' l'); }
+    else if(U==='H'){ x=bx+n(); o.push(P(x,y)+' l'); }
+    else if(U==='V'){ y=by+n(); o.push(P(x,y)+' l'); }
+    else if(U==='C'||U==='S'){ let x1,y1; if(U==='C'){ x1=bx+n(); y1=by+n(); } else if(last==='C'||last==='S'){ x1=2*x-cx; y1=2*y-cy; } else { x1=x; y1=y; }
+      cx=bx+n(); cy=by+n(); x=bx+n(); y=by+n(); o.push(P(x1,y1)+' '+P(cx,cy)+' '+P(x,y)+' c'); }
+    else if(U==='Q'||U==='T'){ if(U==='Q'){ qx=bx+n(); qy=by+n(); } else if(last==='Q'||last==='T'){ qx=2*x-qx; qy=2*y-qy; } else { qx=x; qy=y; }
+      const ex=bx+n(), ey=by+n(); o.push(P(x+2/3*(qx-x),y+2/3*(qy-y))+' '+P(ex+2/3*(qx-ex),ey+2/3*(qy-ey))+' '+P(ex,ey)+' c'); x=ex; y=ey; }
+    else if(U==='A'){ const rx=n(), ry=n(), ph=n(), fa=n(), fs=n(), ex=bx+n(), ey=by+n(); pdArc(x,y,rx,ry,ph,!!fa,!!fs,ex,ey,o); x=ex; y=ey; }
+    last=U;
+  }
+}
+function pdEll(cx,cy,rx,ry,o){ const k=0.5522847, P=(a,b)=>pdN(a)+' '+pdN(b);
+  o.push(P(cx+rx,cy)+' m',P(cx+rx,cy+ry*k)+' '+P(cx+rx*k,cy+ry)+' '+P(cx,cy+ry)+' c',P(cx-rx*k,cy+ry)+' '+P(cx-rx,cy+ry*k)+' '+P(cx-rx,cy)+' c',
+    P(cx-rx,cy-ry*k)+' '+P(cx-rx*k,cy-ry)+' '+P(cx,cy-ry)+' c',P(cx+rx*k,cy-ry)+' '+P(cx+rx,cy-ry*k)+' '+P(cx+rx,cy)+' c','h'); }
+const PD_INH=['fill','stroke','stroke-width','stroke-linecap','stroke-linejoin','stroke-dasharray','fill-opacity','stroke-opacity','font-size','font-weight','text-anchor','text-decoration'];
+function pdSty(el,st){ const o=Object.assign({},st); for(const a of PD_INH){ const v=el.getAttribute(a); if(v!=null&&v!=='inherit') o[a]=v; }
+  const op=el.getAttribute('opacity'); if(op!=null) o.op=(o.op??1)*(+op||0); return o; }
+async function pdfVector(boxes){
+  const F=await pdfFonts(), objs=[], enc=new TextEncoder(), alloc=()=>{ objs.push(null); return objs.length; };
+  const gsK=new Map(), imgs=new Map(), usedF={}, fontUse={};
+  const gs=(ca,CA)=>{ const k=pdN(ca)+'/'+pdN(CA); if(!gsK.has(k)) gsK.set(k,'G'+gsK.size); return '/'+gsK.get(k)+' gs'; };
+  const wOf=st=>{ const w=String(st['font-weight']||'400'); const v=w==='bold'?700:parseInt(w)||400; return v>=550&&F['600']?'600':v>=450&&F['500']?'500':'400'; };
+  async function img(key,make){ if(!imgs.has(key)) imgs.set(key,Object.assign({name:'I'+imgs.size},await make())); return imgs.get(key); }
+  const decode=src=>new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=src; });
+  function rgba(cv){ const {width:w,height:h}=cv, d=cv.getContext('2d').getImageData(0,0,w,h).data, rgb=new Uint8Array(w*h*3), al=new Uint8Array(w*h); let A=false;
+    for(let i=0,j=0;i<d.length;i+=4,j++){ rgb[j*3]=d[i]; rgb[j*3+1]=d[i+1]; rgb[j*3+2]=d[i+2]; al[j]=d[i+3]; if(d[i+3]<255) A=true; }
+    return {w,h,rgb,al:A?al:null}; }
+  async function imgOf(src){ return img(src,async()=>{ const im=await decode(src), w=im.naturalWidth, h=im.naturalHeight;
+    if(/^data:image\/jpeg;base64,/.test(src)){ const bin=atob(src.slice(src.indexOf(',')+1)), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return {w,h,jpg:u}; }
+    const cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(im,0,0); return rgba(cv); }); }
+  function rasterText(txt,fs,wt,col){   /* Zeichen, die die eingebettete Schrift nicht kennt (Pfeile, Emojis): als kleines Bild */
+    const S=4, c=document.createElement('canvas'), g=c.getContext('2d'), font=`${wt} ${fs*S}px ${FONT}`; g.font=font;
+    const w=Math.max(1,Math.ceil(g.measureText(txt).width)); c.width=w; c.height=Math.ceil(fs*1.5*S);
+    g.font=font; g.fillStyle=`rgba(${Math.round(col[0]*255)},${Math.round(col[1]*255)},${Math.round(col[2]*255)},${col[3]})`; g.textBaseline='alphabetic'; g.fillText(txt,0,fs*1.15*S);
+    return {w:w/S,h:c.height/S,asc:fs*1.15,data:rgba(c)}; }
+  function paint(o,st,path){
+    const f=pdCol(st.fill==null?'#000':st.fill), s=pdCol(st.stroke), sw=+(st['stroke-width']??1);
+    const fa=f?f[3]*(st['fill-opacity']!=null?+st['fill-opacity']:1)*(st.op??1):0, sa=s&&sw>0?s[3]*(st['stroke-opacity']!=null?+st['stroke-opacity']:1)*(st.op??1):0;
+    if(fa<=0.003&&sa<=0.003) return;
+    o.push('q'); if(fa<1||sa<1) o.push(gs(Math.max(0,Math.min(1,fa)),Math.max(0,Math.min(1,sa))));
+    if(fa>0.003) o.push(`${pdN(f[0])} ${pdN(f[1])} ${pdN(f[2])} rg`);
+    if(sa>0.003){ o.push(`${pdN(s[0])} ${pdN(s[1])} ${pdN(s[2])} RG`,pdN(sw)+' w',({round:1,square:2}[st['stroke-linecap']]||0)+' J',({round:1,bevel:2}[st['stroke-linejoin']]||0)+' j');
+      const da=st['stroke-dasharray']; if(da&&da!=='none'){ const v=(da.match(PDNUM)||[]).map(Number); if(v.length&&v.some(x=>x>0)) o.push('['+v.map(pdN).join(' ')+'] 0 d'); } }
+    o.push(...path, fa>0.003&&sa>0.003?'B':fa>0.003?'f':'S','Q');
+  }
+  async function text(el,st,o){
+    let px=+(el.getAttribute('x')||0), py=+(el.getAttribute('y')||0);
+    const runs=[]; for(const ch of el.childNodes){ if(ch.nodeType===3) runs.push([ch.data,st,null,null]); else if(ch.tagName==='tspan') runs.push([ch.textContent,pdSty(ch,st),ch.getAttribute('x'),ch.getAttribute('y')]); }
+    for(const [raw,s2,ax,ay] of runs){
+      if(ax!=null) px=+ax; if(ay!=null) py=+ay;
+      const txt=raw.replace(/\s+/g,' ').trim(); if(!txt) continue;
+      const col=pdCol(s2.fill==null?'#000':s2.fill); if(!col) continue;
+      const fs=+(s2['font-size']||16), wt=wOf(s2), fo=F[wt], al=col[3]*(s2.op??1), anc=s2['text-anchor']||'start', cw=fo.adv*fs/fo.upm;
+      const segs=[]; for(const c of txt){ const ok=fo.cm.has(c.codePointAt(0)), L=segs[segs.length-1]; if(L&&L.ok===ok) L.t+=c; else segs.push({t:c,ok}); }
+      for(const g of segs){ if(g.ok) g.w=[...g.t].length*cw; else { g.R=rasterText(g.t,fs,wt,col); g.w=g.R.w; } }
+      const w=segs.reduce((a,g)=>a+g.w,0); let x0=anc==='middle'?px-w/2:anc==='end'?px-w:px, cx=x0;
+      for(const g of segs){
+        if(g.R){ const R=g.R, im=await img('t'+imgs.size,async()=>R.data); o.push('q',...(al<1?[gs(al,al)]:[]),`${pdN(R.w)} 0 0 ${pdN(-R.h)} ${pdN(cx)} ${pdN(py-R.asc+R.h)} cm /${im.name} Do`,'Q'); }
+        else { const u=usedF[wt]||(usedF[wt]=new Map()); let hex='';
+          for(const c of g.t){ const cp=c.codePointAt(0), gi=fo.cm.get(cp); u.set(gi,cp); hex+=gi.toString(16).padStart(4,'0'); }
+          o.push('q'); if(al<1) o.push(gs(al,al));
+          o.push(`${pdN(col[0])} ${pdN(col[1])} ${pdN(col[2])} rg`,`BT /F${wt} ${pdN(fs)} Tf 1 0 0 -1 ${pdN(cx)} ${pdN(py)} Tm <${hex}> Tj ET`,'Q'); }
+        cx+=g.w; }
+      if(/underline/.test(s2['text-decoration']||'')) paint(o,{fill:s2.fill,op:s2.op},[`${pdN(x0)} ${pdN(py+fs*0.12)} ${pdN(w)} ${pdN(Math.max(0.8,fs*0.07))} re`]);
+      px=x0+w;
+    }
+  }
+  async function walk(el,st,o){
+    const tag=el.tagName; if(tag==='style'||tag==='defs'||tag==='title'||tag==='clipPath'||tag==='pattern') return;
+    if(el.getAttribute('display')==='none'||el.getAttribute('visibility')==='hidden') return;
+    const s2=pdSty(el,st), tf=el.getAttribute('transform'); let pushed=false;
+    if(tf&&tag!=='svg'){ const M=pdTf(tf); o.push('q',M.map(pdN).join(' ')+' cm'); pushed=true; }
+    const A=k=>+(el.getAttribute(k)||0);
+    if(tag==='svg'||tag==='g'||tag==='a'){ for(const c of el.children) await walk(c,s2,o); }
+    else if(tag==='rect'){ const x=A('x'),y=A('y'),w=A('width'),h=A('height'); if(w>0&&h>0){
+        let rx=el.getAttribute('rx'), ry=el.getAttribute('ry'); rx=rx!=null?+rx:ry!=null?+ry:0; ry=ry!=null?+ry:rx; rx=Math.min(rx,w/2); ry=Math.min(ry,h/2);
+        const p=[]; if(rx>0&&ry>0){ pdPath(`M${x+rx} ${y}H${x+w-rx}A${rx} ${ry} 0 0 1 ${x+w} ${y+ry}V${y+h-ry}A${rx} ${ry} 0 0 1 ${x+w-rx} ${y+h}H${x+rx}A${rx} ${ry} 0 0 1 ${x} ${y+h-ry}V${y+ry}A${rx} ${ry} 0 0 1 ${x+rx} ${y}Z`,p); }
+        else p.push(`${pdN(x)} ${pdN(y)} ${pdN(w)} ${pdN(h)} re`); paint(o,s2,p); } }
+    else if(tag==='circle'){ const p=[]; pdEll(A('cx'),A('cy'),A('r'),A('r'),p); if(A('r')>0) paint(o,s2,p); }
+    else if(tag==='ellipse'){ const p=[]; pdEll(A('cx'),A('cy'),A('rx'),A('ry'),p); if(A('rx')>0&&A('ry')>0) paint(o,s2,p); }
+    else if(tag==='path'){ const p=[]; pdPath(el.getAttribute('d')||'',p); if(p.length) paint(o,s2,p); }
+    else if(tag==='line'){ paint(o,Object.assign({},s2,{fill:'none'}),[`${pdN(A('x1'))} ${pdN(A('y1'))} m`,`${pdN(A('x2'))} ${pdN(A('y2'))} l`]); }
+    else if(tag==='polygon'||tag==='polyline'){ const v=((el.getAttribute('points')||'').match(PDNUM)||[]).map(Number), p=[];
+      for(let i=0;i+1<v.length;i+=2) p.push(`${pdN(v[i])} ${pdN(v[i+1])} ${i?'l':'m'}`); if(tag==='polygon') p.push('h'); if(p.length>1) paint(o,tag==='polyline'?Object.assign({},s2,{fill:s2.fill??'none'}):s2,p); }
+    else if(tag==='text') await text(el,s2,o);
+    else if(tag==='image'){ const src=el.getAttribute('href')||el.getAttribute('xlink:href')||'', w=A('width'), h=A('height');
+      if(/^data:image\//.test(src)&&w>0&&h>0){ try{ const im=await imgOf(src); o.push('q',...((s2.op??1)<1?[gs(s2.op,s2.op)]:[]),`${pdN(w)} 0 0 ${pdN(-h)} ${pdN(A('x'))} ${pdN(A('y')+h)} cm /${im.name} Do`,'Q'); }catch(e){} } }
+    if(pushed) o.push('Q');
+  }
+  /* Seiten */
+  const pages=[], cat=alloc(), pagesN=alloc(), resN=alloc();
+  for(const box of boxes){
+    const sv=buildSVG(box); if(!sv) continue;
+    const root=new DOMParser().parseFromString(sv.svg,'image/svg+xml').documentElement; if(!root||root.tagName!=='svg') throw 'parse';
+    const bw=box?box.w:sv.w, bh=box?box.h:sv.h, vb=(root.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number), bx=vb[0], by=vb[1];
+    const land=bw>=bh, PW=land?841.89:595.28, PH=land?595.28:841.89, Mg=28, sc=Math.min((PW-2*Mg)/bw,(PH-2*Mg)/bh), w=bw*sc, h=bh*sc, px=(PW-w)/2, py=(PH-h)/2;
+    const o=[`q ${sc.toFixed(6)} 0 0 ${(-sc).toFixed(6)} ${(px-bx*sc).toFixed(3)} ${(py+h+by*sc).toFixed(3)} cm`,`${pdN(bx)} ${pdN(by)} ${pdN(bw)} ${pdN(bh)} re W n`];
+    await walk(root,{},o); o.push('Q');
+    pages.push({PW,PH,data:enc.encode(o.join('\n'))});
+  }
+  if(!pages.length) throw 'empty';
+  const out=[]; const put=(n,s)=>{ objs[n-1]=s; };
+  async function stream(n,dict,data,noZ){ let z=noZ?null:await pdDeflate(data); if(z&&z.length>=data.length) z=null;
+    objs[n-1]=[`<< ${dict}${z?' /Filter /FlateDecode':''} /Length ${(z||data).length} >>\nstream\n`,z||data,'\nendstream']; }
+  const kids=[];
+  for(const pg of pages){ const pn=alloc(), cn=alloc(); kids.push(pn);
+    put(pn,`<< /Type /Page /Parent ${pagesN} 0 R /MediaBox [0 0 ${pg.PW} ${pg.PH}] /Resources ${resN} 0 R /Contents ${cn} 0 R >>`); await stream(cn,'',pg.data); }
+  put(cat,`<< /Type /Catalog /Pages ${pagesN} 0 R >>`); put(pagesN,`<< /Type /Pages /Kids [${kids.map(k=>k+' 0 R').join(' ')}] /Count ${kids.length} >>`);
+  const fontRes=[];
+  for(const wt of Object.keys(usedF)){ const fo=F[wt], u=usedF[wt], K=1000/fo.upm, nm='/RobotoMono-'+({'400':'Regular','500':'Medium','600':'SemiBold'}[wt]||wt);
+    const t0=alloc(), cid=alloc(), fd=alloc(), ff=alloc(), tu=alloc(); fontRes.push(`/F${wt} ${t0} 0 R`);
+    put(t0,`<< /Type /Font /Subtype /Type0 /BaseFont ${nm} /Encoding /Identity-H /DescendantFonts [${cid} 0 R] /ToUnicode ${tu} 0 R >>`);
+    put(cid,`<< /Type /Font /Subtype /CIDFontType2 /BaseFont ${nm} /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor ${fd} 0 R /DW ${Math.round(fo.adv*K)} /CIDToGIDMap /Identity >>`);
+    put(fd,`<< /Type /FontDescriptor /FontName ${nm} /Flags 33 /FontBBox [${fo.bb.map(v=>Math.round(v*K)).join(' ')}] /ItalicAngle 0 /Ascent ${Math.round(fo.asc*K)} /Descent ${Math.round(fo.desc*K)} /CapHeight ${Math.round(fo.asc*K*0.7)} /StemV ${wt==='400'?80:120} /FontFile2 ${ff} 0 R >>`);
+    await stream(ff,`/Length1 ${fo.bytes.length}`,fo.bytes);
+    const ent=[...u].map(([g,cp])=>{ const s=String.fromCodePoint(cp); let h=''; for(let i=0;i<s.length;i++) h+=s.charCodeAt(i).toString(16).padStart(4,'0'); return `<${g.toString(16).padStart(4,'0')}> <${h}>`; });
+    let cm='/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def\n/CMapName /Adobe-Identity-UCS def\n/CMapType 2 def\n1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n';
+    for(let i=0;i<ent.length;i+=100){ const b=ent.slice(i,i+100); cm+=`${b.length} beginbfchar\n${b.join('\n')}\nendbfchar\n`; }
+    cm+='endcmap\nCMapName currentdict /CMapResource defineresource pop\nend\nend';
+    await stream(tu,'',enc.encode(cm)); }
+  const xo=[];
+  for(const im of imgs.values()){ const n=alloc(); xo.push(`/${im.name} ${n} 0 R`);
+    if(im.jpg){ await stream(n,`/Type /XObject /Subtype /Image /Width ${im.w} /Height ${im.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode`,im.jpg,true); continue; }
+    let sm=''; if(im.al){ const m=alloc(); await stream(m,`/Type /XObject /Subtype /Image /Width ${im.w} /Height ${im.h} /ColorSpace /DeviceGray /BitsPerComponent 8`,im.al); sm=` /SMask ${m} 0 R`; }
+    await stream(n,`/Type /XObject /Subtype /Image /Width ${im.w} /Height ${im.h} /ColorSpace /DeviceRGB /BitsPerComponent 8${sm}`,im.rgb); }
+  const gsd=[...gsK].map(([k,nm])=>{ const [ca,CA]=k.split('/'); return `/${nm} << /ca ${ca} /CA ${CA} >>`; });
+  put(resN,`<< /ProcSet [/PDF /Text /ImageB /ImageC] /Font << ${fontRes.join(' ')} >> /XObject << ${xo.join(' ')} >> /ExtGState << ${gsd.join(' ')} >> >>`);
+  /* zusammensetzen */
+  const parts=[], offs=[]; let len=0; const add=p=>{ const b=typeof p==='string'?enc.encode(p):p; parts.push(b); len+=b.length; };
+  add('%PDF-1.5\n'); add(new Uint8Array([37,226,227,207,211,10]));
+  objs.forEach((ob,i)=>{ offs[i+1]=len; add(`${i+1} 0 obj\n`); if(Array.isArray(ob)) ob.forEach(add); else add(ob); add('\nendobj\n'); });
+  const xref=len, N=objs.length+1; let t=`xref\n0 ${N}\n0000000000 65535 f \n`; for(let i=1;i<N;i++) t+=String(offs[i]).padStart(10,'0')+' 00000 n \n';
+  add(t+`trailer\n<< /Size ${N} /Root ${cat} 0 R /Info << /Producer (Blackboard) /Title (${String(doc.name||fileBase()).replace(/[^\x20-\x7e]/g,'').replace(/[()\\]/g,'')}) >> >>\nstartxref\n${xref}\n%%EOF\n`);
+  return new Blob(parts,{type:'application/pdf'});
+}
 async function exportAs(kind){
   try{
     if(kind==='svg'){ const s=buildSVG(); if(!s) throw 'empty'; return saveFile(fileBase()+'.svg',s.svg); }
     if(kind==='png'){ const rr=await rasterize('image/png',2); return saveFile(fileBase()+'.png',rr.blob); }
-    const fr=frames(), pages=[];   /* mit Folien: jede Folie eine Seite; ohne: das ganze Board auf einer Seite */
-    if(fr.length&&doc.items.some(i=>i.kind!=='frame')) for(const f of fr) pages.push(await rasterize('image/jpeg',3,{x:f.x,y:f.y,w:f.w,h:f.h}));
-    else pages.push(await rasterize('image/jpeg',3));
-    await saveFile(fileBase()+'.pdf',await makePDF(pages));
+    const fr=frames(), boxes=fr.length&&doc.items.some(i=>i.kind!=='frame')?fr.map(f=>({x:f.x,y:f.y,w:f.w,h:f.h})):[null];   /* mit Folien: jede Folie eine Seite; ohne: das ganze Board auf einer Seite */
+    if(!buildSVG(boxes[0]||undefined)) throw 'empty';
+    let pdf=null; toast('PDF wird erstellt …');
+    try{ pdf=await pdfVector(boxes); }catch(e){ if(e==='empty') throw e; console.warn('Vektor-PDF nicht möglich, nehme Bild-PDF',e); }
+    if(!pdf){ const pages=[]; for(const b of boxes) pages.push(await rasterize('image/jpeg',3,b||undefined)); pdf=await makePDF(pages); }
+    await saveFile(fileBase()+'.pdf',pdf);
   }catch(e){ toast(e==='empty'?'Das Board ist leer.':'Der Export hat nicht geklappt. Bitte noch einmal versuchen.'); }
 }
 menu.addEventListener('click',e=>{
@@ -1860,6 +2185,9 @@ menu.addEventListener('click',e=>{
     case 'new': newBoard(); break;
     case 'fit': fit(); break;
     case 'keys': openKeys(); break;
+    case 'tpl': openTpl(); break;
+    case 'img': pickImage(); break;
+    case 'slides': toggleSlides(true); break;
     case 'play': startPres(); break;
     case 'syncnow': syncNow(true); break;
     case 'synccfg': openSyncDlg(); break;
@@ -1888,7 +2216,7 @@ document.addEventListener('keydown',e=>{
   if(mod&&k==='d'){ e.preventDefault(); duplicateSel(); return; }
   if(mod&&k==='c'){ if(sel.size){ e.preventDefault(); copySel(false); } return; }
   if(mod&&k==='x'){ if(sel.size){ e.preventDefault(); copySel(true); } return; }
-  if(mod&&k==='v'){ e.preventDefault(); pasteClip(); return; }
+  if(mod&&k==='v'){ clearTimeout(pastePending); pastePending=setTimeout(()=>{ pastePending=0; pasteClip(); },80); return; }   /* kurz warten: enthält die Zwischenablage ein Bild, fügt das paste-Ereignis es ein */
   if(mod&&k==='g'){ e.preventDefault(); e.shiftKey?ungroupSel():groupSel(); return; }
   if(mod&&k==='a'){ e.preventDefault(); setTool('select'); sel=new Set(doc.items.filter(i=>!i.lock).map(i=>i.id)); render(); return; }
   if(mod) return;
@@ -1908,6 +2236,164 @@ $('keysClose').onclick=closeKeys;
 $('keysDlg').addEventListener('pointerdown',e=>{ if(e.target===$('keysDlg')) closeKeys(); });
 $('keysDlg').addEventListener('keydown',e=>{ if(e.key==='Escape'||e.key==='?'){ e.preventDefault(); e.stopPropagation(); closeKeys(); } if(e.key==='Tab'){ e.preventDefault(); (document.activeElement===$('keysClose')?$('keysBox'):$('keysClose')).focus(); } });
 window.addEventListener('resize',()=>applyView());
+
+/* ---------- Folienübersicht: Vorschau aller Folien, Klick springt hin, Ziehen sortiert um ---------- */
+const slidesEl=$('slides'), slList=$('slList'); let slT=0, slSel=null, slDrag=null;
+function toggleSlides(on){ const show=on===undefined?slidesEl.hidden:on; slidesEl.hidden=!show; closeMenu(); if(show) renderSlides(); }
+function slideThumb(f){
+  assignFrames(); const ids=new Set(doc.items.filter(i=>i.fr===f.id).map(i=>i.id));
+  for(const i of doc.items) if(i.type==='conn'&&i.from&&i.to&&ids.has(i.from)&&ids.has(i.to)) ids.add(i.id);
+  const ed=editing; editing=null; const body=doc.items.filter(i=>ids.has(i.id)).map(itemSVG).join(''); editing=ed;
+  return `<svg viewBox="${r(f.x)} ${r(f.y)} ${r(f.w)} ${r(f.h)}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><rect x="${r(f.x)}" y="${r(f.y)}" width="${r(f.w)}" height="${r(f.h)}" fill="${paper()}"/>${body}</svg>`;
+}
+function renderSlides(){
+  clearTimeout(slT); slT=0; if(slidesEl.hidden) return;
+  const fr=frames(); if(slSel&&!fr.some(f=>f.id===slSel)) slSel=null;
+  const one=[...sel].map(byId).find(i=>i&&i.kind==='frame'); if(one) slSel=one.id;
+  slList.innerHTML=fr.length?fr.map((f,i)=>`<div class="st" role="option" tabindex="0" data-f="${f.id}" aria-selected="${f.id===slSel}" title="Folie ${i+1}: anklicken springt hin, ziehen sortiert um">${slideThumb(f)}<span>${i+1}${f.text?' · '+esc(String(f.text).replace(/\s+/g,' ').slice(0,30)):''}</span></div>`).join('')
+    :'<div class="slEmpty">Noch keine Folien. „+ Folie“ legt eine an, oder ziehe „Folie“ aus der Formenleiste auf das Board.</div>';
+}
+function scheduleSlides(){ if(!slidesEl.hidden&&!slT) slT=setTimeout(renderSlides,350); }
+function gotoFrame(id){
+  const f=byId(id); if(!f) return; slSel=id; const rc=svg.getBoundingClientRect(), ph=slidesEl.hidden?0:slidesEl.getBoundingClientRect().height;
+  const H=Math.max(80,rc.height-ph), k=clamp(Math.min(rc.width/(f.w+80),H/(f.h+110)),0.15,2);
+  view={k,x:rc.width/2-(f.x+f.w/2)*k,y:H/2-(f.y+f.h/2)*k+12*k}; sel=new Set([id]); applyView(); render(); renderSlides();
+}
+slList.addEventListener('pointerdown',e=>{
+  const t=e.target.closest('.st'); if(!t||(e.pointerType==='mouse'&&e.button!==0)) return;
+  slDrag={id:t.dataset.f,x:e.clientX,y:e.clientY,on:false,pid:e.pointerId,el:t};
+});
+slList.addEventListener('pointermove',e=>{
+  const d=slDrag; if(!d||d.pid!==e.pointerId) return;
+  if(!d.on){ if(Math.abs(e.clientX-d.x)<8) return; if(Math.abs(e.clientY-d.y)>Math.abs(e.clientX-d.x)*2) return; d.on=true; d.el.classList.add('drag'); try{ slList.setPointerCapture(e.pointerId); }catch(_){} }
+  const ts=[...slList.querySelectorAll('.st')]; let idx=ts.length;
+  for(let i=0;i<ts.length;i++){ const rc=ts[i].getBoundingClientRect(); if(e.clientX<rc.left+rc.width/2){ idx=i; break; } }
+  d.idx=idx; let ins=$('slIns'); if(!ins){ ins=document.createElement('div'); ins.id='slIns'; slidesEl.appendChild(ins); }
+  const lr=slList.getBoundingClientRect(), z=uiCfg.scale, ref=ts[idx]||ts[ts.length-1], rr=ref.getBoundingClientRect();
+  ins.style.left=((idx<ts.length?rr.left:rr.right+10)-lr.left)/z+'px'; ins.style.top=(slList.offsetTop+8)+'px'; ins.style.height=(slList.clientHeight-18)+'px';
+  const ed=lr.right-e.clientX<40?1:e.clientX-lr.left<40?-1:0; if(ed) slList.scrollLeft+=ed*12;
+});
+function slEnd(e){
+  const d=slDrag; slDrag=null; const ins=$('slIns'); if(ins) ins.remove(); if(!d) return;
+  if(d.on){ d.el.classList.remove('drag'); if(d.idx==null) return;
+    const fr=frames(), from=fr.findIndex(f=>f.id===d.id); if(from<0) return; let to=d.idx; if(to>from) to--;
+    if(to!==from){ const [m]=fr.splice(from,1); fr.splice(to,0,m); fr.forEach((f,n)=>f.ord=n+1); slSel=d.id; commit(); render(); }
+    return; }
+  if(e.type==='pointerup') gotoFrame(d.id);
+}
+slList.addEventListener('pointerup',slEnd); slList.addEventListener('pointercancel',slEnd);
+slList.addEventListener('keydown',e=>{ const t=e.target.closest('.st'); if(!t) return;
+  if(e.key==='Enter'||e.key===' '){ e.preventDefault(); gotoFrame(t.dataset.f); }
+  else if((e.key==='ArrowLeft'||e.key==='ArrowRight')&&e.altKey){ e.preventDefault(); slSel=t.dataset.f; moveFrame(t.dataset.f,e.key==='ArrowLeft'?-1:1); setTimeout(()=>{ renderSlides(); const n=slList.querySelector(`[data-f="${slSel}"]`); n&&n.focus(); },0); }
+  else if(e.key==='ArrowLeft'||e.key==='ArrowRight'){ e.preventDefault(); const n=e.key==='ArrowLeft'?t.previousElementSibling:t.nextElementSibling; n&&n.focus(); }
+});
+$('slClose').onclick=()=>toggleSlides(false);
+$('slPlay').onclick=()=>startPres(slSel);
+$('slAdd').onclick=()=>{ const rc=svg.getBoundingClientRect(); addShape('frame',toWorld(rc.left+rc.width/2,rc.top+rc.height/2)); const f=frames().pop(); if(f){ slSel=f.id; renderSlides(); gotoFrame(f.id); } };
+
+/* ---------- Vorlagen-Galerie ---------- */
+const TC={blue:'#cfe8ff',green:'#d3f0dc',orange:'#ffd9c7',yellow:'#fff3b0',violet:'#e6dcff',pink:'#ffd6e7',grey:'#e3e8ea',white:'#ffffff'};
+function tplKit(){
+  const out=[];
+  const B=(kind,x,y,w,h,text,o)=>{ const it=Object.assign({id:nid(),type:'shape',kind,x,y,w,h,text:text||'',fill:TC.white,stroke:INK,sw:2},o||{}); out.push(it); return it; };
+  const X=(x,y,w,text,fs,o)=>B('text',x,y,w,Math.round((fs||16)*1.3*String(text).split('\n').length+10),text,Object.assign({fill:'none',fs:fs||16},o||{}));
+  const H=(x,y,w,text,fs)=>X(x,y,w,text,fs||18,{bold:true});
+  const L=(x1,y1,x2,y2,o)=>{ const c=Object.assign({id:nid(),type:'conn',from:null,to:null,p1:{x:x1,y:y1},p2:{x:x2,y:y2},text:'',stroke:INK,sw:2,style:'straight',dash:false,head:'arrow'},o||{}); out.push(c); return c; };
+  const A=(a,b,fa,ta,o)=>{ const c=Object.assign({id:nid(),type:'conn',from:a.id,to:b.id,p1:{x:0,y:0},p2:{x:0,y:0},text:'',stroke:INK,sw:2,style:'ortho',dash:false,head:'arrow'},o||{}); if(fa) c.fa=fa; if(ta) c.ta=ta; out.push(c); return c; };
+  const Q=(x,y,w,h,title,sub,fill)=>{ B('rect',x,y,w,h,'',{fill}); H(x+16,y+14,w-32,title); if(sub) X(x+16,y+44,w-32,sub,13,{tc:'#5b6870'}); };
+  const TB=(x,y,colW,rowH,cells,o)=>B('table',x,y,sum(colW),sum(rowH),'',Object.assign({colW,rowH,cells},o||{}));
+  return {out,B,X,H,L,A,Q,TB};
+}
+const TEMPLATES=[
+ {name:'SWOT-Analyse',info:'Stärken, Schwächen, Chancen und Risiken auf einen Blick',make(K){ const {H,X,Q}=K; H(0,0,700,'SWOT-Analyse',26);
+   X(90,56,380,'hilfreich',14,{al:'center',tc:'#5b6870'}); X(490,56,380,'schädlich',14,{al:'center',tc:'#5b6870'}); X(0,170,80,'intern',14,{tc:'#5b6870'}); X(0,440,80,'extern',14,{tc:'#5b6870'});
+   Q(90,84,380,250,'Stärken','Was können wir besonders gut?',TC.green); Q(490,84,380,250,'Schwächen','Wo haben wir Nachholbedarf?',TC.orange);
+   Q(90,354,380,250,'Chancen','Welche Entwicklungen nützen uns?',TC.blue); Q(490,354,380,250,'Risiken','Was könnte uns schaden?',TC.pink); }},
+ {name:'Eisenhower-Matrix',info:'Aufgaben nach Wichtigkeit und Dringlichkeit sortieren',make(K){ const {H,X,Q}=K; H(0,0,700,'Eisenhower-Matrix',26);
+   X(130,56,380,'dringend',14,{al:'center',tc:'#5b6870'}); X(530,56,380,'nicht dringend',14,{al:'center',tc:'#5b6870'}); X(0,190,120,'wichtig',14,{tc:'#5b6870'}); X(0,460,120,'nicht wichtig',14,{tc:'#5b6870'});
+   Q(130,84,380,250,'1 · Sofort erledigen','wichtig und dringend: selbst und jetzt',TC.orange); Q(530,84,380,250,'2 · Planen','wichtig, nicht dringend: Termin festlegen',TC.blue);
+   Q(130,354,380,250,'3 · Delegieren','dringend, nicht wichtig: abgeben',TC.yellow); Q(530,354,380,250,'4 · Weglassen','weder wichtig noch dringend',TC.grey); }},
+ {name:'Retrospektive',info:'Start, Stop, Weitermachen und Maßnahmen fürs Team',make(K){ const {H,B,X}=K; H(0,0,700,'Retrospektive',26);
+   [['Start','Was sollten wir neu anfangen?',TC.green],['Stop','Was sollten wir lassen?',TC.pink],['Weitermachen','Was hat sich bewährt?',TC.blue]].forEach(([t,q,c],i)=>{ const x=i*290;
+     B('rect',x,60,270,56,t,{fill:c,bold:true,fs:18}); B('rect',x,116,270,330,'',{fill:TC.white}); X(x+14,126,242,q,13,{tc:'#5b6870'}); });
+   B('note',14,170,150,90,'Idee hier notieren',{fill:TC.yellow,fs:13});
+   B('rect',0,470,850,56,'Maßnahmen: Wer macht was bis wann?',{fill:TC.yellow,bold:true,fs:16}); B('rect',0,526,850,120,'',{fill:TC.white}); }},
+ {name:'Prozesslandkarte',info:'Führungs-, Kern- und Unterstützungsprozesse',make(K){ const {H,B}=K; H(0,0,700,'Prozesslandkarte',26);
+   B('rect',0,60,130,520,'Kunde\n\nAnforderungen',{fill:TC.grey,bold:true,fs:14}); B('rect',1050,60,130,520,'Kunde\n\nZufriedenheit',{fill:TC.grey,bold:true,fs:14});
+   B('rect',150,60,880,150,'',{fill:TC.violet}); K.H(166,70,400,'Führungsprozesse',15); ['Strategie','Qualitäts-\nmanagement','Controlling'].forEach((t,i)=>B('round',190+i*280,110,240,80,t,{fs:14}));
+   B('rect',150,230,880,170,'',{fill:TC.blue}); K.H(166,240,400,'Kernprozesse',15); ['Vertrieb','Planung','Leistungs-\nerbringung','Service'].forEach((t,i)=>B('arrowr',170+i*214,280,206,100,t,{fs:14}));
+   B('rect',150,420,880,160,'',{fill:TC.grey}); K.H(166,430,400,'Unterstützungsprozesse',15); ['Personal','IT','Einkauf','Buchhaltung'].forEach((t,i)=>B('round',180+i*212,470,180,80,t,{fs:14})); }},
+ {name:'Zeitstrahl',info:'Meilensteine eines Projekts in zeitlicher Reihenfolge',make(K){ const {H,L,B,X}=K; H(0,0,700,'Zeitstrahl',26);
+   L(0,260,1000,260,{sw:4});
+   [['Januar','Projektstart'],['März','Konzept fertig'],['Mai','Umsetzung'],['August','Test'],['Oktober','Abschluss']].forEach(([d,t],i)=>{ const x=80+i*200, up=i%2===0;
+     B('ellipse',x-14,246,28,28,'',{fill:TC.blue,sw:3}); L(x,up?246:274,x,up?190:330,{head:'none',dash:true});
+     B('round',x-85,up?110:330,170,80,'',{fill:i===4?TC.green:TC.white}); X(x-75,(up?118:338),150,d,15,{bold:true,al:'center'}); X(x-75,(up?146:366),150,t,13,{al:'center'}); }); }},
+ {name:'Business Model Canvas',info:'Geschäftsmodell auf neun Feldern',make(K){ const {H,B,X}=K; H(0,0,700,'Business Model Canvas',26);
+   const F=(x,y,w,h,t,c)=>{ B('rect',x,y,w,h,'',{fill:c}); X(x+12,y+10,w-24,t,14,{bold:true}); };
+   F(0,60,220,420,'Schlüssel-\npartner',TC.white); F(220,60,220,210,'Schlüssel-\naktivitäten',TC.white); F(220,270,220,210,'Schlüssel-\nressourcen',TC.white);
+   F(440,60,220,420,'Wertangebote',TC.yellow); F(660,60,220,210,'Kunden-\nbeziehungen',TC.white); F(660,270,220,210,'Kanäle',TC.white); F(880,60,220,420,'Kunden-\nsegmente',TC.white);
+   F(0,480,550,170,'Kostenstruktur',TC.grey); F(550,480,550,170,'Einnahmequellen',TC.green); }},
+ {name:'Ishikawa-Diagramm',info:'Ursachen eines Problems nach den 6 M ordnen',make(K){ const {H,L,B}=K; H(0,0,700,'Ursache-Wirkungs-Diagramm',26);
+   L(0,320,820,320,{sw:4}); B('rect',830,280,200,80,'Problem /\nWirkung',{fill:TC.orange,bold:true,fs:15});
+   [['Mensch',100],['Methode',360],['Messung',620]].forEach(([t,x])=>{ L(x,120,x+110,320,{head:'none',sw:3}); B('round',x-70,70,140,46,t,{fill:TC.blue,fs:14}); });
+   [['Maschine',100],['Material',360],['Mitwelt',620]].forEach(([t,x])=>{ L(x,520,x+110,320,{head:'none',sw:3}); B('round',x-70,524,140,46,t,{fill:TC.blue,fs:14}); }); }},
+ {name:'Organigramm',info:'Aufbau einer Organisation mit Leitung und Teams',make(K){ const {H,B,A}=K; H(0,0,700,'Organigramm',26);
+   const top=B('round',360,60,220,64,'Geschäftsführung',{fill:TC.blue,bold:true,fs:15});
+   ['Vertrieb','Produktion','Verwaltung'].forEach((t,i)=>{ const x=40+i*320, m=B('round',x+40,190,200,60,t,{fill:TC.green,fs:14}); A(top,m,'s','n',{head:'none'});
+     ['Team A','Team B'].forEach((u,j)=>{ const c=B('round',x+j*140,320,130,52,u,{fs:13}); A(m,c,'s','n',{head:'none'}); }); }); }},
+ {name:'PDCA-Zyklus',info:'Plan, Do, Check, Act: kontinuierlich verbessern',make(K){ const {H,B,A}=K; H(0,0,700,'PDCA-Zyklus',26);
+   const p=B('round',0,70,280,130,'Plan\nZiele und Maßnahmen planen',{fill:TC.blue,fs:15}), d=B('round',400,70,280,130,'Do\nMaßnahmen umsetzen',{fill:TC.green,fs:15}),
+     c=B('round',400,300,280,130,'Check\nErgebnisse prüfen',{fill:TC.yellow,fs:15}), a=B('round',0,300,280,130,'Act\nStandardisieren oder anpassen',{fill:TC.orange,fs:15});
+   B('ellipse',285,205,110,90,'PDCA',{bold:true,fs:16}); A(p,d,'e','w',{sw:3}); A(d,c,'s','n',{sw:3}); A(c,a,'w','e',{sw:3}); A(a,p,'n','s',{sw:3}); }},
+ {name:'Stakeholder-Matrix',info:'Beteiligte nach Einfluss und Interesse einordnen',make(K){ const {H,X,Q,L}=K; H(0,0,700,'Stakeholder-Matrix',26);
+   L(60,620,60,70,{sw:3}); L(60,620,880,620,{sw:3}); X(0,40,160,'Einfluss',14,{bold:true}); X(760,630,140,'Interesse',14,{bold:true});
+   Q(80,70,390,260,'Zufriedenstellen','hoher Einfluss, geringes Interesse',TC.yellow); Q(480,70,390,260,'Eng einbinden','hoher Einfluss, hohes Interesse',TC.orange);
+   Q(80,340,390,260,'Beobachten','geringer Einfluss, geringes Interesse',TC.grey); Q(480,340,390,260,'Informieren','geringer Einfluss, hohes Interesse',TC.blue); }},
+ {name:'RACI-Matrix',info:'Wer ist verantwortlich, wer macht mit, wer wird informiert?',make(K){ const {H,TB,X}=K; H(0,0,700,'RACI-Matrix',26);
+   const cw=[240,140,140,140,160], rh=[44,40,40,40,40,40];
+   TB(0,60,cw,rh,[['Aufgabe','Projektleitung','Team','Fachbereich','Geschäftsführung'],['Anforderungen erheben','A','R','C','I'],['Konzept erstellen','A','R','C','I'],['Umsetzung','A','R','I','I'],['Abnahme','R','C','A','I'],['Projektabschluss','R','C','I','A']],{al:'center'});
+   X(0,320,860,'R = Responsible (führt durch) · A = Accountable (verantwortlich, eine Person) · C = Consulted (wird befragt) · I = Informed (wird informiert)',13,{tc:'#5b6870'}); }},
+ {name:'Projektsteckbrief',info:'Die wichtigsten Eckdaten eines Projekts',make(K){ const {H,TB}=K; H(0,0,700,'Projektsteckbrief',26);
+   TB(0,60,[220,600],[42,44,44,44,64,64,64,64,44,64],[['Thema','Beschreibung'],['Projektname',''],['Auftraggeber',''],['Projektleitung',''],['Ausgangslage',''],['Ziele',''],['Nicht im Umfang',''],['Meilensteine',''],['Budget',''],['Risiken','']],{align:'left'}); }},
+ {name:'Empathy Map',info:'Sich in Kundinnen und Kunden hineinversetzen',make(K){ const {H,B,Q}=K; H(0,0,700,'Empathy Map',26);
+   Q(0,60,440,250,'Denkt und fühlt','Was beschäftigt die Person wirklich?',TC.violet); Q(460,60,440,250,'Hört','Was sagen Freunde, Kollegen, Chefs?',TC.blue);
+   Q(0,330,440,250,'Sieht','Umfeld, Angebote, Probleme',TC.green); Q(460,330,440,250,'Sagt und tut','Verhalten, Aussagen, Auftreten',TC.yellow);
+   B('ellipse',360,240,180,110,'Persona',{bold:true,fs:16}); Q(0,600,440,150,'Schmerzpunkte','Ängste, Frust, Hindernisse',TC.pink); Q(460,600,440,150,'Gewinne','Wünsche, Bedürfnisse, Erfolg',TC.green); }},
+ {name:'5-Why-Analyse',info:'Mit fünfmal „Warum?“ zur Grundursache',make(K){ const {H,B,A}=K; H(0,0,700,'5-Why-Analyse',26);
+   let prev=B('round',0,60,420,60,'Problem: …',{fill:TC.orange,bold:true,fs:15});
+   for(let i=1;i<=5;i++){ const n=B('round',0,60+i*95,420,60,'Warum '+i+'? …',{fill:i===5?TC.green:TC.white,fs:14}); A(prev,n,'s','n'); prev=n; }
+   B('note',460,535,200,70,'Grundursache gefunden: Maßnahme ableiten',{fill:TC.yellow,fs:13}); }},
+ {name:'Kanban-Board',info:'To Do, In Arbeit, Erledigt',kind:'kanban'},
+ {name:'Scrum-Board',info:'Backlog, Sprint, Review',kind:'scrum'},
+ {name:'Mindmap',info:'Thema mit Zweigen, per „+ Zweig“ erweiterbar',kind:'mindmap'}
+];
+function tplItems(t){ const K=tplKit(); t.make(K); return K.out; }
+function tplPreview(t){
+  if(t.kind) return iconFor(t.kind,44,28).replace('<svg ','<svg style="padding:22px 50px;color:#5b6870" ');
+  const n0=doc.n, its=tplItems(t), b=unionBox(its), dk=darkBoard, ed=editing; doc.n=n0; darkBoard=false; editing=null;
+  const keep=doc.items; doc.items=its; let body=''; try{ body=its.map(itemSVG).join(''); } finally { doc.items=keep; darkBoard=dk; editing=ed; }
+  return `<svg viewBox="${r(b.x-20)} ${r(b.y-20)} ${r(b.w+40)} ${r(b.h+40)}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${body}</svg>`;
+}
+function openTpl(){
+  closeMenu(); const g=$('tplGrid');
+  if(!g.dataset.done){ g.innerHTML=TEMPLATES.map((t,i)=>`<button type="button" class="tc" data-t="${i}">${tplPreview(t)}<b>${esc(t.name)}</b><small>${esc(t.info)}</small></button>`).join(''); g.dataset.done='1'; }
+  $('tplDlg').hidden=false; const b=$('tplBox'); b.scrollTop=0; b.focus({preventScroll:true});
+}
+function closeTpl(){ if($('tplDlg').hidden) return; $('tplDlg').hidden=true; svg.focus(); }
+function insertTpl(i){
+  const t=TEMPLATES[i]; closeTpl(); if(!t) return;
+  const rc=svg.getBoundingClientRect(), c=toWorld(rc.left+rc.width/2,rc.top+rc.height/2);
+  if(t.kind){ addShape(t.kind,c,'mouse'); return; }
+  const its=tplItems(t), b=unionBox(its), dx=snap(c.x-b.w/2)-b.x, dy=snap(c.y-b.h/2)-b.y;
+  for(const it of its) moveCopy(it,dx,dy);
+  finishEdit(); doc.items.push(...its); fitTexts(); sel=new Set(its.map(i=>i.id)); setTool('select'); commit();
+  const k=clamp(Math.min(rc.width/(b.w+100),rc.height/(b.h+100)),0.15,1.2); view={k,x:rc.width/2-(b.x+dx+b.w/2)*k,y:rc.height/2-(b.y+dy+b.h/2)*k}; applyView(); render();
+  toast('Vorlage eingefügt. Alles ist ausgewählt und lässt sich gemeinsam verschieben.');
+}
+$('tplGrid').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(b) insertTpl(+b.dataset.t); });
+$('tplClose').onclick=closeTpl;
+$('tplDlg').addEventListener('pointerdown',e=>{ if(e.target===$('tplDlg')) closeTpl(); });
+$('tplDlg').addEventListener('keydown',e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); closeTpl(); } });
 
 /* ---------- Präsentation: Folie für Folie im Vollbild, mit Laserpointer ---------- */
 const presEl=$('pres'), presSvg=$('presSvg'), laserEl=$('laser'), trailEl=$('laserTrail');
@@ -2152,7 +2638,7 @@ try{ window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude
 storeInit().then(()=>{ if(window.claude&&window.claude.hot&&window.claude.hot.ready) window.claude.hot.ready(start); else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{}); });
 getDl();
 /* Schrift ist erst kurz nach dem Start bereit: danach neu zeichnen, damit Textbreiten stimmen */
-if(document.fonts&&document.fonts.load) Promise.all(["400","500","600"].map(w=>document.fonts.load(w+" 14px 'Roboto Mono'"))).then(()=>{ renderPal(); if(fitTexts()){ hist[hi]=JSON.stringify(doc); persist(); } render(); }).catch(()=>{});
+if(document.fonts&&document.fonts.load) Promise.all(["400","500","600"].map(w=>document.fonts.load(w+" 14px 'Roboto Mono'"))).then(()=>{ renderPal(); if(fitTexts()){ hist[hi]=mkSnap(doc,hist[hi]); persist(); } render(); }).catch(()=>{});
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0) navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
 </script>
