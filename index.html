@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Blackboard</title>
+<title>Skizix</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#101617">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Blackboard">
+<meta name="apple-mobile-web-app-title" content="Skizix">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <!-- Schriften sind eingebettet (keine externen Abrufe). Roboto Mono: Copyright 2015 The Roboto Mono Project Authors (https://github.com/googlefonts/robotomono). Doto: Copyright 2024 The Doto Project Authors (https://github.com/oliverlalan/Doto). Beide lizenziert unter der SIL Open Font License 1.1, https://openfontlicense.org -->
@@ -165,6 +165,11 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 .dlgBtns .pb{padding:9px 14px;font-size:14px}
 #syGo{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 #menuBtn{position:relative}
+#liveBadge{flex:0 0 auto;font-size:11px;font-weight:600;letter-spacing:.06em;padding:4px 8px;border-radius:999px;background:#1e63d0;color:#fff;white-space:nowrap}
+#liveBadge[data-st="off"]{background:#7a8790}
+#liveJoinForm{display:flex;gap:6px;padding:4px 6px}
+#liveJoinForm input{flex:1;min-width:0;font:inherit;font-size:13px;padding:7px 8px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink)}
+#liveJoinForm button{text-align:center;padding:7px 10px;border:1px solid var(--line)}
 #menuBtn[data-sync]::after{content:'';position:absolute;top:4px;right:6px;width:9px;height:9px;border-radius:50%;background:#3ecf6e;border:2px solid var(--panel)}
 #menuBtn[data-sync="busy"]::after,#menuBtn[data-sync="wait"]::after{background:#f2c200}
 #menuBtn[data-sync="err"]::after,#menuBtn[data-sync="auth"]::after{background:#ff6b57}
@@ -235,8 +240,9 @@ body.compact #playBtn{display:none}
 <body>
 <header>
   <div class="bar">
-    <div class="brand"><svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="4" width="24" height="16" rx="3"/><path d="M7 15l4-5 3 3 3-4 4 5M10 25h8M14 20v5"/></svg><span>Black<i>board</i></span></div>
+    <div class="brand"><svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="4" width="24" height="16" rx="3"/><path d="M7 15l4-5 3 3 3-4 4 5M10 25h8M14 20v5"/></svg><span>Ski<i>zix</i></span></div>
     <input id="boardName" type="text" maxlength="40" aria-label="Name des Boards" title="Name des Boards (zum Umbenennen einfach tippen)">
+    <button id="liveBadge" type="button" hidden>LIVE</button>
     <div class="grp" id="tools" role="toolbar" aria-label="Werkzeuge">
       <button class="tb" data-tool="select" title="Auswählen und verschieben (V)"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 2-2 6z"/></svg><span>Auswahl</span></button>
       <button class="tb" data-tool="pen" title="Freihand zeichnen (P)"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span>Stift</span></button>
@@ -281,6 +287,15 @@ body.compact #playBtn{display:none}
     <button data-m="json">Board als Datei sichern (.json)</button>
     <button data-m="open">Board aus Datei laden …</button>
     <hr>
+    <div id="liveSec">
+      <div class="mh">Live mit anderen</div>
+      <div class="mh" id="liveInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nur auf diesem Gerät</div>
+      <button data-m="livestart" id="liveStartBtn">Live schalten und Link teilen</button>
+      <button data-m="livecopy" id="liveCopyBtn" hidden>Link teilen</button>
+      <button data-m="livestop" id="liveStopBtn" hidden>Live beenden (nur hier)</button>
+      <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Live-Link einfügen" aria-label="Live-Link zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
+      <hr>
+    </div>
     <div id="syncSec">
       <div class="mh">Synchronisierung</div>
       <div class="mh" id="syncInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nicht eingerichtet</div>
@@ -323,7 +338,7 @@ body.compact #playBtn{display:none}
 <div id="syncDlg" hidden role="dialog" aria-modal="true" aria-labelledby="syTitle">
   <form id="syncForm" autocomplete="off">
     <h2 id="syTitle">Synchronisierung über GitHub</h2>
-    <p>Blackboard legt deine Boards als Dateien in einem privaten GitHub-Repository ab. Die Angaben bleiben nur auf diesem Gerät gespeichert.</p>
+    <p>Skizix legt deine Boards als Dateien in einem privaten GitHub-Repository ab. Die Angaben bleiben nur auf diesem Gerät gespeichert.</p>
     <label for="syOwner">GitHub-Benutzername</label><input id="syOwner" type="text" autocapitalize="off" autocorrect="off" spellcheck="false">
     <label for="syRepo">Repository für die Boards</label><input id="syRepo" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="z. B. Boards">
     <label for="syToken">Zugangsschlüssel (Token)</label><input id="syToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
@@ -495,7 +510,8 @@ const up10=v=>Math.ceil(v/GRID)*GRID;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const byId=id=>doc.items.find(i=>i.id===id);
-const nid=()=>'i'+(++doc.n);
+const DEV=(()=>{ let d=null; try{ d=localStorage.getItem('skizix-dev'); }catch(e){} if(!d||!/^[a-z0-9]{4}$/.test(d)){ d=Math.random().toString(36).slice(2,6).padEnd(4,'0'); try{ localStorage.setItem('skizix-dev',d); }catch(e){} } return d; })();
+const nid=()=>'i'+(++doc.n)+'_'+DEV;   /* Gerätekennung im Namen: zwei Geräte am selben Live-Board vergeben nie dieselbe ID */
 const isSq=k=>k.startsWith('ev')||k.startsWith('gw');
 const isBox=k=>k==='pool'||k==='table'||k==='nsloop'||k==='nsloopf'||k==='frame';
 const noDock=k=>k==='pool'||k==='table'||k==='frame'||k==='bgroup'||k==='check';
@@ -1128,7 +1144,7 @@ function renderBoardList(){
   $('boardList').innerHTML=boards.list.map(b=>`<button data-b="${b.id}" aria-current="${b.id===boards.cur}">${b.id===boards.cur?'✓ ':''}${esc(b.name)}</button>`).join('');
   const d=$('delBoard'); d.textContent='Dieses Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
 }
-function fileBase(){ return (curBoard().name||'').trim().replace(/[^\wäöüÄÖÜß -]+/g,'').replace(/\s+/g,'-')||'blackboard'; }
+function fileBase(){ return (curBoard().name||'').trim().replace(/[^\wäöüÄÖÜß -]+/g,'').replace(/\s+/g,'-')||'skizix'; }
 function assignFrames(){
   const fr=frames(), inside=(b,f)=>b.x>=f.x-0.5&&b.y>=f.y-0.5&&b.x+b.w<=f.x+f.w+0.5&&b.y+b.h<=f.y+f.h+0.5;
   for(const it of doc.items){
@@ -1157,8 +1173,9 @@ function commit(){
   let tot=0; for(const h of hist) tot+=h.bytes; while(tot>24e6&&hist.length>3){ tot-=hist.shift().bytes; }   /* Speicher für „Rückgängig“ begrenzen */
   hi=hist.length-1; persist(snapJSON(sn));
   if(!first) markDirty();
+  liveTick();
 }
-function restore(i){ hi=i; doc=snapDoc(hist[hi]); sel.clear(); persist(); markDirty(); render(); }
+function restore(i){ hi=i; doc=snapDoc(hist[hi]); sel.clear(); persist(); markDirty(); render(); liveTick(); }
 function undo(){ finishEdit(); if(hi>0) restore(hi-1); }
 function redo(){ finishEdit(); if(hi<hist.length-1) restore(hi+1); }
 function toast(msg){ toastEl.textContent=msg; toastEl.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>toastEl.hidden=true,3200); }
@@ -2159,7 +2176,7 @@ async function pdfVector(boxes){
   add('%PDF-1.5\n'); add(new Uint8Array([37,226,227,207,211,10]));
   objs.forEach((ob,i)=>{ offs[i+1]=len; add(`${i+1} 0 obj\n`); if(Array.isArray(ob)) ob.forEach(add); else add(ob); add('\nendobj\n'); });
   const xref=len, N=objs.length+1; let t=`xref\n0 ${N}\n0000000000 65535 f \n`; for(let i=1;i<N;i++) t+=String(offs[i]).padStart(10,'0')+' 00000 n \n';
-  add(t+`trailer\n<< /Size ${N} /Root ${cat} 0 R /Info << /Producer (Blackboard) /Title (${String(doc.name||fileBase()).replace(/[^\x20-\x7e]/g,'').replace(/[()\\]/g,'')}) >> >>\nstartxref\n${xref}\n%%EOF\n`);
+  add(t+`trailer\n<< /Size ${N} /Root ${cat} 0 R /Info << /Producer (Skizix) /Title (${String(doc.name||fileBase()).replace(/[^\x20-\x7e]/g,'').replace(/[()\\]/g,'')}) >> >>\nstartxref\n${xref}\n%%EOF\n`);
   return new Blob(parts,{type:'application/pdf'});
 }
 async function exportAs(kind){
@@ -2194,6 +2211,9 @@ menu.addEventListener('click',e=>{
     case 'play': startPres(); break;
     case 'syncnow': syncNow(true); break;
     case 'synccfg': openSyncDlg(); break;
+    case 'livestart': liveStart(); break;
+    case 'livecopy': liveCopy(); break;
+    case 'livestop': liveStop(); break;
     case 'delboard': deleteBoard(); break;
     case 'png': case 'svg': case 'pdf': exportAs(b.dataset.m); break;
     case 'json': saveFile(fileBase()+'.json',JSON.stringify(Object.assign({},doc,{fmt:Math.max(doc.fmt||0,DOC_FMT)}))); break;
@@ -2207,7 +2227,7 @@ $('boardName').addEventListener('keydown',e=>{ if(e.key==='Enter') e.target.blur
 $('file').addEventListener('change',async e=>{
   const f=e.target.files[0]; if(!f) return;
   let d=null; try{ let raw=JSON.parse(await f.text()); if(raw&&raw.doc&&Array.isArray(raw.doc.items)) raw=raw.doc; d=cleanDoc(raw); if(d&&raw.items.length&&!d.items.length) d=null; }catch(_){}
-  if(!d){ toast('Diese Datei ist kein Blackboard-Board (.json). Dein Board bleibt unverändert.'); return; }
+  if(!d){ toast('Diese Datei ist kein Skizix-Board (.json). Dein Board bleibt unverändert.'); return; }
   finishEdit(); doc=d; fitTexts(); sel.clear(); commit(); render(); fit(); if(isNewer(doc)) newerWarn();
 });
 document.addEventListener('keydown',e=>{
@@ -2496,6 +2516,7 @@ function renderSyncInfo(){
   $('syncInfo').textContent=!syncCfg?'Nicht eingerichtet':syncState==='busy'?'Wird synchronisiert …':syncState==='wait'?'Änderungen warten auf den Abgleich':
     syncState==='auth'?'Zugang abgelehnt: Schlüssel prüfen':syncState==='err'?(syncErr||'Keine Verbindung')+' – wird erneut versucht':t?'Synchronisiert um '+t+' Uhr':'Verbunden mit '+syncCfg.owner+'/'+syncCfg.repo;
   $('syncNowBtn').hidden=!syncCfg; $('syncCfgBtn').textContent=syncCfg?'Einstellungen …':'Einrichten …';
+  liveBadge();
 }
 function scheduleSync(ms){
   if(!syncCfg||!canSync) return;
@@ -2506,6 +2527,7 @@ function localDoc(id){ return id===boards.cur?doc:(storedDoc(id)||{items:[],n:0}
 function takeRemote(id,data,sha){
   let b=boards.list.find(x=>x.id===id); if(!b){ b={id}; boards.list.push(b); }
   b.name=String(data.name||'Board'); b.sha=sha; b.dirty=false; b.updated=data.updated||Date.now();
+  if(typeof data.live==='string'&&/^[A-Za-z0-9]{20,64}$/.test(data.live)) b.live=data.live;
   docSet(id,JSON.stringify(data.doc));
   if(id===boards.cur){ doc=data.doc; fitTexts(); hist=[]; hi=-1; sel.clear(); commit(); render(); $('boardName').value=b.name; if(isNewer(doc)) newerWarn(); }
 }
@@ -2534,6 +2556,7 @@ async function syncNow(manual){
     for(const id in remote){
       if(boards.del.some(d=>d.id===id)) continue;
       const loc=boards.list.find(b=>b.id===id); if(loc&&loc.sha===remote[id]) continue;
+      if(loc&&loc.live){ loc.sha=remote[id]; continue; }   /* Live-Boards gleichen sich über Supabase ab; GitHub dient nur als Sicherung */
       const r=await ghApi(cfg,'/contents/boards/'+id+'.json',{raw:true}); if(!r.ok){ if(r.status===401||r.status===403) fail(r); continue; }
       let data=null; try{ data=JSON.parse(await r.text()); }catch(e){}
       const cd=data&&cleanDoc(data.doc); if(!cd) continue; data.doc=cd;
@@ -2547,7 +2570,7 @@ async function syncNow(manual){
     for(const b of boards.list.slice()){
       if(!b.dirty) continue; const rev=b.rev||0;
       if(isNewer(localDoc(b.id))) continue;   /* aus neuerer App-Version: erst nach dem Aktualisieren abgleichen */
-      const body={message:'Blackboard: '+b.name,content:b64(JSON.stringify({id:b.id,name:b.name,updated:b.updated||Date.now(),doc:localDoc(b.id)}))}; if(b.sha) body.sha=b.sha;
+      const body={message:'Skizix: '+b.name,content:b64(JSON.stringify({id:b.id,name:b.name,live:b.live||undefined,updated:b.updated||Date.now(),doc:localDoc(b.id)}))}; if(b.sha) body.sha=b.sha;
       const r=await ghApi(cfg,'/contents/boards/'+b.id+'.json',{method:'PUT',body});
       if(r.ok){ const j=await r.json(); b.sha=j.content.sha; if((b.rev||0)===rev) b.dirty=false; else syncAgain=true; }
       else if(r.status===409||r.status===422) syncAgain=true;
@@ -2555,7 +2578,7 @@ async function syncNow(manual){
     }
     /* 5. Hier gelöschte Boards auch auf dem Server löschen */
     for(const d of boards.del.slice()){
-      if(d.id in remote){ const r=await ghApi(cfg,'/contents/boards/'+d.id+'.json',{method:'DELETE',body:{message:'Blackboard: Board gelöscht',sha:remote[d.id]}});
+      if(d.id in remote){ const r=await ghApi(cfg,'/contents/boards/'+d.id+'.json',{method:'DELETE',body:{message:'Skizix: Board gelöscht',sha:remote[d.id]}});
         if(!r.ok&&r.status!==404&&r.status!==409&&r.status!==422) fail(r); if(r.status===409||r.status===422){ syncAgain=true; continue; } }
       boards.del=boards.del.filter(x=>x.id!==d.id);
     }
@@ -2611,6 +2634,206 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden) schedule
 window.addEventListener('online',()=>scheduleSync(600));
 setInterval(()=>{ if(syncCfg&&!document.hidden&&!syncBusy) syncNow(false); },90000);
 
+
+/* ---------- Live: dasselbe Board auf mehreren Geräten gleichzeitig (über Supabase) ----------
+   Jedes Live-Board hat einen geheimen Schlüssel. Wer den Link kennt, kann mitzeichnen.
+   Änderungen gehen sofort über einen Echtzeit-Kanal an alle offenen Geräte und werden kurz danach in der Datenbank gespeichert. */
+var SB_URL='https://qgddexalpzzwyvaqleud.supabase.co', SB_KEY='sb_publishable_vFLIL6z-AO-hOVzr9HJIHw_3LgYAoLl';
+var LV={ws:null,key:null,joined:false,ref:0,joinRef:null,hb:null,retry:null,tries:0,base:null,ord:null,queue:[],saveT:null,saving:false,saveAgain:false,peers:new Map(),pingT:null,name:''};
+function liveOk(){ return !window.claude&&typeof WebSocket!=='undefined'&&typeof fetch!=='undefined'; }
+function liveNewKey(){ const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789', u=new Uint8Array(28); crypto.getRandomValues(u); let s=''; for(const x of u) s+=a[x%a.length]; return s; }
+function liveLink(k){ return location.origin+location.pathname+'#live='+k; }
+function liveParse(t){ t=String(t||'').trim(); const m=/live=([A-Za-z0-9]{20,64})/.exec(t)||/^([A-Za-z0-9]{20,64})$/.exec(t); return m?m[1]:null; }
+async function liveRpc(fn,args){
+  const r=await fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',cache:'no-store',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(args)});
+  if(!r.ok) throw {status:r.status}; const t=await r.text(); return t?JSON.parse(t):null;
+}
+async function liveFetch(k){ const rows=await liveRpc('skizix_get',{p_id:k}); const row=Array.isArray(rows)?rows[0]:rows; if(!row||!row.doc) return null; const d=cleanDoc(row.doc); return d?{name:row.name,doc:d}:null; }
+/* Momentaufnahme des Boards: Element-ID → Text, und die Reihenfolge */
+function liveSnap(){ const m=new Map(); for(const it of doc.items) m.set(it.id,JSON.stringify(it)); return {m,ord:doc.items.map(i=>i.id)}; }
+function liveSetBase(){ const s=liveSnap(); LV.base=s.m; LV.ord=s.ord; }
+function liveDiff(){
+  if(!LV.base) return null;
+  const up=[], del=[], cur=new Set();
+  for(const it of doc.items){ cur.add(it.id); const j=JSON.stringify(it); if(LV.base.get(it.id)!==j) up.push(it); }
+  for(const id of LV.base.keys()) if(!cur.has(id)) del.push(id);
+  const a=LV.ord.filter(id=>cur.has(id)), b=doc.items.map(i=>i.id).filter(id=>LV.base.has(id));
+  const moved=a.length!==b.length||a.some((id,i)=>id!==b[i]);
+  if(!up.length&&!del.length&&!moved) return null;
+  const o={up,del}; if(moved) o.ord=doc.items.map(i=>i.id); return o;
+}
+/* Wird nach jeder eigenen Änderung aufgerufen (Speichern, Rückgängig, Board wechseln) */
+function liveTick(){
+  if(!liveOk()) return;
+  const b=curBoard(), k=b&&b.live||null;
+  if(k!==LV.key){ liveConnect(k); return; }
+  if(!k) return;
+  if(!LV.joined||!LV.base){ b.liveDirty=true; saveIdx(); liveBadge(); return; }
+  const o=liveDiff(); if(!o) return;
+  liveSetBase(); b.liveDirty=true; saveIdx();
+  const msg={t:'ops',up:o.up,del:o.del,nm:b.name}; if(o.ord) msg.ord=o.ord;
+  const big=JSON.stringify(msg).length>200000;
+  if(big) liveSave(0,true); else { liveSend(msg); liveSave(1500); }
+}
+function liveSend(msg){
+  if(!LV.ws||LV.ws.readyState!==1||!LV.joined) return false;
+  try{ LV.ws.send(JSON.stringify({topic:'realtime:skizix-'+LV.key,event:'broadcast',payload:{type:'broadcast',event:'m',payload:Object.assign({dev:DEV},msg)},ref:String(++LV.ref),join_ref:LV.joinRef})); return true; }catch(e){ return false; }
+}
+function liveSave(ms,thenReload){
+  clearTimeout(LV.saveT); LV.saveT=setTimeout(async()=>{
+    if(LV.saving){ LV.saveAgain=true; return; }
+    const b=curBoard(), k=b&&b.live; if(!k||k!==LV.key) return;
+    LV.saving=true; const rev=b.rev;
+    try{ await liveRpc('skizix_save',{p_id:k,p_name:b.name||'Board',p_doc:Object.assign({},doc,{fmt:Math.max(doc.fmt||0,DOC_FMT)})});
+      if(b.rev===rev) b.liveDirty=false; saveIdx(); if(thenReload) liveSend({t:'reload'}); }
+    catch(e){ liveSave(10000,thenReload); }
+    finally{ LV.saving=false; if(LV.saveAgain){ LV.saveAgain=false; liveSave(500,thenReload); } liveBadge(); }
+  },ms||0);
+}
+/* Änderungen anderer Geräte übernehmen */
+function liveApply(m){
+  if(!m||m.dev===DEV) return;
+  if(m.t==='hi'||m.t==='here'){ const isNew=!LV.peers.has(m.dev); LV.peers.set(m.dev,{at:Date.now(),name:String(m.name||'').slice(0,40)}); if(m.t==='hi') liveSend({t:'here',name:LV.name}); if(isNew&&m.t==='hi'&&LV.peers.size) toast('Jemand ist dem Live-Board beigetreten.'); liveBadge(); return; }
+  if(m.t==='bye'){ LV.peers.delete(m.dev); liveBadge(); return; }
+  LV.peers.set(m.dev,Object.assign(LV.peers.get(m.dev)||{},{at:Date.now()}));
+  if(action||editing||pres){ LV.queue.push(m); return; }
+  if(m.t==='reload'){ liveResync(); return; }
+  if(m.t!=='ops') return;
+  const b=curBoard();
+  if(typeof m.nm==='string'&&m.nm.trim()&&m.nm!==b.name){ b.name=m.nm.slice(0,40); if(document.activeElement!==$('boardName')) $('boardName').value=b.name; saveIdx(); }
+  /* eingehende Elemente prüfen; vorhandene Formen dienen als Platzhalter, damit Pfeile ihre Enden behalten */
+  const stubs=doc.items.filter(i=>i.type==='shape').map(i=>({id:i.id,type:'shape',kind:'rect',x:0,y:0,w:1,h:1}));
+  const ups=Array.isArray(m.up)?m.up.slice(0,5000):[], upIds=new Set(ups.map(u=>u&&u.id));
+  const cd=cleanDoc({items:ups.concat(stubs.filter(s=>!upIds.has(s.id)))}); if(!cd) return;
+  const clean=cd.items.filter(i=>upIds.has(i.id)), del=new Set(Array.isArray(m.del)?m.del.filter(x=>typeof x==='string'):[]);
+  let items=doc.items.filter(i=>!del.has(i.id)); const pos=new Map(items.map((it,i)=>[it.id,i]));
+  for(const it of clean){ if(pos.has(it.id)) items[pos.get(it.id)]=it; else { pos.set(it.id,items.length); items.push(it); } }
+  if(Array.isArray(m.ord)){ const rank=new Map(m.ord.map((id,i)=>[id,i])); const known=items.filter(i=>rank.has(i.id)).sort((a,b2)=>rank.get(a.id)-rank.get(b2.id)), rest=items.filter(i=>!rank.has(i.id)); items=known.concat(rest); }
+  /* eigene Änderungen, die noch nicht verschickt sind, bleiben erhalten */
+  const mine=liveDiff();
+  doc.items=items; for(const id of [...sel]) if(!byId(id)) sel.delete(id);
+  liveHist(clean,del);
+  liveSetBase();
+  if(mine){ for(const it of mine.up) LV.base.delete(it.id); for(const id of mine.del) if(!byId(id)) LV.base.set(id,'-'); }
+  persist(); render(); if(mine) liveTick();
+  liveSave(8000);
+}
+/* „Rückgängig“-Stände anpassen, damit Zurück nicht die Änderungen der anderen wieder entfernt */
+function liveHist(clean,del){
+  for(let i=0;i<hist.length;i++){
+    const h=hist[i]; if(!h||!h.ids) continue;
+    let ids=h.ids, items=h.items;
+    if(del.size){ const keep=ids.map(id=>!del.has(id)); ids=ids.filter((_,j)=>keep[j]); items=items.filter((_,j)=>keep[j]); }
+    const pos=new Map(ids.map((id,j)=>[id,j]));
+    for(const it of clean){ const j=JSON.stringify(it); if(pos.has(it.id)) items[pos.get(it.id)]=j; else { pos.set(it.id,ids.length); ids.push(it.id); items.push(j); } }
+    h.ids=ids; h.items=items; delete h.m;
+  }
+}
+setInterval(()=>{ if(LV.queue.length&&!action&&!editing&&!pres){ const q=LV.queue; LV.queue=[]; q.forEach(liveApply); } },700);
+/* Stand vom Server holen und mit eigenen, noch nicht gespeicherten Änderungen zusammenführen */
+async function liveResync(){
+  const b=curBoard(), k=b&&b.live; if(!k) return;
+  let r=null; try{ r=await liveFetch(k); }catch(e){ return; }
+  if(curBoard()!==b||b.live!==k) return;
+  if(action||editing||pres){ LV.queue.push({t:'reload',dev:'srv'}); return; }
+  const mine=LV.base?liveDiff():null;
+  if(!r){ liveSetBase(); liveSave(0); return; }   /* neues Live-Board: eigenen Stand hochladen */
+  let items=r.doc.items;
+  if(mine){ const del=new Set(mine.del), pos=new Map(); items=items.filter(i=>!del.has(i.id)); items.forEach((it,i)=>pos.set(it.id,i));
+    for(const it of mine.up){ if(pos.has(it.id)) items[pos.get(it.id)]=it; else items.push(it); } }
+  else if(!LV.base&&b.liveDirty){ const pos=new Map(items.map((it,i)=>[it.id,i])); items=items.slice(); for(const it of doc.items){ if(pos.has(it.id)) items[pos.get(it.id)]=it; else items.push(it); } }
+  const changed=JSON.stringify(items)!==JSON.stringify(doc.items);
+  doc=Object.assign({},doc,{items,n:Math.max(doc.n||0,r.doc.n||0)}); for(const id of [...sel]) if(!byId(id)) sel.delete(id);
+  if(r.name&&r.name!==b.name){ b.name=String(r.name).slice(0,40); $('boardName').value=b.name; saveIdx(); }
+  if(changed){ resetHist(); persist(); render(); }
+  liveSetBase();
+  if(mine||b.liveDirty) liveSave(0,true);
+}
+function liveConnect(k){
+  liveClose();
+  LV.key=k||null; LV.base=null; LV.ord=null; LV.queue=[]; LV.peers.clear(); LV.tries=0;
+  if(!k){ liveBadge(); return; }
+  liveOpenWs();
+}
+function liveClose(){
+  clearTimeout(LV.retry); clearInterval(LV.hb); clearInterval(LV.pingT);
+  if(LV.ws){ try{ if(LV.joined) liveSend({t:'bye'}); LV.ws.onclose=null; LV.ws.close(); }catch(e){} }
+  LV.ws=null; LV.joined=false;
+}
+function liveOpenWs(){
+  const k=LV.key; if(!k) return;
+  let ws; try{ ws=new WebSocket(SB_URL.replace(/^http/,'ws')+'/realtime/v1/websocket?apikey='+encodeURIComponent(SB_KEY)+'&vsn=1.0.0'); }catch(e){ liveRetry(); return; }
+  LV.ws=ws; LV.joined=false; liveBadge();
+  ws.onopen=()=>{
+    LV.joinRef=String(++LV.ref);
+    ws.send(JSON.stringify({topic:'realtime:skizix-'+k,event:'phx_join',payload:{config:{broadcast:{self:false,ack:false},presence:{key:''},private:false}},ref:LV.joinRef,join_ref:LV.joinRef}));
+    clearInterval(LV.hb); LV.hb=setInterval(()=>{ try{ ws.send(JSON.stringify({topic:'phoenix',event:'heartbeat',payload:{},ref:String(++LV.ref)})); }catch(e){} },25000);
+  };
+  ws.onmessage=e=>{
+    let m=null; try{ m=JSON.parse(e.data); }catch(_){ return; } if(!m||ws!==LV.ws) return;
+    if(m.event==='phx_reply'&&m.ref===LV.joinRef){
+      if(m.payload&&m.payload.status==='ok'){ LV.joined=true; LV.tries=0; liveBadge(); liveSend({t:'hi',name:LV.name}); liveResync();
+        clearInterval(LV.pingT); LV.pingT=setInterval(()=>{ liveSend({t:'hi',name:LV.name}); const old=Date.now()-60000; for(const [d,p] of LV.peers) if(p.at<old) LV.peers.delete(d); liveBadge(); },25000); }
+      else { LV.err='join'; try{ ws.close(); }catch(_){} }
+      return;
+    }
+    if(m.event==='broadcast'&&m.payload&&m.payload.event==='m') liveApply(m.payload.payload);
+    if(m.event==='phx_error'||m.event==='phx_close'){ try{ ws.close(); }catch(_){} }
+  };
+  ws.onclose=()=>{ if(ws!==LV.ws) return; LV.joined=false; clearInterval(LV.hb); clearInterval(LV.pingT); liveBadge(); liveRetry(); };
+  ws.onerror=()=>{};
+}
+function liveRetry(){ clearTimeout(LV.retry); if(!LV.key) return; LV.tries++; LV.retry=setTimeout(liveOpenWs,Math.min(30000,1000*Math.pow(2,Math.min(LV.tries,5)))); }
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&LV.key&&(!LV.ws||LV.ws.readyState>1)){ LV.tries=0; liveOpenWs(); } });
+window.addEventListener('online',()=>{ if(LV.key&&!LV.joined){ LV.tries=0; liveOpenWs(); } });
+window.addEventListener('pagehide',()=>{ if(LV.joined) liveSend({t:'bye'}); });
+function liveBadge(){
+  const el=$('liveBadge'); if(!el) return; const b=curBoard(), on=!!(b&&b.live);
+  el.hidden=!on; if(on){ const n=LV.peers.size+1; el.dataset.st=LV.joined?'ok':'off'; el.textContent=LV.joined?('LIVE'+(n>1?' · '+n:'')):'LIVE …';
+    el.title=LV.joined?(n>1?n+' Geräte sind mit diesem Board verbunden':'Live-Board: verbunden, gerade niemand sonst da'):'Live-Board: Verbindung wird aufgebaut …'; }
+  const info=$('liveInfo'); if(info){ info.textContent=!liveOk()?'Hier nicht verfügbar':!on?'Nur auf diesem Gerät':LV.joined?(LV.peers.size?'Verbunden mit '+LV.peers.size+(LV.peers.size>1?' anderen Geräten':' anderem Gerät'):'Verbunden, niemand sonst da'):'Verbindung wird aufgebaut …';
+    $('liveStartBtn').hidden=on||!liveOk(); $('liveCopyBtn').hidden=!on; $('liveStopBtn').hidden=!on; }
+}
+async function liveCopy(){
+  const b=curBoard(); if(!b.live) return; const url=liveLink(b.live);
+  try{ if(navigator.share&&coarse){ await navigator.share({title:b.name||'Skizix',url}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+  try{ await navigator.clipboard.writeText(url); toast('Link kopiert. Wer ihn öffnet, zeichnet live mit.'); }
+  catch(e){ window.prompt('Diesen Link teilen:',url); }
+}
+function liveStart(){
+  if(!liveOk()) return; const b=curBoard(); if(b.live){ liveCopy(); return; }
+  b.live=liveNewKey(); b.liveDirty=true; markDirty(b); saveIdx(); liveConnect(b.live); liveBadge(); liveCopy();
+}
+function liveStop(){
+  const b=curBoard(); if(!b.live) return; delete b.live; delete b.liveDirty; markDirty(b); saveIdx(); liveConnect(null);
+  toast('Live beendet. Das Board bleibt auf diesem Gerät, die anderen können weiter damit arbeiten.');
+}
+async function liveJoin(k){
+  if(!k||!liveOk()) return false;
+  const have=boards.list.find(x=>x.live===k);
+  if(have){ if(have.id!==boards.cur) openBoard(have.id); else liveTick(); return true; }
+  let r=null; try{ r=await liveFetch(k); }catch(e){ toast('Keine Verbindung zum Live-Board. Prüfe die Internetverbindung.'); return false; }
+  if(!r){ toast('Dieses Live-Board gibt es nicht (mehr). Prüfe den Link.'); return false; }
+  const id=genId(), nb={id,name:String(r.name||'Live-Board').slice(0,40),live:k};
+  boards.list.push(nb); docSet(id,JSON.stringify(r.doc)); saveIdx(); openBoard(id);
+  toast('Live-Board „'+nb.name+'“ geöffnet. Änderungen erscheinen sofort bei allen.'); return true;
+}
+function liveFromHash(){
+  const k=liveParse(location.hash); if(!k) return;
+  try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+  liveJoin(k);
+}
+window.addEventListener('hashchange',liveFromHash);
+$('liveJoinForm').addEventListener('submit',async e=>{
+  e.preventDefault(); const inp=$('liveJoinIn'), k=liveParse(inp.value);
+  if(!k){ toast('Das ist kein gültiger Live-Link. Füge den ganzen Link ein.'); return; }
+  closeMenu(); if(await liveJoin(k)) inp.value='';
+});
+try{ LV.name=lsGet('skizix-name')||''; }catch(e){}
+
+$('liveBadge').onclick=e=>{ e.stopPropagation(); liveCopy(); };
+$('boardName').addEventListener('change',()=>{ if(curBoard().live&&LV.joined){ liveSend({t:'ops',up:[],del:[],nm:curBoard().name}); liveSave(1500); } });
+
 /* ---------- Beispiel und Start ---------- */
 function exampleDoc(){
   const d={items:[],n:0}, id=()=>'i'+(++d.n);
@@ -2636,6 +2859,7 @@ function start(data){
   $('boardName').value=curBoard().name;
   if(data&&data.view){ view=data.view; applyView(); } else fit();
   setSync(syncCfg?'wait':'off'); if(syncCfg) scheduleSync(800);
+  liveFromHash(); liveBadge();
 }
 try{ window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.hot.snapshot(()=>({doc,view})); }catch(e){}
 storeInit().then(()=>{ if(window.claude&&window.claude.hot&&window.claude.hot.ready) window.claude.hot.ready(start); else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{}); });
