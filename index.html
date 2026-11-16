@@ -20,7 +20,7 @@
   /* Layout: Werkzeugleiste oben, Formenleiste links (einklappbar), Tafel füllt den Rest. Oberfläche immer dunkel, Tafel hell oder schwarz umschaltbar. */
   color-scheme:dark; --ui:1;
   --paper:#fbfbf8; --dot:#c4cdcf; --paper-muted:#5d6c70; --hint-bg:rgba(251,251,248,.85);
-  --chrome:#101617; --panel:#1b2325; --ink:#74b4ff; --muted:#649fe8; --line:#334144;
+  --chrome:#101617; --panel:#1b2325; --ink:#74b4ff; --muted:#649fe8; --line:#5a7ba3;
   --accent:#4d9fff; --accent-ink:#031a3a; --hover:#2a3638;
   --display:"Doto","Roboto Mono",ui-monospace,monospace;
   --body:"Roboto Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -123,7 +123,14 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 .lw{display:inline-block;width:18px;background:currentColor;border-radius:3px;vertical-align:middle}
 #syncDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
 #syncForm{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:400px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
-#syncForm h2{margin:0 0 4px;font:600 17px/1.2 var(--body)}
+#syncForm h2,#keysBox h2{margin:0 0 4px;font:600 17px/1.2 var(--body)}
+#keysDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+#keysBox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:560px;max-height:calc((100vh - 32px)/var(--ui));overflow-y:auto;zoom:var(--ui);outline:none}
+#keysBox h3{margin:14px 0 6px;font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#keysBox dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:13px}
+#keysBox dt{white-space:nowrap}
+#keysBox kbd{display:inline-block;min-width:22px;padding:2px 6px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;font:500 12px/1.3 var(--body);text-align:center}
+#keysBox dd{margin:0;color:var(--ink)}
 #syncForm p{margin:0 0 8px;color:var(--muted);font-size:13px}
 #syncForm label{font-size:12px;font-weight:500;color:var(--muted);margin-top:6px}
 #syncForm input{font:400 16px/1.2 var(--body);color:var(--ink);background:var(--chrome);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-width:0}
@@ -146,7 +153,7 @@ body.nolabels .tb{min-width:38px;padding:8px 6px}
 #menu .mrow button{flex:1;text-align:center;padding:7px 0;border:1px solid var(--line)}
 #menu button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 /* Hoher Kontrast: kräftigere Rahmen, hellere Nebentexte */
-body.hc{--line:#5b8fd4;--ink:#74b4ff;--muted:#74b4ff;--hover:#24364f}
+body.hc{--line:#7da3d6;--ink:#74b4ff;--muted:#74b4ff;--hover:#24364f}
 body.hc button:disabled{opacity:.6}
 body.hc #stage{--dot:#8d999b}
 body.hc #stage.dark{--dot:#66777b}
@@ -165,6 +172,7 @@ body.compact #palette{left:0;box-shadow:8px 0 24px rgba(0,0,0,.35)}
 body.compact #props{right:0;box-shadow:-8px 0 24px rgba(0,0,0,.35)}
 body.compact main.pal-closed #palette,body.compact main.props-closed #props{display:none}
 body.compact #palHandle,body.compact #propsToggle{width:calc(24px*var(--ui));height:calc(72px*var(--ui));font-size:calc(20px*var(--ui))}
+body.touch #palHandle,body.touch #propsToggle{width:44px;height:88px;font-size:24px}
 body.compact #menu{right:6px;overscroll-behavior:contain}
 body.compact #menu button{padding:8px 12px}
 body.compact #menu .mh{padding:6px 12px 2px}
@@ -261,6 +269,7 @@ body.compact #playBtn{display:none}
     <button data-m="gridv" id="gridBtn">Rasterpunkte: an</button>
     <hr>
     <button data-m="fit">Alles einpassen</button>
+    <button data-m="keys">Tastenkürzel (?)</button>
     <button data-m="example">Beispiel laden</button>
     <button data-m="clear">Board leeren</button>
   </div>
@@ -293,6 +302,7 @@ body.compact #playBtn{display:none}
     <div class="dlgBtns"><button type="submit" class="pb" id="syGo">Verbinden</button><button type="button" class="pb danger" id="syOff" hidden>Trennen</button><button type="button" class="pb" id="syClose">Schließen</button></div>
   </form>
 </div>
+<div id="keysDlg" hidden role="dialog" aria-modal="true" aria-labelledby="keysTitle"><div id="keysBox" tabindex="-1"><h2 id="keysTitle">Tastenkürzel</h2><h3>Werkzeuge</h3><dl><dt><kbd>V</kbd></dt><dd>Auswählen</dd><dt><kbd>P</kbd></dt><dd>Stift</dd><dt><kbd>B</kbd></dt><dd>Pinsel</dd><dt><kbd>M</kbd></dt><dd>Marker</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>E</kbd></dt><dd>Radierer</dd><dt><kbd>H</kbd> oder <kbd>Leertaste</kbd> halten</dt><dd>Tafel verschieben</dd></dl><h3>Bearbeiten</h3><dl><dt><kbd>Strg</kbd>+<kbd>Z</kbd> / <kbd>Strg</kbd>+<kbd>Y</kbd></dt><dd>Rückgängig / Wiederholen</dd><dt><kbd>Strg</kbd>+<kbd>C</kbd> <kbd>Strg</kbd>+<kbd>X</kbd> <kbd>Strg</kbd>+<kbd>V</kbd></dt><dd>Kopieren, Ausschneiden, Einfügen</dd><dt><kbd>Strg</kbd>+<kbd>D</kbd></dt><dd>Duplizieren</dd><dt><kbd>Strg</kbd>+<kbd>A</kbd></dt><dd>Alles auswählen</dd><dt><kbd>Strg</kbd>+<kbd>G</kbd> / <kbd>Strg</kbd>+<kbd>⇧</kbd>+<kbd>G</kbd></dt><dd>Gruppieren / Gruppe lösen</dd><dt><kbd>Entf</kbd></dt><dd>Löschen</dd><dt><kbd>Enter</kbd> oder <kbd>F2</kbd></dt><dd>Text der Auswahl bearbeiten</dd><dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Verschieben (mit <kbd>⇧</kbd> pixelgenau)</dd><dt><kbd>Esc</kbd></dt><dd>Auswahl aufheben, Aktion abbrechen</dd></dl><h3>Beim Ziehen</h3><dl><dt><kbd>⇧</kbd></dt><dd>Ecken: frei verformen · Pfeilende: in 45°-Schritten</dd><dt><kbd>Alt</kbd></dt><dd>Ohne Einrasten und Hilfslinien</dd><dt><kbd>Strg</kbd> + Mausrad</dt><dd>Zoomen</dd></dl><h3>Beim Schreiben</h3><dl><dt><kbd>Enter</kbd></dt><dd>Fertig</dd><dt><kbd>⇧</kbd>+<kbd>Enter</kbd></dt><dd>Neue Zeile</dd><dt><kbd>Tab</kbd></dt><dd>Tabelle: nächste Zelle · Mindmap: neuer Zweig</dd><dt><kbd>Esc</kbd></dt><dd>Abbrechen</dd></dl><h3>Präsentation</h3><dl><dt><kbd>→</kbd> <kbd>Leertaste</kbd></dt><dd>Weiter</dd><dt><kbd>←</kbd></dt><dd>Zurück</dd><dt><kbd>L</kbd></dt><dd>Laserpointer</dd><dt><kbd>A</kbd></dt><dd>Quiz-Lösung zeigen</dd><dt><kbd>Esc</kbd></dt><dd>Beenden</dd></dl><h3>Hilfe</h3><dl><dt><kbd>?</kbd></dt><dd>Diese Übersicht</dd></dl><div class="dlgBtns"><button type="button" class="pb" id="keysClose">Schließen</button></div></div></div>
 <div id="pres" hidden tabindex="-1" role="dialog" aria-modal="true" aria-label="Präsentation">
   <svg id="presSvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
   <svg id="laserSvg" xmlns="http://www.w3.org/2000/svg"><polyline id="laserTrail" fill="none" stroke="#2f8fff" stroke-opacity=".5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -661,6 +671,15 @@ function shapeText(s){
   return `<text${extra}${BOLD?' font-weight="600"':''}${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
     lines.map((l,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}">${esc(l)}</tspan>`).join('')+`</text>`;
 }
+function fitTexts(){   /* nach dem Laden: Formen, aus denen Text herausragt, so weit vergrößern, dass er passt */
+  let ch=false;
+  for(const s of doc.items){ if(s.type!=='shape'||s.kind==='frame'||!BODY_KINDS.has(s.kind)||(!s.text&&s.kind!=='table')) continue;
+    const before=s.h+'|'+(s.rowH||'');
+    if(s.kind==='text'){ useFont(s); const need=up10((s.list?listLines(s.text,s.w-15).out:wrap(s.text,s.w-15)).length*LH+10); if(need>s.h) s.h=need; }
+    else autosize(s);
+    if(before!==s.h+'|'+(s.rowH||'')) ch=true; }
+  return ch;
+}
 function autosize(s){
   if(s.type!=='shape') return;
   useFont(s);
@@ -778,6 +797,7 @@ function strokeSVG(it){
   return tl==='marker'?`<g opacity="0.45">${o}</g>`:o;
 }
 function itemSVG(it){
+  if(it.type==='shape'&&!BODY_KINDS.has(it.kind)) return `<g class="it" data-id="${it.id}" transform="translate(${r(it.x)} ${r(it.y)})"><rect width="${r(it.w)}" height="${r(it.h)}" rx="6" fill="rgba(128,128,128,.12)" stroke="#888" stroke-width="1.500" stroke-dasharray="6 4"/><text x="${r(it.w/2)}" y="${r(it.h/2+4)}" text-anchor="middle" font-family="${FONT}" font-size="11" fill="#888" pointer-events="none">Neuere Version nötig</text></g>`;
   if(it.type==='shape') return `<g class="it" data-id="${it.id}" transform="translate(${r(it.x)} ${r(it.y)})">${shapeBody(vis(it))}${shapeText(it)}</g>`;
   if(it.type==='path')
     return `<g class="it" data-id="${it.id}"><path d="${pathD(it.pts)}" fill="none" stroke="transparent" stroke-width="${Math.max(16,it.sw+8)}" stroke-linecap="round" pointer-events="stroke"/>${strokeSVG(it)}</g>`;
@@ -903,19 +923,90 @@ const IDX='blackboard-boards', BK='blackboard-b-';
 let boards={cur:'b1',list:[{id:'b1',name:'Board 1'}],del:[],v:2};
 function genId(){ return 'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function markDirty(b){ b=b||curBoard(); b.dirty=true; b.rev=(b.rev||0)+1; b.updated=Date.now(); saveIdx(); scheduleSync(4000); }
+/* Mehrere Fenster derselben App (z. B. installierte App und Browser-Tab) halten sich gegenseitig auf dem neuesten Stand */
+let bcast=null; try{ bcast=new BroadcastChannel('blackboard'); }catch(e){}
+function announce(m){ try{ bcast&&bcast.postMessage(m); }catch(e){} }
+let extPending=null;
+function applyExternal(json){
+  if(action||editing||pres){ extPending=json; return; }
+  extPending=null; let d=null; try{ d=cleanDoc(JSON.parse(json)); }catch(e){} if(!d) return;
+  if(JSON.stringify(d)===JSON.stringify(doc)) return;
+  doc=d; fitTexts(); for(const id of [...sel]) if(!byId(id)) sel.delete(id);
+  hist=[JSON.stringify(doc)]; hi=0; render(); toast('In einem anderen Fenster geändert – hier aktualisiert.');
+}
+function onExternal(m){
+  if(!m||typeof m!=='object') return;
+  if(m.t==='doc'&&typeof m.json==='string'){ if(DB.ok) DB.cache.set(m.id,m.json); if(m.id===boards.cur) applyExternal(m.json); }
+  else if(m.t==='del'){ if(DB.ok) DB.cache.delete(m.id); }
+  else if(m.t==='idx'){ try{ const b=JSON.parse(lsGet(IDX)); if(b&&Array.isArray(b.list)&&b.list.length){ const cur=boards.cur; boards=b; boards.del=boards.del||[];
+      if(boards.list.some(x=>x.id===cur)) boards.cur=cur; else openBoard(boards.list[0].id);
+      if(!menu.hidden) renderBoardList(); $('boardName').value=curBoard().name; } }catch(e){} }
+}
+if(bcast) bcast.onmessage=e=>onExternal(e.data);
+window.addEventListener('storage',e=>{ if(bcast) return; if(e.key===IDX) onExternal({t:'idx'}); else if(e.key&&e.key.startsWith(BK)&&e.newValue) onExternal({t:'doc',id:e.key.slice(BK.length),json:e.newValue}); });
+setInterval(()=>{ if(extPending&&!action&&!editing&&!pres) applyExternal(extPending); },1000);
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
-function lsSet(k,v){ try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); return true; }catch(e){ lsSet.full=!!(e&&/quota/i.test(e.name+' '+e.message)); return false; } }
+/* Boards liegen in IndexedDB (viel Platz). Kleine Einstellungen bleiben im localStorage.
+   Ein Zwischenspeicher im Arbeitsspeicher hält alles sofort verfügbar; geschrieben wird kurz verzögert im Hintergrund. */
+const DB={ok:false,db:null,cache:new Map(),pend:new Map(),del:new Set(),t:null};
+function idbReq(rq){ return new Promise((res,rej)=>{ rq.onsuccess=()=>res(rq.result); rq.onerror=()=>rej(rq.error); }); }
+async function storeInit(){
+  try{
+    if(!window.indexedDB) return;
+    const db=await Promise.race([new Promise((res,rej)=>{ const rq=indexedDB.open('blackboard',1); rq.onupgradeneeded=()=>rq.result.createObjectStore('docs'); rq.onsuccess=()=>res(rq.result); rq.onerror=()=>rej(rq.error); rq.onblocked=()=>rej('blocked'); }),new Promise(res=>setTimeout(()=>res(null),4000))]);
+    if(!db) return;
+    const tx=db.transaction('docs','readonly'), st=tx.objectStore('docs'), keys=await idbReq(st.getAllKeys()), vals=await idbReq(st.getAll());
+    keys.forEach((k,i)=>DB.cache.set(String(k),vals[i]));
+    DB.db=db; DB.ok=true;
+    const mig=[]; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith(BK)) mig.push(k); }   /* bisherige Boards umziehen */
+    for(const k of mig){ const id=k.slice(BK.length), v=lsGet(k); if(v!=null){ DB.cache.set(id,v); DB.pend.set(id,v); } }   /* ein noch vorhandener Eintrag ist neuer (z. B. von einer alten App-Version im anderen Tab) */
+    if(mig.length&&await idbFlush()) mig.forEach(k=>lsDel(k));
+    db.onversionchange=()=>{ try{ db.close(); }catch(e){} DB.ok=false; };
+    try{ navigator.storage&&navigator.storage.persist&&navigator.storage.persist(); }catch(e){}
+  }catch(e){ DB.ok=false; }
+}
+function idbFlush(){
+  clearTimeout(DB.t); DB.t=null;
+  if(!DB.ok||(!DB.pend.size&&!DB.del.size)) return Promise.resolve(true);
+  const put=new Map(DB.pend), del=new Set(DB.del); DB.pend.clear(); DB.del.clear();
+  return new Promise(res=>{
+    let tx; try{ tx=DB.db.transaction('docs','readwrite'); const st=tx.objectStore('docs'); put.forEach((v,k)=>st.put(v,k)); del.forEach(k=>st.delete(k)); }catch(e){ return res(storeFail(e,put)); }
+    tx.oncomplete=()=>{ storeFail.warned=false; put.forEach((v,k)=>announce({t:'doc',id:k,json:v})); del.forEach(k=>announce({t:'del',id:k})); res(true); };
+    tx.onerror=tx.onabort=()=>res(storeFail(tx.error,put));
+  });
+}
+function storeFail(err,put){
+  put.forEach((v,k)=>{ if(!DB.pend.has(k)) DB.pend.set(k,v); });
+  if(!storeFail.warned){ storeFail.warned=true; const full=err&&/quota/i.test((err.name||'')+' '+(err.message||''));
+    toast(full?'Speicher voll: Die letzten Änderungen konnten nicht gespeichert werden. Lösche nicht benötigte Boards oder sichere das Board über „Datei“.':'Speichern fehlgeschlagen. Sichere das Board sicherheitshalber über „Datei“.'); }
+  clearTimeout(DB.t); DB.t=setTimeout(idbFlush,5000); return false;
+}
+function docGet(id){ return DB.ok?(DB.cache.has(id)?DB.cache.get(id):null):lsGet(BK+id); }
+function docSet(id,json){
+  if(!DB.ok){ const ok=lsSet(BK+id,json); if(ok) announce({t:'doc',id,json}); return ok; }
+  DB.cache.set(id,json); DB.del.delete(id); DB.pend.set(id,json); if(!DB.t) DB.t=setTimeout(idbFlush,250); return true;
+}
+function docDel(id){ if(!DB.ok){ lsDel(BK+id); return; } DB.cache.delete(id); DB.pend.delete(id); DB.del.add(id); if(!DB.t) DB.t=setTimeout(idbFlush,250); }
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) idbFlush(); });
+window.addEventListener('pagehide',()=>idbFlush());
 function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
 function curBoard(){ return boards.list.find(b=>b.id===boards.cur)||boards.list[0]; }
-function saveIdx(){ lsSet(IDX,JSON.stringify(boards)); }
-function persist(){ if(!lsSet(BK+boards.cur,JSON.stringify(doc))&&!persist.warned){ persist.warned=true; toast('Der Browser-Speicher ist nicht verfügbar. Sichere das Board über „Datei“.'); } }
+function saveIdx(){ lsSet(IDX,JSON.stringify(boards)); announce({t:'idx'}); }
+function persist(){ if(!docSet(boards.cur,JSON.stringify(doc))&&!persist.warned){ persist.warned=true; toast(lsSet.full?'Speicher voll: Lösche nicht benötigte Boards oder sichere das Board über „Datei“.':'Der Browser-Speicher ist nicht verfügbar. Sichere das Board über „Datei“.'); } }
 function loadBoards(){
   try{ const b=JSON.parse(lsGet(IDX)); if(b&&Array.isArray(b.list)&&b.list.length){ boards=b; if(!boards.list.some(x=>x.id===boards.cur)) boards.cur=boards.list[0].id;
     if(!boards.v){ boards.list.forEach(x=>{ x.dirty=true; x.updated=x.updated||Date.now(); }); boards.v=2; }   /* Boards aus älteren Versionen gelten als geändert, damit nichts verloren geht */
     boards.del=boards.del||[]; saveIdx(); return; } }catch(e){}
-  const old=lsGet(KEY)||lsGet('prozesstafel-v1'); if(old){ lsSet(BK+'b1',old); boards.list[0].dirty=true; boards.list[0].updated=Date.now(); } saveIdx();
+  const old=lsGet(KEY)||lsGet('prozesstafel-v1'); if(old){ docSet('b1',old); boards.list[0].dirty=true; boards.list[0].updated=Date.now(); } saveIdx();
 }
 /* Prüft und bereinigt ein Board aus Datei, Speicher oder Abgleich: nur bekannte Elemente, Zahlen, Farben und Texte bleiben übrig. */
+const DOC_FMT=3;   /* Version des Datenformats; ältere Apps erkennen daran Boards aus neueren Versionen */
+const KNOWN_KEYS=new Set('id type kind x y w h text fill stroke sw colW rowH cells align ord ok pts tool tip ws from to p1 p2 style dash head arrow fa ta mm fs bold list al mc tc g lock fr fresh'.split(' '));
+function keepExtra(s,o){   /* Eigenschaften, die diese Version nicht kennt, unverändert mitnehmen */
+  for(const k in s){ if(KNOWN_KEYS.has(k)||k in o||!/^[a-zA-Z]\w{0,30}$/.test(k)||/^(constructor|toString|valueOf|hasOwnProperty)$/.test(k)) continue;
+    const v=s[k]; if(v===undefined||typeof v==='function') continue; try{ const j=JSON.stringify(v); if(j&&j.length<=4000) o[k]=JSON.parse(j); }catch(e){} }
+}
 const BODY_KINDS=new Set(Object.keys(KINDS).filter(k=>!KINDS[k].tpl&&!KINDS[k].line).map(k=>KINDS[k].as||k).concat(['table']));
 function cleanDoc(d){
   if(!d||typeof d!=='object'||!Array.isArray(d.items)) return null;
@@ -924,12 +1015,13 @@ function cleanDoc(d){
   const sid=v=>(typeof v==='string'&&/^[\w-]{1,40}$/.test(v))?v:null;
   const str=v=>v==null?'':String(v).slice(0,5000);
   const line=v=>{ const c=col(v,INK); return c==='none'?INK:c; };
-  const out=[], seen=new Set(); let n=0;
+  const out=[], seen=new Set(), extra=[]; let n=0;
+  if(Array.isArray(d.extra)) for(const x of d.extra.slice(0,2000)) if(x&&typeof x==='object'){ try{ const j=JSON.stringify(x); if(j.length<=20000) extra.push(JSON.parse(j)); }catch(e){} }
   for(const s of d.items.slice(0,5000)){
     if(!s||typeof s!=='object') continue;
     const id=sid(s.id); if(!id||seen.has(id)) continue;
     let o=null;
-    if(s.type==='shape'&&BODY_KINDS.has(s.kind)){
+    if(s.type==='shape'&&(BODY_KINDS.has(s.kind)||(typeof s.kind==='string'&&/^[a-z][\w-]{0,30}$/i.test(s.kind)))){   /* unbekannte Formen bleiben erhalten und erscheinen als Platzhalter */
       o={id,type:'shape',kind:s.kind,x:num(s.x,0,-1e6,1e6),y:num(s.y,0,-1e6,1e6),w:num(s.w,100,1,20000),h:num(s.h,60,1,20000),text:str(s.text),fill:col(s.fill,'#ffffff'),stroke:col(s.stroke,INK),sw:num(s.sw,2,0.5,60)};
       if(s.kind==='table'){
         const colW=(Array.isArray(s.colW)?s.colW:[]).slice(0,40).map(v=>num(v,100,10,4000)), rowH=(Array.isArray(s.rowH)?s.rowH:[]).slice(0,200).map(v=>num(v,32,10,4000));
@@ -948,27 +1040,32 @@ function cleanDoc(d){
       o={id,type:'conn',from:sid(s.from),to:sid(s.to),p1:pt(s.p1),p2:pt(s.p2),text:str(s.text),stroke:line(s.stroke),sw:num(s.sw,2,0.5,60),style:s.style==='straight'?'straight':'ortho',dash:!!s.dash,head:HEADS.some(h=>h[0]===s.head)?s.head:(s.arrow===false?'none':'arrow')};
       if(o.from&&SIDES[s.fa]) o.fa=s.fa; if(o.to&&SIDES[s.ta]) o.ta=s.ta; if(s.mm) o.mm=1;
     }
-    if(!o) continue;
+    if(!o){ if(s.type&&!['shape','path','conn'].includes(s.type)&&extra.length<2000){ try{ const j=JSON.stringify(s); if(j.length<=20000) extra.push(JSON.parse(j)); }catch(e){} } continue; }
+    keepExtra(s,o);
     if(o.type!=='path'){ if(s.fs) o.fs=num(s.fs,14,6,200); if(s.bold) o.bold=true; if(s.list) o.list=true; if(['left','center','right'].includes(s.al)) o.al=s.al; if(s.mm==='root'||s.mm==='node') o.mm=s.mm; if(Number.isInteger(s.mc)&&s.mc>=0&&s.mc<6) o.mc=s.mc; const tc=col(s.tc,null); if(tc&&tc!=='none') o.tc=tc; }
     const g=sid(s.g); if(g) o.g=g; if(s.lock) o.lock=true; const fr=sid(s.fr); if(fr) o.fr=fr;
     seen.add(id); out.push(o); const m=/^i(\d+)$/.exec(id); if(m) n=Math.max(n,+m[1]);
   }
   const shapes=new Set(out.filter(o=>o.type==='shape').map(o=>o.id));
   for(const o of out) if(o.type==='conn'){ if(!shapes.has(o.from)){ o.from=null; delete o.fa; } if(!shapes.has(o.to)){ o.to=null; delete o.ta; } }
-  return {items:out,n:Math.max(n,num(d.n,0,0,1e9))};
+  const fmt=num(d.fmt,1,1,1e6), r={items:out,n:Math.max(n,num(d.n,0,0,1e9)),fmt:Math.max(fmt,DOC_FMT)};
+  if(extra.length) r.extra=extra;
+  return r;
 }
-function storedDoc(id){ try{ return cleanDoc(JSON.parse(lsGet(BK+id))); }catch(e){ return null; } }
+const isNewer=d=>!!d&&d.fmt>DOC_FMT;
+function newerWarn(){ toast('Dieses Board stammt aus einer neueren App-Version. Bitte die App neu laden, damit nichts verloren geht. Bis dahin wird es nicht abgeglichen.'); }
+function storedDoc(id){ try{ return cleanDoc(JSON.parse(docGet(id))); }catch(e){ return null; } }
 function openBoard(id){
-  finishEdit(); boards.cur=id; saveIdx(); doc=storedDoc(id)||{items:[],n:0};
+  finishEdit(); boards.cur=id; saveIdx(); doc=storedDoc(id)||{items:[],n:0,fmt:DOC_FMT}; fitTexts(); if(isNewer(doc)) setTimeout(newerWarn,300);
   hist=[]; hi=-1; sel.clear(); commit(); setTool('select'); render(); fit(); $('boardName').value=curBoard().name;
 }
 function newBoard(){
   const id=genId(); let n=boards.list.length+1; while(boards.list.some(b=>b.name==='Board '+n)) n++;
-  const nb={id,name:'Board '+n}; boards.list.push(nb); lsSet(BK+id,JSON.stringify({items:[],n:0})); openBoard(id); markDirty(nb);
+  const nb={id,name:'Board '+n}; boards.list.push(nb); docSet(id,JSON.stringify({items:[],n:0,fmt:DOC_FMT})); openBoard(id); markDirty(nb);
 }
 function deleteBoard(){
   if(boards.list.length<2) return; const gone=curBoard(); if(gone.sha) boards.del.push({id:gone.id,sha:gone.sha});
-  lsDel(BK+boards.cur); boards.list=boards.list.filter(b=>b.id!==boards.cur); openBoard(boards.list[0].id); scheduleSync(1500);
+  docDel(boards.cur); boards.list=boards.list.filter(b=>b.id!==boards.cur); openBoard(boards.list[0].id); scheduleSync(1500);
 }
 function renderBoardList(){
   renderSyncInfo();
@@ -1098,11 +1195,34 @@ function frameNo(id){ return frames().findIndex(f=>f.id===id)+1; }
 function moveFrame(id,dir){ const fr=frames(), i=fr.findIndex(f=>f.id===id), j=i+dir; if(i<0||j<0||j>=fr.length) return;
   const t=fr[i]; fr[i]=fr[j]; fr[j]=t; fr.forEach((f,n)=>f.ord=n+1); commit(); render(); }
 let clipB=null, pasteN=0;
+function withFrameContent(ids){   /* ausgewählte Folien bringen ihren Inhalt mit, dazu Pfeile zwischen diesen Elementen */
+  const fids=new Set([...ids].filter(id=>(byId(id)||{}).kind==='frame')); if(!fids.size) return ids;
+  assignFrames(); const out=new Set(ids);
+  for(const it of doc.items) if(it.fr&&fids.has(it.fr)) out.add(it.id);
+  for(const it of doc.items) if(it.type==='conn'&&it.from&&it.to&&out.has(it.from)&&out.has(it.to)) out.add(it.id);
+  return out;
+}
+function frameShift(copies){   /* kopierte Folien rechts neben die letzte vorhandene Folie, ohne Überlappung */
+  const fc=copies.filter(c=>c.kind==='frame'); if(!fc.length) return null;
+  const fr=frames(); if(!fr.length) return {dx:40,dy:40};
+  const last=fr[fr.length-1], first=fc.reduce((a,b)=>a.x<b.x?a:b);
+  let dx=last.x+last.w+60-first.x, dy=last.y-first.y, n=0;
+  const obs=doc.items.filter(i=>i.type!=='conn').map(i=>i.kind==='frame'?i:bbox(i));   /* auch andere Elemente freihalten, sonst würde die Kopie sie einsammeln */
+  const hit=()=>fc.some(c=>obs.some(f=>c.x+dx<f.x+f.w+20&&c.x+dx+c.w>f.x-20&&c.y+dy<f.y+f.h+20&&c.y+dy+c.h>f.y-20));
+  while(hit()&&n++<400) dx+=20;
+  return {dx,dy};
+}
+function fixCopies(copies,map){   /* Folienzuordnung und Reihenfolge der Kopien richtigstellen */
+  let ord=frames().reduce((m,f)=>Math.max(m,f.ord||0),0);
+  for(const c of copies){ if(c.fr){ if(map[c.fr]) c.fr=map[c.fr]; else delete c.fr; } }
+  copies.filter(c=>c.kind==='frame').sort((a,b)=>(a.ord||0)-(b.ord||0)).forEach(c=>c.ord=++ord);
+}
+function moveCopy(c,dx,dy){ if(c.type==='shape'){ c.x+=dx; c.y+=dy; } else if(c.type==='path') c.pts=c.pts.map(q=>[q[0]+dx,q[1]+dy]); else { c.p1={x:c.p1.x+dx,y:c.p1.y+dy}; c.p2={x:c.p2.x+dx,y:c.p2.y+dy}; } }
 function copySel(cut){
-  const src=doc.items.filter(i=>sel.has(i.id)); if(!src.length) return;
+  const ids=withFrameContent(sel), src=doc.items.filter(i=>ids.has(i.id)); if(!src.length) return;
   clipB=src.map(i=>{ const c=JSON.parse(JSON.stringify(i)); if(c.type==='conn'){ const pts=route(i), l=pts[pts.length-1]; c.p1={x:pts[0].x,y:pts[0].y}; c.p2={x:l.x,y:l.y}; } return c; });
   pasteN=0; try{ localStorage.setItem('blackboard-clip',JSON.stringify(clipB)); }catch(e){}
-  if(cut){ removeIds(sel); sel.clear(); commit(); render(); toast('Ausgeschnitten.'); } else { toast(src.length===1?'Element kopiert.':src.length+' Elemente kopiert.'); updateProps(); }
+  if(cut){ removeIds(ids); sel.clear(); commit(); render(); toast('Ausgeschnitten.'); } else { toast(src.length===1?'Element kopiert.':src.length+' Elemente kopiert.'); updateProps(); }
 }
 function hasClip(){ if(clipB&&clipB.length) return true; try{ return !!localStorage.getItem('blackboard-clip'); }catch(e){ return false; } }
 function pasteClip(){
@@ -1110,23 +1230,25 @@ function pasteClip(){
   if(!src||!src.length) return;
   finishEdit(); pasteN++; const off=20*pasteN, map={}, gmap={}, ids=new Set(src.map(i=>i.id));
   const copies=src.map(i=>{ const c=JSON.parse(JSON.stringify(i)); c.id=nid(); map[i.id]=c.id; if(c.g) c.g=gmap[c.g]=gmap[c.g]||newGid(); return c; });
+  const fs=frameShift(copies), dx=fs?fs.dx:off, dy=fs?fs.dy:off;
   for(const c of copies){
-    if(c.type==='shape'){ c.x+=off; c.y+=off; }
-    else if(c.type==='path') c.pts=c.pts.map(q=>[q[0]+off,q[1]+off]);
-    else { c.from=ids.has(c.from)?map[c.from]:null; c.to=ids.has(c.to)?map[c.to]:null; c.p1={x:c.p1.x+off,y:c.p1.y+off}; c.p2={x:c.p2.x+off,y:c.p2.y+off}; }
+    if(c.type==='conn'){ c.from=ids.has(c.from)?map[c.from]:null; c.to=ids.has(c.to)?map[c.to]:null; }
+    moveCopy(c,dx,dy);
   }
-  doc.items.push(...copies); sel=new Set(copies.map(c=>c.id)); setTool('select'); sel=new Set(copies.map(c=>c.id)); commit(); render();
+  fixCopies(copies,map);
+  doc.items.unshift(...copies.filter(c=>c.kind==='frame')); doc.items.push(...copies.filter(c=>c.kind!=='frame')); sel=new Set(copies.map(c=>c.id)); setTool('select'); sel=new Set(copies.map(c=>c.id)); commit(); render();
 }
 function duplicateSel(){
-  const src=doc.items.filter(i=>sel.has(i.id)); if(!src.length) return;
+  const ids=withFrameContent(sel), src=doc.items.filter(i=>ids.has(i.id)); if(!src.length) return;
   const map={}, gmap={}; const copies=src.map(i=>{ const c=JSON.parse(JSON.stringify(i)); c.id=nid(); map[i.id]=c.id; if(c.g) c.g=gmap[c.g]=gmap[c.g]||newGid(); return c; });
+  const fs=frameShift(copies), dx=fs?fs.dx:20, dy=fs?fs.dy:20;
   src.forEach((i,ix)=>{ const c=copies[ix];
-    if(c.type==='shape'){ c.x+=20; c.y+=20; }
-    else if(c.type==='path') c.pts=c.pts.map(p=>[p[0]+20,p[1]+20]);
-    else { const pts=route(i);
-      if(map[c.from]) c.from=map[c.from]; else { c.from=null; c.p1={x:pts[0].x+20,y:pts[0].y+20}; }
-      if(map[c.to]) c.to=map[c.to]; else { c.to=null; const l=pts[pts.length-1]; c.p2={x:l.x+20,y:l.y+20}; } } });
-  doc.items.push(...copies); sel=new Set(copies.map(c=>c.id)); commit(); render();
+    if(c.type==='conn'){ const pts=route(i);
+      if(map[c.from]) c.from=map[c.from]; else { c.from=null; c.p1={x:pts[0].x,y:pts[0].y}; }
+      if(map[c.to]) c.to=map[c.to]; else { c.to=null; const l=pts[pts.length-1]; c.p2={x:l.x,y:l.y}; } }
+    moveCopy(c,dx,dy); });
+  fixCopies(copies,map);
+  doc.items.unshift(...copies.filter(c=>c.kind==='frame')); doc.items.push(...copies.filter(c=>c.kind!=='frame')); sel=new Set(copies.map(c=>c.id)); commit(); render();
 }
 function expandSel(){
   const gs=new Set(); for(const id of sel){ const it=byId(id); if(it&&it.g) gs.add(it.g); }
@@ -1566,7 +1688,7 @@ let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true};
 try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false}; }catch(e){}
 function isCompactNow(){ return innerWidth/uiCfg.scale<=1000||innerHeight/uiCfg.scale<=500; }
 function applyLayout(){
-  const w=innerWidth/uiCfg.scale, c=document.body.classList;
+  const w=innerWidth/uiCfg.scale, c=document.body.classList; c.toggle('touch',!isPC);
   document.documentElement.style.setProperty('--ui',uiCfg.scale); c.toggle('hc',uiCfg.hc);
   c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1100); c.toggle('narrow',w<=480); c.toggle('tiny',w<=330); c.toggle('midwide',w>=640);
   document.querySelectorAll('#uiRow button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===uiCfg.scale));
@@ -1737,14 +1859,15 @@ menu.addEventListener('click',e=>{
   switch(b.dataset.m){
     case 'new': newBoard(); break;
     case 'fit': fit(); break;
+    case 'keys': openKeys(); break;
     case 'play': startPres(); break;
     case 'syncnow': syncNow(true); break;
     case 'synccfg': openSyncDlg(); break;
     case 'delboard': deleteBoard(); break;
     case 'png': case 'svg': case 'pdf': exportAs(b.dataset.m); break;
-    case 'json': saveFile(fileBase()+'.json',JSON.stringify(doc)); break;
+    case 'json': saveFile(fileBase()+'.json',JSON.stringify(Object.assign({},doc,{fmt:Math.max(doc.fmt||0,DOC_FMT)}))); break;
     case 'open': $('file').value=''; $('file').click(); break;
-    case 'example': doc=exampleDoc(); sel.clear(); commit(); render(); fit(); break;
+    case 'example': doc=exampleDoc(); doc.fmt=DOC_FMT; sel.clear(); commit(); render(); fit(); break;
     case 'clear': doc={items:[],n:doc.n}; sel.clear(); commit(); render(); toast('Board geleert. Mit „Zurück“ holst du alles wieder.'); break;
   }
 });
@@ -1754,7 +1877,7 @@ $('file').addEventListener('change',async e=>{
   const f=e.target.files[0]; if(!f) return;
   let d=null; try{ let raw=JSON.parse(await f.text()); if(raw&&raw.doc&&Array.isArray(raw.doc.items)) raw=raw.doc; d=cleanDoc(raw); if(d&&raw.items.length&&!d.items.length) d=null; }catch(_){}
   if(!d){ toast('Diese Datei ist kein Blackboard-Board (.json). Dein Board bleibt unverändert.'); return; }
-  finishEdit(); doc=d; sel.clear(); commit(); render(); fit();
+  finishEdit(); doc=d; fitTexts(); sel.clear(); commit(); render(); fit(); if(isNewer(doc)) newerWarn();
 });
 document.addEventListener('keydown',e=>{
   const t=e.target; if(t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT')) return;
@@ -1775,9 +1898,15 @@ document.addEventListener('keydown',e=>{
   if(e.key.startsWith('Arrow')&&sel.size){ e.preventDefault(); const st=e.shiftKey?1:GRID, dx=k==='arrowleft'?-st:k==='arrowright'?st:0, dy=k==='arrowup'?-st:k==='arrowdown'?st:0;
     for(const it of [...sel].map(byId)){ if(!it||it.lock) continue; if(it.type==='shape'){ it.x+=dx; it.y+=dy; } else if(it.type==='path') it.pts=it.pts.map(p=>[p[0]+dx,p[1]+dy]); }
     commit(); render(); return; }
+  if(e.key==='?'){ e.preventDefault(); openKeys(); return; }
   const map={v:'select',p:'pen',b:'brush',m:'marker',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
 });
 document.addEventListener('keyup',e=>{ if(e.key===' ') spaceDown=false; });
+function openKeys(){ closeMenu(); $('keysDlg').hidden=false; const b=$('keysBox'); b.scrollTop=0; b.focus({preventScroll:true}); }
+function closeKeys(){ if($('keysDlg').hidden) return; $('keysDlg').hidden=true; svg.focus(); }
+$('keysClose').onclick=closeKeys;
+$('keysDlg').addEventListener('pointerdown',e=>{ if(e.target===$('keysDlg')) closeKeys(); });
+$('keysDlg').addEventListener('keydown',e=>{ if(e.key==='Escape'||e.key==='?'){ e.preventDefault(); e.stopPropagation(); closeKeys(); } if(e.key==='Tab'){ e.preventDefault(); (document.activeElement===$('keysClose')?$('keysBox'):$('keysClose')).focus(); } });
 window.addEventListener('resize',()=>applyView());
 
 /* ---------- Präsentation: Folie für Folie im Vollbild, mit Laserpointer ---------- */
@@ -1888,17 +2017,17 @@ function localDoc(id){ return id===boards.cur?doc:(storedDoc(id)||{items:[],n:0}
 function takeRemote(id,data,sha){
   let b=boards.list.find(x=>x.id===id); if(!b){ b={id}; boards.list.push(b); }
   b.name=String(data.name||'Board'); b.sha=sha; b.dirty=false; b.updated=data.updated||Date.now();
-  lsSet(BK+id,JSON.stringify(data.doc));
-  if(id===boards.cur){ doc=data.doc; hist=[]; hi=-1; sel.clear(); commit(); render(); $('boardName').value=b.name; }
+  docSet(id,JSON.stringify(data.doc));
+  if(id===boards.cur){ doc=data.doc; fitTexts(); hist=[]; hi=-1; sel.clear(); commit(); render(); $('boardName').value=b.name; if(isNewer(doc)) newerWarn(); }
 }
 function keepLocalCopy(b){
-  const id=genId(); lsSet(BK+id,JSON.stringify(localDoc(b.id)));
+  const id=genId(); docSet(id,JSON.stringify(localDoc(b.id)));
   boards.list.push({id,name:b.name+' (lokale Kopie)',dirty:true,rev:1,updated:Date.now()});
   toast('„'+b.name+'“ wurde auf einem anderen Gerät geändert. Deine Fassung liegt als „'+b.name+' (lokale Kopie)“ bereit.');
 }
 function dropLocalBoard(id){
-  lsDel(BK+id); boards.list=boards.list.filter(b=>b.id!==id);
-  if(!boards.list.length){ const nb={id:genId(),name:'Board 1'}; boards.list.push(nb); lsSet(BK+nb.id,JSON.stringify({items:[],n:0})); }
+  docDel(id); boards.list=boards.list.filter(b=>b.id!==id);
+  if(!boards.list.length){ const nb={id:genId(),name:'Board 1'}; boards.list.push(nb); docSet(nb.id,JSON.stringify({items:[],n:0,fmt:DOC_FMT})); }
   if(boards.cur===id) openBoard(boards.list[0].id);
 }
 async function syncNow(manual){
@@ -1928,6 +2057,7 @@ async function syncNow(manual){
     /* 4. Eigene Änderungen hochladen */
     for(const b of boards.list.slice()){
       if(!b.dirty) continue; const rev=b.rev||0;
+      if(isNewer(localDoc(b.id))) continue;   /* aus neuerer App-Version: erst nach dem Aktualisieren abgleichen */
       const body={message:'Blackboard: '+b.name,content:b64(JSON.stringify({id:b.id,name:b.name,updated:b.updated||Date.now(),doc:localDoc(b.id)}))}; if(b.sha) body.sha=b.sha;
       const r=await ghApi(cfg,'/contents/boards/'+b.id+'.json',{method:'PUT',body});
       if(r.ok){ const j=await r.json(); b.sha=j.content.sha; if((b.rev||0)===rev) b.dirty=false; else syncAgain=true; }
@@ -1998,7 +2128,7 @@ function exampleDoc(){
   const S=(kind,x,y,text,o)=>{ const k=KINDS[kind],s=Object.assign({id:id(),type:'shape',kind,x,y,w:k.w,h:k.h,text:text||'',fill:k.fill||'#ffffff',stroke:INK,sw:2},o||{}); d.items.push(s); return s.id; };
   const C=(from,to,text,o)=>d.items.push(Object.assign({id:id(),type:'conn',from,to,p1:{x:0,y:0},p2:{x:0,y:0},text:text||'',stroke:INK,sw:2,style:'ortho',arrow:true,dash:false},o||{}));
   S('pool',40,40,'Urlaubsantrag',{w:900,h:320,fill:'#e3e8ea'});
-  const st=S('evstart',100,180,'Urlaub geplant',{fill:'#d3f0dc'});
+  const st=S('evstart',106,180,'Urlaub\ngeplant',{fill:'#d3f0dc'});
   const a=S('round',190,160,'Antrag ausfüllen');
   const b=S('round',380,160,'Antrag prüfen',{fill:'#cfe8ff'});
   const g=S('gwx',570,175,'Genehmigt?');
@@ -2013,16 +2143,16 @@ function start(data){
   setBoardBg(lsGet('blackboard-bg')!=='light',true);
   loadBoards();
   const hot=data&&data.doc?cleanDoc(data.doc):null;
-  doc=hot||storedDoc(boards.cur)||exampleDoc(); hist=[]; hi=-1; commit(); setTool('select'); render();
+  doc=hot||storedDoc(boards.cur)||exampleDoc(); fitTexts(); hist=[]; hi=-1; commit(); setTool('select'); render(); if(isNewer(doc)) setTimeout(newerWarn,600);
   $('boardName').value=curBoard().name;
   if(data&&data.view){ view=data.view; applyView(); } else fit();
   setSync(syncCfg?'wait':'off'); if(syncCfg) scheduleSync(800);
 }
 try{ window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.hot.snapshot(()=>({doc,view})); }catch(e){}
-if(window.claude&&window.claude.hot&&window.claude.hot.ready) window.claude.hot.ready(start); else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{});
+storeInit().then(()=>{ if(window.claude&&window.claude.hot&&window.claude.hot.ready) window.claude.hot.ready(start); else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{}); });
 getDl();
 /* Schrift ist erst kurz nach dem Start bereit: danach neu zeichnen, damit Textbreiten stimmen */
-if(document.fonts&&document.fonts.load) Promise.all(["400","500","600"].map(w=>document.fonts.load(w+" 14px 'Roboto Mono'"))).then(()=>{ renderPal(); render(); }).catch(()=>{});
+if(document.fonts&&document.fonts.load) Promise.all(["400","500","600"].map(w=>document.fonts.load(w+" 14px 'Roboto Mono'"))).then(()=>{ renderPal(); if(fitTexts()){ hist[hi]=JSON.stringify(doc); persist(); } render(); }).catch(()=>{});
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0) navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
 </script>
