@@ -1025,7 +1025,7 @@ function idbFlush(){
   const put=new Map(DB.pend), del=new Set(DB.del); DB.pend.clear(); DB.del.clear();
   return new Promise(res=>{
     let tx; try{ tx=DB.db.transaction('docs','readwrite'); const st=tx.objectStore('docs'); put.forEach((v,k)=>st.put(v,k)); del.forEach(k=>st.delete(k)); }catch(e){ return res(storeFail(e,put)); }
-    tx.oncomplete=()=>{ storeFail.warned=false; put.forEach((v,k)=>announce({t:'doc',id:k,json:v})); del.forEach(k=>announce({t:'del',id:k})); res(true); };
+    tx.oncomplete=()=>{ storeFail.warned=false; del.forEach(k=>announce({t:'del',id:k})); res(true); };
     tx.onerror=tx.onabort=()=>res(storeFail(tx.error,put));
   });
 }
@@ -1038,7 +1038,9 @@ function storeFail(err,put){
 function docGet(id){ return DB.ok?(DB.cache.has(id)?DB.cache.get(id):null):lsGet(BK+id); }
 function docSet(id,json){
   if(!DB.ok){ const ok=lsSet(BK+id,json); if(ok) announce({t:'doc',id,json}); return ok; }
-  DB.cache.set(id,json); DB.del.delete(id); DB.pend.set(id,json); if(!DB.t) DB.t=setTimeout(idbFlush,250); return true;
+  DB.cache.set(id,json); DB.del.delete(id); DB.pend.set(id,json); if(!DB.t) DB.t=setTimeout(idbFlush,250);
+  announce({t:'doc',id,json});   /* andere Fenster sofort informieren, nicht erst nach dem Schreiben: sonst überschreibt ein schnelles zweites Fenster die Änderung */
+  return true;
 }
 function docDel(id){ if(!DB.ok){ lsDel(BK+id); return; } DB.cache.delete(id); DB.pend.delete(id); DB.del.add(id); if(!DB.t) DB.t=setTimeout(idbFlush,250); }
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) idbFlush(); });
@@ -1899,7 +1901,7 @@ async function saveFile(filename,data){
   }
   const ext=filename.split('.').pop(), mime={png:'image/png',svg:'image/svg+xml',pdf:'application/pdf',json:'application/json'}[ext]||'application/octet-stream';
   const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-  if(ios&&navigator.canShare){
+  if(ios&&navigator.canShare){   /* iPad/iPhone: über "Teilen" sichern, ein normaler Download klappt dort oft nicht */
     const f=new File([data],filename,{type:mime});
     if(navigator.canShare({files:[f]})){
       try{ await navigator.share({files:[f]}); toastEl.hidden=true; return; }
