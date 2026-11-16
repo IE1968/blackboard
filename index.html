@@ -40,7 +40,7 @@ header{position:relative;min-width:0;zoom:var(--ui);border-bottom:1px solid var(
 .bar::-webkit-scrollbar{display:none}
 .brand{display:flex;align-items:center;gap:8px;font:900 30px/1 var(--display);letter-spacing:0;white-space:nowrap;padding:2px 6px 2px 0}
 .brand .logo{width:32px;height:32px;fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.brand i{font-style:normal;color:var(--accent)}
+.brand span,.brand i{font-style:normal;color:var(--accent)}
 .grp{display:flex;align-items:center;gap:2px}
 .sep{width:1px;align-self:stretch;background:var(--line);margin:4px 0}
 .tb{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:46px;padding:5px 4px 4px;font-size:11px;font-weight:500;color:var(--muted);white-space:nowrap}
@@ -146,7 +146,7 @@ body.nolabels .tb{min-width:38px;padding:8px 6px}
 #menu .mrow button{flex:1;text-align:center;padding:7px 0;border:1px solid var(--line)}
 #menu button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 /* Hoher Kontrast: kräftigere Rahmen, hellere Nebentexte */
-body.hc{--line:#8298a0;--ink:#d4e7ff;--muted:#a9cdfb;--hover:#3a4d51}
+body.hc{--line:#6f9fd8;--ink:#a9d1ff;--muted:#8fc0ff;--accent:#6fb3ff;--hover:#24364f}
 body.hc button:disabled{opacity:.6}
 body.hc #stage{--dot:#8d999b}
 body.hc #stage.dark{--dot:#66777b}
