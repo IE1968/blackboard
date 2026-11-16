@@ -329,6 +329,7 @@ const KINDS={
   note:{label:'Notiz',w:150,h:110,fill:'#fff3b0'},
   lineArrow:{label:'Pfeil',line:'arrow',w:140,h:40},
   linePlain:{label:'Linie',line:'none',w:140,h:40},
+  gSquare:{label:'Quadrat',as:'rect',w:100,h:100},
   gRound:{label:'Abgerundet',as:'round',w:140,h:80},
   gCircle:{label:'Kreis',as:'ellipse',w:90,h:90},
   gDia:{label:'Raute',as:'diamond',w:120,h:90},
@@ -393,7 +394,7 @@ const KINDS={
   netcloud:{label:'Internet',as:'cloud',w:150,h:95,text:'Internet'},
   netdb:{label:'Speicher',as:'db',w:80,h:80}
 };
-const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gRound','ellipse','gCircle','tri','gDia','hex','star','arrowr','arrowlr','bubble','cloud','cross','note']],
+const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','star','arrowr','arrowlr','bubble','cloud','cross','note']],
   ['Tabellen & Boards',['table','kanban','scrum','card']],
   ['Präsentation',['frame']],
   ['Flussdiagramm',['term','diamond','io','doc','db']],
@@ -877,7 +878,7 @@ function cleanDoc(d){
     }
     if(!o) continue;
     if(o.type!=='path'){ if(s.fs) o.fs=num(s.fs,14,6,200); if(s.bold) o.bold=true; const tc=col(s.tc,null); if(tc&&tc!=='none') o.tc=tc; }
-    const g=sid(s.g); if(g) o.g=g; if(s.lock) o.lock=true;
+    const g=sid(s.g); if(g) o.g=g; if(s.lock) o.lock=true; const fr=sid(s.fr); if(fr) o.fr=fr;
     seen.add(id); out.push(o); const m=/^i(\d+)$/.exec(id); if(m) n=Math.max(n,+m[1]);
   }
   const shapes=new Set(out.filter(o=>o.type==='shape').map(o=>o.id));
@@ -903,7 +904,16 @@ function renderBoardList(){
   const d=$('delBoard'); d.textContent='Dieses Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
 }
 function fileBase(){ return (curBoard().name||'').trim().replace(/[^\wäöüÄÖÜß -]+/g,'').replace(/\s+/g,'-')||'blackboard'; }
+function assignFrames(){
+  const fr=frames(), inside=(b,f)=>b.x>=f.x-0.5&&b.y>=f.y-0.5&&b.x+b.w<=f.x+f.w+0.5&&b.y+b.h<=f.y+f.h+0.5;
+  for(const it of doc.items){
+    if(!fr.length||it.kind==='frame'||(it.type==='conn'&&(it.from||it.to))){ delete it.fr; continue; }
+    const b=bbox(it), cur=it.fr&&fr.find(f=>f.id===it.fr); if(cur&&inside(b,cur)) continue;
+    let best=null; for(const f of fr) if(inside(b,f)&&(!best||f.w*f.h<best.w*best.h)) best=f;
+    if(best) it.fr=best.id; else delete it.fr; }
+}
 function commit(){
+  assignFrames();
   const s=JSON.stringify(doc); if(hist[hi]===s) return;
   const first=hi<0;
   hist=hist.slice(0,hi+1); hist.push(s); if(hist.length>150) hist.shift();
@@ -1186,9 +1196,10 @@ function dockAt(w,exclude){
 }
 function movers(){
   const ids=new Set(sel);
+  if([...sel].some(id=>(byId(id)||{}).kind==='frame')) assignFrames();
   for(const id of sel){ const p=byId(id); if(!p||p.type!=='shape'||!isBox(p.kind)) continue;
     for(const o of doc.items){ if(o.id===p.id||o.type==='conn'||o.lock||o.kind==='frame') continue; const b=bbox(o),cx=b.x+b.w/2,cy=b.y+b.h/2;
-      if(p.kind==='frame'?(b.x>=p.x&&b.y>=p.y&&b.x+b.w<=p.x+p.w&&b.y+b.h<=p.y+p.h):(cx>p.x&&cx<p.x+p.w&&cy>p.y&&cy<p.y+p.h)) ids.add(o.id); } }
+      if(p.kind==='frame'?o.fr===p.id:(cx>p.x&&cx<p.x+p.w&&cy>p.y&&cy<p.y+p.h)) ids.add(o.id); } }
   return [...ids].map(byId).filter(it=>it&&!it.lock).map(it=>({id:it.id,d:JSON.parse(JSON.stringify(it))}));
 }
 function startConn(base,from,w){
