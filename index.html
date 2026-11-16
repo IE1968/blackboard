@@ -1559,8 +1559,11 @@ function iconFor(kind,W,H){
   return `<svg viewBox="${-(W-w)/2-1} ${-(H-h)/2-1} ${W+2} ${H+2}">${body}</svg>`;
 }
 /* Anzeige: Größe der Bedienoberfläche (100/125/150 %) und hoher Kontrast; die Layout-Stufen rechnen mit der gewählten Größe */
-let uiCfg={scale:1,hc:false,snap:true,grid:true};
-try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u&&[1,1.25,1.5].includes(u.scale)) uiCfg={scale:u.scale,hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false}; }catch(e){}
+/* PC = Maus als Hauptzeiger; Smartphones und Tablets werden mit dem Finger bedient */
+const isPC=!!(window.matchMedia&&matchMedia('(pointer:fine)').matches&&matchMedia('(hover:hover)').matches);
+const pcScale=()=>isPC&&innerWidth/1.25>1000&&innerHeight/1.25>500?1.25:1;   /* am PC 125 %, sofern der Bildschirm groß genug ist */
+let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true};
+try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false}; }catch(e){}
 function isCompactNow(){ return innerWidth/uiCfg.scale<=1000||innerHeight/uiCfg.scale<=500; }
 function applyLayout(){
   const w=innerWidth/uiCfg.scale, c=document.body.classList;
@@ -1574,8 +1577,8 @@ function applyLayout(){
 }
 function setUi(ch){ Object.assign(uiCfg,ch); try{ localStorage.setItem('blackboard-ui',JSON.stringify(uiCfg)); }catch(e){} applyLayout(); applyView(); }
 applyLayout();
-if(isCompactNow()){ palState.closed=true; palState.propsClosed=true; }
 try{ const ps=JSON.parse(localStorage.getItem('blackboard-pal')); if(ps&&ps.open) palState=ps; }catch(e){}
+{ const shut=!isPC||innerWidth/uiCfg.scale<=700; palState.closed=shut; palState.propsClosed=shut; palState.open={Allgemein:true}; }   /* beim Öffnen: am PC ausgeklappt, auf Smartphone und Tablet eingeklappt; nur „Allgemein“ aufgeklappt */
 window.addEventListener('resize',applyLayout);
 function savePal(){ try{ localStorage.setItem('blackboard-pal',JSON.stringify(palState)); }catch(e){} }
 function renderPal(){
@@ -1725,7 +1728,7 @@ menu.addEventListener('click',e=>{
   const bb=e.target.closest('[data-b]');
   if(bb){ menu.hidden=true; if(bb.dataset.b!==boards.cur) openBoard(bb.dataset.b); return; }
   const b=e.target.closest('[data-m]'); if(!b) return;
-  if(b.dataset.m==='ui'){ setUi({scale:+b.dataset.v}); fitMenu(); return; }
+  if(b.dataset.m==='ui'){ setUi({scale:+b.dataset.v,scaleSet:true}); fitMenu(); return; }
   if(b.dataset.m==='hc'){ setUi({hc:!uiCfg.hc}); return; }
   if(b.dataset.m==='snap'){ setUi({snap:!uiCfg.snap}); return; }
   if(b.dataset.m==='gridv'){ setUi({grid:!uiCfg.grid}); return; }
