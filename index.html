@@ -20,7 +20,7 @@
   /* Layout: Werkzeugleiste oben, Formenleiste links (einklappbar), Tafel füllt den Rest. Oberfläche immer dunkel, Tafel hell oder schwarz umschaltbar. */
   color-scheme:dark; --ui:1;
   --paper:#fbfbf8; --dot:#c4cdcf; --paper-muted:#5d6c70; --hint-bg:rgba(251,251,248,.85);
-  --chrome:#101617; --panel:#1b2325; --ink:#e8efef; --muted:#9aabad; --line:#334144;
+  --chrome:#101617; --panel:#1b2325; --ink:#74b4ff; --muted:#5d91d2; --line:#334144;
   --accent:#4d9fff; --accent-ink:#031a3a; --hover:#2a3638;
   --display:"Doto","Roboto Mono",ui-monospace,monospace;
   --body:"Roboto Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -145,7 +145,7 @@ body.nolabels .tb{min-width:38px;padding:8px 6px}
 #menu .mrow button{flex:1;text-align:center;padding:7px 0;border:1px solid var(--line)}
 #menu button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 /* Hoher Kontrast: kräftigere Rahmen, hellere Nebentexte */
-body.hc{--line:#8298a0;--muted:#d3dedf;--hover:#3a4d51}
+body.hc{--line:#8298a0;--ink:#d4e7ff;--muted:#a9cdfb;--hover:#3a4d51}
 body.hc button:disabled{opacity:.6}
 body.hc #stage{--dot:#8d999b}
 body.hc #stage.dark{--dot:#66777b}
@@ -195,7 +195,7 @@ body.compact #playBtn{display:none}
 #presBar button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 #presBar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto}
 #presNo{min-width:74px;text-align:center;font-variant-numeric:tabular-nums;font-size:14px;color:var(--ink)}
-#laser{position:absolute;left:0;top:0;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:#ff2d2d;box-shadow:0 0 16px 7px rgba(255,45,45,.7);pointer-events:none}
+#laser{position:absolute;left:0;top:0;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:#2f8fff;border:2px solid #fff;box-shadow:0 0 16px 7px rgba(47,143,255,.75);pointer-events:none}
 </style>
 </head>
 <body>
@@ -294,13 +294,13 @@ body.compact #playBtn{display:none}
 </div>
 <div id="pres" hidden tabindex="-1" role="dialog" aria-modal="true" aria-label="Präsentation">
   <svg id="presSvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
-  <svg id="laserSvg" xmlns="http://www.w3.org/2000/svg"><polyline id="laserTrail" fill="none" stroke="#ff2d2d" stroke-opacity=".5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <svg id="laserSvg" xmlns="http://www.w3.org/2000/svg"><polyline id="laserTrail" fill="none" stroke="#2f8fff" stroke-opacity=".5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
   <div id="laser" hidden></div>
   <div id="presBar">
     <button id="presPrev" title="Vorherige Folie (Pfeil links)" aria-label="Vorherige Folie"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
     <span id="presNo" role="status"></span>
     <button id="presNext" title="Nächste Folie (Pfeil rechts oder Leertaste)" aria-label="Nächste Folie"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
-    <button id="presLaser" aria-pressed="false" title="Laserpointer (L)" aria-label="Laserpointer"><svg viewBox="0 0 24 24"><path d="M4 20l8-8"/><circle cx="16" cy="8" r="4" fill="#ff2d2d" stroke="none"/></svg></button>
+    <button id="presLaser" aria-pressed="false" title="Laserpointer (L)" aria-label="Laserpointer"><svg viewBox="0 0 24 24"><path d="M4 20l8-8"/><circle cx="16" cy="8" r="4" fill="#2f8fff" stroke="none"/></svg></button>
     <button id="presClose" title="Präsentation beenden (Esc)" aria-label="Präsentation beenden"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
 </div>
@@ -951,6 +951,11 @@ function addShape(kind,c,ptype){
     doc.items.push(cn); sel=new Set([cn.id]); setTool('select'); commit(); render(); return;
   }
   const s=mkShape(kind,c.x,c.y);
+  if(kind==='frame'){ const fr=frames(), hit=f=>s.x<f.x+f.w+20&&s.x+s.w>f.x-20&&s.y<f.y+f.h+20&&s.y+s.h>f.y-20;
+    if(fr.some(hit)){ const last=fr[fr.length-1]; s.w=last.w; s.h=last.h; s.y=last.y; s.x=last.x+last.w+60; let n=0; while(fr.some(hit)&&n++<400) s.x+=20;
+      const rc=svg.getBoundingClientRect(), k=view.k;   /* liegt die neue Folie außerhalb des Bildschirms, dorthin fahren */
+      if(view.x+s.x*k<0||view.x+(s.x+s.w)*k>rc.width||view.y+s.y*k<0||view.y+(s.y+s.h)*k>rc.height){ view.x=rc.width/2-(s.x+s.w/2)*k; view.y=rc.height/2-(s.y+s.h/2)*k; applyView(); }
+      toast('Neue Folie rechts neben die letzte Folie gesetzt.'); } }
   if(kind==='pool'||kind==='frame') doc.items.unshift(s); else doc.items.push(s);
   sel=new Set([s.id]); setTool('select'); commit(); render();
   if(ptype==='mouse'&&kind!=='frame') startEdit(s.id);
@@ -1182,8 +1187,8 @@ function dockAt(w,exclude){
 function movers(){
   const ids=new Set(sel);
   for(const id of sel){ const p=byId(id); if(!p||p.type!=='shape'||!isBox(p.kind)) continue;
-    for(const o of doc.items){ if(o.id===p.id||o.type==='conn'||o.lock) continue; const b=bbox(o),cx=b.x+b.w/2,cy=b.y+b.h/2;
-      if(cx>p.x&&cx<p.x+p.w&&cy>p.y&&cy<p.y+p.h) ids.add(o.id); } }
+    for(const o of doc.items){ if(o.id===p.id||o.type==='conn'||o.lock||o.kind==='frame') continue; const b=bbox(o),cx=b.x+b.w/2,cy=b.y+b.h/2;
+      if(p.kind==='frame'?(b.x>=p.x&&b.y>=p.y&&b.x+b.w<=p.x+p.w&&b.y+b.h<=p.y+p.h):(cx>p.x&&cx<p.x+p.w&&cy>p.y&&cy<p.y+p.h)) ids.add(o.id); } }
   return [...ids].map(byId).filter(it=>it&&!it.lock).map(it=>({id:it.id,d:JSON.parse(JSON.stringify(it))}));
 }
 function startConn(base,from,w){
