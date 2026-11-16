@@ -107,6 +107,7 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 .wbtn{min-height:28px;display:flex;align-items:center;justify-content:center}
 .wbtn .lw{width:70%}
 .sws.three{grid-template-columns:repeat(3,minmax(0,1fr));justify-items:stretch;gap:6px}
+.sws.three .pb svg{width:18px;height:18px;display:block;margin:0 auto;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .sws.five{grid-template-columns:repeat(5,minmax(0,1fr));justify-items:stretch;gap:4px}
 .sws.five .pb{padding:0;min-height:32px;display:flex;align-items:center;justify-content:center}
 .sws.five .lw{width:16px}
@@ -344,6 +345,7 @@ const KINDS={
   cloud:{label:'Wolke',w:160,h:100},
   cross:{label:'Kreuz',w:90,h:90},
   card:{label:'Karte',w:140,h:70,fill:'#fff3b0'},
+  mindmap:{label:'Mindmap',tpl:2,w:760,h:420},
   frame:{label:'Folie',w:640,h:360,fill:'none'},
   quiz:{label:'Quizfolie',tpl:2,w:640,h:360},
   check:{label:'Antwort',w:520,h:44,fill:'none',text:'Antwort'},
@@ -417,7 +419,7 @@ const KINDS={
   netdb:{label:'Speicher',as:'db',w:80,h:80}
 };
 const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','star','arrowr','arrowlr','bubble','cloud','cross','note','bullets']],
-  ['Tabellen & Boards',['table','kanban','scrum','card']],
+  ['Tabellen & Boards',['table','kanban','scrum','card','mindmap']],
   ['Präsentation',['frame','quiz','check']],
   ['Flussdiagramm',['term','diamond','io','doc','db']],
   ['Netzwerk',['netrouter','netswitch','netfw','netserver','netpc','netlaptop','netprinter','netap','netphone','netcloud','netdb']],
@@ -623,9 +625,9 @@ function tableText(s){
   s.cells.forEach((row,rr)=>row.forEach((t,cc)=>{
     if(!t||(editing===s.id&&editCell&&editCell.r===rr&&editCell.c===cc)) return;
     const R=cellRect(s,rr,cc), ls=wrap(t,R.w-14), y0=R.y+R.h/2-(ls.length-1)*LH/2+FS*0.35;
-    const left=s.align==='left'&&rr>0;
-    o+=`<text text-anchor="${left?'start':'middle'}" font-family="${FONT}" font-size="${FS}"${rr===0||BOLD?' font-weight="600"':''} fill="${fill}" pointer-events="none">`+
-      ls.map((l,i)=>`<tspan x="${r(left?R.x+8:R.x+R.w/2)}" y="${r(y0+i*LH)}">${esc(l)}</tspan>`).join('')+`</text>`; }));
+    const a=rr>0||s.al?alOf(s):'center', tx=a==='left'?R.x+8:a==='right'?R.x+R.w-8:R.x+R.w/2;
+    o+=`<text text-anchor="${a==='left'?'start':a==='right'?'end':'middle'}" font-family="${FONT}" font-size="${FS}"${rr===0||BOLD?' font-weight="600"':''} fill="${fill}" pointer-events="none">`+
+      ls.map((l,i)=>`<tspan x="${r(tx)}" y="${r(y0+i*LH)}">${esc(l)}</tspan>`).join('')+`</text>`; }));
   return o;
 }
 const BUL='•', canList=it=>it.type==='shape'&&!['table','frame','check','pool','quiz'].includes(it.kind);
@@ -636,6 +638,7 @@ function listLines(text,maxW){   /* jeder Absatz bekommt ein Aufzählungszeichen
     wrap(para.replace(/^\s*[•\-–]\s+/,''),Math.max(20,maxW-ind)).forEach((t,i)=>out.push({t,b:i===0})); }
   return {ind,out};
 }
+function alOf(s){ if(s.al) return s.al; if(s.kind==='table') return s.align==='left'?'left':'center'; const m=textBox(s).mode; return m==='left'?'left':'center'; }
 function shapeText(s){
   useFont(s);
   if(s.kind==='table') return tableText(s);
@@ -649,6 +652,9 @@ function shapeText(s){
     fill=onFill(s.fill);
     if(s.kind==='text') fill=s.stroke==='none'?onFill(s.fill):mapC(s.stroke); }
   if(s.tc) fill=mapC(s.tc);
+  if(!L&&s.al&&tb.mode!=='pool'){   /* eigene Ausrichtung: links, mittig oder rechts im Textbereich der Form */
+    const x0=tb.mode==='left'?tb.pad:s.w/2-tb.maxW/2, x1=tb.mode==='left'?Math.min(s.w-6,tb.pad+tb.maxW):s.w/2+tb.maxW/2;
+    if(s.al==='left'){ x=x0; anchor='start'; } else if(s.al==='right'){ x=x1; anchor='end'; } else { x=(x0+x1)/2; anchor='middle'; } }
   if(L){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
     return `<text${BOLD?' font-weight="600"':''} font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
       L.out.map((o,i)=>(o.b?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}">${BUL}</tspan>`:'')+(o.t?`<tspan x="${r(x0+L.ind)}" y="${r(y0+i*LH)}">${esc(o.t)}</tspan>`:'')).join('')+`</text>`; }
@@ -940,10 +946,10 @@ function cleanDoc(d){
     } else if(s.type==='conn'){
       const pt=q=>({x:num(q&&q.x,0,-1e6,1e6),y:num(q&&q.y,0,-1e6,1e6)});
       o={id,type:'conn',from:sid(s.from),to:sid(s.to),p1:pt(s.p1),p2:pt(s.p2),text:str(s.text),stroke:line(s.stroke),sw:num(s.sw,2,0.5,60),style:s.style==='straight'?'straight':'ortho',dash:!!s.dash,head:HEADS.some(h=>h[0]===s.head)?s.head:(s.arrow===false?'none':'arrow')};
-      if(o.from&&SIDES[s.fa]) o.fa=s.fa; if(o.to&&SIDES[s.ta]) o.ta=s.ta;
+      if(o.from&&SIDES[s.fa]) o.fa=s.fa; if(o.to&&SIDES[s.ta]) o.ta=s.ta; if(s.mm) o.mm=1;
     }
     if(!o) continue;
-    if(o.type!=='path'){ if(s.fs) o.fs=num(s.fs,14,6,200); if(s.bold) o.bold=true; if(s.list) o.list=true; const tc=col(s.tc,null); if(tc&&tc!=='none') o.tc=tc; }
+    if(o.type!=='path'){ if(s.fs) o.fs=num(s.fs,14,6,200); if(s.bold) o.bold=true; if(s.list) o.list=true; if(['left','center','right'].includes(s.al)) o.al=s.al; if(s.mm==='root'||s.mm==='node') o.mm=s.mm; if(Number.isInteger(s.mc)&&s.mc>=0&&s.mc<6) o.mc=s.mc; const tc=col(s.tc,null); if(tc&&tc!=='none') o.tc=tc; }
     const g=sid(s.g); if(g) o.g=g; if(s.lock) o.lock=true; const fr=sid(s.fr); if(fr) o.fr=fr;
     seen.add(id); out.push(o); const m=/^i(\d+)$/.exec(id); if(m) n=Math.max(n,+m[1]);
   }
@@ -1040,7 +1046,35 @@ function addLanes(c){   /* Pool mit zwei Lanes */
   const ls=[0,1].map(i=>{ const l=mkShape('lane',0,0); Object.assign(l,{x:p.x+30,y:p.y+i*120,w:670,h:120,text:'Lane '+(i+1)}); return l; });
   doc.items.unshift(...ls); doc.items.unshift(p); sel=new Set([p.id]); setTool('select'); commit(); render();
 }
+/* Mindmap: Thema in der Mitte, Zweige als abgerundete Kästen, verbunden mit Linien ohne Spitze */
+const MMC=[['#cfe8ff','#1e63d0'],['#d3f0dc','#1f8a4c'],['#ffd9c7','#c8551f'],['#e6dcff','#6b46c1'],['#fff3b0','#b88a00'],['#ffd6e7','#c2185b']];
+function mmNode(x,y,text,fill,stroke,root){ const n=mkShape(root?'ellipse':'round',0,0); Object.assign(n,{x:snap(x-(root?90:65)),y:snap(y-(root?45:25)),w:root?180:130,h:root?90:50,text,fill,stroke:root?INK:stroke,sw:root?3:2,mm:root?'root':'node',fs:root?18:14}); if(root) n.bold=true; return n; }
+function mmLink(a,b,col){ return {id:nid(),type:'conn',from:a.id,to:b.id,p1:{x:0,y:0},p2:{x:0,y:0},text:'',stroke:col,sw:3,style:'straight',dash:false,head:'none',mm:1}; }
+function addMindmap(c){
+  const root=mmNode(c.x,c.y,'Thema','#ffffff',INK,true), add=[root], R=250;
+  ['Idee 1','Idee 2','Idee 3','Idee 4','Idee 5','Idee 6'].forEach((t,i)=>{ const a=-Math.PI/2+i*Math.PI/3, [f,st]=MMC[i%MMC.length];
+    const n=mmNode(c.x+Math.cos(a)*R*1.15,c.y+Math.sin(a)*R*0.62,t,f,st); n.mc=i%MMC.length; add.push(n,mmLink(root,n,st)); });
+  doc.items.push(...add); sel=new Set([root.id]); setTool('select'); commit(); render();
+  toast('Knoten auswählen und rechts „+ Zweig“ tippen, um weiterzuverzweigen.');
+}
+function addBranch(id){
+  const p=byId(id); if(!p) return; const pc={x:p.x+p.w/2,y:p.y+p.h/2};
+  const kids=doc.items.filter(c=>c.type==='conn'&&c.from===p.id&&c.to).map(c=>byId(c.to)).filter(Boolean);
+  const inc=doc.items.find(c=>c.type==='conn'&&c.to===p.id&&c.from&&c.mm), par=inc&&byId(inc.from);
+  let ang, ci=p.mc!=null?p.mc:0, nx, ny;
+  if(!par){   /* am Thema: in die größte Lücke zwischen den vorhandenen Zweigen */
+    const as=kids.map(k=>Math.atan2((k.y+k.h/2-pc.y)/0.62,(k.x+k.w/2-pc.x)/1.15)).sort((a,b)=>a-b);
+    if(!as.length) ang=0; else { let best=0,gap=-1; for(let i=0;i<as.length;i++){ const a=as[i], b=i+1<as.length?as[i+1]:as[0]+2*Math.PI; if(b-a>gap){ gap=b-a; best=a+(b-a)/2; } } ang=best; }
+    ci=kids.length%MMC.length; nx=pc.x+Math.cos(ang)*250*1.15; ny=pc.y+Math.sin(ang)*250*0.62; }
+  else {   /* an einem Zweig: weiter nach außen, Geschwister untereinander */
+    const dx=pc.x-(par.x+par.w/2), dy=pc.y-(par.y+par.h/2), dir=Math.abs(dx)>=Math.abs(dy)?{x:Math.sign(dx)||1,y:0}:{x:0,y:Math.sign(dy)||1};
+    const k=kids.length, off=(k%2?1:-1)*Math.ceil(k/2)*70;
+    if(dir.x){ nx=pc.x+dir.x*(p.w/2+130); ny=pc.y+off; } else { nx=pc.x+off*2.2; ny=pc.y+dir.y*(p.h/2+90); } }
+  const [f,st]=MMC[ci], n=mmNode(nx,ny,'Neuer Zweig',par?p.fill:f,par?p.stroke:st); if(par){ n.w=120; n.h=44; n.fs=13; n.x=snap(nx-60); n.y=snap(ny-22); } n.mc=ci;
+  doc.items.push(n,mmLink(p,n,par?p.stroke:st)); sel=new Set([n.id]); commit(); render(); startEdit(n.id);
+}
 function addShape(kind,c,ptype){
+  if(kind==='mindmap') return addMindmap(c);
   if(kind==='quiz') return addQuiz(c);
   if(kind==='poollanes') return addLanes(c);
   if(KINDS[kind].tpl) return addTemplate(kind,c,ptype);
@@ -1152,6 +1186,7 @@ function placeEditor(){
   editor.style.width=Math.max(90,R.w*k)+'px'; editor.style.height=Math.max(H,lines*lh+8)+'px';
   editor.style.fontSize=(FS*k)+'px'; editor.style.lineHeight=lh+'px';
   editor.style.padding=Math.max(2,(H-lines*lh)/2-2)+'px 6px 0';
+  editor.style.textAlign=it.kind==='table'?(editCell&&editCell.r===0&&!it.al?'center':alOf(it)):it.list?'left':alOf(it);
 }
 function startEdit(id,cell){
   finishEdit(); const it=byId(id); if(!it||it.type==='path') return;
@@ -1176,6 +1211,7 @@ editor.addEventListener('input',placeEditor);
 editor.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); finishEdit(); }
   else if(e.key==='Escape'){ e.preventDefault(); finishEdit(true); }
+  else if(e.key==='Tab'&&!editCell&&(byId(editing)||{}).mm){ e.preventDefault(); const id=editing; finishEdit(); addBranch(id); }   /* Mindmap: Tab hängt direkt einen neuen Zweig an */
   else if(e.key==='Tab'&&editCell){ e.preventDefault(); const id=editing,t=byId(id); let {r:rr,c}=editCell;
     c+=e.shiftKey?-1:1; if(c>=t.colW.length){ c=0; rr++; } if(c<0){ c=t.colW.length-1; rr--; }
     finishEdit(); if(rr>=0&&rr<t.rowH.length) startEdit(id,{r:rr,c}); }
@@ -1200,9 +1236,12 @@ function updateProps(){
   const ps=penStyles[drawTool], cur=items[0]||ps, hasShape=items.some(i=>i.type==='shape'), conns=items.filter(i=>i.type==='conn'), paths=items.filter(i=>i.type==='path');
   const sws=(act,on,none,lab)=>`<div class="sws">`+COLORS.filter(c=>none||c!=='none').map(c=>`<button class="sw${c==='none'?' none':''}" data-act="${act}" data-val="${c}" aria-pressed="${on===c}" title="${cname(c)}" aria-label="${lab}: ${cname(c)}" style="${c==='none'?'':'background:'+mapC(c)}"></button>`).join('')+`</div>`;
   let h='';
+  if(items.length===1&&items[0].type==='shape'&&items[0].mm) h+=`<div class="pg"><b>Mindmap</b><button class="pb wide" data-act="branch" title="Neuen Zweig an diesen Knoten hängen (beim Schreiben: Tab)">+ Zweig</button></div>`;
   if(items.length&&items.every(i=>i.kind==='check')) h+=`<div class="pg"><b>Quiz</b><button class="pb" data-act="qok" aria-pressed="${items.every(i=>i.ok)}" title="Als richtige Antwort markieren. In der Präsentation zeigt „Lösung“ die richtigen Antworten.">Richtig</button></div>`;
   const texty=items.filter(i=>i.type!=='path');
   if(texty.length) h+=`<div class="pg"><b>Text</b>`+(items.length===1?`<button class="pb wide" data-act="edit">Text ändern</button>`:'')+`<div class="sws two"><button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><button class="pb" data-act="fsup" title="Schrift größer">A+</button></div><div class="sws two"><button class="pb" data-act="bold" aria-pressed="${!!texty[0].bold}" title="Fett">Fett</button><button class="pb" data-act="list" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>i.list)}" title="Aufzählung: jeder Absatz beginnt mit einem Punkt" aria-label="Aufzählung"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.600" fill="currentColor" stroke="none"/><path d="M10 7h10M10 12h10M10 17h10" stroke-linecap="round"/></svg></button></div></div>`;
+  const alable=texty.filter(i=>i.type==='shape'&&i.kind!=='pool'&&i.kind!=='frame');
+  if(alable.length){ const A=alOf(alable[0]); h=h.replace(/<\/div><\/div>$/,`</div><div class="sws three"><button class="pb" data-act="txal" data-val="left" aria-pressed="${A==='left'}" title="Linksbündig" aria-label="Linksbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M3 9h9M3 13h14M3 17h9"/></svg></button><button class="pb" data-act="txal" data-val="center" aria-pressed="${A==='center'}" title="Zentriert" aria-label="Zentriert"><svg viewBox="0 0 20 20"><path d="M3 5h14M5.500 9h9M3 13h14M5.500 17h9"/></svg></button><button class="pb" data-act="txal" data-val="right" aria-pressed="${A==='right'}" title="Rechtsbündig" aria-label="Rechtsbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M8 9h9M3 13h14M8 17h9"/></svg></button></div></div>`); }
   const onlyText=items.length>0&&items.every(i=>i.type==='shape'&&i.kind==='text');
   if(texty.length){ const t0=texty[0]; h+=`<div class="pg"><b>Schrift</b>${sws('tc',t0.tc||(t0.kind==='text'?t0.stroke:''),false,'Schriftfarbe')}</div>`; }
   if(hasShape) h+=`<div class="pg"><b>${onlyText?'Hintergrund':'Füllung'}</b>${sws('fill',(items.find(i=>i.type==='shape')||{}).fill,true,'Füllung')}</div>`;
@@ -1237,7 +1276,9 @@ propsEl.addEventListener('click',e=>{
   if(act==='paste') return pasteClip();
   if(act==='group') return groupSel();
   if(act==='ungroup') return ungroupSel();
+  if(act==='branch') return addBranch(items[0]&&items[0].id);
   if(act==='al') return alignSel(val);
+  if(act==='txal'){ items.forEach(i=>{ if(i.type==='shape'&&!i.lock&&i.kind!=='pool'&&i.kind!=='frame'){ i.al=val; if(i.kind==='table') delete i.align; } }); commit(); render(); if(editing) placeEditor(); return; }
   if(act==='play') return startPres(items[0]&&items[0].id);
   if(act==='qok'){ const on=!items.every(i=>i.ok); items.forEach(i=>{ if(on) i.ok=true; else delete i.ok; }); commit(); render(); return; }
   if(act==='frup'||act==='frdown'){ if(items[0]) moveFrame(items[0].id,act==='frup'?-1:1); return; }
@@ -1498,6 +1539,7 @@ function iconFor(kind,W,H){
   const d=KINDS[kind];
   if(d.line){ let v=`<svg viewBox="0 0 ${W} ${H}"><path d="M4 ${H-6}L${W-(d.line==='arrow'?9:4)} ${d.line==='arrow'?9:6}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>${d.line==='arrow'?`<polygon points="${W-3},5 ${W-13},7 ${W-7},14" fill="currentColor"/>`:d.line==='msg'?`<polygon points="${W-3},5 ${W-13},7 ${W-7},14" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="5" cy="${H-6}" r="2.6" fill="none" stroke="currentColor" stroke-width="1.4"/>`:''}</svg>`; return d.dash?v.replace('stroke-width="1.8"','stroke-width="1.8" stroke-dasharray="4 3"'):v; }
   if(kind==='frame') return `<svg viewBox="0 0 ${W} ${H}"><rect x="3" y="2" width="${W-6}" height="${H-4}" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="4 3"/><text x="${W/2}" y="${H*0.68}" text-anchor="middle" font-size="${H*0.5}" font-weight="600" fill="currentColor">1</text></svg>`;
+  if(kind==='mindmap') return `<svg viewBox="0 0 ${W} ${H}"><g fill="none" stroke="currentColor" stroke-width="1.500"><path d="M${W/2} ${H/2}L8 5M${W/2} ${H/2}L${W-8} 5M${W/2} ${H/2}L8 ${H-5}M${W/2} ${H/2}L${W-8} ${H-5}"/><ellipse cx="${W/2}" cy="${H/2}" rx="8" ry="5" fill="var(--panel,#101617)"/><rect x="2" y="2" width="11" height="6" rx="2" fill="var(--panel,#101617)"/><rect x="${W-13}" y="2" width="11" height="6" rx="2" fill="var(--panel,#101617)"/><rect x="2" y="${H-8}" width="11" height="6" rx="2" fill="var(--panel,#101617)"/><rect x="${W-13}" y="${H-8}" width="11" height="6" rx="2" fill="var(--panel,#101617)"/></g></svg>`;
   if(kind==='quiz') return `<svg viewBox="0 0 ${W} ${H}"><rect x="3" y="2" width="${W-6}" height="${H-4}" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="4 3"/><path d="M9 8h${W-18}" stroke="currentColor" stroke-width="2.2" fill="none"/>${[13,18,23].map(y=>`<rect x="9" y="${y-2}" width="4" height="4" fill="none" stroke="currentColor" stroke-width="1"/><path d="M16 ${y}h${W-30}" stroke="currentColor" stroke-width="1.2" fill="none"/>`).join('')}</svg>`;
   if(kind==='check') return `<svg viewBox="0 0 ${W} ${H}"><rect x="5" y="${H/2-6}" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 ${H/2}l3 3 5-7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M22 ${H/2}h${W-28}" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>`;
   if(kind==='poollanes') return `<svg viewBox="0 0 ${W} ${H}"><rect x="2" y="3" width="${W-4}" height="${H-6}" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 3v${H-6}M14 3v${H-6}M14 ${H/2}H${W-2}" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>`;
