@@ -50,7 +50,7 @@ header{position:relative;min-width:0;zoom:var(--ui);border-bottom:1px solid var(
 #menu button:hover{background:var(--hover)}
 #menu hr{border:0;border-top:1px solid var(--line);margin:4px 2px;width:auto}
 
-main{--palw:calc(104px*var(--ui));--propw:calc(104px*var(--ui));position:relative;display:grid;grid-template-columns:var(--palw) minmax(0,1fr) var(--propw);min-height:0}
+main{--palw:calc(112px*var(--ui));--propw:calc(104px*var(--ui));position:relative;display:grid;grid-template-columns:var(--palw) minmax(0,1fr) var(--propw);min-height:0}
 main.props-closed{--propw:0px}
 main.pal-closed{--palw:0px}
 #palHandle{position:absolute;left:var(--palw);top:50%;transform:translateY(-50%);z-index:15;width:calc(28px*var(--ui));height:calc(92px*var(--ui));padding:0;border-radius:0 12px 12px 0;background:var(--panel);border:1px solid var(--line);border-left:0;color:var(--ink);font-size:calc(24px*var(--ui));line-height:1}
@@ -58,11 +58,11 @@ main.pal-closed{--palw:0px}
 #propsToggle{position:absolute;right:var(--propw);top:50%;transform:translateY(-50%);z-index:6;width:calc(28px*var(--ui));height:calc(92px*var(--ui));padding:0;border-radius:12px 0 0 12px;background:var(--panel);border:1px solid var(--line);border-right:0;color:var(--ink);font-size:calc(24px*var(--ui));line-height:1}
 #palette,#props,#toast{zoom:var(--ui)}
 #palette{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding:10px 6px 20px}
-.gh{display:flex;align-items:center;gap:6px;width:100%;font:600 var(--headfs,11px)/1.2 var(--body);letter-spacing:.03em;text-transform:uppercase;color:var(--muted);padding:9px 4px 9px 2px;margin-top:4px;text-align:left}
-.gh>span{min-width:0;white-space:normal;hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal}
+.gh{display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;font:600 11px/1.2 var(--body);letter-spacing:.03em;text-transform:uppercase;color:var(--muted);padding:7px 2px 5px;margin-top:4px;text-align:left}
+.gh>span{white-space:nowrap}
 .gh:hover{background:var(--hover);color:var(--ink)}
 /* Aufklapp-Pfeil wie an den Seitengriffen: dünner Winkel, zu = nach rechts, offen = nach unten */
-.gh::after{content:'';flex:none;margin-left:auto;width:.5em;height:.5em;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-.15em) rotate(45deg);transition:transform .15s}
+.gh::after{content:'';flex:none;margin-left:3px;width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .15s}
 .gh[aria-expanded="false"]::after{transform:rotate(-45deg)}
 #palToggle{margin:0 0 4px;border:1px solid var(--line);justify-content:center;white-space:nowrap}
 #palToggle::before{content:none}
@@ -93,7 +93,7 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
 #props{min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--line) transparent;display:flex;flex-direction:column;gap:14px;padding:12px 6px 20px;background:var(--panel);border-left:1px solid var(--line)}
 main.props-closed #props{padding:0;border:0;overflow:hidden}
 .pg{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;align-items:center;min-width:0}
-.pg>b{grid-column:1/-1;min-width:0;overflow-wrap:anywhere;font-weight:600;font-size:var(--headfs,10px);letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
+.pg>b{grid-column:1/-1;min-width:0;overflow-wrap:anywhere;font-weight:600;font-size:11px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
 .sws{grid-column:1/-1;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;justify-items:center}
 .sws.two{grid-template-columns:repeat(2,minmax(0,1fr));justify-items:stretch;gap:6px}
 .wbtn{min-height:28px;display:flex;align-items:center;justify-content:center}
@@ -229,6 +229,7 @@ body.compact .tb span,body.compact .sep,body.compact .spacer,body.compact #zoomG
 body.compact #tools{order:99;flex:1 0 100%;min-width:0;justify-content:space-between;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--line);padding-top:4px}
 body.compact main{grid-template-columns:minmax(0,1fr)}
 body.compact #palette,body.compact #props{position:absolute;top:0;bottom:0;width:104px;z-index:14}
+body.compact #palette{width:112px}
 body.compact #palette{left:0;box-shadow:8px 0 24px rgba(0,0,0,.35)}
 body.compact #props{right:0;box-shadow:-8px 0 24px rgba(0,0,0,.35)}
 body.compact main.pal-closed #palette,body.compact main.props-closed #props{display:none}

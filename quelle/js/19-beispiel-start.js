@@ -27,6 +27,6 @@ try{ window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude
 storeInit().then(()=>{ if(window.claude&&window.claude.hot&&window.claude.hot.ready) window.claude.hot.ready(start); else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{}); });
 getDl();
 /* Schrift ist erst kurz nach dem Start bereit: danach neu zeichnen, damit Textbreiten stimmen */
-if(document.fonts&&document.fonts.load) Promise.all(["400","500","600"].map(w=>document.fonts.load(w+" 14px 'Roboto Mono'"))).then(()=>{ renderPal(); fitHeads(); if(fitTexts()){ hist[hi]=mkSnap(doc,hist[hi]); persist(); } render(); }).catch(()=>{});
+if(document.fonts&&document.fonts.load) Promise.all(["400","500","600"].map(w=>document.fonts.load(w+" 14px 'Roboto Mono'"))).then(()=>{ renderPal(); if(fitTexts()){ hist[hi]=mkSnap(doc,hist[hi]); persist(); } render(); }).catch(()=>{});
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0) navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
