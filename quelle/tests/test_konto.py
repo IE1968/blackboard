@@ -76,6 +76,12 @@ try:
   n=len(boards(B)); sync(A)
   check('Gelöschtes Board verschwindet auch auf Gerät A',warte(lambda: len(boards(A))==n),f'{len(boards(A))} / {n}')
 
+  # Mehrere auf einmal löschen (Dialog „Boards verwalten“) wird auf Gerät A übernommen
+  menu(B,'new'); menu(B,'new'); B.wait_for_timeout(1500); sync(A); warte(lambda: len(boards(A))==len(boards(B)))
+  menu(B,'manage'); r=B.locator('#bmList .bmRow input'); r.nth(0).check(); r.nth(1).check(); B.click('#bmDel'); B.click('#bmDel'); B.wait_for_timeout(1200); B.click('#bmClose')
+  n=len(boards(B)); sync(A)
+  check('Mehrfach-Löschen verschwindet auch auf Gerät A',warte(lambda: len(boards(A))==n),f'{len(boards(A))} / {n}')
+
   # Neu laden: bleibt angemeldet; abgelaufenes Token wird still erneuert
   A.evaluate("()=>{const s=JSON.parse(localStorage.getItem('skizix-konto')); s.expires_at=0; localStorage.setItem('skizix-konto',JSON.stringify(s))}")
   A.reload(); A.wait_for_timeout(1500)

@@ -103,6 +103,22 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 .pb[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .pb.danger{color:#ff8f7a}
 .lw{display:inline-block;width:18px;background:currentColor;border-radius:3px;vertical-align:middle}
+#bmDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+#bmDlg[hidden]{display:none}
+#bmBox{zoom:var(--ui);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:520px;max-height:calc((100vh - 32px)/var(--ui));display:flex;flex-direction:column;gap:6px}
+#bmBox h2{margin:0 0 4px;font:600 17px/1.2 var(--body)}
+#bmBox p{margin:0 0 6px;color:var(--muted);font-size:13px}
+#bmList{overflow-y:auto;min-height:60px;border:1px solid var(--line);border-radius:10px;padding:4px}
+.bmRow{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;cursor:pointer}
+.bmRow:hover{background:var(--hover)}
+.bmRow input,.bmAll input{width:18px;height:18px;flex:none;accent-color:var(--accent)}
+.bmRow span{display:flex;flex-direction:column;min-width:0}
+.bmRow b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bmRow small{font-size:11px;color:var(--muted)}
+.bmRow.dup b::after{content:"  doppelt";font-size:10px;font-weight:600;color:#e8a23a;letter-spacing:.04em}
+.bmAll{display:flex;align-items:center;gap:10px;padding:4px 9px;font-size:13px;cursor:pointer}
+#bmMsg{min-height:18px;font-size:13px}
+#bmDel:not(:disabled){background:#c94040;border-color:#c94040;color:#fff}
 #ktDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
 #ktDlg[hidden]{display:none}
 #ktForm{zoom:var(--ui);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:400px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:6px}

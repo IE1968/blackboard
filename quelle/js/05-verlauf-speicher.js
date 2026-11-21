@@ -146,9 +146,15 @@ function newBoard(){
   const id=genId(); let n=boards.list.length+1; while(boards.list.some(b=>b.name==='Board '+n)) n++;
   const nb={id,name:'Board '+n}; boards.list.push(nb); docSet(id,JSON.stringify({items:[],n:0,fmt:DOC_FMT})); openBoard(id); markDirty(nb); ktSoon(500);
 }
-function deleteBoard(){
-  if(boards.list.length<2) return; const gone=curBoard(); if(gone.sha) boards.del.push({id:gone.id,sha:gone.sha});
-  ktGone(gone); docDel(boards.cur); boards.list=boards.list.filter(b=>b.id!==boards.cur); openBoard(boards.list[0].id); scheduleSync(1500);
+function deleteBoard(){ if(boards.list.length<2) return; removeBoards([boards.cur]); }
+/* Boards löschen (auch mehrere). Bleibt keins übrig, entsteht ein leeres neues. Löschen wird an GitHub-Abgleich und Konto weitergegeben. */
+function removeBoards(ids){
+  const set=new Set(ids), gone=boards.list.filter(b=>set.has(b.id)); if(!gone.length) return 0;
+  for(const b of gone){ if(b.sha) boards.del.push({id:b.id,sha:b.sha}); ktGone(b); docDel(b.id); }
+  boards.list=boards.list.filter(b=>!set.has(b.id));
+  if(!boards.list.length){ const nb={id:genId(),name:'Board 1'}; boards.list.push(nb); docSet(nb.id,JSON.stringify({items:[],n:0,fmt:DOC_FMT})); markDirty(nb); ktSoon(500); }
+  if(set.has(boards.cur)) openBoard(boards.list[0].id); else saveIdx();
+  scheduleSync(1500); return gone.length;
 }
 function renderBoardList(){
   renderSyncInfo();
@@ -192,3 +198,33 @@ function undo(){ finishEdit(); if(hi>0) restore(hi-1); }
 function redo(){ finishEdit(); if(hi<hist.length-1) restore(hi+1); }
 function toast(msg){ toastEl.textContent=msg; toastEl.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>toastEl.hidden=true,3200); }
 
+/* ---- Dialog „Boards verwalten“: mehrere Boards ankreuzen und auf einmal löschen ---- */
+function bmInfo(b){
+  let n=0; const d=b.id===boards.cur?doc:storedDoc(b.id); if(d) n=d.items.length;
+  const t=b.updated?new Date(b.updated):null;
+  return (n===1?'1 Element':n+' Elemente')+(t?' · geändert '+t.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})+', '+t.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}):'')+(b.tok?' · Gast':'')+(b.id===boards.cur?' · gerade geöffnet':'');
+}
+function bmRender(){
+  const L=boards.list.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),'de',{numeric:true})||((b.updated||0)-(a.updated||0)));
+  const cnt=new Map(); for(const b of L){ const k=String(b.name).trim().toLowerCase(); cnt.set(k,(cnt.get(k)||0)+1); }
+  $('bmList').innerHTML=L.map(b=>`<label class="bmRow${cnt.get(String(b.name).trim().toLowerCase())>1?' dup':''}"><input type="checkbox" data-id="${b.id}"><span><b>${esc(b.name)}</b><small>${esc(bmInfo(b))}</small></span></label>`).join('');
+  $('bmAll').checked=false; bmUpd();
+}
+function bmSel(){ return [...$('bmList').querySelectorAll('input:checked')].map(i=>i.dataset.id); }
+function bmUpd(){
+  const n=bmSel().length, d=$('bmDel'); d.disabled=!n; delete d.dataset.sure;
+  d.textContent=n?(n===1?'1 Board löschen':n+' Boards löschen'):'Löschen'; $('bmMsg').textContent='';
+  const all=$('bmList').querySelectorAll('input'); $('bmAll').checked=!!all.length&&n===all.length;
+}
+function openBmDlg(){ bmRender(); $('bmDlg').hidden=false; $('bmClose').focus(); }
+function closeBmDlg(){ if(!$('bmDlg').hidden) $('bmDlg').hidden=true; }
+$('bmList').addEventListener('change',bmUpd);
+$('bmAll').addEventListener('change',e=>{ $('bmList').querySelectorAll('input').forEach(i=>i.checked=e.target.checked); bmUpd(); });
+$('bmDel').onclick=()=>{
+  const ids=bmSel(), d=$('bmDel'); if(!ids.length) return;
+  if(!d.dataset.sure){ d.dataset.sure='1'; d.textContent='Wirklich '+(ids.length===1?'1 Board':ids.length+' Boards')+' löschen?'; $('bmMsg').textContent=ktOn()?'Sie verschwinden auch auf deinen anderen angemeldeten Geräten. Das lässt sich nicht zurückholen.':'Das lässt sich nicht zurückholen.'; return; }
+  finishEdit(); const n=removeBoards(ids); bmRender(); $('bmMsg').textContent=(n===1?'1 Board':n+' Boards')+' gelöscht.'; toast((n===1?'1 Board':n+' Boards')+' gelöscht.');
+};
+$('bmClose').onclick=closeBmDlg;
+$('bmDlg').addEventListener('pointerdown',e=>{ if(e.target===$('bmDlg')) closeBmDlg(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('bmDlg').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeBmDlg(); } },true);

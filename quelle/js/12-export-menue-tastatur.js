@@ -36,6 +36,7 @@ menu.addEventListener('click',e=>{
     case 'ktlogin': openKtDlg(); break;
     case 'ktlogout': ktLogout(); break;
     case 'delboard': deleteBoard(); break;
+    case 'manage': openBmDlg(); break;
     case 'png': case 'svg': case 'pdf': exportAs(b.dataset.m); break;
     case 'json': saveFile(fileBase()+'.json',JSON.stringify(Object.assign({},doc,{fmt:Math.max(doc.fmt||0,DOC_FMT)}))); break;
     case 'open': $('file').value=''; $('file').click(); break;

@@ -54,6 +54,7 @@
     <div id="boardList"></div>
     <button data-m="new">+ Neues Board</button>
     <button data-m="delboard" id="delBoard">Dieses Board löschen</button>
+    <button data-m="manage" id="manageBtn">Boards verwalten und löschen …</button>
     <hr>
     <div class="mh">Präsentation</div>
     <button data-m="play">Präsentation starten</button>
@@ -137,6 +138,16 @@
     <h3>Deine eigenen Geräte</h3>
     <p>Melde dich auf deinen Geräten mit deinem Konto an (Menü → Konto). Dann sind alle deine Boards dort automatisch da, ohne Link.</p>
     <div class="lvBtns"><button type="button" id="lvClose">Fertig</button></div>
+  </div>
+</div>
+<div id="bmDlg" hidden role="dialog" aria-modal="true" aria-labelledby="bmTitle">
+  <div id="bmBox">
+    <h2 id="bmTitle">Boards verwalten</h2>
+    <p>Kreuze die Boards an, die weg sollen. Gleiche Namen stehen untereinander, so findest du doppelte Boards schnell.</p>
+    <label class="bmAll"><input type="checkbox" id="bmAll"> Alle auswählen</label>
+    <div id="bmList" role="group" aria-label="Boards"></div>
+    <div id="bmMsg" role="status"></div>
+    <div class="dlgBtns"><button type="button" class="pb danger" id="bmDel" disabled>Löschen</button><button type="button" class="pb" id="bmClose">Schließen</button></div>
   </div>
 </div>
 <div id="ktDlg" hidden role="dialog" aria-modal="true" aria-labelledby="ktTitle">
