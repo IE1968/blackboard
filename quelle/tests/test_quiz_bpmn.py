@@ -7,7 +7,7 @@ try:
     b=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox'])
     ctx=b.new_context(viewport={'width':1500,'height':900},accept_downloads=True); pg=ctx.new_page(); errs=[]; pg.on('pageerror',lambda e: errs.append(str(e)))
     pg.goto(URL); pg.wait_for_timeout(400)
-    pg.click('#menuBtn'); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
+    openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
     pg.evaluate("()=>{for(let i=0;i<14;i++){const h=[...document.querySelectorAll('.gh')].find(h=>h.getAttribute('aria-expanded')==='false'); if(!h) break; h.click();}}")
     for k in ['quiz']:
         pg.focus(f'.pal[data-kind="{k}"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(120); pg.keyboard.press('Escape')
@@ -21,7 +21,7 @@ try:
     d=pg.evaluate("async()=>{await new Promise(r=>setTimeout(r,400));const b=JSON.parse(localStorage.getItem('blackboard-boards'));const db=await new Promise(r=>{const q=indexedDB.open('blackboard',1);q.onsuccess=()=>r(q.result)});const v=await new Promise(r=>{const q=db.transaction('docs').objectStore('docs').get(b.cur);q.onsuccess=()=>r(q.result)});db.close();return JSON.parse(v)}")
     check('Richtige Antwort markiert',[bool(i.get('ok')) for i in d['items'] if i.get('kind')=='check']==[True,False,False])
     pg.screenshot(path='/tmp/bb-tests/ed.png')
-    pg.click('#menuBtn'); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
+    openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
     for k in ['poollanes','gwev','taskuser','evterm','bgroup','datastore','flowmsg','evendmsg','callact']:
         pg.focus(f'.pal[data-kind="{k}"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(120); pg.keyboard.press('Escape')
         pg.evaluate("(k)=>{const b=JSON.parse(localStorage.getItem('blackboard-boards'));}",k)

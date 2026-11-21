@@ -8,7 +8,7 @@ try:
     pg=b.new_page(viewport={'width':1500,'height':900}); errs=[]; pg.on('pageerror',lambda e: errs.append(str(e)))
     pg.goto(URL); pg.wait_for_timeout(600)
     doc=lambda: pg.evaluate("async()=>{await new Promise(r=>setTimeout(r,400));const b=JSON.parse(localStorage.getItem('blackboard-boards'));const db=await new Promise(r=>{const q=indexedDB.open('blackboard',1);q.onsuccess=()=>r(q.result)});const v=await new Promise(r=>{const q=db.transaction('docs').objectStore('docs').get(b.cur);q.onsuccess=()=>r(q.result)});db.close();return JSON.parse(v)}")
-    pg.click('#menuBtn'); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
+    openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
     def add(kind):
         pg.evaluate("()=>{for(let i=0;i<12;i++){const h=[...document.querySelectorAll('.gh')].find(h=>h.getAttribute('aria-expanded')==='false'); if(!h) break; h.click();}}")
         pg.focus(f'.pal[data-kind="{kind}"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(150)
@@ -35,7 +35,7 @@ try:
     f1=F[0]; x,y=scr(f1['x']+f1['w']/2,f1['y']); drag(x,y,x,y-200); d=doc(); R3=[i for i in d['items'] if i.get('kind')=='rect'][0]
     print('PASS eigene Form geht mit' if R3['y']<R['y'] else 'FAIL eigene Form bleibt',R3['y'])
     # Schriften prüfen
-    pg.click('#menuBtn'); pg.wait_for_timeout(150)
+    openFile(pg); pg.wait_for_timeout(150)
     bad=pg.evaluate("""()=>{const out=new Set();for(const e of document.querySelectorAll('header *,#palette *,#props *,#menu *,#presBar *,#syncForm *,#toast,#hint')){ if(!e.childNodes.length||![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())) continue; const f=getComputedStyle(e).fontFamily; if(!/^("?Roboto Mono|"?Doto)/.test(f)) out.add(e.tagName+'#'+e.id+'.'+e.className+' -> '+f.slice(0,40)); } return [...out]}""")
     print('Fremde Schriften:',bad)
     pg.screenshot(path='/tmp/bb-tests/blue_menu.png'); pg.keyboard.press('Escape')

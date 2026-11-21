@@ -9,7 +9,7 @@ try:
     pg=b.new_page(viewport={'width':1500,'height':900}); errs=[]; pg.on('pageerror',lambda e: errs.append(str(e)))
     pg.goto(URL); pg.wait_for_timeout(400)
     doc=lambda: pg.evaluate("async()=>{await new Promise(r=>setTimeout(r,400));const b=JSON.parse(localStorage.getItem('blackboard-boards'));const db=await new Promise(r=>{const q=indexedDB.open('blackboard',1);q.onsuccess=()=>r(q.result)});const v=await new Promise(r=>{const q=db.transaction('docs').objectStore('docs').get(b.cur);q.onsuccess=()=>r(q.result)});db.close();return JSON.parse(v)}")
-    pg.click('#menuBtn'); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
+    openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
     pg.evaluate("()=>{for(let i=0;i<14;i++){const h=[...document.querySelectorAll('.gh')].find(h=>h.getAttribute('aria-expanded')==='false'); if(!h) break; h.click();}}")
     pg.focus('.pal[data-kind="mindmap"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(200)
     d=doc(); check('Mindmap angelegt',sum(1 for i in d['items'] if i.get('mm')=='node')>=4); print('Mindmap:',sum(1 for i in d['items'] if i.get('mm')=='node'),'Zweige,',sum(1 for i in d['items'] if i['type']=='conn'),'Linien')
@@ -26,7 +26,7 @@ try:
     pg.click('#zoomLabel'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
     pg.screenshot(path='/tmp/bb-tests/mm.png')
     # Ausrichtung
-    pg.click('#menuBtn'); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
+    openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
     items=[S('a','text',0,0,300,90,'Linksbündig ist Standard\nkurz',fill='none'),S('b','round',0,120,300,90,'Rechts ausgerichteter Text\nkurz',al='right'),S('c','text',0,240,300,90,'Zentriert\nlängere Zeile hier',fill='none',al='center'),S('d','rect',360,0,240,110,'Links in der Form\nkurz',al='left'),
       dict(S('t','table',360,140,300,108),colW=[150,150],rowH=[36,36,36],cells=[['Kopf','Kopf 2'],['1','zwei'],['drei','4']],al='right')]
     pg.evaluate("(d)=>{const b=JSON.parse(localStorage.getItem('blackboard-boards'));localStorage.setItem('blackboard-b-'+b.cur,JSON.stringify(d));}",{'items':items,'n':10})

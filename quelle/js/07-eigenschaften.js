@@ -2,9 +2,11 @@
 const CNAMES={none:'Ohne','#1c2a2e':'Schwarz','#ffffff':'Weiß','#7a8790':'Grau','#c8321f':'Rot','#d97a00':'Orange','#f2c200':'Gelb','#1f8a4c':'Grün','#1e63d0':'Blau','#7446c9':'Violett','#fff3b0':'Hellgelb','#ffd9c7':'Apricot','#cfe8ff':'Hellblau','#d3f0dc':'Hellgrün','#e6dcff':'Flieder','#e3e8ea':'Hellgrau'};
 function cname(c){ if(darkBoard){ if(c==='#1c2a2e') return 'Weiß'; if(c==='#ffffff') return 'Dunkel'; } return CNAMES[c]||c; }
 function updateProps(){
-  const items=[...sel].map(byId).filter(Boolean), penMode=!items.length, pt=$('propsToggle'), shut=!!palState.propsClosed;
-  document.querySelector('main').classList.toggle('props-closed',shut);
-  pt.textContent=shut?'‹':'›'; pt.setAttribute('aria-expanded',!shut); pt.title=shut?'Farben und Optionen ausklappen':'Farben und Optionen einklappen';
+  const items=[...sel].map(byId).filter(Boolean), penMode=!items.length, shut=!!palState.optsClosed, ot=$('optsToggle');
+  document.body.classList.toggle('opts-closed',shut); ot.setAttribute('aria-expanded',!shut); ot.title=shut?'Optionen zum Werkzeug einblenden':'Optionen zum Werkzeug ausblenden';
+  if(!items.length&&!DRAW[tool]){   /* ohne Auswahl: kurzer Hinweis je nach Werkzeug */
+    propsEl.innerHTML=`<div class="optHint">${{shape:'Form antippen: Farbe, Linie, Stärke, Reihenfolge und Gruppe erscheinen hier.',text:'Auf die Tafel tippen und schreiben. Für Größe, Fett und Ausrichtung den Text auswählen.',erase:'Über Striche und Elemente wischen, um sie zu löschen.',pan:'Tafel mit dem Finger oder der Maus verschieben.'}[tool]||'Element antippen: seine Optionen erscheinen hier. Für Stift, Pinsel und Marker oben das Werkzeug wählen.'}</div>`+(hasClip()?`<div class="pg"><b>Ablage</b><button class="pb" data-act="paste" title="Strg+V">Einfügen</button></div>`:'');
+    return; }
   const ps=penStyles[drawTool], cur=items[0]||ps, hasShape=items.some(i=>i.type==='shape'), conns=items.filter(i=>i.type==='conn'), paths=items.filter(i=>i.type==='path');
   const sws=(act,on,none,lab)=>`<div class="sws">`+COLORS.filter(c=>none||c!=='none').map(c=>`<button class="sw${c==='none'?' none':''}" data-act="${act}" data-val="${c}" aria-pressed="${on===c}" title="${cname(c)}" aria-label="${lab}: ${cname(c)}" style="${c==='none'?'':'background:'+mapC(c)}"></button>`).join('')+`</div>`;
   let h='';

@@ -24,7 +24,7 @@ try:
       pg.on('pageerror',lambda e: errs.append(str(e)))
       pg.goto(URL); pg.wait_for_timeout(500); pg.evaluate("u=>localStorage.setItem('skizix-test-sb',u)",SB); return ctx,pg
   def boards(pg): return pg.evaluate("()=>JSON.parse(localStorage.getItem('blackboard-boards')).list")
-  def menu(pg,m): pg.click('#menuBtn'); pg.click(f'#menu [data-m="{m}"]'); pg.wait_for_timeout(200)
+  def menu(pg,m): openFile(pg); pg.click(f'#menu [data-m="{m}"]'); pg.wait_for_timeout(200)
   def login(pg,pw='geheim123',keep=True):
       pg.click('#ktBtn'); pg.wait_for_timeout(150); pg.fill('#ktMail','ich@test.de'); pg.fill('#ktPw',pw)
       if not keep: pg.uncheck('#ktKeep')
@@ -62,7 +62,7 @@ try:
   check('Gerät B bekommt das Board ohne Link',bool(ok_b),str(boards(B)))
   bid=next((b['id'] for b in boards(B) if b.get('live')==k),None)
   if bid:
-      B.click('#menuBtn'); B.click(f'#boardList [data-b="{bid}"]'); B.wait_for_timeout(500)
+      openFile(B); B.click(f'#boardList [data-b="{bid}"]'); B.wait_for_timeout(500)
       check('Inhalt auf Gerät B',B.evaluate("()=>[...document.querySelectorAll('#items text')].some(t=>t.textContent.includes('Vom PC'))"))
   # Das eigene Board von B landet auch bei A
   nB=len(boards(B)); sync(A)
@@ -71,7 +71,7 @@ try:
   # Umbenennen auf A erscheint auf B
   aid=next(b['id'] for b in boards(A) if b.get('live')==k)
   if A.evaluate("()=>JSON.parse(localStorage.getItem('blackboard-boards')).cur")!=aid:
-      A.click('#menuBtn'); A.click(f'#boardList [data-b="{aid}"]'); A.wait_for_timeout(400)
+      openFile(A); A.click(f'#boardList [data-b="{aid}"]'); A.wait_for_timeout(400)
   A.fill('#boardName','Projekt X'); A.wait_for_timeout(3500)
   sync(B); check('Neuer Name erscheint auf Gerät B',warte(lambda: any(b.get('live')==k and b['name']=='Projekt X' for b in boards(B))),str([b['name'] for b in boards(B)]))
 
@@ -80,7 +80,7 @@ try:
   check('Neues Board erscheint auf Gerät A',warte(lambda: len(boards(A))==n),f'{len(boards(A))} / {n}')
 
   # Löschen auf B entfernt es auf A
-  B.click('#menuBtn'); B.click('#delBoard'); B.click('#delBoard'); B.wait_for_timeout(1200)
+  openFile(B); B.click('#delBoard'); B.click('#delBoard'); B.wait_for_timeout(1200)
   n=len(boards(B)); sync(A)
   check('Gelöschtes Board verschwindet auch auf Gerät A',warte(lambda: len(boards(A))==n),f'{len(boards(A))} / {n}')
 
@@ -97,7 +97,7 @@ try:
   check('Abgelaufene Anmeldung still erneuert',any(l[0]=='refresh' for l in state()['log']))
 
   # Live beenden gibt es für eigene Boards nicht, Besitzer-Link auch nicht
-  A.click('#menuBtn'); check('Kein „Live beenden“ bei eigenen Boards',not A.is_visible('#liveStopBtn')); A.keyboard.press('Escape')
+  openFile(A); check('Kein „Live beenden“ bei eigenen Boards',not A.is_visible('#liveStopBtn')); A.keyboard.press('Escape')
   check('Kein Link für eigene Geräte mehr',A.locator('#lvOwn').count()==0)
 
   # Abmelden

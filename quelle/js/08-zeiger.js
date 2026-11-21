@@ -37,7 +37,7 @@ function touchPair(){ const rc=svg.getBoundingClientRect(),[p,q]=[...touches.val
 
 svg.addEventListener('pointerdown',e=>{
   if(e.pointerType==='mouse'&&e.button===2) return;
-  e.preventDefault(); finishEdit(); menu.hidden=true;
+  e.preventDefault(); finishEdit(); closeMenu();
   if(e.pointerType==='touch'&&!coarse){ coarse=true; renderOverlay(); } else if(e.pointerType==='mouse'&&coarse){ coarse=false; }
   if(e.pointerType==='touch'){
     touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -48,7 +48,8 @@ svg.addEventListener('pointerdown',e=>{
   const w=toWorld(e.clientX,e.clientY);
   const base={pid:e.pointerId,sx:e.clientX,sy:e.clientY,w0:w,moved:false};
   if(e.button===1||spaceDown||tool==='pan'){ action={...base,type:'pan',vx:view.x,vy:view.y}; return; }
-  const hEl=e.target.closest('[data-h]'), iEl=e.target.closest('#items [data-id]'), item=iEl?byId(iEl.dataset.id):null;
+  const hEl=e.target.closest('[data-h]'), iEl=e.target.closest('#items [data-id]'); let item=iEl?byId(iEl.dataset.id):null;
+  if(tool==='shape'&&item&&item.type!=='shape') item=null;   /* Werkzeug Form: nur Formen */
   if(DRAW[tool]&&e.pointerType==='touch'&&!uiCfg.finger){ action={...base,type:'pan',vx:view.x,vy:view.y}; return; }   /* nur der Stift zeichnet, der Finger verschiebt */
   if(DRAW[tool]&&e.pointerType==='pen'&&uiCfg.finger&&!uiCfg.fingerSet){ setUi({finger:false,fingerSet:true}); toast('Stift erkannt: Ab jetzt zeichnet nur der Stift, mit dem Finger verschiebst du die Tafel. Umstellen unter „Ansicht“.'); }
   if(DRAW[tool]){
@@ -205,7 +206,7 @@ function onUp(e){
     case 'tdiv': { const it=byId(a.id); if(it&&a.moved){ autosize(it); commit(); } break; }
     case 'marquee':
       if(a.moved){ const x1=Math.min(a.w0.x,a.cur.x),y1=Math.min(a.w0.y,a.cur.y),x2=Math.max(a.w0.x,a.cur.x),y2=Math.max(a.w0.y,a.cur.y);
-        for(const it of doc.items){ if(it.lock) continue; const b=bbox(it);
+        for(const it of doc.items){ if(it.lock||(tool==='shape'&&it.type!=='shape')) continue; const b=bbox(it);
           const inside=b.x>=x1&&b.y>=y1&&b.x+b.w<=x2&&b.y+b.h<=y2, hit=b.x<x2&&b.x+b.w>x1&&b.y<y2&&b.y+b.h>y1;
           if(it.type==='shape'&&isBox(it.kind)?inside:hit) sel.add(it.id); }
         expandSel(); }

@@ -8,7 +8,7 @@ try:
   pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.goto(URL); pg.wait_for_timeout(700)
   boards=lambda: pg.evaluate("()=>JSON.parse(localStorage.getItem('blackboard-boards')).list")
-  def menu(m): pg.click('#menuBtn'); pg.click(f'#menu [data-m="{m}"]'); pg.wait_for_timeout(250)
+  def menu(m): openFile(pg); pg.click(f'#menu [data-m="{m}"]'); pg.wait_for_timeout(250)
   for nm in ['Alpha','Beta','Alpha','Gamma']: menu('new'); pg.fill('#boardName',nm); pg.wait_for_timeout(150)
   n0=len(boards()); check('5 Boards angelegt',n0==5,str(n0))
   order=pg.evaluate("()=>[...document.getElementById('menu').children].slice(0,3).map(e=>e.id||e.className||e.textContent)")

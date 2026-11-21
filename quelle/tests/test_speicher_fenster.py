@@ -23,10 +23,10 @@ try:
     pg.evaluate("(d)=>{localStorage.removeItem('blackboard-b-b1');}",None)
     pg.evaluate("async(d)=>{const db=await new Promise(r=>{const q=indexedDB.open('blackboard',1);q.onsuccess=()=>r(q.result)});await new Promise(r=>{const t=db.transaction('docs','readwrite');t.objectStore('docs').put(JSON.stringify(d),'b2');t.oncomplete=r});db.close();}",big)
     pg.reload(); pg.wait_for_timeout(500)
-    pg.click('#menuBtn'); pg.click('#boardList [data-b="b2"]'); pg.wait_for_timeout(2500)
+    openFile(pg); pg.click('#boardList [data-b="b2"]'); pg.wait_for_timeout(2500)
     n=pg.evaluate("()=>document.querySelectorAll('#items > g').length"); size=len(json.dumps(big))//1024//1024
     ok(f'Board mit {size} MB geladen (über altem Limit)',n>=5000,f'{n} gezeichnet')
-    pg.click('#menuBtn'); pg.click('#boardList [data-b="b1"]'); pg.wait_for_timeout(500)
+    openFile(pg); pg.click('#boardList [data-b="b1"]'); pg.wait_for_timeout(500)
     # --- 1: zwei Fenster
     pg2=ctx.new_page(); pg2.on('pageerror',lambda e: errs.append('W2:'+str(e))); pg2.goto(URL); pg2.wait_for_timeout(600)
     pg.focus('.pal[data-kind="ellipse"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(900)
@@ -77,7 +77,7 @@ try:
     ok('Tastenkürzel mit ?',pg.evaluate("()=>!document.getElementById('keysDlg').hidden")); pg.screenshot(path='/tmp/bb-tests/keys.png')
     pg.keyboard.press('Escape'); ok('Schließen mit Esc',pg.evaluate("()=>document.getElementById('keysDlg').hidden"))
     # --- 9: Beispiel
-    pg.click('#menuBtn'); pg.click('#menu [data-m="example"]'); pg.wait_for_timeout(300); pg.screenshot(path='/tmp/bb-tests/example.png')
+    openFile(pg); pg.click('#menu [data-m="example"]'); pg.wait_for_timeout(300); pg.screenshot(path='/tmp/bb-tests/example.png')
     ok('ERR leer',not errs,str(errs))
     ctx.close()
     # --- 7: Touch-Griffe

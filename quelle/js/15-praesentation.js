@@ -19,7 +19,7 @@ function presGo(i){
 function presRender(){ $('presBody').innerHTML=doc.items.filter(i=>i.kind!=='frame').map(itemSVG).join(''); }
 function presSolve(){ if(!pres||!pres.quiz) return; const k=pres.whole?'*':pres.ids[pres.i]; if(pres.shown.has(k)) pres.shown.delete(k); else pres.shown.add(k); presRender(); presBar(); }
 function startPres(fromId){
-  finishEdit(); cancelAction(); menu.hidden=true;
+  finishEdit(); cancelAction(); closeMenu();
   const fr=frames(); let slides=fr.map(f=>({x:f.x,y:f.y,w:f.w,h:f.h})), whole=false;
   if(!slides.length){ const b=contentBox(30,true); if(!b){ toast('Das Board ist leer.'); return; } slides=[b]; whole=true; }
   assignFrames();

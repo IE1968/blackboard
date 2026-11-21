@@ -19,7 +19,7 @@ try:
         vx,vy,k=view(); rc=pg.evaluate("()=>{const r=document.getElementById('board').getBoundingClientRect();return [r.left,r.top]}")
         return rc[0]+vx+x*k, rc[1]+vy+y*k
     def menu(m):
-        pg.click('#menuBtn'); pg.click(f'#menu [data-m="{m}"]'); pg.wait_for_timeout(150)
+        openFile(pg); pg.click(f'#menu [data-m="{m}"]'); pg.wait_for_timeout(150)
     def add(kind):
         pg.evaluate("(k)=>{const g=[...document.querySelectorAll('.gh')];for(const h of g){if(h.getAttribute('aria-expanded')==='false')h.click()}}",kind)
         pg.focus(f'.pal[data-kind="{kind}"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(120)
@@ -88,9 +88,9 @@ try:
     pg.wait_for_timeout(600); pg.mouse.click(ax,ay); pg.wait_for_timeout(80); pg.click('#props [data-act="lock"]'); d=doc(); A2=[i for i in d['items'] if i['id']==A['id']][0]
     ok('Entsperren',not A2.get('lock'))
     # --- Gruppe skalieren
-    pg.keyboard.press('Escape'); pg.keyboard.press('Control+a'); pg.wait_for_timeout(80)
+    pg.keyboard.press('Escape'); pg.click('#zoomLabel'); pg.wait_for_timeout(150); pg.keyboard.press('Control+a'); pg.wait_for_timeout(80)
     h=pg.evaluate("()=>{const c=document.querySelectorAll('#overlay [data-h=\"gs:se\"]')[1];return [+c.getAttribute('x')+ +c.getAttribute('width')/2,+c.getAttribute('y')+ +c.getAttribute('height')/2]}")
-    before=doc(); hx,hy=scr(h[0],h[1]); drag(hx,hy,hx+200,hy+200); after=doc()
+    before=doc(); hx,hy=scr(h[0],h[1]); drag(hx,hy,hx+min(200,1380-hx),hy+min(200,890-hy)); after=doc()
     b0=[i for i in before['items'] if i['id']==B['id']][0]; b1=[i for i in after['items'] if i['id']==B['id']][0]
     ok('Gruppe skaliert',b1['w']>b0['w']*1.1 and abs(b1['w']/b0['w']-b1['h']/b0['h'])<0.02,f"{b0['w']}x{b0['h']} -> {b1['w']}x{b1['h']}")
     pg.keyboard.press('Control+z'); pg.wait_for_timeout(80)

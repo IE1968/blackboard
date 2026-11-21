@@ -27,11 +27,13 @@ T={
  # Textil: grobes Gewebe in beiden Richtungen
  'cloth': [svg(300,[('a','0.95 0.06',2,4,DK,1.7,-0.75,.32),('b','0.06 0.95',2,9,DK,1.7,-0.75,.28),('c','0.02',3,3,DK,1.3,-0.55,.22),('d','1.2',1,6,LT,1.4,-0.6,.35)]),
            'repeating-linear-gradient(0deg,rgba(70,60,45,.07) 0 1px,transparent 1px 4px)','repeating-linear-gradient(90deg,rgba(70,60,45,.07) 0 1px,transparent 1px 4px)'],
+ # Grunge grau: gleichmäßiges helles Grau mit feinen hellen Kratzern, Sprenkeln und sanften dunklen Flecken
+ 'grunge':[svg(480,[('a','0.008',4,21,DK,1.45,-0.62,.30),('b','0.0035 0.22',2,23,LT,3.2,-2.35,.55),('c','0.22 0.0035',2,29,LT,3.2,-2.4,.35),('d','0.6',1,31,LT,3.0,-2.15,.45),('e','0.9',1,37,DK,1.2,-0.5,.22)],True)],
  # Schiefer verwaschen: helle Kreidereste und Wischspuren
  'slate': [svg(480,[('a','0.003',4,5,LT,1.5,-0.55,.15),('b','0.0025 0.018',3,10,LT,1.5,-0.68,.08),('c','0.04',3,14,LT,1.5,-0.7,.06),('d','0.9',1,7,LT,1.2,-0.55,.09)],True),
            'radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.28) 100%)'],
 }
-BIG={'used','usedd','stone','slate'}
+BIG={'used','usedd','stone','slate','grunge'}
 css='\n'.join(f'#stage[data-surf="{k}"],.vpChip.s-{k}{{background-image:{",".join(v)}!important;background-size:{"cover" if k in BIG else "auto"}!important;background-position:center!important}}' for k,v in T.items())
 p=os.path.join(Q,'css','aussehen.css'); s=open(p,encoding='utf-8').read()
 block='/*texturen{*/\n'+css+'\n/*}texturen*/'

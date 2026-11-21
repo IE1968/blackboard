@@ -10,7 +10,7 @@ try:
   pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.goto(URL); pg.wait_for_timeout(600)
   pg.evaluate(LOAD,json.load(open(DATEN+'/BPMN-2.0-Tutorial.json',encoding='utf-8'))); pg.reload(); pg.wait_for_timeout(900)
-  pg.click('#menuBtn')
+  openFile(pg)
   with pg.expect_download(timeout=60000) as dl: pg.click('#menu [data-m="pdf"]')
   f=OUT+'/tutorial.pdf'; dl.value.save_as(f)
   pdf=open(f,'rb').read()

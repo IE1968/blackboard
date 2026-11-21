@@ -25,6 +25,7 @@
     <input id="boardName" type="text" maxlength="40" aria-label="Name des Boards" title="Name des Boards (zum Umbenennen einfach tippen)">
     <div class="grp" id="tools" role="toolbar" aria-label="Werkzeuge">
       <button class="tb" data-tool="select" title="Auswählen und verschieben (V)"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 2-2 6z"/></svg><span>Auswahl</span></button>
+      <button class="tb" data-tool="shape" title="Form: nur Formen auswählen und bearbeiten (Farbe, Reihenfolge, Gruppe) (F)"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="11" height="9" rx="1.500"/><circle cx="15.500" cy="15.500" r="4.500"/></svg><span>Form</span></button>
       <button class="tb" data-tool="pen" title="Freihand zeichnen (P)"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span>Stift</span></button>
       <button class="tb" data-tool="brush" title="Pinsel: Strich wird je nach Tempo oder Stiftdruck dicker und dünner (B)"><svg viewBox="0 0 24 24"><path d="M19 4l1.5 1.5-8 9-2.5 1 1-2.5zM9.5 16.5c-2 0-3 1.2-3 2.3S5.500 20 4 20c2.500 1 6.500.500 6.500-2.500"/></svg><span>Pinsel</span></button>
       <button class="tb" data-tool="marker" title="Marker: breit und durchscheinend (M)"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-8 8H7v-5zM4 21h9"/></svg><span>Marker</span></button>
@@ -67,42 +68,8 @@
     <div class="mh">Angemeldet als</div><div id="ktPopMail"></div>
     <button type="button" id="ktPopOut">Abmelden</button>
   </div>
-  <div id="menu" hidden>
-    <button data-m="manage" id="manageBtn">Boards verwalten und löschen …</button>
-    <hr>
-    <div class="mh">Boards</div>
-    <div id="boardList"></div>
-    <button data-m="new">+ Neues Board</button>
-    <button data-m="delboard" id="delBoard">Dieses Board löschen</button>
-    <hr>
-    <div id="liveSec">
-      <div class="mh">Live mit anderen</div>
-      <div class="mh" id="liveInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nur auf diesem Gerät</div>
-      <button data-m="livestart" id="liveStartBtn">Live schalten und teilen …</button>
-      <button data-m="liveshare" id="liveShareBtn" hidden>Teilen und Links verwalten …</button>
-      <button data-m="livestop" id="liveStopBtn" hidden>Live beenden (nur hier)</button>
-      <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Live-Link einfügen" aria-label="Live-Link zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
-      <hr>
-    </div>
-    <div class="mh">Präsentation</div>
-    <button data-m="slides">Folienübersicht</button>
-    <hr>
-    <div class="mh">Exportieren</div>
-    <button data-m="png">Als Bild (PNG)</button>
-    <button data-m="svg">Als Vektorgrafik (SVG)</button>
-    <button data-m="pdf">Als PDF (A4, je Folie eine Seite)</button>
-    <hr>
-    <div class="mh">Sicherung</div>
-    <button data-m="json">Board als Datei sichern (.json)</button>
-    <button data-m="open">Board aus Datei laden …</button>
-    <hr>
-    <button data-m="tpl">Vorlage einfügen …</button>
-    <button data-m="img">Bild einfügen …</button>
-    <button data-m="keys">Tastenkürzel (?)</button>
-    <button data-m="example">Beispiel laden</button>
-    <button data-m="clear">Board leeren</button>
-  </div>
 </header>
+<aside id="props" aria-label="Optionen zum Werkzeug"></aside>
 <main>
   <aside id="palette" aria-label="Formen"></aside>
   <button id="palHandle" aria-controls="palette"></button>
@@ -118,8 +85,43 @@
     <div id="toast" hidden role="status"></div>
     <div id="sr" role="status" aria-live="polite"></div>
   </section>
-  <aside id="props" aria-label="Farben und Optionen"></aside>
-  <button id="propsToggle" aria-controls="props"></button>
+  <aside id="menu" aria-label="Datei">
+    <button data-m="manage" id="manageBtn">Boards verwalten …</button>
+    <hr>
+    <div class="mh">Boards</div>
+    <div id="boardList"></div>
+    <button data-m="new">+ Neues Board</button>
+    <button data-m="delboard" id="delBoard">Dieses Board löschen</button>
+    <hr>
+    <div id="liveSec">
+      <div class="mh">Live</div>
+      <div class="mh" id="liveInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nur auf diesem Gerät</div>
+      <button data-m="livestart" id="liveStartBtn">Live schalten …</button>
+      <button data-m="liveshare" id="liveShareBtn" hidden>Teilen und Links …</button>
+      <button data-m="livestop" id="liveStopBtn" hidden>Live beenden</button>
+      <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Live-Link einfügen" aria-label="Live-Link zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
+      <hr>
+    </div>
+    <div class="mh">Präsentation</div>
+    <button data-m="slides">Folienübersicht</button>
+    <hr>
+    <div class="mh">Export</div>
+    <button data-m="png">Bild (PNG)</button>
+    <button data-m="svg">Vektor (SVG)</button>
+    <button data-m="pdf">PDF (A4)</button>
+    <hr>
+    <div class="mh">Sicherung</div>
+    <button data-m="json">Sichern (.json)</button>
+    <button data-m="open">Laden …</button>
+    <hr>
+    <button data-m="tpl">Vorlage …</button>
+    <button data-m="img">Bild …</button>
+    <button data-m="keys">Tastenkürzel</button>
+    <button data-m="example">Beispiel laden</button>
+    <button data-m="clear">Board leeren</button>
+  </aside>
+  <button id="propsToggle" aria-controls="menu"></button>
+  <button id="optsToggle" aria-controls="props"><i></i></button>
 </main>
 <div id="liveDlg" hidden role="dialog" aria-modal="true" aria-labelledby="lvTitle">
   <div id="liveBox">

@@ -20,7 +20,7 @@ function onExternal(m){
   else if(m.t==='del'){ if(DB.ok) DB.cache.delete(m.id); }
   else if(m.t==='idx'){ try{ const b=JSON.parse(lsGet(IDX)); if(b&&Array.isArray(b.list)&&b.list.length){ const cur=boards.cur; boards=b; boards.del=boards.del||[];
       if(boards.list.some(x=>x.id===cur)) boards.cur=cur; else openBoard(boards.list[0].id);
-      if(!menu.hidden) renderBoardList(); $('boardName').value=curBoard().name; } }catch(e){} }
+      renderBoardList(); $('boardName').value=curBoard().name; } }catch(e){} }
 }
 if(bcast) bcast.onmessage=e=>onExternal(e.data);
 window.addEventListener('storage',e=>{ if(bcast) return; if(e.key===IDX) onExternal({t:'idx'}); else if(e.key&&e.key.startsWith(BK)&&e.newValue) onExternal({t:'doc',id:e.key.slice(BK.length),json:e.newValue}); });
@@ -74,7 +74,7 @@ document.addEventListener('visibilitychange',()=>{ if(document.hidden) idbFlush(
 window.addEventListener('pagehide',()=>idbFlush());
 function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
 function curBoard(){ return boards.list.find(b=>b.id===boards.cur)||boards.list[0]; }
-function saveIdx(){ lsSet(IDX,JSON.stringify(boards)); announce({t:'idx'}); }
+function saveIdx(){ lsSet(IDX,JSON.stringify(boards)); announce({t:'idx'}); if(!palState.propsClosed) renderBoardList(); }
 function persist(json){ if(!docSet(boards.cur,json||JSON.stringify(doc))&&!persist.warned){ persist.warned=true; toast(lsSet.full?'Speicher voll: Lösche nicht benötigte Boards oder sichere das Board über „Datei“.':'Der Browser-Speicher ist nicht verfügbar. Sichere das Board über „Datei“.'); } }
 function loadBoards(){
   try{ const b=JSON.parse(lsGet(IDX)); if(b&&Array.isArray(b.list)&&b.list.length){ boards=b; if(!boards.list.some(x=>x.id===boards.cur)) boards.cur=boards.list[0].id;

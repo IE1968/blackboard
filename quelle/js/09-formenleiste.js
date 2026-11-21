@@ -61,7 +61,15 @@ palEl.addEventListener('click',e=>{
   savePal(); renderPal();
 });
 $('palHandle').onclick=()=>{ palState.closed=!palState.closed; savePal(); renderPal(); };
-$('propsToggle').onclick=()=>{ palState.propsClosed=!palState.propsClosed; savePal(); updateProps(); };
+$('propsToggle').onclick=()=>{ palState.propsClosed=!palState.propsClosed; savePal(); applySides(); };
+$('optsToggle').onclick=()=>{ palState.optsClosed=!palState.optsClosed; savePal(); updateProps(); };
+/* rechte Leiste = Datei (Boards, Live, Export …); auf und zu über den Griff oder den Knopf „Datei“ */
+function applySides(){
+  const shut=!!palState.propsClosed, pt=$('propsToggle');
+  document.querySelector('main').classList.toggle('props-closed',shut);
+  pt.textContent=shut?'‹':'›'; pt.setAttribute('aria-expanded',!shut); pt.title=shut?'Datei-Leiste ausklappen':'Datei-Leiste einklappen';
+  $('menuBtn').setAttribute('aria-expanded',!shut); if(!shut) renderBoardList();
+}
 palEl.addEventListener('click',e=>{   /* Tastatur: Eingabe oder Leertaste auf einem Symbol legt die Form in die Bildmitte */
   const b=e.target.closest('.pal'); if(!b||!b.dataset.kind||e.detail!==0) return;
   finishEdit(); const rc=svg.getBoundingClientRect(), o=(dropN++%6)*20; addShape(b.dataset.kind,toWorld(rc.left+rc.width/2+o,rc.top+rc.height/2+o),'key');

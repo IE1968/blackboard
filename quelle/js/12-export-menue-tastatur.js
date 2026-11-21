@@ -12,14 +12,14 @@ async function exportAs(kind){
 }
 menu.addEventListener('click',e=>{
   const bb=e.target.closest('[data-b]');
-  if(bb){ menu.hidden=true; if(bb.dataset.b!==boards.cur) openBoard(bb.dataset.b); return; }
+  if(bb){ closeMenu(); if(bb.dataset.b!==boards.cur) openBoard(bb.dataset.b); renderBoardList(); return; }
   const b=e.target.closest('[data-m]'); if(!b) return;
   if(b.dataset.m==='ui'){ setUi({scale:+b.dataset.v,scaleSet:true}); fitMenu(); return; }
   if(b.dataset.m==='hc'){ setUi({hc:!uiCfg.hc}); return; }
   if(b.dataset.m==='snap'){ setUi({snap:!uiCfg.snap}); return; }
   if(b.dataset.m==='gridv'){ setUi({grid:!uiCfg.grid}); return; }
   if(b.dataset.m==='delboard'&&!b.dataset.sure){ b.dataset.sure='1'; b.textContent='Wirklich löschen? Das lässt sich nicht zurückholen.'; e.stopPropagation(); return; }
-  menu.hidden=true; finishEdit();
+  closeMenu(); finishEdit();
   switch(b.dataset.m){
     case 'new': newBoard(); break;
     case 'fit': fit(); break;
@@ -70,7 +70,7 @@ document.addEventListener('keydown',e=>{
     for(const it of [...sel].map(byId)){ if(!it||it.lock) continue; if(it.type==='shape'){ it.x+=dx; it.y+=dy; } else if(it.type==='path') it.pts=it.pts.map(p=>[p[0]+dx,p[1]+dy]); }
     commit(); render(); return; }
   if(e.key==='?'){ e.preventDefault(); openKeys(); return; }
-  const map={v:'select',p:'pen',b:'brush',m:'marker',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
+  const map={v:'select',f:'shape',p:'pen',b:'brush',m:'marker',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
 });
 document.addEventListener('keyup',e=>{ if(e.key===' ') spaceDown=false; });
 function openKeys(){ closeMenu(); $('keysDlg').hidden=false; const b=$('keysBox'); b.scrollTop=0; b.focus({preventScroll:true}); }

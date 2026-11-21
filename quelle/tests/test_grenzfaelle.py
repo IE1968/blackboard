@@ -67,7 +67,7 @@ try:
     # 11 Board-Namen sehr lang / Sonderzeichen in Dateiname
     pg.fill('#boardName','Test: Q1/Q2 <Plan> "neu"?'); pg.keyboard.press('Enter')
     with pg.expect_download(timeout=20000) as dl:
-        pg.click('#menuBtn'); pg.click('#menu [data-m="json"]')
+        openFile(pg); pg.click('#menu [data-m="json"]')
     check('Dateiname ohne Sonderzeichen',dl.value.suggested_filename=='Test-Q1Q2-Plan-neu.json',dl.value.suggested_filename)
     # 12 Tastatur: Tab-Reihenfolge Anfang
     pg.reload(); pg.wait_for_timeout(400); seq=[]

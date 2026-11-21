@@ -86,7 +86,7 @@ async function ktSync(){
       docDel(b.id); boards.list=boards.list.filter(x=>x!==b); idx=true;
       if(b.id===boards.cur){ openBoard(boards.list[0].id); toast('Das Board „'+b.name+'“ wurde auf einem anderen Gerät gelöscht.'); }
     }
-    if(idx){ saveIdx(); if(!menu.hidden) renderBoardList(); }
+    if(idx){ saveIdx(); renderBoardList(); }
     if(added) toast(added===1?'1 Board aus deinem Konto ist dazugekommen.':added+' Boards aus deinem Konto sind dazugekommen.');
     liveTick(); ktUi();
   }catch(e){ if(e&&e.status===404) ktUi('Konto-Tabelle fehlt in Supabase. Bitte das Skript 01-konto.sql ausführen.'); }

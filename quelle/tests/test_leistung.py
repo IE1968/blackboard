@@ -45,11 +45,11 @@ try:
         if n==1000:
             t0=time.time()
             with pg.expect_download(timeout=120000) as dl:
-                pg.click('#menuBtn'); pg.click('#menu [data-m="png"]')
+                openFile(pg); pg.click('#menu [data-m="png"]')
             res['png_1000_s']=round(time.time()-t0,1)
             t0=time.time()
             with pg.expect_download(timeout=120000) as dl:
-                pg.click('#menuBtn'); pg.click('#menu [data-m="pdf"]')
+                openFile(pg); pg.click('#menu [data-m="pdf"]')
             res['pdf_1000_s']=round(time.time()-t0,1)
     # Speicher voll? 4 große Boards
     res['quota']=pg.evaluate("""()=>{try{const big='x'.repeat(1024*1024);let i=0;for(;i<20;i++){localStorage.setItem('qtest'+i,big);} return 'kein Limit bis 20 MB-Zeichen'}catch(e){let n=0;for(let i=0;i<20;i++){if(localStorage.getItem('qtest'+i))n++;} for(let i=0;i<20;i++)localStorage.removeItem('qtest'+i); return 'Limit nach ca. '+n+' Mio. Zeichen'}}""")

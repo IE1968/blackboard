@@ -285,6 +285,7 @@ function setTool(t){
   if(liveRO()&&t!=='pan') t='pan';
   tool=t; if(DRAW[t]) drawTool=t; svg.setAttribute('class','t-'+t);
   document.querySelectorAll('#tools .tb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t));
-  if(t!=='select'&&sel.size){ sel.clear(); render(); } else updateProps();
+  if(t!=='select'&&t!=='shape'&&sel.size){ sel.clear(); render(); }
+  else if(t==='shape'&&sel.size){ for(const id of [...sel]){ const i=byId(id); if(!i||i.type!=='shape') sel.delete(id); } render(); } else updateProps();
 }
 

@@ -12,7 +12,8 @@ const SURF={
   used:{n:'Vintage hell',bg:'#e4e0d6',dot:'#b9b2a3',dark:false},
   usedd:{n:'Vintage dunkel',bg:'#1f2122',dot:'#3d4243',dark:true},
   stone:{n:'Stein',bg:'#d2d1cc',dot:'#a7a59e',dark:false},
-  cloth:{n:'Textil',bg:'#dcd8cf',dot:'#b2ac9f',dark:false}
+  cloth:{n:'Textil',bg:'#dcd8cf',dot:'#b2ac9f',dark:false},
+  grunge:{n:'Grunge grau',bg:'#9c9d98',dot:'#7f807b',dark:false}
 };
 const PATS={dots:'Punkte',grid:'Kariert',lines:'Liniert',mm:'Millimeter',none:'Leer'};
 const THEMES={blue:{n:'Blau',sel:['#4d9fff','#1763cf']}};   /* Auswahlfarbe auf dunkler bzw. heller Tafel */

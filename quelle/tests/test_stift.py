@@ -10,7 +10,7 @@ try:
   br=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox']); pg=br.new_page(viewport={'width':1400,'height':900})
   pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.goto(URL); pg.wait_for_timeout(800)
-  pg.click('#menuBtn'); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(200)
+  openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(200)
   pg.click('#tools [data-tool="pen"]')
   ramp=[0.05+0.9*i/40 for i in range(41)]
   pg.evaluate(DRAW,['pen',ramp,300]); pg.wait_for_timeout(400)

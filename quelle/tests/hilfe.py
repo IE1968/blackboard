@@ -14,3 +14,7 @@ def server(directory=None,port=8765):
     p=subprocess.Popen([sys.executable,'-m','http.server',str(port),'--directory',directory or DIST],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL); time.sleep(0.8); return p
 def check(name,cond,extra=''):
     print(('PASS ' if cond else 'FAIL ')+name,extra); return cond
+
+def openFile(pg):
+    """Datei-Leiste rechts öffnen (falls sie zu ist)."""
+    pg.evaluate("()=>{ if(document.querySelector('main').classList.contains('props-closed')) document.getElementById('menuBtn').click() }"); pg.wait_for_timeout(120)
