@@ -33,7 +33,7 @@ try:
         t=pg.evaluate("async()=>{const s=document.getElementById('board');const t0=performance.now();for(let i=0;i<20;i++){s.dispatchEvent(new WheelEvent('wheel',{deltaY:i%2?-60:60,ctrlKey:true,clientX:800,clientY:450,bubbles:true,cancelable:true}));await new Promise(r=>requestAnimationFrame(r));}return (performance.now()-t0)/20}")
         res[f'zoom_{n}_ms_per_frame']=round(t,1)
         # Ziehen einer Form: Zeit pro pointermove
-        pg.click('#menuBtn'); pg.click('#menu [data-m="fit"]'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
+        pg.click('#zoomLabel'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
         bb=pg.evaluate("()=>{const r=document.querySelector('#items [data-id=\"s0\"]').getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]}")
         pg.mouse.move(*bb); pg.mouse.down(); t0=time.time()
         for i in range(30): pg.mouse.move(bb[0]+i*3,bb[1]+i*2)

@@ -108,7 +108,7 @@ try:
     ok('Zwei Folien mit Reihenfolge',len(F)==2 and sorted(f['ord'] for f in F)==[1,2])
     lab=pg.evaluate("()=>[...document.querySelectorAll('#items text')].map(t=>t.textContent).filter(t=>t.startsWith('Folie'))")
     ok('Folien beschriftet',sorted(lab)==['Folie 1','Folie 2'],str(lab))
-    pg.keyboard.press('Escape'); menu('play')
+    pg.keyboard.press('Escape'); pg.click('#playBtn')
     vis=pg.evaluate("()=>!document.getElementById('pres').hidden"); vb1=pg.evaluate("()=>document.getElementById('presSvg').getAttribute('viewBox')")
     ok('Präsentation gestartet',vis,vb1)
     pg.keyboard.press('ArrowRight'); pg.wait_for_timeout(700)

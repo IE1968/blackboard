@@ -23,14 +23,14 @@ try:
         pg.mouse.click(*bb); pg.wait_for_timeout(450); pg.click('#props [data-act="branch"]'); pg.wait_for_timeout(200); pg.keyboard.type(t); pg.keyboard.press('Enter'); pg.wait_for_timeout(150)
     pg.keyboard.press('Tab'); pg.wait_for_timeout(100)
     d=doc(); tx=[i['text'] for i in d['items'] if i.get('mm')=='node']; check('Zweige hinzugefügt','Neu am Thema' in tx and 'Unterpunkt a' in tx and 'Unterpunkt b' in tx); print('nach Zweigen:',sum(1 for i in d['items'] if i.get('mm')),'Knoten', [i['text'] for i in d['items'] if i.get('mm')=='node'][-3:])
-    pg.click('#menuBtn'); pg.click('#menu [data-m="fit"]'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
+    pg.click('#zoomLabel'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
     pg.screenshot(path='/tmp/bb-tests/mm.png')
     # Ausrichtung
     pg.click('#menuBtn'); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
     items=[S('a','text',0,0,300,90,'Linksbündig ist Standard\nkurz',fill='none'),S('b','round',0,120,300,90,'Rechts ausgerichteter Text\nkurz',al='right'),S('c','text',0,240,300,90,'Zentriert\nlängere Zeile hier',fill='none',al='center'),S('d','rect',360,0,240,110,'Links in der Form\nkurz',al='left'),
       dict(S('t','table',360,140,300,108),colW=[150,150],rowH=[36,36,36],cells=[['Kopf','Kopf 2'],['1','zwei'],['drei','4']],al='right')]
     pg.evaluate("(d)=>{const b=JSON.parse(localStorage.getItem('blackboard-boards'));localStorage.setItem('blackboard-b-'+b.cur,JSON.stringify(d));}",{'items':items,'n':10})
-    pg.reload(); pg.wait_for_timeout(500); pg.click('#menuBtn'); pg.click('#menu [data-m="fit"]'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
+    pg.reload(); pg.wait_for_timeout(500); pg.click('#zoomLabel'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
     bb=pg.evaluate("()=>{const r=document.querySelector('#items [data-id=\"a\"]').getBoundingClientRect();return [r.left+20,r.top+20]}")
     pg.mouse.click(*bb); pg.wait_for_timeout(450); pg.click('#props [data-act="txal"][data-val="right"]'); pg.wait_for_timeout(150)
     check('Ausrichtung rechts gesetzt',[i.get('al') for i in doc()['items'] if i['id']=='a']==['right'])

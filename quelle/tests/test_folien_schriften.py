@@ -26,7 +26,7 @@ try:
         pg.mouse.move(x1,y1); pg.mouse.down()
         for i in range(1,11): pg.mouse.move(x1+(x2-x1)*i/10,y1+(y2-y1)*i/10)
         pg.mouse.up(); pg.wait_for_timeout(120)
-    pg.keyboard.press('Escape'); pg.click('#menuBtn'); pg.click('#menu [data-m="fit"]'); pg.wait_for_timeout(200)
+    pg.keyboard.press('Escape'); pg.click('#zoomLabel'); pg.wait_for_timeout(200)
     f2=F[1]; x,y=scr(f2['x']+f2['w']/2,f2['y']); tx,ty=scr(F[0]['x']+F[0]['w']/2+40,F[0]['y']+20); drag(x,y,tx,ty)
     d=doc(); f2b=[i for i in d['items'] if i['id']==f2['id']][0]; x,y=scr(f2b['x']+f2b['w']/2,f2b['y']); drag(x,y,x+300,y+500)
     d=doc(); R2=[i for i in d['items'] if i.get('kind')=='rect'][0]; f2c=[i for i in d['items'] if i['id']==f2['id']][0]
