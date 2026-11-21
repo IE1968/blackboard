@@ -36,7 +36,7 @@ function applyLayout(){
   c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1280); c.toggle('narrow',w<=480); c.toggle('tiny',w<=330); c.toggle('midwide',w>=640);
   document.querySelectorAll('#uiRow button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
-  applyTheme();
+  applyTheme(); if(typeof fitHeads==='function') requestAnimationFrame(()=>{ try{ fitHeads(); }catch(e){} });
 }
 function setUi(ch){ Object.assign(uiCfg,ch); try{ localStorage.setItem('blackboard-ui',JSON.stringify(uiCfg)); }catch(e){} applyLayout(); applyView(); }
 applyLayout();
@@ -47,7 +47,7 @@ function savePal(){ try{ localStorage.setItem('blackboard-pal',JSON.stringify(pa
 function renderPal(){
   document.querySelector('main').classList.toggle('pal-closed',!!palState.closed);
   const ph=$('palHandle'); ph.textContent=palState.closed?'›':'‹'; ph.setAttribute('aria-expanded',!palState.closed); ph.title=palState.closed?'Formenleiste ausklappen':'Formenleiste einklappen';
-  palEl.innerHTML=GROUPS.map(([name,kinds])=>`<button class="gh" data-g="${esc(name)}" aria-expanded="${!!palState.open[name]}">${esc(name).replace('Flussd','Fluss&shy;d').replace('Struktog','Strukto&shy;g')}</button><div class="palgrid"${palState.open[name]?'':' hidden'}>`+
+  palEl.innerHTML=GROUPS.map(([name,kinds])=>`<button class="gh" data-g="${esc(name)}" aria-expanded="${!!palState.open[name]}"><span>${esc(headLabel(name))}</span></button><div class="palgrid"${palState.open[name]?'':' hidden'}>`+
     (name==='Vorlagen'?`<button class="pal palbtn" data-tpl="1" title="Alle Vorlagen: SWOT, Eisenhower, Retro, Zeitstrahl und mehr" aria-label="Alle Vorlagen"><svg viewBox="0 0 44 28"><rect x="6" y="3" width="14" height="10" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/><rect x="24" y="3" width="14" height="10" rx="1.500" fill="currentColor" opacity=".55"/><rect x="6" y="15" width="14" height="10" rx="1.500" fill="currentColor" opacity=".55"/><rect x="24" y="15" width="14" height="10" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/></svg></button>`:'')+
     kinds.map(k=>`<button class="pal" data-kind="${k}" title="${KINDS[k].label.replace('-','')}" aria-label="${KINDS[k].label.replace('-','')}">${iconFor(k,44,28)}<span>${KINDS[k].label}</span></button>`).join('')+(name==='Präsentation'?`<button class="pal palbtn" data-slides="1" title="Folienübersicht: Vorschau aller Folien, Reihenfolge per Ziehen" aria-label="Folienübersicht"><svg viewBox="0 0 44 28"><rect x="3" y="7" width="11" height="14" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/><rect x="17" y="7" width="11" height="14" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/><rect x="31" y="7" width="11" height="14" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/></svg></button>`:'')+(name==='Präsentation'?`<button class="pal palbtn" data-play="1" title="Präsentation starten" aria-label="Präsentation starten"><svg viewBox="0 0 44 28"><path d="M16 5v18l15-9z" fill="currentColor"/></svg></button>`:'')+`</div>`).join('');
 }
@@ -100,3 +100,17 @@ palEl.addEventListener('pointerdown',e=>{
   window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); window.addEventListener('pointercancel',up);
 });
 
+/* Überschriften links und rechts so groß wie möglich: lange Gruppennamen dürfen an festen Stellen umbrechen, sonst bricht nichts um */
+const HEADS_R=['Hintergrund','Füllung','Stiftfarbe','Pinselfarbe','Markerfarbe','Linie','Pinselform','Ausrichten','Element','Gruppe','Mindmap','Schrift','Stärke','Tabelle','Ablage','Spitze','Quiz','Pfeil','Text'];
+const HEAD_BREAK={'Präsentation':'Präsen-','Flussdiagramm':'Fluss-','Struktogramm':'Strukto-','ER-Diagramm':'ER-'};   /* Teile beim Umbruch, zum Messen */
+let headsCtx=null;
+function fitHeads(){
+  const W=104, ctx=headsCtx||(headsCtx=document.createElement('canvas').getContext('2d'));   /* beide Leisten sind 104 Einheiten breit, innen 6 Einheiten Rand */
+  const segs=GROUPS.map(g=>g[0]).flatMap(n=>{ const b=HEAD_BREAK[n]; return b?[b,n.slice(b.length)]:[n]; });
+  const fits=(fs,list,avail)=>{ ctx.font='600 '+fs+'px '+FONT; return list.every(t=>{ const u=t.toUpperCase(); return ctx.measureText(u).width+fs*0.03*u.length<=avail; }); };
+  let best=9;
+  for(let fs=18;fs>=9;fs-=0.5) if(fits(fs,segs,W-12-6-fs*0.5-8)&&fits(fs,HEADS_R,W-12-2)){ best=fs; break; }
+  document.documentElement.style.setProperty('--headfs',best+'px');
+}
+function headLabel(n){ const b={'Präsentation':6,'Flussdiagramm':5,'Struktogramm':7}[n]; return b?n.slice(0,b)+'\u00ad'+n.slice(b):n; }   /* weiche Trennstelle */
+window.addEventListener('resize',()=>requestAnimationFrame(fitHeads));

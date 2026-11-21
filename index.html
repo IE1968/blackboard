@@ -76,10 +76,12 @@ main.pal-closed{--palw:0px}
 #propsToggle{position:absolute;right:var(--propw);top:50%;transform:translateY(-50%);z-index:6;width:calc(28px*var(--ui));height:calc(92px*var(--ui));padding:0;border-radius:12px 0 0 12px;background:var(--panel);border:1px solid var(--line);border-right:0;color:var(--ink);font-size:calc(24px*var(--ui));line-height:1}
 #palette,#props,#toast{zoom:var(--ui)}
 #palette{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding:10px 6px 20px}
-.gh{display:flex;align-items:center;gap:6px;width:100%;font:600 11px/1 var(--body);letter-spacing:.03em;text-transform:uppercase;color:var(--muted);padding:8px 2px;margin-top:4px;text-align:left;font-size:10px;line-height:1.25;white-space:normal;overflow-wrap:break-word}
+.gh{display:flex;align-items:center;gap:6px;width:100%;font:600 var(--headfs,11px)/1.2 var(--body);letter-spacing:.03em;text-transform:uppercase;color:var(--muted);padding:9px 4px 9px 2px;margin-top:4px;text-align:left}
+.gh>span{min-width:0;white-space:normal;hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal}
 .gh:hover{background:var(--hover);color:var(--ink)}
-.gh::before{content:'▾';font-size:11px;width:10px}
-.gh[aria-expanded="false"]::before{content:'▸'}
+/* Aufklapp-Pfeil wie an den Seitengriffen: dünner Winkel, zu = nach rechts, offen = nach unten */
+.gh::after{content:'';flex:none;margin-left:auto;width:.5em;height:.5em;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-.15em) rotate(45deg);transition:transform .15s}
+.gh[aria-expanded="false"]::after{transform:rotate(-45deg)}
 #palToggle{margin:0 0 4px;border:1px solid var(--line);justify-content:center;white-space:nowrap}
 #palToggle::before{content:none}
 main.pal-closed #palette{padding:0;border:0;overflow:hidden}
@@ -109,7 +111,7 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
 #props{min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--line) transparent;display:flex;flex-direction:column;gap:14px;padding:12px 6px 20px;background:var(--panel);border-left:1px solid var(--line)}
 main.props-closed #props{padding:0;border:0;overflow:hidden}
 .pg{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;align-items:center;min-width:0}
-.pg>b{grid-column:1/-1;min-width:0;overflow-wrap:anywhere;font-weight:600;font-size:10px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
+.pg>b{grid-column:1/-1;min-width:0;overflow-wrap:anywhere;font-weight:600;font-size:var(--headfs,10px);letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
 .sws{grid-column:1/-1;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;justify-items:center}
 .sws.two{grid-template-columns:repeat(2,minmax(0,1fr));justify-items:stretch;gap:6px}
 .wbtn{min-height:28px;display:flex;align-items:center;justify-content:center}
@@ -2029,7 +2031,7 @@ function applyLayout(){
   c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1280); c.toggle('narrow',w<=480); c.toggle('tiny',w<=330); c.toggle('midwide',w>=640);
   document.querySelectorAll('#uiRow button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
-  applyTheme();
+  applyTheme(); if(typeof fitHeads==='function') requestAnimationFrame(()=>{ try{ fitHeads(); }catch(e){} });
 }
 function setUi(ch){ Object.assign(uiCfg,ch); try{ localStorage.setItem('blackboard-ui',JSON.stringify(uiCfg)); }catch(e){} applyLayout(); applyView(); }
 applyLayout();
@@ -2040,7 +2042,7 @@ function savePal(){ try{ localStorage.setItem('blackboard-pal',JSON.stringify(pa
 function renderPal(){
   document.querySelector('main').classList.toggle('pal-closed',!!palState.closed);
   const ph=$('palHandle'); ph.textContent=palState.closed?'›':'‹'; ph.setAttribute('aria-expanded',!palState.closed); ph.title=palState.closed?'Formenleiste ausklappen':'Formenleiste einklappen';
-  palEl.innerHTML=GROUPS.map(([name,kinds])=>`<button class="gh" data-g="${esc(name)}" aria-expanded="${!!palState.open[name]}">${esc(name).replace('Flussd','Fluss&shy;d').replace('Struktog','Strukto&shy;g')}</button><div class="palgrid"${palState.open[name]?'':' hidden'}>`+
+  palEl.innerHTML=GROUPS.map(([name,kinds])=>`<button class="gh" data-g="${esc(name)}" aria-expanded="${!!palState.open[name]}"><span>${esc(headLabel(name))}</span></button><div class="palgrid"${palState.open[name]?'':' hidden'}>`+
     (name==='Vorlagen'?`<button class="pal palbtn" data-tpl="1" title="Alle Vorlagen: SWOT, Eisenhower, Retro, Zeitstrahl und mehr" aria-label="Alle Vorlagen"><svg viewBox="0 0 44 28"><rect x="6" y="3" width="14" height="10" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/><rect x="24" y="3" width="14" height="10" rx="1.500" fill="currentColor" opacity=".55"/><rect x="6" y="15" width="14" height="10" rx="1.500" fill="currentColor" opacity=".55"/><rect x="24" y="15" width="14" height="10" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/></svg></button>`:'')+
     kinds.map(k=>`<button class="pal" data-kind="${k}" title="${KINDS[k].label.replace('-','')}" aria-label="${KINDS[k].label.replace('-','')}">${iconFor(k,44,28)}<span>${KINDS[k].label}</span></button>`).join('')+(name==='Präsentation'?`<button class="pal palbtn" data-slides="1" title="Folienübersicht: Vorschau aller Folien, Reihenfolge per Ziehen" aria-label="Folienübersicht"><svg viewBox="0 0 44 28"><rect x="3" y="7" width="11" height="14" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/><rect x="17" y="7" width="11" height="14" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/><rect x="31" y="7" width="11" height="14" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/></svg></button>`:'')+(name==='Präsentation'?`<button class="pal palbtn" data-play="1" title="Präsentation starten" aria-label="Präsentation starten"><svg viewBox="0 0 44 28"><path d="M16 5v18l15-9z" fill="currentColor"/></svg></button>`:'')+`</div>`).join('');
 }
@@ -2093,6 +2095,20 @@ palEl.addEventListener('pointerdown',e=>{
   window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); window.addEventListener('pointercancel',up);
 });
 
+/* Überschriften links und rechts so groß wie möglich: lange Gruppennamen dürfen an festen Stellen umbrechen, sonst bricht nichts um */
+const HEADS_R=['Hintergrund','Füllung','Stiftfarbe','Pinselfarbe','Markerfarbe','Linie','Pinselform','Ausrichten','Element','Gruppe','Mindmap','Schrift','Stärke','Tabelle','Ablage','Spitze','Quiz','Pfeil','Text'];
+const HEAD_BREAK={'Präsentation':'Präsen-','Flussdiagramm':'Fluss-','Struktogramm':'Strukto-','ER-Diagramm':'ER-'};   /* Teile beim Umbruch, zum Messen */
+let headsCtx=null;
+function fitHeads(){
+  const W=104, ctx=headsCtx||(headsCtx=document.createElement('canvas').getContext('2d'));   /* beide Leisten sind 104 Einheiten breit, innen 6 Einheiten Rand */
+  const segs=GROUPS.map(g=>g[0]).flatMap(n=>{ const b=HEAD_BREAK[n]; return b?[b,n.slice(b.length)]:[n]; });
+  const fits=(fs,list,avail)=>{ ctx.font='600 '+fs+'px '+FONT; return list.every(t=>{ const u=t.toUpperCase(); return ctx.measureText(u).width+fs*0.03*u.length<=avail; }); };
+  let best=9;
+  for(let fs=18;fs>=9;fs-=0.5) if(fits(fs,segs,W-12-6-fs*0.5-8)&&fits(fs,HEADS_R,W-12-2)){ best=fs; break; }
+  document.documentElement.style.setProperty('--headfs',best+'px');
+}
+function headLabel(n){ const b={'Präsentation':6,'Flussdiagramm':5,'Struktogramm':7}[n]; return b?n.slice(0,b)+'\u00ad'+n.slice(b):n; }   /* weiche Trennstelle */
+window.addEventListener('resize',()=>requestAnimationFrame(fitHeads));
 /* ---------- Leisten, Menü, Tastatur ---------- */
 $('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); setTool(b.dataset.tool); } });
 $('undo').onclick=undo; $('redo').onclick=redo; $('playBtn').onclick=()=>startPres();
@@ -3344,7 +3360,7 @@ try{ window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude
 storeInit().then(()=>{ if(window.claude&&window.claude.hot&&window.claude.hot.ready) window.claude.hot.ready(start); else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{}); });
 getDl();
 /* Schrift ist erst kurz nach dem Start bereit: danach neu zeichnen, damit Textbreiten stimmen */
-if(document.fonts&&document.fonts.load) Promise.all(["400","500","600"].map(w=>document.fonts.load(w+" 14px 'Roboto Mono'"))).then(()=>{ renderPal(); if(fitTexts()){ hist[hi]=mkSnap(doc,hist[hi]); persist(); } render(); }).catch(()=>{});
+if(document.fonts&&document.fonts.load) Promise.all(["400","500","600"].map(w=>document.fonts.load(w+" 14px 'Roboto Mono'"))).then(()=>{ renderPal(); fitHeads(); if(fitTexts()){ hist[hi]=mkSnap(doc,hist[hi]); persist(); } render(); }).catch(()=>{});
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0) navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
 </script>
