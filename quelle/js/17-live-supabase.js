@@ -1,14 +1,16 @@
 /* ---------- Live: dasselbe Board auf mehreren Geräten gleichzeitig (über Supabase) ----------
-   Besitzer: kennt den geheimen Board-Schlüssel (b.live) und verwaltet die Freigabe-Links.
+   Besitzer: kennt den geheimen Board-Schlüssel (b.live) und verwaltet die Freigabe-Links. Der Schlüssel wird nie als Link weitergegeben;
+   eigene Geräte bekommen ihn über das Konto (18-konto.js).
    Gäste: kommen über einen Freigabe-Link (b.tok) ins Board, entweder zum Mitzeichnen oder nur zum Ansehen.
    Änderungen gehen sofort über einen Echtzeit-Kanal an alle offenen Geräte und werden kurz danach in der Datenbank gespeichert. */
 var SB_URL='https://qgddexalpzzwyvaqleud.supabase.co', SB_KEY='sb_publishable_vFLIL6z-AO-hOVzr9HJIHw_3LgYAoLl';
+try{ const o=localStorage.getItem('skizix-test-sb'); if(o&&/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) SB_URL=o; }catch(e){}   /* nur für die automatischen Tests */
 var LV={topic:null,ws:null,key:null,own:false,role:'edit',chan:null,joined:false,ref:0,joinRef:null,hb:null,retry:null,tries:0,base:null,ord:null,queue:[],saveT:null,saving:false,saveAgain:false,peers:new Map(),pingT:null,name:'',drafts:new Map(),gen:0};
 var RE_KEY=/^[A-Za-z0-9]{20,64}$/;
 function liveOk(){ return !window.claude&&typeof WebSocket!=='undefined'&&typeof fetch!=='undefined'; }
 function liveNewKey(){ const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789', u=new Uint8Array(28); crypto.getRandomValues(u); let s=''; for(const x of u) s+=a[x%a.length]; return s; }
 function liveBase(){ return location.origin+location.pathname; }
-function liveParse(t){ t=String(t||'').trim(); let m=/[#&?]join=([A-Za-z0-9]{20,64})/.exec(t); if(m) return {tok:m[1]}; m=/[#&?]live=([A-Za-z0-9]{20,64})/.exec(t); if(m) return {own:m[1]}; m=/^([A-Za-z0-9]{20,64})$/.exec(t); return m?{tok:m[1]}:null; }
+function liveParse(t){ t=String(t||'').trim(); let m=/[#&?]join=([A-Za-z0-9]{20,64})/.exec(t); if(m) return {tok:m[1]}; m=/^([A-Za-z0-9]{20,64})$/.exec(t); return m?{tok:m[1]}:null; }
 function liveCur(){ const b=curBoard(); if(!b) return null; if(b.live) return {b,k:b.live,own:true,role:'edit'}; if(b.tok) return {b,k:b.tok,own:false,role:b.role==='view'?'view':'edit'}; return null; }
 function liveRO(){ const c=liveCur(); return !!(c&&c.role==='view'); }
 async function liveRpc(fn,args){
@@ -240,7 +242,7 @@ function liveBadge(){
     el.title=(c.role==='view'?'Nur ansehen. ':'')+(LV.joined?(n>1?n+' Geräte sind mit diesem Board verbunden':'Verbunden, gerade niemand sonst da'):'Verbindung wird aufgebaut …'); }
   const info=$('liveInfo'); if(!info) return;
   info.textContent=!liveOk()?'Hier nicht verfügbar':!on?'Nur auf diesem Gerät':(c.own?'':c.role==='view'?'Gast, nur ansehen · ':'Gast, mitzeichnen · ')+(LV.joined?(LV.peers.size?'verbunden mit '+LV.peers.size+(LV.peers.size>1?' anderen Geräten':' anderem Gerät'):'verbunden, niemand sonst da'):'Verbindung wird aufgebaut …');
-  $('liveStartBtn').hidden=on||!liveOk(); $('liveShareBtn').hidden=!(on&&c.own); $('liveStopBtn').hidden=!on;
+  $('liveStartBtn').hidden=on||!liveOk(); $('liveShareBtn').hidden=!(on&&c.own); $('liveStopBtn').hidden=!on||(c.own&&ktOn());
   $('liveStopBtn').textContent=on&&!c.own?'Live-Board verlassen':'Live beenden (nur hier)';
 }
 /* ---- Teilen-Dialog für den Besitzer ---- */
@@ -277,7 +279,6 @@ async function liveRevoke(tok){
 }
 $('lvEdit').onclick=()=>liveMakeLink('edit');
 $('lvView').onclick=()=>liveMakeLink('view');
-$('lvOwn').onclick=()=>{ const c=liveCur(); if(c&&c.own) liveShareTo(liveBase()+'#live='+c.k,c.b.name); };
 $('lvClose').onclick=closeLiveDlg;
 $('liveDlg').addEventListener('pointerdown',e=>{ if(e.target===$('liveDlg')) closeLiveDlg(); });
 $('lvList').addEventListener('click',e=>{

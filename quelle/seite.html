@@ -68,6 +68,13 @@
     <button data-m="json">Board als Datei sichern (.json)</button>
     <button data-m="open">Board aus Datei laden …</button>
     <hr>
+    <div id="ktSec">
+      <div class="mh">Konto</div>
+      <div class="mh" id="ktInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nicht angemeldet</div>
+      <button data-m="ktlogin" id="ktLoginBtn">Anmelden …</button>
+      <button data-m="ktlogout" id="ktLogoutBtn" hidden>Abmelden</button>
+      <hr>
+    </div>
     <div id="liveSec">
       <div class="mh">Live mit anderen</div>
       <div class="mh" id="liveInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nur auf diesem Gerät</div>
@@ -128,9 +135,20 @@
     <h3>Aktive Links</h3>
     <div id="lvList"></div>
     <h3>Deine eigenen Geräte</h3>
-    <p>Dieser Link gibt vollen Zugriff, auch auf die Links oben. Nur für dich, nicht weitergeben.</p>
-    <div class="lvBtns"><button type="button" id="lvOwn">Link für eigene Geräte</button><button type="button" id="lvClose">Fertig</button></div>
+    <p>Melde dich auf deinen Geräten mit deinem Konto an (Menü → Konto). Dann sind alle deine Boards dort automatisch da, ohne Link.</p>
+    <div class="lvBtns"><button type="button" id="lvClose">Fertig</button></div>
   </div>
+</div>
+<div id="ktDlg" hidden role="dialog" aria-modal="true" aria-labelledby="ktTitle">
+  <form id="ktForm" autocomplete="on">
+    <h2 id="ktTitle">Anmelden</h2>
+    <p>Mit deinem Konto sind alle deine Boards automatisch auf jedem Gerät, auf dem du angemeldet bist, und bleiben live verbunden.</p>
+    <label for="ktMail">E-Mail-Adresse</label><input id="ktMail" type="email" name="email" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <label for="ktPw">Passwort</label><input id="ktPw" type="password" name="password" autocomplete="current-password">
+    <label class="ktKeep"><input id="ktKeep" type="checkbox" checked> Angemeldet bleiben</label>
+    <div id="ktMsg" role="status"></div>
+    <div class="dlgBtns"><button type="submit" class="pb" id="ktGo">Anmelden</button><button type="button" class="pb" id="ktClose">Abbrechen</button></div>
+  </form>
 </div>
 <div id="syncDlg" hidden role="dialog" aria-modal="true" aria-labelledby="syTitle">
   <form id="syncForm" autocomplete="off">

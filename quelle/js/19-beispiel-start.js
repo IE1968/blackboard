@@ -23,7 +23,7 @@ function start(data){
   $('boardName').value=curBoard().name;
   if(data&&data.view){ view=data.view; applyView(); } else fit();
   setSync(syncCfg?'wait':'off'); if(syncCfg) scheduleSync(800);
-  liveFromHash(); liveBadge(); liveViewMode();
+  liveFromHash(); liveBadge(); liveViewMode(); ktStart();
 }
 try{ window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.hot.snapshot(()=>({doc,view})); }catch(e){}
 storeInit().then(()=>{ if(window.claude&&window.claude.hot&&window.claude.hot.ready) window.claude.hot.ready(start); else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{}); });

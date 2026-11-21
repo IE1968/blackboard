@@ -12,7 +12,8 @@ sondern immer die Dateien hier und danach neu bauen.
 | `css/aussehen.css` | Aussehen: Farben, Layout, Knöpfe, Menüs, Dialoge, Folienleiste |
 | `css/schrift-tafel.css` | Eingebettete Schrift Roboto Mono (Menüs und Text auf der Tafel) |
 | `css/schrift-logo.css` | Eingebettete Schrift Doto (Schriftzug) |
-| `js/01-grundlagen.js` … `js/18-beispiel-start.js` | Das Programm, nach Themen getrennt. Die Nummern legen die Reihenfolge fest. |
+| `js/01-grundlagen.js` … `js/19-beispiel-start.js` | Das Programm, nach Themen getrennt. Die Nummern legen die Reihenfolge fest. |
+| `supabase/` | Datenbank-Skripte für Supabase. Jedes Skript einmal im Supabase-Dashboard unter „SQL Editor“ ausführen. |
 | `build.py` | Setzt alles zur `index.html` zusammen |
 | `tests/` | Automatische Tests |
 
@@ -38,8 +39,9 @@ zusätzlich `pdfinfo`, `pdftotext` und `qpdf`, falls vorhanden.
 
 Die Tests bedienen Skizix in einem unsichtbaren Browser wie ein Mensch: Formen, Pfeile, Folien,
 Rückgängig, Bilder, Vorlagen, Präsentation, PDF-Export, zwei Fenster, Offline-Start, Leistung mit
-2.000 Elementen und der Abgleich mit GitHub (über eine Attrappe, ohne echten Schlüssel). Die
-Live-Zusammenarbeit über Supabase ist noch nicht automatisch getestet.
+2.000 Elementen, der Abgleich mit GitHub und das Konto (Anmelden, Boards auf zwei Geräten, Umbenennen,
+Löschen, Abmelden). GitHub und Supabase werden dabei durch Attrappen ersetzt, es geht nichts ins
+Internet. Die Echtzeit-Verbindung (WebSocket) zwischen Geräten ist noch nicht automatisch getestet.
 
 Bei jeder Änderung auf GitHub laufen dieselben Tests automatisch (`.github/workflows/tests.yml`),
 das Ergebnis steht im Reiter „Actions“.

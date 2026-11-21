@@ -144,11 +144,11 @@ function openBoard(id){
 }
 function newBoard(){
   const id=genId(); let n=boards.list.length+1; while(boards.list.some(b=>b.name==='Board '+n)) n++;
-  const nb={id,name:'Board '+n}; boards.list.push(nb); docSet(id,JSON.stringify({items:[],n:0,fmt:DOC_FMT})); openBoard(id); markDirty(nb);
+  const nb={id,name:'Board '+n}; boards.list.push(nb); docSet(id,JSON.stringify({items:[],n:0,fmt:DOC_FMT})); openBoard(id); markDirty(nb); ktSoon(500);
 }
 function deleteBoard(){
   if(boards.list.length<2) return; const gone=curBoard(); if(gone.sha) boards.del.push({id:gone.id,sha:gone.sha});
-  docDel(boards.cur); boards.list=boards.list.filter(b=>b.id!==boards.cur); openBoard(boards.list[0].id); scheduleSync(1500);
+  ktGone(gone); docDel(boards.cur); boards.list=boards.list.filter(b=>b.id!==boards.cur); openBoard(boards.list[0].id); scheduleSync(1500);
 }
 function renderBoardList(){
   renderSyncInfo();

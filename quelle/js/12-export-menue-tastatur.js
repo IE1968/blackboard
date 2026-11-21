@@ -33,6 +33,8 @@ menu.addEventListener('click',e=>{
     case 'livestart': liveStart(); break;
     case 'liveshare': openLiveDlg(); break;
     case 'livestop': liveStop(); break;
+    case 'ktlogin': openKtDlg(); break;
+    case 'ktlogout': ktLogout(); break;
     case 'delboard': deleteBoard(); break;
     case 'png': case 'svg': case 'pdf': exportAs(b.dataset.m); break;
     case 'json': saveFile(fileBase()+'.json',JSON.stringify(Object.assign({},doc,{fmt:Math.max(doc.fmt||0,DOC_FMT)}))); break;
@@ -41,7 +43,7 @@ menu.addEventListener('click',e=>{
     case 'clear': doc={items:[],n:doc.n}; sel.clear(); commit(); render(); toast('Board geleert. Mit „Zurück“ holst du alles wieder.'); break;
   }
 });
-$('boardName').addEventListener('input',e=>{ curBoard().name=e.target.value.trim()||'Board'; markDirty(); });
+$('boardName').addEventListener('input',e=>{ curBoard().name=e.target.value.trim()||'Board'; markDirty(); ktSoon(3000); });
 $('boardName').addEventListener('keydown',e=>{ if(e.key==='Enter') e.target.blur(); });
 $('file').addEventListener('change',async e=>{
   const f=e.target.files[0]; if(!f) return;

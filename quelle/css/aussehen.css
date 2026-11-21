@@ -103,6 +103,18 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 .pb[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .pb.danger{color:#ff8f7a}
 .lw{display:inline-block;width:18px;background:currentColor;border-radius:3px;vertical-align:middle}
+#ktDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+#ktDlg[hidden]{display:none}
+#ktForm{zoom:var(--ui);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:400px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+#ktForm h2{margin:0 0 4px;font:600 17px/1.2 var(--body)}
+#ktForm p{margin:0 0 8px;color:var(--muted);font-size:13px}
+#ktForm label{font-size:12px;font-weight:500;color:var(--muted);margin-top:6px}
+#ktForm input[type=email],#ktForm input[type=password]{font:400 16px/1.2 var(--body);color:var(--ink);background:var(--chrome);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-width:0}
+#ktForm input:focus{outline:none;border-color:var(--accent)}
+#ktForm .ktKeep{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink);margin-top:10px;cursor:pointer}
+#ktForm .ktKeep input{width:18px;height:18px;accent-color:var(--accent)}
+#ktMsg{min-height:20px;font-size:13px;margin-top:8px}
+#ktGo{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 #syncDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
 #syncForm{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:400px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
 #syncForm h2,#keysBox h2{margin:0 0 4px;font:600 17px/1.2 var(--body)}
