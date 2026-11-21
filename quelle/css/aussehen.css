@@ -62,8 +62,9 @@ main.pal-closed{--palw:0px}
 .gh>span{white-space:nowrap}
 .gh:hover{background:var(--hover);color:var(--ink)}
 /* Aufklapp-Pfeil wie an den Seitengriffen: dünner Winkel, zu = nach rechts, offen = nach unten */
-.gh::after{content:'';flex:none;margin-left:3px;width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .15s}
-.gh[aria-expanded="false"]::after{transform:rotate(-45deg)}
+/* Pfeil mittig unter der Überschrift: zu = nach unten (aufklappen), offen = nach oben (zuklappen) */
+.gh::after{content:'';flex:none;align-self:center;width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(2px) rotate(-135deg);transition:transform .15s}
+.gh[aria-expanded="false"]::after{transform:translateY(-2px) rotate(45deg)}
 #palToggle{margin:0 0 4px;border:1px solid var(--line);justify-content:center;white-space:nowrap}
 #palToggle::before{content:none}
 main.pal-closed #palette{padding:0;border:0;overflow:hidden}
