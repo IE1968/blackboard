@@ -84,10 +84,10 @@ function strokeSVG(it){
   const pts=it.pts, tl=it.tool||'pen', tip=it.tip||'round', col=mapC(it.stroke), n=pts.length;
   let o='';
   if(n<2){ const q=it.sw/2; o=tip==='round'?`<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="${q}" fill="${col}"/>`:`<rect x="${pts[0][0]-q}" y="${pts[0][1]-q}" width="${it.sw}" height="${it.sw}" fill="${col}"/>`; }
-  else if(tl!=='brush'&&tip!=='calli'){
+  else if(tl!=='brush'&&tip!=='calli'&&!(tl==='pen'&&it.ws&&it.ws.length===n)){
     o=`<path d="${pathD(pts)}" fill="none" stroke="${col}" stroke-width="${it.sw}" stroke-linecap="${tip==='flat'?'square':'round'}" stroke-linejoin="${tip==='flat'?'bevel':'round'}"/>`;
   } else {
-    const L=[],B=[], ws=it.ws||[], hwAt=i=>it.sw*(tl==='brush'&&ws[i]!=null?ws[i]:1)/2;
+    const L=[],B=[], ws=it.ws||[], hwAt=i=>it.sw*(tl!=='marker'&&ws[i]!=null?ws[i]:1)/2;
     for(let i=0;i<n;i++){ const p=pts[i], hw=hwAt(i); let ox,oy;
       if(tip==='calli'){ ox=hw*0.7071; oy=-hw*0.7071; }
       else { const a=pts[Math.max(0,i-1)], b=pts[Math.min(n-1,i+1)], dx=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dx,dy)||1; ox=-dy/l*hw; oy=dx/l*hw; }

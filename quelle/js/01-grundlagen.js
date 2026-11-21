@@ -14,6 +14,14 @@ function useFont(it){ FS=(it&&it.fs)||14; LH=Math.round(FS*1.3); BOLD=!!(it&&it.
 const COLORS=['none','#1c2a2e','#ffffff','#7a8790','#c8321f','#d97a00','#f2c200','#1f8a4c','#1e63d0','#7446c9','#fff3b0','#ffd9c7','#cfe8ff','#d3f0dc','#e6dcff','#e3e8ea'];
 const WIDTHS={shape:[1,2,3,5,8],pen:[1.5,3,5,8,12],brush:[4,8,12,18,26],marker:[8,14,20,28,40]};
 const DRAW={pen:'Stift',brush:'Pinsel',marker:'Marker'};
+const r2=v=>Math.round(v*100)/100;
+/* Stiftdruck (0 bis 1) in einen Breitenfaktor umrechnen; Stufen unter „Ansicht“. Beim Pinsel macht ein schräg gehaltener Stift breitere Striche. */
+const PRESS={soft:[0.72,1.3,0.85],normal:[0.35,1.6,0.9],strong:[0.12,2.1,1.1]};
+function pressW(p,e){
+  const c=PRESS[uiCfg.press]||PRESS.normal; let f=c[0]+(c[1]-c[0])*Math.pow(Math.min(1,Math.max(0,p)),c[2]);
+  if(tool==='brush'&&e&&typeof e.altitudeAngle==='number'&&e.altitudeAngle<1.2) f*=1+(1.2-e.altitudeAngle)*0.9;
+  return f;
+}
 const KINDS={
   rect:{label:'Rechteck',w:140,h:80},
   ellipse:{label:'Ellipse',w:130,h:80},

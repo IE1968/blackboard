@@ -27,8 +27,8 @@ function iconFor(kind,W,H){
 /* PC = Maus als Hauptzeiger; Smartphones und Tablets werden mit dem Finger bedient */
 const isPC=!!(window.matchMedia&&matchMedia('(pointer:fine)').matches&&matchMedia('(hover:hover)').matches);
 const pcScale=()=>isPC&&innerWidth/1.25>1000&&innerHeight/1.25>500?1.25:1;   /* am PC 125 %, sofern der Bildschirm groß genug ist */
-let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true,theme:'blue'};
-try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false,theme:['blue','orange','green','grey'].includes(u.theme)?u.theme:'blue'}; }catch(e){}
+let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true,theme:'blue',press:'normal',finger:true,fingerSet:false};
+try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false,theme:['blue','orange','green','grey'].includes(u.theme)?u.theme:'blue',press:['off','soft','normal','strong'].includes(u.press)?u.press:'normal',finger:u.finger!==false,fingerSet:!!u.fingerSet}; }catch(e){}
 function isCompactNow(){ return innerWidth/uiCfg.scale<=1000||innerHeight/uiCfg.scale<=500; }
 function applyLayout(){
   const w=innerWidth/uiCfg.scale, c=document.body.classList; c.toggle('touch',!isPC);

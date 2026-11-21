@@ -30,6 +30,8 @@
 body[data-theme="orange"]{--chrome:#15110d;--panel:#231c16;--ink:#ffb36b;--muted:#e0975a;--line:#8a6a4c;--accent:#ff9a3d;--accent-ink:#2a1300;--hover:#33291f}
 body[data-theme="green"]{--chrome:#0e1511;--panel:#18221c;--ink:#7ad49a;--muted:#5fbf83;--line:#4f8466;--accent:#3fbf78;--accent-ink:#03210f;--hover:#24332a}
 body[data-theme="grey"]{--chrome:#121315;--panel:#1d1f22;--ink:#d0d4da;--muted:#a9afb7;--line:#6b7179;--accent:#b8c0ca;--accent-ink:#121315;--hover:#2b2e32}
+/* Leinenpapier: feine Webstruktur aus waagerechten und senkrechten Fasern */
+#stage[data-surf="paper"],.vpChip.s-paper{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='h' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75 0.03' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.33 0 0 0 0 0.27 1.6 0 0 0 -0.78'/%3E%3C/filter%3E%3Cfilter id='v' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03 0.75' numOctaves='3' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.33 0 0 0 0 0.27 1.6 0 0 0 -0.8'/%3E%3C/filter%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='1' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.38 0 0 0 0 0.33 0.9 0 0 0 -0.42'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url%28%23h%29' opacity='.15'/%3E%3Crect width='300' height='300' filter='url%28%23v%29' opacity='.12'/%3E%3Crect width='300' height='300' filter='url%28%23n%29' opacity='.10'/%3E%3C/svg%3E")}
 /* Tafelgrün im Kreide-Look: leichte Wischspuren */
 #stage[data-surf="chalk"]{background-image:radial-gradient(ellipse 42% 18% at 28% 34%,rgba(255,255,255,.045),transparent 70%),radial-gradient(ellipse 36% 14% at 70% 68%,rgba(255,255,255,.04),transparent 70%),radial-gradient(ellipse 55% 22% at 52% 12%,rgba(255,255,255,.03),transparent 70%)}
 *{box-sizing:border-box}
@@ -316,6 +318,14 @@ body.compact #playBtn{display:none}
 #ktBtn.on .ktAv{border-radius:50%;background:var(--accent);color:var(--accent-ink)}
 #ktBtn.on .ktAv svg{display:none}
 #ktBtn.on .ktAv b{display:block;font-size:13px;font-weight:700}
+
+.vpLbl{font-size:12px;color:var(--muted);padding:2px 10px 4px}
+#viewPop #pressRow button{flex:1;text-align:center;padding:7px 0;border:1px solid var(--line);font-size:12px}
+#viewPop #pressRow button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#pressTest{position:relative;margin:2px 10px 6px;height:70px;border-radius:8px;background:#fbfbf8;touch-action:none;cursor:crosshair;overflow:hidden}
+#pressTest svg{position:absolute;inset:0;width:100%;height:100%}
+#pressTest span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8c979a;font-size:12px;pointer-events:none}
+#pressTest.used span{display:none}
 </style>
 </head>
 <body>
@@ -358,6 +368,11 @@ body.compact #playBtn{display:none}
     <div class="mrow" id="uiRow"><button data-m="ui" data-v="1">100 %</button><button data-m="ui" data-v="1.25">125 %</button><button data-m="ui" data-v="1.5">150 %</button></div>
     <button data-m="hc" id="hcBtn" class="vpTog">Hoher Kontrast</button>
     <button data-m="snap" id="snapBtn" class="vpTog">Hilfslinien und Einrasten</button>
+    <div class="mh">Stift <small>dieses Gerät</small></div>
+    <div class="vpLbl">Druckempfindlichkeit</div>
+    <div class="mrow" id="pressRow"><button data-press="off">Aus</button><button data-press="soft">Leicht</button><button data-press="normal">Normal</button><button data-press="strong">Stark</button></div>
+    <div id="pressTest" title="Zum Ausprobieren hier mit dem Stift zeichnen"><svg id="pressSvg"></svg><span>Hier ausprobieren</span></div>
+    <button data-m="finger" id="fingerBtn" class="vpTog">Mit dem Finger zeichnen</button>
   </div>
   <div id="ktPop" hidden role="dialog" aria-label="Konto">
     <div class="mh">Angemeldet als</div><div id="ktPopMail"></div>
@@ -497,6 +512,14 @@ function useFont(it){ FS=(it&&it.fs)||14; LH=Math.round(FS*1.3); BOLD=!!(it&&it.
 const COLORS=['none','#1c2a2e','#ffffff','#7a8790','#c8321f','#d97a00','#f2c200','#1f8a4c','#1e63d0','#7446c9','#fff3b0','#ffd9c7','#cfe8ff','#d3f0dc','#e6dcff','#e3e8ea'];
 const WIDTHS={shape:[1,2,3,5,8],pen:[1.5,3,5,8,12],brush:[4,8,12,18,26],marker:[8,14,20,28,40]};
 const DRAW={pen:'Stift',brush:'Pinsel',marker:'Marker'};
+const r2=v=>Math.round(v*100)/100;
+/* Stiftdruck (0 bis 1) in einen Breitenfaktor umrechnen; Stufen unter „Ansicht“. Beim Pinsel macht ein schräg gehaltener Stift breitere Striche. */
+const PRESS={soft:[0.72,1.3,0.85],normal:[0.35,1.6,0.9],strong:[0.12,2.1,1.1]};
+function pressW(p,e){
+  const c=PRESS[uiCfg.press]||PRESS.normal; let f=c[0]+(c[1]-c[0])*Math.pow(Math.min(1,Math.max(0,p)),c[2]);
+  if(tool==='brush'&&e&&typeof e.altitudeAngle==='number'&&e.altitudeAngle<1.2) f*=1+(1.2-e.altitudeAngle)*0.9;
+  return f;
+}
 const KINDS={
   rect:{label:'Rechteck',w:140,h:80},
   ellipse:{label:'Ellipse',w:130,h:80},
@@ -951,10 +974,10 @@ function strokeSVG(it){
   const pts=it.pts, tl=it.tool||'pen', tip=it.tip||'round', col=mapC(it.stroke), n=pts.length;
   let o='';
   if(n<2){ const q=it.sw/2; o=tip==='round'?`<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="${q}" fill="${col}"/>`:`<rect x="${pts[0][0]-q}" y="${pts[0][1]-q}" width="${it.sw}" height="${it.sw}" fill="${col}"/>`; }
-  else if(tl!=='brush'&&tip!=='calli'){
+  else if(tl!=='brush'&&tip!=='calli'&&!(tl==='pen'&&it.ws&&it.ws.length===n)){
     o=`<path d="${pathD(pts)}" fill="none" stroke="${col}" stroke-width="${it.sw}" stroke-linecap="${tip==='flat'?'square':'round'}" stroke-linejoin="${tip==='flat'?'bevel':'round'}"/>`;
   } else {
-    const L=[],B=[], ws=it.ws||[], hwAt=i=>it.sw*(tl==='brush'&&ws[i]!=null?ws[i]:1)/2;
+    const L=[],B=[], ws=it.ws||[], hwAt=i=>it.sw*(tl!=='marker'&&ws[i]!=null?ws[i]:1)/2;
     for(let i=0;i<n;i++){ const p=pts[i], hw=hwAt(i); let ox,oy;
       if(tip==='calli'){ ox=hw*0.7071; oy=-hw*0.7071; }
       else { const a=pts[Math.max(0,i-1)], b=pts[Math.min(n-1,i+1)], dx=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dx,dy)||1; ox=-dy/l*hw; oy=dx/l*hw; }
@@ -1771,8 +1794,11 @@ svg.addEventListener('pointerdown',e=>{
   const base={pid:e.pointerId,sx:e.clientX,sy:e.clientY,w0:w,moved:false};
   if(e.button===1||spaceDown||tool==='pan'){ action={...base,type:'pan',vx:view.x,vy:view.y}; return; }
   const hEl=e.target.closest('[data-h]'), iEl=e.target.closest('#items [data-id]'), item=iEl?byId(iEl.dataset.id):null;
+  if(DRAW[tool]&&e.pointerType==='touch'&&!uiCfg.finger){ action={...base,type:'pan',vx:view.x,vy:view.y}; return; }   /* nur der Stift zeichnet, der Finger verschiebt */
+  if(DRAW[tool]&&e.pointerType==='pen'&&uiCfg.finger&&!uiCfg.fingerSet){ setUi({finger:false,fingerSet:true}); toast('Stift erkannt: Ab jetzt zeichnet nur der Stift, mit dem Finger verschiebst du die Tafel. Umstellen unter „Ansicht“.'); }
   if(DRAW[tool]){
-    action={...base,type:'pen',tool,pts:[[r(w.x),r(w.y)]],ws:[0.45],f:0.45,t:performance.now(),lx:e.clientX,ly:e.clientY};
+    const pr=e.pointerType==='pen'&&tool!=='marker'&&uiCfg.press!=='off', f0=pr?pressW(e.pressure||0.25,e):0.45;
+    action={...base,type:'pen',tool,pr,pts:[[r(w.x),r(w.y)]],ws:[r2(f0)],f:f0,t:performance.now(),lx:e.clientX,ly:e.clientY};
     liveEl=document.createElementNS('http://www.w3.org/2000/svg','g'); liveEl.setAttribute('pointer-events','none');
     liveEl.innerHTML=strokeSVG(Object.assign({pts:action.pts,ws:action.ws,tool},penStyles[tool]));
     itemsG.appendChild(liveEl); return;
@@ -1809,13 +1835,18 @@ svg.addEventListener('pointermove',e=>{
     view.k=k; view.x=t.mx-wx*k; view.y=t.my-wy*k; applyView(); return; }
   const a=action; if(!a||a.pid!==e.pointerId) return;
   const w=toWorld(e.clientX,e.clientY);
-  if(a.type==='pen'){ const l=a.pts[a.pts.length-1];
-    if(Math.hypot(w.x-l[0],w.y-l[1])*view.k>=2){
-      if(a.tool==='brush'){ const now=performance.now(), v=Math.hypot(e.clientX-a.lx,e.clientY-a.ly)/Math.max(1,now-a.t);
-        const target=(e.pointerType==='pen'&&e.pressure>0)?0.3+e.pressure*1.4:clamp(1.45-v*0.55,0.35,1.45);
-        a.f=a.f*0.65+target*0.35; a.ws.push(r(a.f)); a.t=now; a.lx=e.clientX; a.ly=e.clientY; }
-      a.pts.push([r(w.x),r(w.y)]);
-      liveEl.innerHTML=strokeSVG(Object.assign({pts:a.pts,ws:a.ws,tool:a.tool},penStyles[a.tool])); liveDraft(a); }
+  if(a.type==='pen'){
+    /* Stift: alle Zwischenwerte nutzen (das iPad misst den Pencil viel öfter, als der Bildschirm Ereignisse meldet) */
+    const evs=a.pr&&e.getCoalescedEvents?(e.getCoalescedEvents()||[]):[]; let added=false;
+    for(const ev of (evs.length?evs:[e])){
+      const p=toWorld(ev.clientX,ev.clientY), l=a.pts[a.pts.length-1];
+      if(Math.hypot(p.x-l[0],p.y-l[1])*view.k<(a.pr?0.8:2)) continue;
+      if(a.pr){ const target=pressW(ev.pressure>0?ev.pressure:a.lp||0.25,ev); a.lp=ev.pressure>0?ev.pressure:a.lp; a.f=a.f*0.45+target*0.55; a.ws.push(r2(a.f)); }
+      else if(a.tool==='brush'){ const now=performance.now(), v=Math.hypot(ev.clientX-a.lx,ev.clientY-a.ly)/Math.max(1,now-a.t);
+        a.f=a.f*0.65+clamp(1.45-v*0.55,0.35,1.45)*0.35; a.ws.push(r2(a.f)); a.t=now; a.lx=ev.clientX; a.ly=ev.clientY; }
+      a.pts.push([r(p.x),r(p.y)]); added=true;
+    }
+    if(added){ liveEl.innerHTML=strokeSVG(Object.assign({pts:a.pts,ws:(a.pr||a.tool==='brush')?a.ws:null,tool:a.tool},penStyles[a.tool])); liveDraft(a); }
     return; }
   if(a.type==='erase'){ eraseAt(e); return; }
   if(!a.moved&&Math.hypot(e.clientX-a.sx,e.clientY-a.sy)<4) return;
@@ -1902,7 +1933,8 @@ function onUp(e){
   switch(a.type){
     case 'pen': if(liveEl){ liveEl.remove(); liveEl=null; }
       { const ps=penStyles[a.tool], it={id:nid(),type:'path',pts:a.pts,stroke:ps.stroke,sw:ps.sw,tool:a.tool,tip:ps.tip};
-        if(a.tool==='brush'){ const n=a.ws.length; [0.45,0.7,0.88].forEach((q,k)=>{ if(n-1-k>0) a.ws[n-1-k]=r(a.ws[n-1-k]*q); }); it.ws=a.ws; }
+        if(a.tool==='brush'&&!a.pr){ const n=a.ws.length; [0.45,0.7,0.88].forEach((q,k)=>{ if(n-1-k>0) a.ws[n-1-k]=r2(a.ws[n-1-k]*q); }); }
+        if((a.pr||a.tool==='brush')&&a.ws.length===a.pts.length) it.ws=a.ws;
         doc.items.push(it); commit(); }
       break;
     case 'erase': if(a.dirty) commit(); break;
@@ -1973,8 +2005,8 @@ function iconFor(kind,W,H){
 /* PC = Maus als Hauptzeiger; Smartphones und Tablets werden mit dem Finger bedient */
 const isPC=!!(window.matchMedia&&matchMedia('(pointer:fine)').matches&&matchMedia('(hover:hover)').matches);
 const pcScale=()=>isPC&&innerWidth/1.25>1000&&innerHeight/1.25>500?1.25:1;   /* am PC 125 %, sofern der Bildschirm groß genug ist */
-let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true,theme:'blue'};
-try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false,theme:['blue','orange','green','grey'].includes(u.theme)?u.theme:'blue'}; }catch(e){}
+let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true,theme:'blue',press:'normal',finger:true,fingerSet:false};
+try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false,theme:['blue','orange','green','grey'].includes(u.theme)?u.theme:'blue',press:['off','soft','normal','strong'].includes(u.press)?u.press:'normal',finger:u.finger!==false,fingerSet:!!u.fingerSet}; }catch(e){}
 function isCompactNow(){ return innerWidth/uiCfg.scale<=1000||innerHeight/uiCfg.scale<=500; }
 function applyLayout(){
   const w=innerWidth/uiCfg.scale, c=document.body.classList; c.toggle('touch',!isPC);
@@ -2129,7 +2161,7 @@ const SURF={
   slate:{n:'Schiefer',bg:'#2f3a3d',dot:'#4d5c60',dark:true},
   chalk:{n:'Tafelgrün',bg:'#26392e',dot:'#3f5848',dark:true},
   grey:{n:'Hellgrau',bg:'#dcdfe2',dot:'#aab1b7',dark:false},
-  paper:{n:'Papier',bg:'#f4ecd8',dot:'#d4c6a3',dark:false},
+  paper:{n:'Leinenpapier',bg:'#f3f2ee',dot:'#cfccc3',dark:false},
   blue:{n:'Blaupause',bg:'#163a66',dot:'#2f5f96',dark:true},
   heft:{n:'Schulheft',bg:'#fffef6',dot:'#b9d3ec',dark:false}
 };
@@ -2190,6 +2222,7 @@ function renderViewPop(){
   $('vpTheme').innerHTML=Object.entries(THEMES).map(([k,t])=>`<button type="button" class="vpSw" data-t="${k}" aria-pressed="${uiCfg.theme===k}" title="${t.n}"><span class="vpChip" style="background:${t.sel[0]}"></span><small>${t.n}</small></button>`).join('');
   document.querySelectorAll('#uiRow button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
+  document.querySelectorAll('#pressRow button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.press===uiCfg.press)); $('fingerBtn').setAttribute('aria-pressed',uiCfg.finger);
 }
 function placeViewPop(){
   const p=$('viewPop'), br=$('viewBtn').getBoundingClientRect(), z=uiCfg.scale, w=p.offsetWidth*z;
@@ -2208,6 +2241,8 @@ $('viewPop').addEventListener('click',e=>{
   else if(t.dataset.m==='ui') setUi({scale:+t.dataset.v,scaleSet:true});
   else if(t.dataset.m==='hc') setUi({hc:!uiCfg.hc});
   else if(t.dataset.m==='snap') setUi({snap:!uiCfg.snap});
+  else if(t.dataset.press) setUi({press:t.dataset.press});
+  else if(t.dataset.m==='finger') setUi({finger:!uiCfg.finger,fingerSet:true});
   renderViewPop(); placeViewPop();
 });
 document.addEventListener('pointerdown',e=>{ if(!$('viewPop').hidden&&!e.target.closest('#viewPop,#viewBtn')) closeViewPop(); });
@@ -2233,6 +2268,19 @@ $('ktPopManage').onclick=()=>{ closeKtPop(); openBmDlg(); };
 document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#ktPop,#ktBtn')) closeKtPop(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('ktPop').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeKtPop(); } },true);
 
+/* Probierfläche für den Stiftdruck im Fenster „Ansicht“ */
+(function(){
+  const box=$('pressTest'), sv=$('pressSvg'); let st=null;
+  box.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); try{ box.setPointerCapture(e.pointerId); }catch(_){}
+    const rc=sv.getBoundingClientRect(), z=rc.width/sv.clientWidth||1, pr=e.pointerType==='pen'&&uiCfg.press!=='off';
+    st={rc,z,pr,pts:[[(e.clientX-rc.left)/z,(e.clientY-rc.top)/z]],ws:[pr?pressW(e.pressure||0.25):1],f:pr?pressW(e.pressure||0.25):1}; box.classList.add('used'); });
+  box.addEventListener('pointermove',e=>{ if(!st) return;
+    const evs=e.getCoalescedEvents?(e.getCoalescedEvents()||[]):[];
+    for(const ev of (evs.length?evs:[e])){ const x=(ev.clientX-st.rc.left)/st.z, y=(ev.clientY-st.rc.top)/st.z, l=st.pts[st.pts.length-1]; if(Math.hypot(x-l[0],y-l[1])<0.8) continue;
+      if(st.pr){ st.f=st.f*0.45+pressW(ev.pressure>0?ev.pressure:0.25)*0.55; } st.pts.push([r(x),r(y)]); st.ws.push(r2(st.f)); }
+    sv.innerHTML=strokeSVG({pts:st.pts,ws:st.pr?st.ws:null,tool:'pen',stroke:'#1c2a2e',sw:3,tip:'round'}); });
+  const end=()=>{ st=null; }; box.addEventListener('pointerup',end); box.addEventListener('pointercancel',end);
+})();
 BG_OK=true;
 /* ---------- Vektor-PDF: Formen bleiben scharf, Text ist echter, durchsuchbarer Text (Roboto Mono eingebettet) ---------- */
 const PDFX={fonts:null,cc:new Map()};

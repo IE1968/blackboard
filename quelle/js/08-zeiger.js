@@ -49,8 +49,11 @@ svg.addEventListener('pointerdown',e=>{
   const base={pid:e.pointerId,sx:e.clientX,sy:e.clientY,w0:w,moved:false};
   if(e.button===1||spaceDown||tool==='pan'){ action={...base,type:'pan',vx:view.x,vy:view.y}; return; }
   const hEl=e.target.closest('[data-h]'), iEl=e.target.closest('#items [data-id]'), item=iEl?byId(iEl.dataset.id):null;
+  if(DRAW[tool]&&e.pointerType==='touch'&&!uiCfg.finger){ action={...base,type:'pan',vx:view.x,vy:view.y}; return; }   /* nur der Stift zeichnet, der Finger verschiebt */
+  if(DRAW[tool]&&e.pointerType==='pen'&&uiCfg.finger&&!uiCfg.fingerSet){ setUi({finger:false,fingerSet:true}); toast('Stift erkannt: Ab jetzt zeichnet nur der Stift, mit dem Finger verschiebst du die Tafel. Umstellen unter „Ansicht“.'); }
   if(DRAW[tool]){
-    action={...base,type:'pen',tool,pts:[[r(w.x),r(w.y)]],ws:[0.45],f:0.45,t:performance.now(),lx:e.clientX,ly:e.clientY};
+    const pr=e.pointerType==='pen'&&tool!=='marker'&&uiCfg.press!=='off', f0=pr?pressW(e.pressure||0.25,e):0.45;
+    action={...base,type:'pen',tool,pr,pts:[[r(w.x),r(w.y)]],ws:[r2(f0)],f:f0,t:performance.now(),lx:e.clientX,ly:e.clientY};
     liveEl=document.createElementNS('http://www.w3.org/2000/svg','g'); liveEl.setAttribute('pointer-events','none');
     liveEl.innerHTML=strokeSVG(Object.assign({pts:action.pts,ws:action.ws,tool},penStyles[tool]));
     itemsG.appendChild(liveEl); return;
@@ -87,13 +90,18 @@ svg.addEventListener('pointermove',e=>{
     view.k=k; view.x=t.mx-wx*k; view.y=t.my-wy*k; applyView(); return; }
   const a=action; if(!a||a.pid!==e.pointerId) return;
   const w=toWorld(e.clientX,e.clientY);
-  if(a.type==='pen'){ const l=a.pts[a.pts.length-1];
-    if(Math.hypot(w.x-l[0],w.y-l[1])*view.k>=2){
-      if(a.tool==='brush'){ const now=performance.now(), v=Math.hypot(e.clientX-a.lx,e.clientY-a.ly)/Math.max(1,now-a.t);
-        const target=(e.pointerType==='pen'&&e.pressure>0)?0.3+e.pressure*1.4:clamp(1.45-v*0.55,0.35,1.45);
-        a.f=a.f*0.65+target*0.35; a.ws.push(r(a.f)); a.t=now; a.lx=e.clientX; a.ly=e.clientY; }
-      a.pts.push([r(w.x),r(w.y)]);
-      liveEl.innerHTML=strokeSVG(Object.assign({pts:a.pts,ws:a.ws,tool:a.tool},penStyles[a.tool])); liveDraft(a); }
+  if(a.type==='pen'){
+    /* Stift: alle Zwischenwerte nutzen (das iPad misst den Pencil viel öfter, als der Bildschirm Ereignisse meldet) */
+    const evs=a.pr&&e.getCoalescedEvents?(e.getCoalescedEvents()||[]):[]; let added=false;
+    for(const ev of (evs.length?evs:[e])){
+      const p=toWorld(ev.clientX,ev.clientY), l=a.pts[a.pts.length-1];
+      if(Math.hypot(p.x-l[0],p.y-l[1])*view.k<(a.pr?0.8:2)) continue;
+      if(a.pr){ const target=pressW(ev.pressure>0?ev.pressure:a.lp||0.25,ev); a.lp=ev.pressure>0?ev.pressure:a.lp; a.f=a.f*0.45+target*0.55; a.ws.push(r2(a.f)); }
+      else if(a.tool==='brush'){ const now=performance.now(), v=Math.hypot(ev.clientX-a.lx,ev.clientY-a.ly)/Math.max(1,now-a.t);
+        a.f=a.f*0.65+clamp(1.45-v*0.55,0.35,1.45)*0.35; a.ws.push(r2(a.f)); a.t=now; a.lx=ev.clientX; a.ly=ev.clientY; }
+      a.pts.push([r(p.x),r(p.y)]); added=true;
+    }
+    if(added){ liveEl.innerHTML=strokeSVG(Object.assign({pts:a.pts,ws:(a.pr||a.tool==='brush')?a.ws:null,tool:a.tool},penStyles[a.tool])); liveDraft(a); }
     return; }
   if(a.type==='erase'){ eraseAt(e); return; }
   if(!a.moved&&Math.hypot(e.clientX-a.sx,e.clientY-a.sy)<4) return;
@@ -180,7 +188,8 @@ function onUp(e){
   switch(a.type){
     case 'pen': if(liveEl){ liveEl.remove(); liveEl=null; }
       { const ps=penStyles[a.tool], it={id:nid(),type:'path',pts:a.pts,stroke:ps.stroke,sw:ps.sw,tool:a.tool,tip:ps.tip};
-        if(a.tool==='brush'){ const n=a.ws.length; [0.45,0.7,0.88].forEach((q,k)=>{ if(n-1-k>0) a.ws[n-1-k]=r(a.ws[n-1-k]*q); }); it.ws=a.ws; }
+        if(a.tool==='brush'&&!a.pr){ const n=a.ws.length; [0.45,0.7,0.88].forEach((q,k)=>{ if(n-1-k>0) a.ws[n-1-k]=r2(a.ws[n-1-k]*q); }); }
+        if((a.pr||a.tool==='brush')&&a.ws.length===a.pts.length) it.ws=a.ws;
         doc.items.push(it); commit(); }
       break;
     case 'erase': if(a.dirty) commit(); break;

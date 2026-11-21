@@ -6,7 +6,7 @@ const SURF={
   slate:{n:'Schiefer',bg:'#2f3a3d',dot:'#4d5c60',dark:true},
   chalk:{n:'Tafelgrün',bg:'#26392e',dot:'#3f5848',dark:true},
   grey:{n:'Hellgrau',bg:'#dcdfe2',dot:'#aab1b7',dark:false},
-  paper:{n:'Papier',bg:'#f4ecd8',dot:'#d4c6a3',dark:false},
+  paper:{n:'Leinenpapier',bg:'#f3f2ee',dot:'#cfccc3',dark:false},
   blue:{n:'Blaupause',bg:'#163a66',dot:'#2f5f96',dark:true},
   heft:{n:'Schulheft',bg:'#fffef6',dot:'#b9d3ec',dark:false}
 };
@@ -67,6 +67,7 @@ function renderViewPop(){
   $('vpTheme').innerHTML=Object.entries(THEMES).map(([k,t])=>`<button type="button" class="vpSw" data-t="${k}" aria-pressed="${uiCfg.theme===k}" title="${t.n}"><span class="vpChip" style="background:${t.sel[0]}"></span><small>${t.n}</small></button>`).join('');
   document.querySelectorAll('#uiRow button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
+  document.querySelectorAll('#pressRow button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.press===uiCfg.press)); $('fingerBtn').setAttribute('aria-pressed',uiCfg.finger);
 }
 function placeViewPop(){
   const p=$('viewPop'), br=$('viewBtn').getBoundingClientRect(), z=uiCfg.scale, w=p.offsetWidth*z;
@@ -85,6 +86,8 @@ $('viewPop').addEventListener('click',e=>{
   else if(t.dataset.m==='ui') setUi({scale:+t.dataset.v,scaleSet:true});
   else if(t.dataset.m==='hc') setUi({hc:!uiCfg.hc});
   else if(t.dataset.m==='snap') setUi({snap:!uiCfg.snap});
+  else if(t.dataset.press) setUi({press:t.dataset.press});
+  else if(t.dataset.m==='finger') setUi({finger:!uiCfg.finger,fingerSet:true});
   renderViewPop(); placeViewPop();
 });
 document.addEventListener('pointerdown',e=>{ if(!$('viewPop').hidden&&!e.target.closest('#viewPop,#viewBtn')) closeViewPop(); });
@@ -110,4 +113,17 @@ $('ktPopManage').onclick=()=>{ closeKtPop(); openBmDlg(); };
 document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#ktPop,#ktBtn')) closeKtPop(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('ktPop').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeKtPop(); } },true);
 
+/* Probierfläche für den Stiftdruck im Fenster „Ansicht“ */
+(function(){
+  const box=$('pressTest'), sv=$('pressSvg'); let st=null;
+  box.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); try{ box.setPointerCapture(e.pointerId); }catch(_){}
+    const rc=sv.getBoundingClientRect(), z=rc.width/sv.clientWidth||1, pr=e.pointerType==='pen'&&uiCfg.press!=='off';
+    st={rc,z,pr,pts:[[(e.clientX-rc.left)/z,(e.clientY-rc.top)/z]],ws:[pr?pressW(e.pressure||0.25):1],f:pr?pressW(e.pressure||0.25):1}; box.classList.add('used'); });
+  box.addEventListener('pointermove',e=>{ if(!st) return;
+    const evs=e.getCoalescedEvents?(e.getCoalescedEvents()||[]):[];
+    for(const ev of (evs.length?evs:[e])){ const x=(ev.clientX-st.rc.left)/st.z, y=(ev.clientY-st.rc.top)/st.z, l=st.pts[st.pts.length-1]; if(Math.hypot(x-l[0],y-l[1])<0.8) continue;
+      if(st.pr){ st.f=st.f*0.45+pressW(ev.pressure>0?ev.pressure:0.25)*0.55; } st.pts.push([r(x),r(y)]); st.ws.push(r2(st.f)); }
+    sv.innerHTML=strokeSVG({pts:st.pts,ws:st.pr?st.ws:null,tool:'pen',stroke:'#1c2a2e',sw:3,tip:'round'}); });
+  const end=()=>{ st=null; }; box.addEventListener('pointerup',end); box.addEventListener('pointercancel',end);
+})();
 BG_OK=true;
