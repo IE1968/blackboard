@@ -33,7 +33,7 @@ try:
     pg.evaluate("(d)=>{const b=JSON.parse(localStorage.getItem('blackboard-boards'));localStorage.setItem('blackboard-b-'+b.cur,JSON.stringify(d));}",{'items':items,'n':10})
     pg.reload(); pg.wait_for_timeout(500); pg.click('#zoomLabel'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
     bb=pg.evaluate("()=>{const r=document.querySelector('#items [data-id=\"a\"]').getBoundingClientRect();return [r.left+20,r.top+20]}")
-    pg.mouse.click(*bb); pg.wait_for_timeout(450); pg.click('#props [data-act="txal"][data-val="right"]'); pg.wait_for_timeout(150)
+    pg.mouse.click(*bb); pg.wait_for_timeout(450); pact(pg,'[data-act="txal"][data-val="right"]'); pg.wait_for_timeout(150)
     check('Ausrichtung rechts gesetzt',[i.get('al') for i in doc()['items'] if i['id']=='a']==['right'])
     pg.screenshot(path='/tmp/bb-tests/al.png')
     pg.mouse.dblclick(*bb); pg.wait_for_timeout(200); check('Editor übernimmt Ausrichtung',pg.evaluate("()=>document.getElementById('editor').style.textAlign")=='right'); pg.keyboard.press('Escape')

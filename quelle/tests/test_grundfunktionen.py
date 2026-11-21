@@ -81,12 +81,12 @@ try:
     ok('Ende b wieder gelöst',C['to'] is None and 'ta' not in C,json.dumps({k:C.get(k) for k in('from','to','fa','ta')}))
     # --- Sperren
     pg.keyboard.press('Escape'); ax,ay=scr(A['x']+10,A['y']+10); pg.mouse.click(ax,ay); pg.wait_for_timeout(80)
-    pg.click('#props [data-act="lock"]'); pg.wait_for_timeout(80)
+    pact(pg,'[data-act="lock"]'); pg.wait_for_timeout(80)
     drag(ax,ay,ax+200,ay+100); d=doc(); A2=[i for i in d['items'] if i['id']==A['id']][0]
     ok('Gesperrt: nicht verschiebbar',A2.get('lock') and A2['x']==A['x'] and A2['y']==A['y'])
     pg.mouse.click(ax,ay); pg.keyboard.press('Delete'); pg.wait_for_timeout(80); d=doc()
     ok('Gesperrt: nicht löschbar',any(i['id']==A['id'] for i in d['items']))
-    pg.wait_for_timeout(600); pg.mouse.click(ax,ay); pg.wait_for_timeout(80); pg.click('#props [data-act="lock"]'); d=doc(); A2=[i for i in d['items'] if i['id']==A['id']][0]
+    pg.wait_for_timeout(600); pg.mouse.click(ax,ay); pg.wait_for_timeout(80); pact(pg,'[data-act="lock"]'); d=doc(); A2=[i for i in d['items'] if i['id']==A['id']][0]
     ok('Entsperren',not A2.get('lock'))
     # --- Gruppe skalieren
     pg.keyboard.press('Escape'); pg.click('#zoomLabel'); pg.wait_for_timeout(150); pg.keyboard.press('Control+a'); pg.wait_for_timeout(80)

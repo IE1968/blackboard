@@ -14,7 +14,7 @@ try:
     pg.reload(); pg.wait_for_timeout(500); pg.click('#zoomLabel'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
     for id in ['a','c']:
         bb=pg.evaluate("(id)=>{const r=document.querySelector('#items [data-id=\"'+id+'\"]').getBoundingClientRect();return [r.left+12,r.top+12]}",id)
-        pg.mouse.click(*bb); pg.wait_for_timeout(450); pg.click('#props [data-act="list"]'); pg.wait_for_timeout(150); pg.keyboard.press('Escape')
+        pg.mouse.click(*bb); pg.wait_for_timeout(450); pact(pg,'[data-act="list"]'); pg.wait_for_timeout(150); pg.keyboard.press('Escape')
     d=pg.evaluate("async()=>{await new Promise(r=>setTimeout(r,400));const b=JSON.parse(localStorage.getItem('blackboard-boards'));const db=await new Promise(r=>{const q=indexedDB.open('blackboard',1);q.onsuccess=()=>r(q.result)});const v=await new Promise(r=>{const q=db.transaction('docs').objectStore('docs').get(b.cur);q.onsuccess=()=>r(q.result)});db.close();return JSON.parse(v)}")
     L={i['id']:i for i in d['items']}
     check('Aufzählung an allen drei',all(L[k].get('list') for k in 'abc'))

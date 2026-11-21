@@ -364,4 +364,14 @@ body.touch #optsToggle::after{height:24px}
 #colorPop .mh{text-align:center;padding:4px 0 8px}
 #colorPop .sws{display:grid;grid-template-columns:repeat(8,26px);gap:6px}
 #colorPop .sw{width:26px;max-width:26px}
+.mface{font-weight:700;font-size:14px;min-width:20px;text-align:center;line-height:20px}
+.mface svg{display:block;width:20px;height:20px;fill:currentColor;stroke:none}
+#colorPop.menu .pmenu{display:flex;flex-direction:column;gap:6px;min-width:170px}
+#colorPop.menu .pmenu .sws{display:flex;gap:6px;grid-template-columns:none}
+#colorPop.menu .pmenu .sws>.pb{flex:1;justify-content:center}
+#colorPop.menu .pb{color:var(--fg);border-color:var(--fg-line);min-height:34px;padding:6px 10px}
+#colorPop.menu .pb:hover{color:var(--accent);border-color:var(--accent)}
+#colorPop.menu .pb[aria-pressed="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
+#colorPop.menu .pb svg{width:18px;height:18px}
+#colorPop.menu .pb.danger{color:#e0553f}
 #props .optPaste{align-self:center}

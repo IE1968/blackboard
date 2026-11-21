@@ -4,7 +4,7 @@ function cname(c){ if(darkBoard){ if(c==='#1c2a2e') return 'Weiß'; if(c==='#fff
 function updateProps(){
   const items=[...sel].map(byId).filter(Boolean), penMode=!items.length, shut=!!palState.optsClosed, ot=$('optsToggle');
   document.body.classList.toggle('opts-closed',shut); ot.setAttribute('aria-expanded',!shut); ot.title=shut?'Optionen zum Werkzeug einblenden':'Optionen zum Werkzeug ausblenden';
-  if(!items.length&&!DRAW[tool]){   /* ohne Auswahl: kurzer Hinweis je nach Werkzeug */
+  if(!items.length&&!DRAW[tool]){ closeColorPop();   /* ohne Auswahl: kurzer Hinweis je nach Werkzeug */
     propsEl.innerHTML=`<div class="optHint">${{shape:'Form antippen: Farbe, Linie, Stärke, Reihenfolge und Gruppe erscheinen hier.',text:'Auf die Tafel tippen und schreiben. Für Größe, Fett und Ausrichtung den Text auswählen.',erase:'Über Striche und Elemente wischen, um sie zu löschen.',pan:'Tafel mit dem Finger oder der Maus verschieben.'}[tool]||'Element antippen: seine Optionen erscheinen hier. Für Stift, Pinsel und Marker oben das Werkzeug wählen.'}</div>`+(hasClip()?`<button class="pb optPaste" data-act="paste" title="Strg+V">Einfügen</button>`:'');
     return; }
   const ps=penStyles[drawTool], cur=items[0]||ps, hasShape=items.some(i=>i.type==='shape'), conns=items.filter(i=>i.type==='conn'), paths=items.filter(i=>i.type==='path');
@@ -12,13 +12,18 @@ function updateProps(){
   /* Farben: ein Knopf mit der aktuellen Farbe, die Auswahl klappt darunter auf */
   const cd=(act,on,none,lab)=>{ CDROP[act]={html:sws(act,on,none,lab),lab}; const c=on&&on!=='none'?mapC(on):null;
     return `<button class="pb cdrop" data-drop="${act}" aria-haspopup="true" title="${lab}: ${on?cname(on):'–'}" aria-label="${lab} wählen"><span class="cdot${c?'':' none'}"${c?` style="background:${c}"`:''}></span><i></i></button>`; };
+  /* Menüs (Text, Element): ein Knopf, die Knöpfe klappen darunter auf */
+  const md=(key,lab,inner,face)=>{ CDROP[key]={html:`<div class="pmenu">${inner}</div>`,lab,menu:true};
+    return `<button class="pb cdrop mdrop" data-drop="${key}" aria-haspopup="true" title="${lab}" aria-label="${lab}: Optionen aufklappen"><span class="mface">${face}</span><i></i></button>`; };
   let h='';
   if(items.length===1&&items[0].type==='shape'&&items[0].mm) h+=`<div class="pg"><b>Mindmap</b><button class="pb wide" data-act="branch" title="Neuen Zweig an diesen Knoten hängen (beim Schreiben: Tab)">+ Zweig</button></div>`;
   if(items.length&&items.every(i=>i.kind==='check')) h+=`<div class="pg"><b>Quiz</b><button class="pb" data-act="qok" aria-pressed="${items.every(i=>i.ok)}" title="Als richtige Antwort markieren. In der Präsentation zeigt „Lösung“ die richtigen Antworten.">Richtig</button></div>`;
   const texty=items.filter(i=>i.type!=='path');
-  if(texty.length) h+=`<div class="pg"><b>Text</b>`+(items.length===1?`<button class="pb wide" data-act="edit">Text ändern</button>`:'')+`<div class="sws two"><button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><button class="pb" data-act="fsup" title="Schrift größer">A+</button></div><div class="sws two"><button class="pb" data-act="bold" aria-pressed="${!!texty[0].bold}" title="Fett">Fett</button><button class="pb" data-act="list" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>i.list)}" title="Aufzählung: jeder Absatz beginnt mit einem Punkt" aria-label="Aufzählung"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.600" fill="currentColor" stroke="none"/><path d="M10 7h10M10 12h10M10 17h10" stroke-linecap="round"/></svg></button></div></div>`;
+  let tm='';   /* Text: Knöpfe kommen in ein Aufklappfeld */
+  if(texty.length) tm=(items.length===1?`<button class="pb wide" data-act="edit">Text ändern</button>`:'')+`<div class="sws two"><button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><button class="pb" data-act="fsup" title="Schrift größer">A+</button></div><div class="sws two"><button class="pb" data-act="bold" aria-pressed="${!!texty[0].bold}" title="Fett">Fett</button><button class="pb" data-act="list" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>i.list)}" title="Aufzählung: jeder Absatz beginnt mit einem Punkt" aria-label="Aufzählung"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.600" fill="currentColor" stroke="none"/><path d="M10 7h10M10 12h10M10 17h10" stroke-linecap="round"/></svg></button></div></div>`;
   const alable=texty.filter(i=>i.type==='shape'&&i.kind!=='pool'&&i.kind!=='frame');
-  if(alable.length){ const A=alOf(alable[0]); h=h.replace(/<\/div><\/div>$/,`</div><div class="sws three"><button class="pb" data-act="txal" data-val="left" aria-pressed="${A==='left'}" title="Linksbündig" aria-label="Linksbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M3 9h9M3 13h14M3 17h9"/></svg></button><button class="pb" data-act="txal" data-val="center" aria-pressed="${A==='center'}" title="Zentriert" aria-label="Zentriert"><svg viewBox="0 0 20 20"><path d="M3 5h14M5.500 9h9M3 13h14M5.500 17h9"/></svg></button><button class="pb" data-act="txal" data-val="right" aria-pressed="${A==='right'}" title="Rechtsbündig" aria-label="Rechtsbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M8 9h9M3 13h14M8 17h9"/></svg></button></div></div>`); }
+  if(alable.length){ const A=alOf(alable[0]); tm=tm.replace(/<\/div><\/div>$/,`</div><div class="sws three"><button class="pb" data-act="txal" data-val="left" aria-pressed="${A==='left'}" title="Linksbündig" aria-label="Linksbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M3 9h9M3 13h14M3 17h9"/></svg></button><button class="pb" data-act="txal" data-val="center" aria-pressed="${A==='center'}" title="Zentriert" aria-label="Zentriert"><svg viewBox="0 0 20 20"><path d="M3 5h14M5.500 9h9M3 13h14M5.500 17h9"/></svg></button><button class="pb" data-act="txal" data-val="right" aria-pressed="${A==='right'}" title="Rechtsbündig" aria-label="Rechtsbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M8 9h9M3 13h14M8 17h9"/></svg></button></div></div>`); }
+  if(tm) h+=`<div class="pg"><b>Text</b>${md('text','Text',tm.replace('<div class="pg"><b>Text</b>','').replace(/<\/div>$/,''),'Aa')}</div>`;
   const onlyText=items.length>0&&items.every(i=>i.type==='shape'&&i.kind==='text');
   if(texty.length){ const t0=texty[0]; h+=`<div class="pg"><b>Schrift</b>${cd('tc',t0.tc||(t0.kind==='text'?t0.stroke:''),false,'Schriftfarbe')}</div>`; }
   if(hasShape) h+=`<div class="pg"><b>${onlyText?'Hintergrund':'Füllung'}</b>${cd('fill',(items.find(i=>i.type==='shape')||{}).fill,true,'Füllung')}</div>`;
@@ -38,20 +43,23 @@ function updateProps(){
     const ab=([v,t,d])=>`<button class="pb" data-act="al" data-val="${v}" title="${t}" aria-label="${t}"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="${d}"/></svg></button>`;
     h+=`<div class="pg"><b>Ausrichten</b><div class="sws three">`+AL.map(ab).join('')+`</div>`+(nUnits>=3?`<div class="sws two">`+[['dh','Waagerecht gleichmäßig verteilen','M3 2v16M17 2v16M8 6h4v8H8z'],['dv','Senkrecht gleichmäßig verteilen','M2 3h16M2 17h16M6 8h8v4H6z']].map(ab).join('')+`</div>`:'')+`</div>`; }
   if(items.length>1||items.some(i=>i.g)) h+=`<div class="pg"><b>Gruppe</b>`+(items.length>1?`<button class="pb" data-act="group" title="Strg+G">Gruppieren</button>`:'')+(items.some(i=>i.g)?`<button class="pb" data-act="ungroup" title="Strg+Umschalt+G">Gruppe lösen</button>`:'')+`</div>`;
-  if(items.length) h+=`<div class="pg"><b>Element</b><button class="pb" data-act="front">Nach vorn</button><button class="pb" data-act="back">Nach hinten</button><button class="pb" data-act="dup">Duplizieren</button><button class="pb" data-act="copy" title="Strg+C">Kopieren</button><button class="pb" data-act="lock" aria-pressed="${items.every(i=>i.lock)}" title="Gesperrte Elemente lassen sich nicht verschieben, ändern oder löschen">${items.every(i=>i.lock)?'Entsperren':'Sperren'}</button><button class="pb danger" data-act="del">Löschen</button>`+(hasClip()?`<button class="pb" data-act="paste" title="Strg+V">Einfügen</button>`:'')+`</div>`;
-  propsEl.innerHTML=h;
+  if(items.length) h+=`<div class="pg"><b>Element</b>${md('elem','Element',`<button class="pb" data-act="front">Nach vorn</button><button class="pb" data-act="back">Nach hinten</button><button class="pb" data-act="dup">Duplizieren</button><button class="pb" data-act="copy" title="Strg+C">Kopieren</button><button class="pb" data-act="lock" aria-pressed="${items.every(i=>i.lock)}" title="Gesperrte Elemente lassen sich nicht verschieben, ändern oder löschen">${items.every(i=>i.lock)?'Entsperren':'Sperren'}</button><button class="pb danger" data-act="del">Löschen</button>`+(hasClip()?`<button class="pb" data-act="paste" title="Strg+V">Einfügen</button>`:''),'<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4.500" cy="10" r="1.600"/><circle cx="10" cy="10" r="1.600"/><circle cx="15.500" cy="10" r="1.600"/></svg>')}</div>`;
+  propsEl.innerHTML=h; refreshPop();
 }
 const CDROP={};
+function refreshPop(){ const p=$('colorPop'); if(!p||p.hidden) return; const info=CDROP[p.dataset.for]; if(!info||!$('props').querySelector(`[data-drop="${p.dataset.for}"]`)){ closeColorPop(); return; } p.classList.toggle('menu',!!info.menu); p.innerHTML=`<div class="mh">${esc(info.lab)}</div>`+info.html; }
 function closeColorPop(){ const p=$('colorPop'); if(p&&!p.hidden){ p.hidden=true; p.innerHTML=''; } }
 propsEl.addEventListener('click',e=>{
   const d=e.target.closest('[data-drop]');
   if(d){ e.stopPropagation(); const p=$('colorPop'), info=CDROP[d.dataset.drop]; if(!info) return;
     if(!p.hidden&&p.dataset.for===d.dataset.drop){ closeColorPop(); return; }
-    p.innerHTML=`<div class="mh">${esc(info.lab)}</div>`+info.html; p.dataset.for=d.dataset.drop; p.hidden=false;
+    p.dataset.for=d.dataset.drop; p.hidden=false; refreshPop();
     const r=d.getBoundingClientRect(), z=uiCfg.scale, w=p.offsetWidth*z; p.style.left=Math.max(6,Math.min(innerWidth-w-6,r.left+r.width/2-w/2))/z+'px'; p.style.top=(r.bottom+6)/z+'px'; return; }
   const b=e.target.closest('[data-act]'); if(b) propsAct(b);
 });
-$('colorPop').addEventListener('click',e=>{ e.stopPropagation(); const b=e.target.closest('[data-act]'); if(!b) return; closeColorPop(); propsAct(b); });
+$('colorPop').addEventListener('click',e=>{ e.stopPropagation(); const b=e.target.closest('[data-act]'); if(!b||b.disabled) return;
+  const keep=['fsup','fsdown','bold','list','txal','front','back','lock'].includes(b.dataset.act);   /* Formatieren: Feld bleibt offen */
+  if(!keep) closeColorPop(); propsAct(b); if(keep) refreshPop(); });
 document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#colorPop,[data-drop]')) closeColorPop(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('colorPop').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeColorPop(); } },true);
 function propsAct(b){

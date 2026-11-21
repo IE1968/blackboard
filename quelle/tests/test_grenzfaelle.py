@@ -26,7 +26,7 @@ try:
     load([S('f','frame',0,0,640,360,fill='none',ord=1),S('a','rect',100,100,140,80,'Inhalt'),S('t','text',100,40,300,40,'Titel',fill='none')])
     clickW(320,0)
     sel=pg.evaluate("()=>document.querySelector('#props').textContent.includes('Folie')")
-    pg.click('#props [data-act="dup"]'); pg.wait_for_timeout(150); d=doc()
+    pact(pg,'[data-act="dup"]'); pg.wait_for_timeout(150); d=doc()
     check('Folie duplizieren kopiert Inhalt mit',sum(1 for i in d['items'] if i.get('kind')=='frame')==2 and len(d['items'])>=6)
     # 2 Folie löschen: Inhalt?
     load([S('f','frame',0,0,640,360,fill='none',ord=1),S('a','rect',100,100,140,80,'Inhalt')])

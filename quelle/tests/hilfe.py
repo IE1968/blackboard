@@ -18,3 +18,14 @@ def check(name,cond,extra=''):
 def openFile(pg):
     """Datei-Leiste rechts öffnen (falls sie zu ist)."""
     pg.evaluate("()=>{ if(document.querySelector('main').classList.contains('props-closed')) document.getElementById('menuBtn').click() }"); pg.wait_for_timeout(120)
+
+def pact(pg,sel):
+    """Knopf in der Optionsleiste klicken; liegt er in einem Aufklappfeld (Text, Element), dieses vorher öffnen."""
+    loc=pg.locator('#props '+sel)
+    if loc.count() and loc.first.is_visible(): loc.first.click(); return
+    for i in range(pg.locator('#props .mdrop').count()):
+        if pg.locator('#colorPop:not([hidden]) '+sel).count()==0:
+            pg.evaluate("()=>{const p=document.getElementById('colorPop'); p.hidden=true; p.innerHTML=''}")
+            pg.locator('#props .mdrop').nth(i).click(); pg.wait_for_timeout(80)
+        if pg.locator('#colorPop:not([hidden]) '+sel).count(): pg.locator('#colorPop '+sel).first.click(); return
+    raise AssertionError('Knopf nicht gefunden: '+sel)
