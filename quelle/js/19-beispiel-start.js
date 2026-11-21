@@ -22,7 +22,6 @@ function start(data){
   doc=hot||storedDoc(boards.cur)||exampleDoc(); fitTexts(); hist=[]; hi=-1; commit(); setTool('select'); render(); if(isNewer(doc)) setTimeout(newerWarn,600);
   $('boardName').value=curBoard().name;
   if(data&&data.view){ view=data.view; applyView(); } else fit();
-  setSync(syncCfg?'wait':'off'); if(syncCfg) scheduleSync(800);
   liveFromHash(); liveBadge(); liveViewMode(); ktStart();
 }
 try{ window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.hot.snapshot(()=>({doc,view})); }catch(e){}

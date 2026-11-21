@@ -66,7 +66,7 @@ main.pal-closed{--palw:0px}
 #palHandle{position:absolute;left:var(--palw);top:50%;transform:translateY(-50%);z-index:15;width:calc(28px*var(--ui));height:calc(92px*var(--ui));padding:0;border-radius:0 12px 12px 0;background:var(--panel);border:1px solid var(--line);border-left:0;color:var(--ink);font-size:calc(24px*var(--ui));line-height:1}
 #palHandle:hover,#propsToggle:hover{color:var(--ink);background:var(--hover)}
 #propsToggle{position:absolute;right:var(--propw);top:50%;transform:translateY(-50%);z-index:6;width:calc(28px*var(--ui));height:calc(92px*var(--ui));padding:0;border-radius:12px 0 0 12px;background:var(--panel);border:1px solid var(--line);border-right:0;color:var(--ink);font-size:calc(24px*var(--ui));line-height:1}
-#palette,#props,#toast,#syncForm{zoom:var(--ui)}
+#palette,#props,#toast{zoom:var(--ui)}
 #palette{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding:10px 6px 20px}
 .gh{display:flex;align-items:center;gap:6px;width:100%;font:600 11px/1 var(--body);letter-spacing:.03em;text-transform:uppercase;color:var(--muted);padding:8px 2px;margin-top:4px;text-align:left;font-size:10px;line-height:1.25;white-space:normal;overflow-wrap:break-word}
 .gh:hover{background:var(--hover);color:var(--ink)}
@@ -152,9 +152,7 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 #ktForm .ktKeep input{width:18px;height:18px;accent-color:var(--accent)}
 #ktMsg{min-height:20px;font-size:13px;margin-top:8px}
 #ktGo{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-#syncDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
-#syncForm{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:400px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
-#syncForm h2,#keysBox h2{margin:0 0 4px;font:600 17px/1.2 var(--body)}
+#keysBox h2{margin:0 0 4px;font:600 17px/1.2 var(--body)}
 #slides{position:absolute;left:0;right:0;bottom:0;zoom:var(--ui);z-index:15;background:var(--panel);border-top:1px solid var(--line);display:flex;flex-direction:column}
 #slides[hidden]{display:none}
 #slides .sh{display:flex;align-items:center;gap:6px;padding:6px 10px 0}
@@ -187,14 +185,8 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 #keysBox dt{white-space:nowrap}
 #keysBox kbd{display:inline-block;min-width:22px;padding:2px 6px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;font:500 12px/1.3 var(--body);text-align:center}
 #keysBox dd{margin:0;color:var(--ink)}
-#syncForm p{margin:0 0 8px;color:var(--muted);font-size:13px}
-#syncForm label{font-size:12px;font-weight:500;color:var(--muted);margin-top:6px}
-#syncForm input{font:400 16px/1.2 var(--body);color:var(--ink);background:var(--chrome);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-width:0}
-#syncForm input:focus{outline:none;border-color:var(--accent)}
-#syMsg{min-height:20px;font-size:13px;margin-top:8px}
 .dlgBtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .dlgBtns .pb{padding:9px 14px;font-size:14px}
-#syGo{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 #menuBtn{position:relative}
 #liveBadge{flex:0 0 auto;font-size:11px;font-weight:600;letter-spacing:.06em;padding:4px 8px;border-radius:999px;background:#1e63d0;color:#fff;white-space:nowrap}
 #liveBadge[data-role="view"]{background:#7446c9}
@@ -223,9 +215,6 @@ body.compact.midwide .bar:has(#liveBadge:not([hidden])){grid-template-columns:au
 .lvRow button{padding:6px 10px;border:1px solid var(--line);border-radius:8px}
 body.liveview #palette,body.liveview #palHandle,body.liveview #props,body.liveview #propsToggle,body.liveview #undo,body.liveview #redo,
 body.liveview #tools .tb:not([data-tool="pan"]),body.liveview #menu [data-m="clear"],body.liveview #menu [data-m="example"],body.liveview #menu [data-m="tpl"],body.liveview #menu [data-m="img"],body.liveview #menu [data-m="open"]{display:none!important}
-#menuBtn[data-sync]::after{content:'';position:absolute;top:4px;right:6px;width:9px;height:9px;border-radius:50%;background:#3ecf6e;border:2px solid var(--panel)}
-#menuBtn[data-sync="busy"]::after,#menuBtn[data-sync="wait"]::after{background:#f2c200}
-#menuBtn[data-sync="err"]::after,#menuBtn[data-sync="auth"]::after{background:#ff6b57}
 #sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 #board:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 #toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);font-weight:500;padding:8px 14px;border-radius:10px;font-size:13px;z-index:20;max-width:calc(100% - 24px)}
@@ -357,13 +346,6 @@ body.compact #playBtn{display:none}
       <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Live-Link einfügen" aria-label="Live-Link zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
       <hr>
     </div>
-    <div id="syncSec">
-      <div class="mh">Synchronisierung</div>
-      <div class="mh" id="syncInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nicht eingerichtet</div>
-      <button data-m="syncnow" id="syncNowBtn" hidden>Jetzt synchronisieren</button>
-      <button data-m="synccfg" id="syncCfgBtn">Einrichten …</button>
-      <hr>
-    </div>
     <div class="mh">Anzeige</div>
     <div class="mrow" id="uiRow"><button data-m="ui" data-v="1">100 %</button><button data-m="ui" data-v="1.25">125 %</button><button data-m="ui" data-v="1.5">150 %</button></div>
     <button data-m="hc" id="hcBtn">Hoher Kontrast: aus</button>
@@ -431,17 +413,6 @@ body.compact #playBtn{display:none}
     <label class="ktKeep"><input id="ktKeep" type="checkbox" checked> Angemeldet bleiben</label>
     <div id="ktMsg" role="status"></div>
     <div class="dlgBtns"><button type="submit" class="pb" id="ktGo">Anmelden</button><button type="button" class="pb" id="ktClose">Abbrechen</button></div>
-  </form>
-</div>
-<div id="syncDlg" hidden role="dialog" aria-modal="true" aria-labelledby="syTitle">
-  <form id="syncForm" autocomplete="off">
-    <h2 id="syTitle">Synchronisierung über GitHub</h2>
-    <p>Skizix legt deine Boards als Dateien in einem privaten GitHub-Repository ab. Die Angaben bleiben nur auf diesem Gerät gespeichert.</p>
-    <label for="syOwner">GitHub-Benutzername</label><input id="syOwner" type="text" autocapitalize="off" autocorrect="off" spellcheck="false">
-    <label for="syRepo">Repository für die Boards</label><input id="syRepo" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="z. B. Boards">
-    <label for="syToken">Zugangsschlüssel (Token)</label><input id="syToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
-    <div id="syMsg" role="status"></div>
-    <div class="dlgBtns"><button type="submit" class="pb" id="syGo">Verbinden</button><button type="button" class="pb danger" id="syOff" hidden>Trennen</button><button type="button" class="pb" id="syClose">Schließen</button></div>
   </form>
 </div>
 <div id="tplDlg" hidden role="dialog" aria-modal="true" aria-labelledby="tplTitle"><div id="tplBox" tabindex="-1"><h2 id="tplTitle">Vorlage einfügen</h2><div id="tplGrid"></div><div class="dlgBtns"><button type="button" class="pb" id="tplClose">Schließen</button></div></div></div>
@@ -1089,7 +1060,7 @@ function fit(){
 const IDX='blackboard-boards', BK='blackboard-b-';
 let boards={cur:'b1',list:[{id:'b1',name:'Board 1'}],del:[],v:2};
 function genId(){ return 'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-function markDirty(b){ b=b||curBoard(); b.dirty=true; b.rev=(b.rev||0)+1; b.updated=Date.now(); saveIdx(); scheduleSync(4000); }
+function markDirty(b){ b=b||curBoard(); b.dirty=true; b.rev=(b.rev||0)+1; b.updated=Date.now(); saveIdx(); }
 /* Mehrere Fenster derselben App (z. B. installierte App und Browser-Tab) halten sich gegenseitig auf dem neuesten Stand */
 let bcast=null; try{ bcast=new BroadcastChannel('blackboard'); }catch(e){}
 function announce(m){ try{ bcast&&bcast.postMessage(m); }catch(e){} }
@@ -1234,17 +1205,16 @@ function newBoard(){
   const nb={id,name:'Board '+n}; boards.list.push(nb); docSet(id,JSON.stringify({items:[],n:0,fmt:DOC_FMT})); openBoard(id); markDirty(nb); ktSoon(500);
 }
 function deleteBoard(){ if(boards.list.length<2) return; removeBoards([boards.cur]); }
-/* Boards löschen (auch mehrere). Bleibt keins übrig, entsteht ein leeres neues. Löschen wird an GitHub-Abgleich und Konto weitergegeben. */
+/* Boards löschen (auch mehrere). Bleibt keins übrig, entsteht ein leeres neues. Löschen wird ans Konto weitergegeben. */
 function removeBoards(ids){
   const set=new Set(ids), gone=boards.list.filter(b=>set.has(b.id)); if(!gone.length) return 0;
-  for(const b of gone){ if(b.sha) boards.del.push({id:b.id,sha:b.sha}); ktGone(b); docDel(b.id); }
+  for(const b of gone){ ktGone(b); docDel(b.id); }
   boards.list=boards.list.filter(b=>!set.has(b.id));
   if(!boards.list.length){ const nb={id:genId(),name:'Board 1'}; boards.list.push(nb); docSet(nb.id,JSON.stringify({items:[],n:0,fmt:DOC_FMT})); markDirty(nb); ktSoon(500); }
   if(set.has(boards.cur)) openBoard(boards.list[0].id); else saveIdx();
-  scheduleSync(1500); return gone.length;
+  return gone.length;
 }
 function renderBoardList(){
-  renderSyncInfo();
   $('boardList').innerHTML=boards.list.map(b=>`<button data-b="${b.id}" aria-current="${b.id===boards.cur}">${b.id===boards.cur?'✓ ':''}${esc(b.name)}</button>`).join('');
   const d=$('delBoard'); d.textContent='Dieses Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
 }
@@ -2354,8 +2324,6 @@ menu.addEventListener('click',e=>{
     case 'img': pickImage(); break;
     case 'slides': toggleSlides(true); break;
     case 'play': startPres(); break;
-    case 'syncnow': syncNow(true); break;
-    case 'synccfg': openSyncDlg(); break;
     case 'livestart': liveStart(); break;
     case 'liveshare': openLiveDlg(); break;
     case 'livestop': liveStop(); break;
@@ -2641,148 +2609,13 @@ document.addEventListener('keydown',e=>{   /* während der Präsentation gehöre
 },true);
 document.addEventListener('keyup',e=>{ if(pres) e.stopImmediatePropagation(); },true);
 
-/* ---------- Synchronisierung über ein privates GitHub-Repository ---------- */
-const SYNC_KEY='blackboard-sync', canSync=!window.claude;
-let syncCfg=null, syncBusy=false, syncAgain=false, syncTimer=null, syncState='off', syncAt=0, syncErr='';
-try{ const c=JSON.parse(lsGet(SYNC_KEY)); if(c&&c.owner&&c.repo&&c.token) syncCfg=c; }catch(e){}
-function b64(str){ const u=new TextEncoder().encode(str); let t=''; for(let i=0;i<u.length;i+=8192) t+=String.fromCharCode.apply(null,u.subarray(i,i+8192)); return btoa(t); }
-function ghApi(cfg,path,opt){
-  opt=opt||{}; const get=!opt.method||opt.method==='GET';
-  const h={Authorization:'Bearer '+cfg.token,Accept:opt.raw?'application/vnd.github.raw+json':'application/vnd.github+json'};
-  if(opt.body) h['Content-Type']='application/json';
-  return fetch((cfg.api||'https://api.github.com')+'/repos/'+encodeURIComponent(cfg.owner)+'/'+encodeURIComponent(cfg.repo)+path+(get?'?_='+Date.now():''),
-    {method:opt.method||'GET',cache:'no-store',headers:h,body:opt.body?JSON.stringify(opt.body):undefined});
-}
-function setSync(st,err){
-  syncState=st; syncErr=err||''; if(st==='ok') syncAt=Date.now();
-  if(syncCfg&&!ktOn()) $('menuBtn').dataset.sync=st; else delete $('menuBtn').dataset.sync;
-  renderSyncInfo();
-}
-function renderSyncInfo(){
-  $('syncSec').hidden=!canSync; if(!canSync) return;
-  const t=syncAt?new Date(syncAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}):'';
-  $('syncInfo').textContent=!syncCfg?'Nicht eingerichtet':ktOn()?'Pausiert: Deine Boards laufen über dein Konto':syncState==='busy'?'Wird synchronisiert …':syncState==='wait'?'Änderungen warten auf den Abgleich':
-    syncState==='auth'?'Zugang abgelehnt: Schlüssel prüfen':syncState==='err'?(syncErr||'Keine Verbindung')+' – wird erneut versucht':t?'Synchronisiert um '+t+' Uhr':'Verbunden mit '+syncCfg.owner+'/'+syncCfg.repo;
-  $('syncNowBtn').hidden=!syncCfg||ktOn(); $('syncCfgBtn').textContent=syncCfg?'Einstellungen …':'Einrichten …';
-  liveBadge();
-}
-function scheduleSync(ms){
-  if(!syncCfg||!canSync||ktOn()) return;   /* mit Konto läuft alles über Supabase; zwei Abgleiche gleichzeitig würden Boards verdoppeln */
-  if(syncState!=='busy'&&boards.list.some(b=>b.dirty)) setSync('wait');
-  clearTimeout(syncTimer); syncTimer=setTimeout(()=>syncNow(false),ms);
-}
-function localDoc(id){ return id===boards.cur?doc:(storedDoc(id)||{items:[],n:0}); }
-function takeRemote(id,data,sha){
-  let b=boards.list.find(x=>x.id===id); if(!b){ b={id}; boards.list.push(b); }
-  b.name=String(data.name||'Board'); b.sha=sha; b.dirty=false; b.updated=data.updated||Date.now();
-  if(typeof data.live==='string'&&/^[A-Za-z0-9]{20,64}$/.test(data.live)) b.live=data.live;
-  else if(typeof data.tok==='string'&&/^[A-Za-z0-9]{20,64}$/.test(data.tok)){ b.tok=data.tok; b.role=data.role==='view'?'view':'edit'; b.exp=+data.exp||null; }
-  docSet(id,JSON.stringify(data.doc));
-  if(id===boards.cur){ doc=data.doc; fitTexts(); hist=[]; hi=-1; sel.clear(); commit(); render(); $('boardName').value=b.name; if(isNewer(doc)) newerWarn(); }
-}
-function keepLocalCopy(b){
-  const id=genId(); docSet(id,JSON.stringify(localDoc(b.id)));
-  boards.list.push({id,name:b.name+' (lokale Kopie)',dirty:true,rev:1,updated:Date.now()});
-  toast('„'+b.name+'“ wurde auf einem anderen Gerät geändert. Deine Fassung liegt als „'+b.name+' (lokale Kopie)“ bereit.');
-}
-function dropLocalBoard(id){
-  docDel(id); boards.list=boards.list.filter(b=>b.id!==id);
-  if(!boards.list.length){ const nb={id:genId(),name:'Board 1'}; boards.list.push(nb); docSet(nb.id,JSON.stringify({items:[],n:0,fmt:DOC_FMT})); }
-  if(boards.cur===id) openBoard(boards.list[0].id);
-}
-async function syncNow(manual){
-  if(!syncCfg||!canSync||ktOn()) return;
-  if(syncBusy){ syncAgain=true; return; }
-  if(action||editing){ scheduleSync(2000); return; }
-  syncBusy=true; setSync('busy'); const cfg=syncCfg;
-  const fail=r=>{ throw {code:(r.status===401||r.status===403)?'auth':'http',status:r.status}; };
-  try{
-    /* 1. Was liegt auf dem Server? */
-    const remote={}, lr=await ghApi(cfg,'/contents/boards');
-    if(lr.ok){ for(const f of await lr.json()) if(f.type==='file'&&/\.json$/.test(f.name)) remote[f.name.slice(0,-5)]=f.sha; }
-    else if(lr.status!==404) fail(lr);
-    /* 2. Neues und Geändertes vom Server holen */
-    for(const id in remote){
-      if(boards.del.some(d=>d.id===id)) continue;
-      const loc=boards.list.find(b=>b.id===id); if(loc&&loc.sha===remote[id]) continue;
-      if(loc&&(loc.live||loc.tok)){ loc.sha=remote[id]; continue; }   /* Live-Boards gleichen sich über Supabase ab; GitHub dient nur als Sicherung */
-      const r=await ghApi(cfg,'/contents/boards/'+id+'.json',{raw:true}); if(!r.ok){ if(r.status===401||r.status===403) fail(r); continue; }
-      let data=null; try{ data=JSON.parse(await r.text()); }catch(e){}
-      const cd=data&&cleanDoc(data.doc); if(!cd) continue; data.doc=cd;
-      if(action||editing){ syncAgain=true; continue; }
-      if(loc&&loc.dirty) keepLocalCopy(loc);
-      takeRemote(id,data,remote[id]);
-    }
-    /* 3. Auf einem anderen Gerät gelöschte Boards entfernen */
-    for(const b of boards.list.slice()) if(b.sha&&!(b.id in remote)){ if(b.dirty) delete b.sha; else dropLocalBoard(b.id); }
-    /* 4. Eigene Änderungen hochladen */
-    for(const b of boards.list.slice()){
-      if(!b.dirty) continue; const rev=b.rev||0;
-      if(isNewer(localDoc(b.id))) continue;   /* aus neuerer App-Version: erst nach dem Aktualisieren abgleichen */
-      const body={message:'Skizix: '+b.name,content:b64(JSON.stringify({id:b.id,name:b.name,live:b.live||undefined,tok:b.tok||undefined,role:b.tok?b.role:undefined,exp:b.tok&&b.exp||undefined,updated:b.updated||Date.now(),doc:localDoc(b.id)}))}; if(b.sha) body.sha=b.sha;
-      const r=await ghApi(cfg,'/contents/boards/'+b.id+'.json',{method:'PUT',body});
-      if(r.ok){ const j=await r.json(); b.sha=j.content.sha; if((b.rev||0)===rev) b.dirty=false; else syncAgain=true; }
-      else if(r.status===409||r.status===422) syncAgain=true;
-      else fail(r);
-    }
-    /* 5. Hier gelöschte Boards auch auf dem Server löschen */
-    for(const d of boards.del.slice()){
-      if(d.id in remote){ const r=await ghApi(cfg,'/contents/boards/'+d.id+'.json',{method:'DELETE',body:{message:'Skizix: Board gelöscht',sha:remote[d.id]}});
-        if(!r.ok&&r.status!==404&&r.status!==409&&r.status!==422) fail(r); if(r.status===409||r.status===422){ syncAgain=true; continue; } }
-      boards.del=boards.del.filter(x=>x.id!==d.id);
-    }
-    saveIdx(); setSync(boards.list.some(b=>b.dirty)?'wait':'ok'); if(manual) toast('Boards sind synchronisiert.');
-  }catch(e){
-    saveIdx();
-    if(e&&e.code==='auth') setSync('auth'); else setSync('err',e&&e.status?'Serverfehler '+e.status:'Keine Verbindung');
-    if(manual) toast(e&&e.code==='auth'?'GitHub lehnt den Zugang ab. Prüfe den Schlüssel unter „Einstellungen“.':'Der Abgleich hat nicht geklappt. Es wird später erneut versucht.');
-    if(!e||e.code!=='auth'){ clearTimeout(syncTimer); syncTimer=setTimeout(()=>syncNow(false),30000); }
-  }finally{
-    syncBusy=false; if(syncAgain){ syncAgain=false; scheduleSync(1500); }
-  }
-}
-function openSyncDlg(){
-  const m=location.hostname.match(/^([^.]+)\.github\.io$/);
-  $('syOwner').value=syncCfg?syncCfg.owner:(m?m[1]:''); $('syRepo').value=syncCfg?syncCfg.repo:''; $('syToken').value=syncCfg?syncCfg.token:'';
-  $('syMsg').textContent=syncCfg?'Verbunden mit '+syncCfg.owner+'/'+syncCfg.repo+'.':''; $('syOff').hidden=!syncCfg; $('syncDlg').hidden=false;
-  ($('syOwner').value?($('syRepo').value?$('syToken'):$('syRepo')):$('syOwner')).focus();
-}
-function closeSyncDlg(){ if($('syncDlg').hidden) return; $('syncDlg').hidden=true; $('menuBtn').focus(); }
+/* ---------- Menü schließen ---------- */
 function closeMenu(focus){ if(menu.hidden) return; menu.hidden=true; $('menuBtn').setAttribute('aria-expanded','false'); if(focus) $('menuBtn').focus(); }
-$('syClose').onclick=closeSyncDlg;
-$('syncDlg').addEventListener('pointerdown',e=>{ if(e.target===$('syncDlg')) closeSyncDlg(); });
-$('syncDlg').addEventListener('keydown',e=>{   /* Tab bleibt im Dialog */
-  if(e.key!=='Tab') return; const f=[...$('syncForm').querySelectorAll('input,button')].filter(x=>!x.hidden&&!x.disabled); if(!f.length) return;
-  const first=f[0], last=f[f.length-1];
-  if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); } else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
-});
-document.addEventListener('keydown',e=>{   /* Esc schließt Dialog und Menü, auch wenn der Fokus in einem Eingabefeld steht */
-  if(e.key!=='Escape') return;
-  if(!$('syncDlg').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeSyncDlg(); }
-  else if(!menu.hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeMenu(true); }
+document.addEventListener('keydown',e=>{   /* Esc schließt das Menü, auch wenn der Fokus in einem Eingabefeld steht */
+  if(e.key!=='Escape'||menu.hidden) return; e.preventDefault(); e.stopImmediatePropagation(); closeMenu(true);
 },true);
-$('syOff').onclick=()=>{ syncCfg=null; lsDel(SYNC_KEY); clearTimeout(syncTimer); setSync('off'); $('syncDlg').hidden=true; toast('Synchronisierung getrennt. Die Boards bleiben auf diesem Gerät und auf GitHub erhalten.'); };
-$('syncForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  const cfg={owner:$('syOwner').value.trim(),repo:$('syRepo').value.trim(),token:$('syToken').value.trim()}, msg=$('syMsg');
-  if(syncCfg&&syncCfg.api) cfg.api=syncCfg.api;
-  if(!cfg.owner||!cfg.repo||!cfg.token){ msg.textContent='Bitte alle drei Felder ausfüllen.'; return; }
-  msg.textContent='Verbindung wird geprüft …'; $('syGo').disabled=true;
-  try{
-    const r=await ghApi(cfg,'');
-    if(r.status===401){ msg.textContent='GitHub erkennt den Schlüssel nicht. Prüfe, ob er vollständig kopiert und noch gültig ist.'; return; }
-    if(r.status===404||r.status===403){ msg.textContent='Repository nicht gefunden, oder der Schlüssel darf nicht darauf zugreifen. Prüfe Benutzername, Repository-Name und die Auswahl beim Schlüssel.'; return; }
-    if(!r.ok){ msg.textContent='GitHub meldet Fehler '+r.status+'. Versuch es später noch einmal.'; return; }
-    const info=await r.json();
-    if(info.permissions&&info.permissions.push===false){ msg.textContent='Der Schlüssel darf nur lesen. Stelle bei GitHub „Contents“ auf „Read and write“.'; return; }
-    syncCfg=cfg; lsSet(SYNC_KEY,JSON.stringify(cfg)); $('syncDlg').hidden=true; setSync('busy'); syncNow(true);
-  }catch(err){ msg.textContent='Keine Verbindung zu GitHub. Prüfe die Internetverbindung.'; }
-  finally{ $('syGo').disabled=false; }
-});
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden) scheduleSync(600); });
-window.addEventListener('online',()=>scheduleSync(600));
-setInterval(()=>{ if(syncCfg&&!document.hidden&&!syncBusy) syncNow(false); },90000);
-
+/* Der frühere Abgleich über ein GitHub-Repository ist entfernt (ersetzt durch das Konto). Gespeicherte Zugangsdaten werden gelöscht. */
+try{ localStorage.removeItem('blackboard-sync'); }catch(e){}
 
 /* ---------- Live: dasselbe Board auf mehreren Geräten gleichzeitig (über Supabase) ----------
    Besitzer: kennt den geheimen Board-Schlüssel (b.live) und verwaltet die Freigabe-Links. Der Schlüssel wird nie als Link weitergegeben;
@@ -3202,7 +3035,7 @@ async function ktSync(){
   }catch(e){ if(e&&e.status===404) ktUi('Konto-Tabelle fehlt in Supabase. Bitte das Skript 01-konto.sql ausführen.'); }
   finally{ KT.busy=false; if(KT.again) setTimeout(ktSync,300); }
 }
-/* Zwei Boards mit demselben Schlüssel auf einem Gerät (z. B. einmal vom Konto, einmal vom alten GitHub-Abgleich): eins behalten */
+/* Zwei Boards mit demselben Schlüssel auf einem Gerät (z. B. aus dem früheren GitHub-Abgleich): eins behalten */
 function ktDedupe(){
   const seen=new Map(), extra=[];
   for(const b of boards.list){ if(!b.live) continue; const o=seen.get(b.live); if(!o){ seen.set(b.live,b); continue; }
@@ -3220,7 +3053,7 @@ function ktGone(b){
   if(KT.s) ktSoon(300);
 }
 function ktSignedOut(msg){
-  KT.s=null; ktStore(null); ktUi(); setSync(syncCfg?'wait':'off'); if(syncCfg) scheduleSync(800); if(msg) toast(msg);
+  KT.s=null; ktStore(null); ktUi(); if(msg) toast(msg);
 }
 function ktUi(note){
   const on=!!KT.s;
@@ -3238,7 +3071,7 @@ $('ktForm').addEventListener('submit',async e=>{
   try{
     const j=await ktAuth('token?grant_type=password',{email:mail,password:pw});
     KT.s=ktFrom(j,keep); ktStore(KT.s); try{ lsSet('skizix-konto-mail',mail); }catch(_){}
-    clearTimeout(syncTimer); closeKtDlg(); ktUi(); renderSyncInfo(); setSync(syncState); toast('Angemeldet. Deine Boards werden mit dem Konto abgeglichen …'); ktSync();
+    closeKtDlg(); ktUi(); toast('Angemeldet. Deine Boards werden mit dem Konto abgeglichen …'); ktSync();
   }catch(err){
     msg.textContent=err&&err.code==='invalid_credentials'||(err&&err.status===400&&/invalid/i.test(err.msg||''))?'E-Mail-Adresse oder Passwort stimmt nicht.'
       :err&&err.code==='email_not_confirmed'?'Die E-Mail-Adresse ist noch nicht bestätigt.'
@@ -3289,7 +3122,6 @@ function start(data){
   doc=hot||storedDoc(boards.cur)||exampleDoc(); fitTexts(); hist=[]; hi=-1; commit(); setTool('select'); render(); if(isNewer(doc)) setTimeout(newerWarn,600);
   $('boardName').value=curBoard().name;
   if(data&&data.view){ view=data.view; applyView(); } else fit();
-  setSync(syncCfg?'wait':'off'); if(syncCfg) scheduleSync(800);
   liveFromHash(); liveBadge(); liveViewMode(); ktStart();
 }
 try{ window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.hot.snapshot(()=>({doc,view})); }catch(e){}

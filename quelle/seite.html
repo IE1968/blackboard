@@ -85,13 +85,6 @@
       <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Live-Link einfügen" aria-label="Live-Link zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
       <hr>
     </div>
-    <div id="syncSec">
-      <div class="mh">Synchronisierung</div>
-      <div class="mh" id="syncInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nicht eingerichtet</div>
-      <button data-m="syncnow" id="syncNowBtn" hidden>Jetzt synchronisieren</button>
-      <button data-m="synccfg" id="syncCfgBtn">Einrichten …</button>
-      <hr>
-    </div>
     <div class="mh">Anzeige</div>
     <div class="mrow" id="uiRow"><button data-m="ui" data-v="1">100 %</button><button data-m="ui" data-v="1.25">125 %</button><button data-m="ui" data-v="1.5">150 %</button></div>
     <button data-m="hc" id="hcBtn">Hoher Kontrast: aus</button>
@@ -159,17 +152,6 @@
     <label class="ktKeep"><input id="ktKeep" type="checkbox" checked> Angemeldet bleiben</label>
     <div id="ktMsg" role="status"></div>
     <div class="dlgBtns"><button type="submit" class="pb" id="ktGo">Anmelden</button><button type="button" class="pb" id="ktClose">Abbrechen</button></div>
-  </form>
-</div>
-<div id="syncDlg" hidden role="dialog" aria-modal="true" aria-labelledby="syTitle">
-  <form id="syncForm" autocomplete="off">
-    <h2 id="syTitle">Synchronisierung über GitHub</h2>
-    <p>Skizix legt deine Boards als Dateien in einem privaten GitHub-Repository ab. Die Angaben bleiben nur auf diesem Gerät gespeichert.</p>
-    <label for="syOwner">GitHub-Benutzername</label><input id="syOwner" type="text" autocapitalize="off" autocorrect="off" spellcheck="false">
-    <label for="syRepo">Repository für die Boards</label><input id="syRepo" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="z. B. Boards">
-    <label for="syToken">Zugangsschlüssel (Token)</label><input id="syToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
-    <div id="syMsg" role="status"></div>
-    <div class="dlgBtns"><button type="submit" class="pb" id="syGo">Verbinden</button><button type="button" class="pb danger" id="syOff" hidden>Trennen</button><button type="button" class="pb" id="syClose">Schließen</button></div>
   </form>
 </div>
 <div id="tplDlg" hidden role="dialog" aria-modal="true" aria-labelledby="tplTitle"><div id="tplBox" tabindex="-1"><h2 id="tplTitle">Vorlage einfügen</h2><div id="tplGrid"></div><div class="dlgBtns"><button type="button" class="pb" id="tplClose">Schließen</button></div></div></div>

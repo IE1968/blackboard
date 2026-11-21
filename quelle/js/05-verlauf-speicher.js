@@ -2,7 +2,7 @@
 const IDX='blackboard-boards', BK='blackboard-b-';
 let boards={cur:'b1',list:[{id:'b1',name:'Board 1'}],del:[],v:2};
 function genId(){ return 'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-function markDirty(b){ b=b||curBoard(); b.dirty=true; b.rev=(b.rev||0)+1; b.updated=Date.now(); saveIdx(); scheduleSync(4000); }
+function markDirty(b){ b=b||curBoard(); b.dirty=true; b.rev=(b.rev||0)+1; b.updated=Date.now(); saveIdx(); }
 /* Mehrere Fenster derselben App (z. B. installierte App und Browser-Tab) halten sich gegenseitig auf dem neuesten Stand */
 let bcast=null; try{ bcast=new BroadcastChannel('blackboard'); }catch(e){}
 function announce(m){ try{ bcast&&bcast.postMessage(m); }catch(e){} }
@@ -147,17 +147,16 @@ function newBoard(){
   const nb={id,name:'Board '+n}; boards.list.push(nb); docSet(id,JSON.stringify({items:[],n:0,fmt:DOC_FMT})); openBoard(id); markDirty(nb); ktSoon(500);
 }
 function deleteBoard(){ if(boards.list.length<2) return; removeBoards([boards.cur]); }
-/* Boards löschen (auch mehrere). Bleibt keins übrig, entsteht ein leeres neues. Löschen wird an GitHub-Abgleich und Konto weitergegeben. */
+/* Boards löschen (auch mehrere). Bleibt keins übrig, entsteht ein leeres neues. Löschen wird ans Konto weitergegeben. */
 function removeBoards(ids){
   const set=new Set(ids), gone=boards.list.filter(b=>set.has(b.id)); if(!gone.length) return 0;
-  for(const b of gone){ if(b.sha) boards.del.push({id:b.id,sha:b.sha}); ktGone(b); docDel(b.id); }
+  for(const b of gone){ ktGone(b); docDel(b.id); }
   boards.list=boards.list.filter(b=>!set.has(b.id));
   if(!boards.list.length){ const nb={id:genId(),name:'Board 1'}; boards.list.push(nb); docSet(nb.id,JSON.stringify({items:[],n:0,fmt:DOC_FMT})); markDirty(nb); ktSoon(500); }
   if(set.has(boards.cur)) openBoard(boards.list[0].id); else saveIdx();
-  scheduleSync(1500); return gone.length;
+  return gone.length;
 }
 function renderBoardList(){
-  renderSyncInfo();
   $('boardList').innerHTML=boards.list.map(b=>`<button data-b="${b.id}" aria-current="${b.id===boards.cur}">${b.id===boards.cur?'✓ ':''}${esc(b.name)}</button>`).join('');
   const d=$('delBoard'); d.textContent='Dieses Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
 }

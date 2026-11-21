@@ -39,8 +39,8 @@ zusätzlich `pdfinfo`, `pdftotext` und `qpdf`, falls vorhanden.
 
 Die Tests bedienen Skizix in einem unsichtbaren Browser wie ein Mensch: Formen, Pfeile, Folien,
 Rückgängig, Bilder, Vorlagen, Präsentation, PDF-Export, zwei Fenster, Offline-Start, Leistung mit
-2.000 Elementen, der Abgleich mit GitHub und das Konto (Anmelden, Boards auf zwei Geräten, Umbenennen,
-Löschen, Abmelden). GitHub und Supabase werden dabei durch Attrappen ersetzt, es geht nichts ins
+2.000 Elementen und das Konto (Anmelden, Boards auf zwei Geräten, Umbenennen,
+Löschen, Abmelden). Supabase wird dabei durch eine Attrappe ersetzt, es geht nichts ins
 Internet. Die Echtzeit-Verbindung (WebSocket) zwischen Geräten ist noch nicht automatisch getestet.
 
 Bei jeder Änderung auf GitHub laufen dieselben Tests automatisch (`.github/workflows/tests.yml`),

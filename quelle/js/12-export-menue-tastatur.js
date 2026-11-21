@@ -28,8 +28,6 @@ menu.addEventListener('click',e=>{
     case 'img': pickImage(); break;
     case 'slides': toggleSlides(true); break;
     case 'play': startPres(); break;
-    case 'syncnow': syncNow(true); break;
-    case 'synccfg': openSyncDlg(); break;
     case 'livestart': liveStart(); break;
     case 'liveshare': openLiveDlg(); break;
     case 'livestop': liveStop(); break;

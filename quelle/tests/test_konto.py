@@ -49,9 +49,10 @@ try:
 
   # Doppelter Schlüssel auf einem Gerät (z. B. durch den alten GitHub-Abgleich) wird zusammengeführt
   A.evaluate("k=>{const x=JSON.parse(localStorage.getItem('blackboard-boards')); x.list.push({id:'dupl1',name:'Kopie',live:k}); localStorage.setItem('blackboard-boards',JSON.stringify(x))}",k)
-  A.evaluate("()=>localStorage.setItem('blackboard-sync',JSON.stringify({owner:'IE',repo:'Boards',token:'x',api:'http://127.0.0.1:9'}))")
+  A.evaluate("()=>localStorage.setItem('blackboard-sync',JSON.stringify({owner:'IE',repo:'Boards',token:'x'}))")
   A.reload(); A.wait_for_timeout(1800)
-  A.click('#menuBtn'); check('GitHub-Abgleich ruht bei Anmeldung','Pausiert' in A.inner_text('#syncInfo'),A.inner_text('#syncInfo')); A.keyboard.press('Escape')
+  check('Alte GitHub-Zugangsdaten werden gelöscht',A.evaluate("()=>localStorage.getItem('blackboard-sync')")is None)
+  check('Kein GitHub-Abgleich mehr im Menü',A.locator('#syncSec').count()==0)
   check('Doppelter Schlüssel zusammengeführt',sum(1 for b in boards(A) if b.get('live')==k)==1,str(boards(A)))
   # Gerät B: anmelden, Board kommt von selbst
   B_ctx,B=geraet(); B.reload(); B.wait_for_timeout(700)

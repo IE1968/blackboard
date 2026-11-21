@@ -92,7 +92,7 @@ async function ktSync(){
   }catch(e){ if(e&&e.status===404) ktUi('Konto-Tabelle fehlt in Supabase. Bitte das Skript 01-konto.sql ausführen.'); }
   finally{ KT.busy=false; if(KT.again) setTimeout(ktSync,300); }
 }
-/* Zwei Boards mit demselben Schlüssel auf einem Gerät (z. B. einmal vom Konto, einmal vom alten GitHub-Abgleich): eins behalten */
+/* Zwei Boards mit demselben Schlüssel auf einem Gerät (z. B. aus dem früheren GitHub-Abgleich): eins behalten */
 function ktDedupe(){
   const seen=new Map(), extra=[];
   for(const b of boards.list){ if(!b.live) continue; const o=seen.get(b.live); if(!o){ seen.set(b.live,b); continue; }
@@ -110,7 +110,7 @@ function ktGone(b){
   if(KT.s) ktSoon(300);
 }
 function ktSignedOut(msg){
-  KT.s=null; ktStore(null); ktUi(); setSync(syncCfg?'wait':'off'); if(syncCfg) scheduleSync(800); if(msg) toast(msg);
+  KT.s=null; ktStore(null); ktUi(); if(msg) toast(msg);
 }
 function ktUi(note){
   const on=!!KT.s;
@@ -128,7 +128,7 @@ $('ktForm').addEventListener('submit',async e=>{
   try{
     const j=await ktAuth('token?grant_type=password',{email:mail,password:pw});
     KT.s=ktFrom(j,keep); ktStore(KT.s); try{ lsSet('skizix-konto-mail',mail); }catch(_){}
-    clearTimeout(syncTimer); closeKtDlg(); ktUi(); renderSyncInfo(); setSync(syncState); toast('Angemeldet. Deine Boards werden mit dem Konto abgeglichen …'); ktSync();
+    closeKtDlg(); ktUi(); toast('Angemeldet. Deine Boards werden mit dem Konto abgeglichen …'); ktSync();
   }catch(err){
     msg.textContent=err&&err.code==='invalid_credentials'||(err&&err.status===400&&/invalid/i.test(err.msg||''))?'E-Mail-Adresse oder Passwort stimmt nicht.'
       :err&&err.code==='email_not_confirmed'?'Die E-Mail-Adresse ist noch nicht bestätigt.'
