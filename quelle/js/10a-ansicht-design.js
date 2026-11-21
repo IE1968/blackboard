@@ -11,8 +11,7 @@ const SURF={
   heft:{n:'Schulheft',bg:'#fffef6',dot:'#b9d3ec',dark:false}
 };
 const PATS={dots:'Punkte',grid:'Kariert',lines:'Liniert',mm:'Millimeter',none:'Leer'};
-/* Farbthemen der Oberfläche: sel = Auswahl, Folienrahmen und Laser auf dunkler bzw. heller Tafel */
-const THEMES={blue:{n:'Blau',sel:['#4d9fff','#1763cf']},orange:{n:'Orange',sel:['#ff9a3d','#c25a00']},green:{n:'Grün',sel:['#3fbf78','#1b7f45']},grey:{n:'Grau',sel:['#b8c0ca','#4f5863']}};
+const THEMES={blue:{n:'Blau',sel:['#4d9fff','#1763cf']}};   /* Auswahlfarbe auf dunkler bzw. heller Tafel */
 function bgDefault(){
   let s=null; try{ s=JSON.parse(lsGet('skizix-flaeche')); }catch(e){}
   if(s&&SURF[s.s]&&PATS[s.p]) return s;
@@ -55,16 +54,14 @@ function setBoardSurface(ch){
 function setBoardBg(d,keep){   /* schneller Wechsel hell/dunkel */
   if(keep) return; setBoardSurface({s:d?'black':'white'});
 }
-function setTheme(t){ if(!THEMES[t]) return; setUi({theme:t}); }
 var BG_OK;
-function applyTheme(){ document.body.dataset.theme=uiCfg.theme||'blue'; bgShown=''; if(BG_OK) applyBg(); }
+function applyTheme(){ bgShown=''; if(BG_OK) applyBg(); }
 /* ---- Fenster „Ansicht“ ---- */
 function renderViewPop(){
   const b=bgCur(), ro=liveRO();
   $('vpSurf').innerHTML=Object.entries(SURF).map(([k,s])=>`<button type="button" class="vpSw" data-s="${k}" aria-pressed="${b.s===k}" title="${s.n}"${ro?' disabled':''}><span style="background:${s.bg}" class="vpChip s-${k}"></span><small>${s.n}</small></button>`).join('');
   const S=SURF[b.s];
   $('vpPat').innerHTML=Object.entries(PATS).map(([k,n])=>`<button type="button" class="vpSw" data-p="${k}" aria-pressed="${b.p===k}" title="${n}"${ro?' disabled':''}><span class="vpChip p-${k}" style="background-color:${S.bg};--dot:${S.dot}"></span><small>${n}</small></button>`).join('');
-  $('vpTheme').innerHTML=Object.entries(THEMES).map(([k,t])=>`<button type="button" class="vpSw" data-t="${k}" aria-pressed="${uiCfg.theme===k}" title="${t.n}"><span class="vpChip" style="background:${t.sel[0]}"></span><small>${t.n}</small></button>`).join('');
   document.querySelectorAll('#uiRow button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
   document.querySelectorAll('#pressRow button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.press===uiCfg.press)); $('fingerBtn').setAttribute('aria-pressed',uiCfg.finger);
@@ -82,7 +79,6 @@ $('viewPop').addEventListener('click',e=>{
   e.stopPropagation(); const t=e.target.closest('button'); if(!t||t.disabled) return;
   if(t.dataset.s) setBoardSurface({s:t.dataset.s});
   else if(t.dataset.p) setBoardSurface({p:t.dataset.p});
-  else if(t.dataset.t) setTheme(t.dataset.t);
   else if(t.dataset.m==='ui') setUi({scale:+t.dataset.v,scaleSet:true});
   else if(t.dataset.m==='hc') setUi({hc:!uiCfg.hc});
   else if(t.dataset.m==='snap') setUi({snap:!uiCfg.snap});

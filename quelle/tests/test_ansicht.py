@@ -30,15 +30,14 @@ try:
   first=pg.evaluate("()=>JSON.parse(localStorage.getItem('blackboard-boards')).list[0].id")
   pg.click('#menuBtn'); pg.click(f'#boardList [data-b="{first}"]'); pg.wait_for_timeout(300)
   check('Erstes Board behält Tafelgrün',stage()[0]=='chalk',str(stage()))
-  # Thema
-  view('#vpTheme [data-t="orange"]')
-  check('Thema Orange an der Oberfläche',pg.evaluate("()=>document.body.dataset.theme")=='orange' and pg.evaluate("()=>getComputedStyle(document.body).getPropertyValue('--accent').trim()")=='#ff9a3d')
-  check('Auswahlfarbe passt zum Thema',pg.evaluate("()=>document.body.style.getPropertyValue('--sel')")=='#ff9a3d')
+  check('Keine Auswahl „Farbe der Oberfläche“ mehr',pg.locator('#vpTheme').count()==0)
+  check('Auswahlfarbe blau',pg.evaluate("()=>document.body.style.getPropertyValue('--sel')") in ('#4d9fff','#1763cf'))
+  pg.click('#viewBtn')
   view('#uiRow [data-v="1"]'); check('Größe 100 %',pg.evaluate("()=>document.documentElement.style.getPropertyValue('--ui')")=='1')
   view('#hcBtn'); check('Hoher Kontrast schaltbar',pg.evaluate("()=>document.body.classList.contains('hc')") and pg.get_attribute('#hcBtn','aria-pressed')=='true')
   pg.screenshot(path=OUT+'/ansicht.png')
   pg.reload(); pg.wait_for_timeout(900)
-  check('Nach Neuladen: Thema und Fläche bleiben',pg.evaluate("()=>document.body.dataset.theme")=='orange' and stage()[0]=='chalk')
+  check('Nach Neuladen: Fläche bleibt',stage()[0]=='chalk')
   # PDF/Export nutzt die Fläche
   check('Export-Hintergrund ist die Tafelfarbe',pg.evaluate("()=>document.getElementById('stage').style.getPropertyValue('--paper')")=='#26392e')
   # Konto-Knopf
