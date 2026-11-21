@@ -16,6 +16,8 @@ try:
   order=pg.evaluate("()=>[...document.querySelector('.bar').children].map(e=>e.id||e.className)")
   check('Reihenfolge rechts: Datei, Live, Konto',order[-3:]==['menuBtn','liveBadge','ktBtn'],str(order[-4:]))
   check('Ansicht rechts neben Zeigen',order.index('viewBtn')==order.index('playBtn')+1,str(order))
+  view('#vpSurf [data-s="usedd"]'); check('12 Flächen, Vintage dunkel wählbar',pg.locator('#vpSurf .vpSw').count()==12 and stage()[0]=='usedd' and stage()[3])
+  check('Struktur liegt auf der Fläche',pg.evaluate("()=>getComputedStyle(document.getElementById('stage')).backgroundImage.includes('feTurbulence')"))
   view('#vpSurf [data-s="chalk"]'); s=stage()
   check('Tafelgrün gewählt',s[0]=='chalk' and s[1]=='#26392e' and s[3],str(s))
   view('#vpPat [data-p="grid"]'); check('Muster kariert',stage()[2]=='grid' and pg.locator('#grid path').count()==1)

@@ -8,7 +8,11 @@ const SURF={
   grey:{n:'Hellgrau',bg:'#dcdfe2',dot:'#aab1b7',dark:false},
   paper:{n:'Leinenpapier',bg:'#f3f2ee',dot:'#cfccc3',dark:false},
   blue:{n:'Blaupause',bg:'#163a66',dot:'#2f5f96',dark:true},
-  heft:{n:'Schulheft',bg:'#fffef6',dot:'#b9d3ec',dark:false}
+  heft:{n:'Schulheft',bg:'#fffef6',dot:'#b9d3ec',dark:false},
+  used:{n:'Vintage hell',bg:'#e4e0d6',dot:'#b9b2a3',dark:false},
+  usedd:{n:'Vintage dunkel',bg:'#1f2122',dot:'#3d4243',dark:true},
+  stone:{n:'Stein',bg:'#d2d1cc',dot:'#a7a59e',dark:false},
+  cloth:{n:'Textil',bg:'#dcd8cf',dot:'#b2ac9f',dark:false}
 };
 const PATS={dots:'Punkte',grid:'Kariert',lines:'Liniert',mm:'Millimeter',none:'Leer'};
 const THEMES={blue:{n:'Blau',sel:['#4d9fff','#1763cf']}};   /* Auswahlfarbe auf dunkler bzw. heller Tafel */
