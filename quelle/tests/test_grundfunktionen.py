@@ -10,6 +10,7 @@ try:
     b=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox'])
     ctx=b.new_context(viewport={'width':1400,'height':900},accept_downloads=True); pg=ctx.new_page()
     pg.on('console',lambda m: errs.append(m.text) if m.type=='error' else None); pg.on('pageerror',lambda e: errs.append(str(e)))
+    pg.add_init_script("localStorage.setItem('skizix-test-opts','1')")
     pg.goto(URL); pg.wait_for_timeout(600)
     def doc(): return pg.evaluate("async()=>{await new Promise(r=>setTimeout(r,400));const b=JSON.parse(localStorage.getItem('blackboard-boards'));const db=await new Promise(r=>{const q=indexedDB.open('blackboard',1);q.onsuccess=()=>r(q.result)});const v=await new Promise(r=>{const q=db.transaction('docs').objectStore('docs').get(b.cur);q.onsuccess=()=>r(q.result)});db.close();return JSON.parse(v)}")
     def view(): 

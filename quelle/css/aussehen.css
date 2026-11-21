@@ -337,7 +337,7 @@ body.opts-closed #props{display:none}
 header{grid-row:1}
 #props{grid-row:2}
 main{grid-row:3}
-#props .pg{display:flex;flex-wrap:wrap;width:max-content;flex:none;align-items:center;gap:4px 5px;max-width:none}
+#props .pg{display:flex;flex-wrap:wrap;justify-content:center;width:max-content;flex:none;align-items:center;gap:4px 5px;max-width:none}
 #props .pg>b{flex-basis:100%;text-align:center}
 #props .sws{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-template-columns:none;gap:4px;justify-items:center}
 #props .sws.two,#props .sws.three,#props .sws.five{grid-auto-flow:column;grid-template-rows:auto;gap:4px}
@@ -354,3 +354,14 @@ body.opts-closed #optsToggle i{transform:translateY(-2px) rotate(45deg)}
 #optsToggle::after{content:'';position:absolute;left:0;right:0;top:100%;height:16px}
 body.touch #optsToggle{width:88px;height:22px}
 body.touch #optsToggle::after{height:24px}
+
+/* Farbe als Aufklappfeld */
+#props .cdrop{display:flex;align-items:center;gap:6px;padding:4px 8px}
+.cdot{display:block;width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.35)}
+.cdot.none{background:linear-gradient(135deg,#fff 44%,#c8321f 46%,#c8321f 54%,#fff 56%)}
+.cdrop i{display:block;width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg)}
+#colorPop{position:fixed;z-index:40;zoom:var(--ui);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 10px 10px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+#colorPop .mh{text-align:center;padding:4px 0 8px}
+#colorPop .sws{display:grid;grid-template-columns:repeat(8,26px);gap:6px}
+#colorPop .sw{width:26px;max-width:26px}
+#props .optPaste{align-self:center}

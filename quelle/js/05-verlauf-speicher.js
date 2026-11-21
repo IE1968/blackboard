@@ -84,7 +84,7 @@ function loadBoards(){
 }
 /* Prüft und bereinigt ein Board aus Datei, Speicher oder Abgleich: nur bekannte Elemente, Zahlen, Farben und Texte bleiben übrig. */
 const DOC_FMT=3;   /* Version des Datenformats; ältere Apps erkennen daran Boards aus neueren Versionen */
-const KNOWN_KEYS=new Set('src id type kind x y w h text fill stroke sw colW rowH cells align ord ok pts tool tip ws from to p1 p2 style dash head arrow fa ta mm fs bold list al mc tc g lock fr fresh'.split(' '));
+const KNOWN_KEYS=new Set('rot src id type kind x y w h text fill stroke sw colW rowH cells align ord ok pts tool tip ws from to p1 p2 style dash head arrow fa ta mm fs bold list al mc tc g lock fr fresh'.split(' '));
 function keepExtra(s,o){   /* Eigenschaften, die diese Version nicht kennt, unverändert mitnehmen */
   for(const k in s){ if(KNOWN_KEYS.has(k)||k in o||!/^[a-zA-Z]\w{0,30}$/.test(k)||/^(constructor|toString|valueOf|hasOwnProperty)$/.test(k)) continue;
     const v=s[k]; if(v===undefined||typeof v==='function') continue; try{ const j=JSON.stringify(v); if(j&&j.length<=4000) o[k]=JSON.parse(j); }catch(e){} }
@@ -126,6 +126,7 @@ function cleanDoc(d){
     if(!o){ if(s.type&&!['shape','path','conn'].includes(s.type)&&extra.length<2000){ try{ const j=JSON.stringify(s); if(j.length<=20000) extra.push(JSON.parse(j)); }catch(e){} } continue; }
     keepExtra(s,o);
     if(o.type!=='path'){ if(s.fs) o.fs=num(s.fs,14,6,200); if(s.bold) o.bold=true; if(s.list) o.list=true; if(['left','center','right'].includes(s.al)) o.al=s.al; if(s.mm==='root'||s.mm==='node') o.mm=s.mm; if(Number.isInteger(s.mc)&&s.mc>=0&&s.mc<6) o.mc=s.mc; const tc=col(s.tc,null); if(tc&&tc!=='none') o.tc=tc; }
+    if(o.type==='shape'&&Number.isFinite(+s.rot)){ const a=((Math.round(+s.rot*100)/100)%360+360)%360; if(a) o.rot=a; }   /* Drehwinkel in Grad */
     const g=sid(s.g); if(g) o.g=g; if(s.lock) o.lock=true; const fr=sid(s.fr); if(fr) o.fr=fr;
     seen.add(id); out.push(o); const m=/^i(\d+)$/.exec(id); if(m) n=Math.max(n,+m[1]);
   }

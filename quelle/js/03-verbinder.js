@@ -1,10 +1,12 @@
 /* ---------- Verbinder ---------- */
 function anchor(c,end){
   const s=byId(end==='a'?c.from:c.to);
-  if(s&&s.type==='shape') return {x:s.x,y:s.y,w:s.w,h:s.h,kind:s.kind};
+  if(s&&s.type==='shape') return {x:s.x,y:s.y,w:s.w,h:s.h,kind:s.kind,rot:s.rot||0};
   const p=end==='a'?c.p1:c.p2; return {x:p.x,y:p.y,w:0,h:0,kind:'pt'};
 }
+function rotP(p,c,deg){ if(!deg) return p; const a=deg*Math.PI/180, co=Math.cos(a), si=Math.sin(a), dx=p.x-c.x, dy=p.y-c.y; return {x:c.x+dx*co-dy*si,y:c.y+dx*si+dy*co}; }
 function clip(A,to){
+  if(A.rot){ const c={x:A.x+A.w/2,y:A.y+A.h/2}; return rotP(clip(Object.assign({},A,{rot:0}),rotP(to,c,-A.rot)),c,A.rot); }
   const cx=A.x+A.w/2,cy=A.y+A.h/2; if(A.kind==='pt'||!A.w||!A.h) return {x:cx,y:cy};
   const dx=to.x-cx,dy=to.y-cy; if(!dx&&!dy) return {x:cx,y:cy};
   const a=A.w/2,b=A.h/2; let t;
@@ -15,8 +17,11 @@ function clip(A,to){
 }
 /* Andockpunkte: Mitte jeder Seite. Ein Pfeilende merkt sich die Seite (fa/ta); ohne Seite sucht sich der Pfeil selbst den kürzesten Weg. */
 const SIDES={n:[0,-1],e:[1,0],s:[0,1],w:[-1,0]};
-function sidePt(A,sd){ const v=SIDES[sd]; return {x:A.x+A.w/2+v[0]*A.w/2,y:A.y+A.h/2+v[1]*A.h/2}; }
-function autoSide(A,to){ const dx=to.x-(A.x+A.w/2),dy=to.y-(A.y+A.h/2); return Math.abs(dx)*(A.h||1)>=Math.abs(dy)*(A.w||1)?(dx>=0?'e':'w'):(dy>=0?'s':'n'); }
+function sidePt(A,sd){ const v=SIDES[sd], p={x:A.x+A.w/2+v[0]*A.w/2,y:A.y+A.h/2+v[1]*A.h/2}; return A.rot?rotP(p,{x:A.x+A.w/2,y:A.y+A.h/2},A.rot):p; }
+/* Seite einer gedrehten Form, wie sie auf der Tafel liegt (für die rechtwinklige Pfeilführung) */
+function effSide(A,sd){ if(!A.rot) return sd; const v=SIDES[sd], a=A.rot*Math.PI/180, x=v[0]*Math.cos(a)-v[1]*Math.sin(a), y=v[0]*Math.sin(a)+v[1]*Math.cos(a);
+  return Math.abs(x)>=Math.abs(y)?(x>0?'e':'w'):(y>0?'s':'n'); }
+function autoSide(A,to){ if(A.rot){ const c={x:A.x+A.w/2,y:A.y+A.h/2}; to=rotP(to,c,-A.rot); } const dx=to.x-(A.x+A.w/2),dy=to.y-(A.y+A.h/2); return Math.abs(dx)*(A.h||1)>=Math.abs(dy)*(A.w||1)?(dx>=0?'e':'w'):(dy>=0?'s':'n'); }
 function tidy(p){ const o=[p[0]];
   for(let i=1;i<p.length;i++){ const a=o[o.length-1],b=p[i],c=p[i+1];
     if(c&&Math.abs(a.x-b.x)<0.5&&Math.abs(a.y-b.y)<0.5) continue;
@@ -36,8 +41,9 @@ function route(c){
   const A=anchor(c,'a'),B=anchor(c,'b');
   const ac={x:A.x+A.w/2,y:A.y+A.h/2}, bc={x:B.x+B.w/2,y:B.y+B.h/2};
   const fa=A.kind!=='pt'&&SIDES[c.fa]?c.fa:null, fb=B.kind!=='pt'&&SIDES[c.ta]?c.ta:null;
-  if(c.style==='straight'){ const qa=fa?sidePt(A,fa):null, qb=fb?sidePt(B,fb):null; return [qa||clip(A,qb||bc),qb||clip(B,qa||ac)]; }
-  if(fa||fb){ const sa=fa||autoSide(A,fb?sidePt(B,fb):bc), p1=sidePt(A,sa), sb=fb||autoSide(B,p1); return orth(p1,sa,sidePt(B,sb),sb); }
+  const skew=x=>x.rot&&x.rot%90!==0;   /* schräg gedrehte Form: gerade Verbindung statt rechtwinkliger Führung */
+  if(c.style==='straight'||skew(A)||skew(B)){ const qa=fa?sidePt(A,fa):null, qb=fb?sidePt(B,fb):null; return [qa||clip(A,qb||bc),qb||clip(B,qa||ac)]; }
+  if(fa||fb||A.rot||B.rot){   /* nur noch um 90°, 180°, 270° gedreht */ const sa=fa||autoSide(A,fb?sidePt(B,fb):bc), p1=sidePt(A,sa), sb=fb||autoSide(B,p1); return orth(p1,effSide(A,sa),sidePt(B,sb),effSide(B,sb)); }
   const dx=bc.x-ac.x,dy=bc.y-ac.y;
   const gapX=dx>=0?B.x-(A.x+A.w):A.x-(B.x+B.w);
   const gapY=dy>=0?B.y-(A.y+A.h):A.y-(B.y+B.h);
@@ -115,13 +121,15 @@ function strokeSVG(it){
 }
 function itemSVG(it){
   if(it.type==='shape'&&!BODY_KINDS.has(it.kind)) return `<g class="it" data-id="${it.id}" transform="translate(${r(it.x)} ${r(it.y)})"><rect width="${r(it.w)}" height="${r(it.h)}" rx="6" fill="rgba(128,128,128,.12)" stroke="#888" stroke-width="1.500" stroke-dasharray="6 4"/><text x="${r(it.w/2)}" y="${r(it.h/2+4)}" text-anchor="middle" font-family="${FONT}" font-size="11" fill="#888" pointer-events="none">Neuere Version nötig</text></g>`;
-  if(it.type==='shape') return `<g class="it" data-id="${it.id}" transform="translate(${r(it.x)} ${r(it.y)})">${shapeBody(vis(it))}${shapeText(it)}</g>`;
+  if(it.type==='shape') return `<g class="it" data-id="${it.id}" transform="translate(${r(it.x)} ${r(it.y)})${it.rot?` rotate(${it.rot} ${r(it.w/2)} ${r(it.h/2)})`:''}">${shapeBody(vis(it))}${shapeText(it)}</g>`;
   if(it.type==='path')
     return `<g class="it" data-id="${it.id}"><path d="${pathD(it.pts)}" fill="none" stroke="transparent" stroke-width="${Math.max(16,it.sw+8)}" stroke-linecap="round" pointer-events="stroke"/>${strokeSVG(it)}</g>`;
   return connSVG(it);
 }
 function bbox(it){
-  if(it.type==='shape') return {x:it.x,y:it.y,w:it.w,h:it.h};
+  if(it.type==='shape'){ if(!it.rot) return {x:it.x,y:it.y,w:it.w,h:it.h};
+    const a=it.rot*Math.PI/180, c=Math.abs(Math.cos(a)), s=Math.abs(Math.sin(a)), W=it.w*c+it.h*s, H=it.w*s+it.h*c;
+    return {x:it.x+it.w/2-W/2,y:it.y+it.h/2-H/2,w:W,h:H}; }
   const pts=it.type==='path'?it.pts.map(p=>({x:p[0],y:p[1]})):route(it);
   const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y),x=Math.min(...xs),y=Math.min(...ys);
   return {x,y,w:Math.max(...xs)-x,h:Math.max(...ys)-y};

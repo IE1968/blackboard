@@ -9,6 +9,7 @@ try:
   with sync_playwright() as p:
     b=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox'])
     ctx=b.new_context(viewport={'width':1500,'height':900},accept_downloads=True); pg=ctx.new_page(); errs=[]; pg.on('pageerror',lambda e: errs.append(str(e)))
+    pg.add_init_script("localStorage.setItem('skizix-test-opts','1')")
     pg.goto(URL); pg.wait_for_timeout(400)
     doc=lambda: pg.evaluate("async()=>{await new Promise(r=>setTimeout(r,400));const b=JSON.parse(localStorage.getItem('blackboard-boards'));const db=await new Promise(r=>{const q=indexedDB.open('blackboard',1);q.onsuccess=()=>r(q.result)});const v=await new Promise(r=>{const q=db.transaction('docs').objectStore('docs').get(b.cur);q.onsuccess=()=>r(q.result)});db.close();return JSON.parse(v)}")
     def load(items):
@@ -41,7 +42,7 @@ try:
     pg.screenshot(path='/tmp/bb-tests/longword.png',clip={'x':100,'y':60,'width':1300,'height':800})
     # 6 Zwei Fenster gleichzeitig
     load([S('a','rect',0,0,140,80,'A')])
-    pg2=ctx.new_page(); pg2.goto(URL); pg2.wait_for_timeout(400)
+    pg2=ctx.new_page(); pg2.add_init_script("localStorage.setItem('skizix-test-opts','1')"); pg2.goto(URL); pg2.wait_for_timeout(400)
     pg.focus('.pal[data-kind="rect"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(150)   # Fenster 1: +1
     pg2.evaluate("()=>{for(const h of document.querySelectorAll('.gh')) if(h.dataset.g==='Allgemein'&&h.getAttribute('aria-expanded')==='false') h.click();}")
     pg2.focus('.pal[data-kind="ellipse"]'); pg2.keyboard.press('Enter'); pg2.wait_for_timeout(150)  # Fenster 2: +1 (auf altem Stand)

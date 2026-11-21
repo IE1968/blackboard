@@ -64,6 +64,10 @@ svg.addEventListener('pointerdown',e=>{
   if(tool==='conn'){ startConn(base,item&&item.type==='shape'&&!noDock(item.kind)?item:null,w); return; }
   if(hEl){
     const [t,v]=hEl.dataset.h.split(':'), one=byId([...sel][0]);
+    if(t==='rot'){ const its=[...sel].map(byId).filter(i=>i&&!i.lock&&canRot(i)); if(its.length){
+        const c=its.length===1&&its[0].type==='shape'?{x:its[0].x+its[0].w/2,y:its[0].y+its[0].h/2}:(()=>{ const b=unionBox(its); return {x:b.x+b.w/2,y:b.y+b.h/2}; })();
+        action={...base,type:'rotate',c,a0:Math.atan2(w.y-c.y,w.x-c.x),single:its.length===1&&its[0].type==='shape',r0:its.length===1&&its[0].type==='shape'?(its[0].rot||0):0,shown:its.length===1&&its[0].type==='shape'?(its[0].rot||0):0,
+          orig:its.map(i=>({id:i.id,d:JSON.parse(JSON.stringify(i))})),deps:depsFor(its.map(i=>i.id))}; return; } }
     if(t==='gs'){ const its=[...sel].map(byId).filter(i=>i&&!i.lock), ub=unionBox(its.filter(i=>!(i.type==='conn'&&(i.from||i.to))));
       if(ub&&ub.w>1&&ub.h>1){ action={...base,type:'gresize',dir:v,box:{x1:ub.x,y1:ub.y,x2:ub.x+ub.w,y2:ub.y+ub.h},orig:its.map(i=>({id:i.id,d:JSON.parse(JSON.stringify(i))})),deps:depsFor(its.map(i=>i.id)),qmin:Math.max(0.05,12/Math.min(ub.w,ub.h))}; return; } }
     if(one&&(t==='tc'||t==='tr')){ action={...base,type:'tdiv',k:t==='tc'?'c':'r',i:+v,id:one.id,deps:depsFor([one.id]),o:{colW:one.colW.slice(),rowH:one.rowH.slice()}}; return; }
@@ -125,10 +129,20 @@ svg.addEventListener('pointermove',e=>{
         else if(it.type==='path') it.pts=d.pts.map(p=>[r(p[0]+dx),r(p[1]+dy)]);
         else { it.p1={x:r(d.p1.x+dx),y:r(d.p1.y+dy)}; it.p2={x:r(d.p2.x+dx),y:r(d.p2.y+dy)}; } }
       break; }
+    case 'rotate': {   /* in 15°-Schritten; eine einzelne Form rastet auf 0°, 15°, 30° … ein */
+      const deg=(Math.atan2(w.y-a.c.y,w.x-a.c.x)-a.a0)*180/Math.PI;
+      let D=Math.round(deg/15)*15; if(a.single) D=Math.round((a.r0+deg)/15)*15-a.r0;
+      a.shown=(((a.single?a.r0+D:D)%360)+360)%360; if(a.shown>180&&!a.single) a.shown-=360;
+      for(const o of a.orig){ const it=byId(o.id),d=o.d; if(!it) continue;
+        if(it.type==='shape'){ const cc=rotP({x:d.x+d.w/2,y:d.y+d.h/2},a.c,D); it.x=r(cc.x-d.w/2); it.y=r(cc.y-d.h/2); const nr=(((d.rot||0)+D)%360+360)%360; if(nr) it.rot=nr; else delete it.rot; }
+        else if(it.type==='path') it.pts=d.pts.map(p=>{ const q=rotP({x:p[0],y:p[1]},a.c,D); return [r(q.x),r(q.y)]; });
+        else { const q1=rotP(d.p1,a.c,D), q2=rotP(d.p2,a.c,D); it.p1={x:r(q1.x),y:r(q1.y)}; it.p2={x:r(q2.x),y:r(q2.y)}; } }
+      break; }
     case 'resize': {
       const it=byId(a.id),o=a.o,d=a.dir; if(!it) break;
+      const oc={x:o.x+o.w/2,y:o.y+o.h/2}, rot=it.rot||0; if(rot){ const q=rotP(w,oc,-rot); w.x=q.x; w.y=q.y; }   /* gedrehte Form: Zeiger in ihr eigenes Koordinatensystem */
       let x1=o.x,y1=o.y,x2=o.x+o.w,y2=o.y+o.h;
-      const cand=smart?(a.cand||(a.cand=buildCand(new Set([a.id])))):null;
+      const cand=smart&&!rot?(a.cand||(a.cand=buildCand(new Set([a.id])))):null;
       const SX=v=>{ const h=cand?nearCand(cand.x,[v],TOL):null; return h!==null?v+h:sn(v); }, SY=v=>{ const h=cand?nearCand(cand.y,[v],TOL):null; return h!==null?v+h:sn(v); };
       if(d.includes('w')) x1=Math.min(SX(w.x),x2-20); if(d.includes('e')) x2=Math.max(SX(w.x),x1+20);
       if(d.includes('n')) y1=Math.min(SY(w.y),y2-20); if(d.includes('s')) y2=Math.max(SY(w.y),y1+20);
@@ -140,6 +154,10 @@ svg.addEventListener('pointermove',e=>{
       it.x=x1; it.y=y1; it.w=x2-x1; it.h=y2-y1;
       if(it.kind==='table'){ it.colW=o.colW.map(v=>r(v*it.w/o.w)); it.rowH=o.rowH.map(v=>r(v*it.h/o.h)); }
       if(isSq(it.kind)){ const m=Math.max(it.w,it.h); if(d.includes('w')) it.x=x2-m; if(d.includes('n')) it.y=y2-m; it.w=it.h=m; }
+      if(rot){   /* die gegenüberliegende Seite bleibt auf der Tafel stehen */
+        const f={x:d.includes('w')?o.x+o.w:d.includes('e')?o.x:oc.x,y:d.includes('n')?o.y+o.h:d.includes('s')?o.y:oc.y};
+        const nf={x:d.includes('w')?it.x+it.w:d.includes('e')?it.x:it.x+it.w/2,y:d.includes('n')?it.y+it.h:d.includes('s')?it.y:it.y+it.h/2};
+        const F=rotP(f,oc,rot), F2=rotP(nf,{x:it.x+it.w/2,y:it.y+it.h/2},rot); it.x=r(it.x+F.x-F2.x); it.y=r(it.y+F.y-F2.y); }
       if(cand) a.guides=guideLines({x:it.x,y:it.y,w:it.w,h:it.h},cand);
       break; }
     case 'gresize': {   /* alles Ausgewählte gemeinsam um die gegenüberliegende Ecke skalieren */
@@ -201,6 +219,7 @@ function onUp(e){
         if(!a.moved||Math.hypot(l.x-f.x,l.y-f.y)<12){ removeIds(new Set([c.id])); sel.clear(); if(a.moved) break; doc=snapDoc(hist[hi]); break; } }
       commit(); break; }
     case 'move': if(a.moved) commit(); else if(tap(a.hitId,e)) return; break;
+    case 'rotate': if(a.moved) commit(); break;
     case 'resize': { const it=byId(a.id); if(it&&a.moved){ if(it.kind==='text'||it.kind==='table') autosize(it); commit(); } break; }
     case 'gresize': if(a.moved){ for(const o of a.orig){ const it=byId(o.id); if(it&&it.type==='shape'&&(it.kind==='text'||it.kind==='table')) autosize(it); } commit(); } break;
     case 'tdiv': { const it=byId(a.id); if(it&&a.moved){ autosize(it); commit(); } break; }

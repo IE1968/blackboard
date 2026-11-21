@@ -62,6 +62,7 @@ palEl.addEventListener('click',e=>{
 });
 $('palHandle').onclick=()=>{ palState.closed=!palState.closed; savePal(); renderPal(); };
 $('propsToggle').onclick=()=>{ palState.propsClosed=!palState.propsClosed; savePal(); applySides(); };
+palState.optsClosed=!(location.hostname==='localhost'&&localStorage.getItem('skizix-test-opts'));   /* (nur Tests auf localhost: offen lassen) */ /* beim Öffnen der App zu; ein Klick auf ein Werkzeug öffnet sie */
 $('optsToggle').onclick=()=>{ palState.optsClosed=!palState.optsClosed; savePal(); updateProps(); };
 /* rechte Leiste = Datei (Boards, Live, Export …); auf und zu über den Griff oder den Knopf „Datei“ */
 function applySides(){

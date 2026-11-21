@@ -6,6 +6,7 @@ try:
   with sync_playwright() as p:
     b=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox'])
     ctx=b.new_context(viewport={'width':1500,'height':900},accept_downloads=True); pg=ctx.new_page(); errs=[]; pg.on('pageerror',lambda e: errs.append(str(e)))
+    pg.add_init_script("localStorage.setItem('skizix-test-opts','1')")
     pg.goto(URL); pg.wait_for_timeout(400)
     openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
     pg.evaluate("()=>{for(let i=0;i<14;i++){const h=[...document.querySelectorAll('.gh')].find(h=>h.getAttribute('aria-expanded')==='false'); if(!h) break; h.click();}}")

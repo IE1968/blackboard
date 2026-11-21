@@ -8,6 +8,7 @@ try:
   with sync_playwright() as p:
     b=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox'])
     pg=b.new_page(viewport={'width':1300,'height':800}); errs=[]; pg.on('pageerror',lambda e: errs.append(str(e)))
+    pg.add_init_script("localStorage.setItem('skizix-test-opts','1')")
     pg.goto(URL); pg.wait_for_timeout(300)
     pg.evaluate("(d)=>{const b=JSON.parse(localStorage.getItem('blackboard-boards'));localStorage.setItem('blackboard-b-'+b.cur,JSON.stringify(d));}",doc)
     pg.reload(); pg.wait_for_timeout(500); pg.click('#zoomLabel'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')

@@ -1,5 +1,5 @@
 /* ---------- Leisten, Menü, Tastatur ---------- */
-$('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); setTool(b.dataset.tool); } });
+$('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); if(palState.optsClosed){ palState.optsClosed=false; savePal(); } setTool(b.dataset.tool); updateProps(); } });
 $('undo').onclick=undo; $('redo').onclick=redo; $('playBtn').onclick=()=>startPres();
 $('zoomIn').onclick=()=>zoomCenter(1.25); $('zoomOut').onclick=()=>zoomCenter(0.8); $('zoomLabel').onclick=fit;
 function fitMenu(){}

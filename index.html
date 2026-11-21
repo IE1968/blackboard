@@ -355,7 +355,7 @@ body.opts-closed #props{display:none}
 header{grid-row:1}
 #props{grid-row:2}
 main{grid-row:3}
-#props .pg{display:flex;flex-wrap:wrap;width:max-content;flex:none;align-items:center;gap:4px 5px;max-width:none}
+#props .pg{display:flex;flex-wrap:wrap;justify-content:center;width:max-content;flex:none;align-items:center;gap:4px 5px;max-width:none}
 #props .pg>b{flex-basis:100%;text-align:center}
 #props .sws{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-template-columns:none;gap:4px;justify-items:center}
 #props .sws.two,#props .sws.three,#props .sws.five{grid-auto-flow:column;grid-template-rows:auto;gap:4px}
@@ -372,6 +372,17 @@ body.opts-closed #optsToggle i{transform:translateY(-2px) rotate(45deg)}
 #optsToggle::after{content:'';position:absolute;left:0;right:0;top:100%;height:16px}
 body.touch #optsToggle{width:88px;height:22px}
 body.touch #optsToggle::after{height:24px}
+
+/* Farbe als Aufklappfeld */
+#props .cdrop{display:flex;align-items:center;gap:6px;padding:4px 8px}
+.cdot{display:block;width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.35)}
+.cdot.none{background:linear-gradient(135deg,#fff 44%,#c8321f 46%,#c8321f 54%,#fff 56%)}
+.cdrop i{display:block;width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg)}
+#colorPop{position:fixed;z-index:40;zoom:var(--ui);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 10px 10px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+#colorPop .mh{text-align:center;padding:4px 0 8px}
+#colorPop .sws{display:grid;grid-template-columns:repeat(8,26px);gap:6px}
+#colorPop .sw{width:26px;max-width:26px}
+#props .optPaste{align-self:center}
 </style>
 </head>
 <body>
@@ -505,6 +516,7 @@ body.touch #optsToggle::after{height:24px}
     <div class="dlgBtns"><button type="button" class="pb danger" id="bmDel" disabled>Löschen</button><button type="button" class="pb" id="bmClose">Schließen</button></div>
   </div>
 </div>
+<div id="colorPop" hidden role="dialog" aria-label="Farbe wählen"></div>
 <div id="ktDlg" hidden role="dialog" aria-modal="true" aria-labelledby="ktTitle">
   <form id="ktForm" autocomplete="on">
     <h2 id="ktTitle">Anmelden</h2>
@@ -929,10 +941,12 @@ function autosize(s){
 /* ---------- Verbinder ---------- */
 function anchor(c,end){
   const s=byId(end==='a'?c.from:c.to);
-  if(s&&s.type==='shape') return {x:s.x,y:s.y,w:s.w,h:s.h,kind:s.kind};
+  if(s&&s.type==='shape') return {x:s.x,y:s.y,w:s.w,h:s.h,kind:s.kind,rot:s.rot||0};
   const p=end==='a'?c.p1:c.p2; return {x:p.x,y:p.y,w:0,h:0,kind:'pt'};
 }
+function rotP(p,c,deg){ if(!deg) return p; const a=deg*Math.PI/180, co=Math.cos(a), si=Math.sin(a), dx=p.x-c.x, dy=p.y-c.y; return {x:c.x+dx*co-dy*si,y:c.y+dx*si+dy*co}; }
 function clip(A,to){
+  if(A.rot){ const c={x:A.x+A.w/2,y:A.y+A.h/2}; return rotP(clip(Object.assign({},A,{rot:0}),rotP(to,c,-A.rot)),c,A.rot); }
   const cx=A.x+A.w/2,cy=A.y+A.h/2; if(A.kind==='pt'||!A.w||!A.h) return {x:cx,y:cy};
   const dx=to.x-cx,dy=to.y-cy; if(!dx&&!dy) return {x:cx,y:cy};
   const a=A.w/2,b=A.h/2; let t;
@@ -943,8 +957,11 @@ function clip(A,to){
 }
 /* Andockpunkte: Mitte jeder Seite. Ein Pfeilende merkt sich die Seite (fa/ta); ohne Seite sucht sich der Pfeil selbst den kürzesten Weg. */
 const SIDES={n:[0,-1],e:[1,0],s:[0,1],w:[-1,0]};
-function sidePt(A,sd){ const v=SIDES[sd]; return {x:A.x+A.w/2+v[0]*A.w/2,y:A.y+A.h/2+v[1]*A.h/2}; }
-function autoSide(A,to){ const dx=to.x-(A.x+A.w/2),dy=to.y-(A.y+A.h/2); return Math.abs(dx)*(A.h||1)>=Math.abs(dy)*(A.w||1)?(dx>=0?'e':'w'):(dy>=0?'s':'n'); }
+function sidePt(A,sd){ const v=SIDES[sd], p={x:A.x+A.w/2+v[0]*A.w/2,y:A.y+A.h/2+v[1]*A.h/2}; return A.rot?rotP(p,{x:A.x+A.w/2,y:A.y+A.h/2},A.rot):p; }
+/* Seite einer gedrehten Form, wie sie auf der Tafel liegt (für die rechtwinklige Pfeilführung) */
+function effSide(A,sd){ if(!A.rot) return sd; const v=SIDES[sd], a=A.rot*Math.PI/180, x=v[0]*Math.cos(a)-v[1]*Math.sin(a), y=v[0]*Math.sin(a)+v[1]*Math.cos(a);
+  return Math.abs(x)>=Math.abs(y)?(x>0?'e':'w'):(y>0?'s':'n'); }
+function autoSide(A,to){ if(A.rot){ const c={x:A.x+A.w/2,y:A.y+A.h/2}; to=rotP(to,c,-A.rot); } const dx=to.x-(A.x+A.w/2),dy=to.y-(A.y+A.h/2); return Math.abs(dx)*(A.h||1)>=Math.abs(dy)*(A.w||1)?(dx>=0?'e':'w'):(dy>=0?'s':'n'); }
 function tidy(p){ const o=[p[0]];
   for(let i=1;i<p.length;i++){ const a=o[o.length-1],b=p[i],c=p[i+1];
     if(c&&Math.abs(a.x-b.x)<0.5&&Math.abs(a.y-b.y)<0.5) continue;
@@ -964,8 +981,9 @@ function route(c){
   const A=anchor(c,'a'),B=anchor(c,'b');
   const ac={x:A.x+A.w/2,y:A.y+A.h/2}, bc={x:B.x+B.w/2,y:B.y+B.h/2};
   const fa=A.kind!=='pt'&&SIDES[c.fa]?c.fa:null, fb=B.kind!=='pt'&&SIDES[c.ta]?c.ta:null;
-  if(c.style==='straight'){ const qa=fa?sidePt(A,fa):null, qb=fb?sidePt(B,fb):null; return [qa||clip(A,qb||bc),qb||clip(B,qa||ac)]; }
-  if(fa||fb){ const sa=fa||autoSide(A,fb?sidePt(B,fb):bc), p1=sidePt(A,sa), sb=fb||autoSide(B,p1); return orth(p1,sa,sidePt(B,sb),sb); }
+  const skew=x=>x.rot&&x.rot%90!==0;   /* schräg gedrehte Form: gerade Verbindung statt rechtwinkliger Führung */
+  if(c.style==='straight'||skew(A)||skew(B)){ const qa=fa?sidePt(A,fa):null, qb=fb?sidePt(B,fb):null; return [qa||clip(A,qb||bc),qb||clip(B,qa||ac)]; }
+  if(fa||fb||A.rot||B.rot){   /* nur noch um 90°, 180°, 270° gedreht */ const sa=fa||autoSide(A,fb?sidePt(B,fb):bc), p1=sidePt(A,sa), sb=fb||autoSide(B,p1); return orth(p1,effSide(A,sa),sidePt(B,sb),effSide(B,sb)); }
   const dx=bc.x-ac.x,dy=bc.y-ac.y;
   const gapX=dx>=0?B.x-(A.x+A.w):A.x-(B.x+B.w);
   const gapY=dy>=0?B.y-(A.y+A.h):A.y-(B.y+B.h);
@@ -1043,13 +1061,15 @@ function strokeSVG(it){
 }
 function itemSVG(it){
   if(it.type==='shape'&&!BODY_KINDS.has(it.kind)) return `<g class="it" data-id="${it.id}" transform="translate(${r(it.x)} ${r(it.y)})"><rect width="${r(it.w)}" height="${r(it.h)}" rx="6" fill="rgba(128,128,128,.12)" stroke="#888" stroke-width="1.500" stroke-dasharray="6 4"/><text x="${r(it.w/2)}" y="${r(it.h/2+4)}" text-anchor="middle" font-family="${FONT}" font-size="11" fill="#888" pointer-events="none">Neuere Version nötig</text></g>`;
-  if(it.type==='shape') return `<g class="it" data-id="${it.id}" transform="translate(${r(it.x)} ${r(it.y)})">${shapeBody(vis(it))}${shapeText(it)}</g>`;
+  if(it.type==='shape') return `<g class="it" data-id="${it.id}" transform="translate(${r(it.x)} ${r(it.y)})${it.rot?` rotate(${it.rot} ${r(it.w/2)} ${r(it.h/2)})`:''}">${shapeBody(vis(it))}${shapeText(it)}</g>`;
   if(it.type==='path')
     return `<g class="it" data-id="${it.id}"><path d="${pathD(it.pts)}" fill="none" stroke="transparent" stroke-width="${Math.max(16,it.sw+8)}" stroke-linecap="round" pointer-events="stroke"/>${strokeSVG(it)}</g>`;
   return connSVG(it);
 }
 function bbox(it){
-  if(it.type==='shape') return {x:it.x,y:it.y,w:it.w,h:it.h};
+  if(it.type==='shape'){ if(!it.rot) return {x:it.x,y:it.y,w:it.w,h:it.h};
+    const a=it.rot*Math.PI/180, c=Math.abs(Math.cos(a)), s=Math.abs(Math.sin(a)), W=it.w*c+it.h*s, H=it.w*s+it.h*c;
+    return {x:it.x+it.w/2-W/2,y:it.y+it.h/2-H/2,w:W,h:H}; }
   const pts=it.type==='path'?it.pts.map(p=>({x:p[0],y:p[1]})):route(it);
   const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y),x=Math.min(...xs),y=Math.min(...ys);
   return {x,y,w:Math.max(...xs)-x,h:Math.max(...ys)-y};
@@ -1101,8 +1121,10 @@ function renderOverlay(){
       if(single&&!it.lock){ [['a',pts[0]],['b',pts[pts.length-1]]].forEach(([e,p])=>{
         o+=`<circle data-h="ce:${e}" cx="${r(p.x)}" cy="${r(p.y)}" r="${(coarse?20:14)*u}" fill="transparent"/><circle data-h="ce:${e}" cx="${r(p.x)}" cy="${r(p.y)}" r="${(coarse?9:6)*u}" fill="#fff" stroke="${SEL}" stroke-width="${2*u}"/>`; }); }
       continue; }
-    const b=bbox(it),p=4*u;
+    const rotd=it.type==='shape'&&it.rot?it.rot:0, b=rotd?{x:it.x,y:it.y,w:it.w,h:it.h}:bbox(it),p=4*u;
+    if(rotd) o+=`<g transform="rotate(${rotd} ${r(it.x+it.w/2)} ${r(it.y+it.h/2)})">`;   /* gedrehte Form: Rahmen und Griffe drehen mit */
     o+=`<rect x="${r(b.x-p)}" y="${r(b.y-p)}" width="${r(b.w+2*p)}" height="${r(b.h+2*p)}" fill="none" stroke="${SEL}" stroke-width="${1.5*u}" stroke-dasharray="${5*u} ${4*u}" pointer-events="none"/>`;
+    if(single&&!it.lock&&canRot(it)&&editing!==it.id) o+=rotHandle(b.x+b.w+p+14*u,b.y-p-14*u,u,b.x+b.w+p,b.y-p);
     if(it.lock) o+=`<g transform="translate(${r(b.x+b.w+p)} ${r(b.y-p)}) scale(${r(u*1.5)})" pointer-events="none"><circle r="9" fill="${SEL}"/><path d="${LOCKP}" transform="translate(0 -1.500)" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></g>`;
     if(single&&it.type==='shape'&&editing!==it.id&&!it.lock){
       if(!noDock(it.kind)){ const g=(coarse?32:22)*u;
@@ -1120,9 +1142,11 @@ function renderOverlay(){
         it.rowH.forEach((rh,i)=>{ y+=rh; o+=`<rect data-h="tr:${i}" x="${r(it.x-g-gh/2)}" y="${r(y-gh/2)}" width="${gh}" height="${gh}" fill="transparent"/><rect data-h="tr:${i}" x="${r(it.x-g-gl/2)}" y="${r(y-gw/2)}" width="${gl}" height="${gw}" rx="${3*u}" fill="${SEL}" stroke="#fff" stroke-width="${u}"/>`; });
       }
     }
+    if(rotd) o+='</g>';
   }
   if(items.length>1){ const ub=unionBox(items), x1=ub.x-10*u, y1=ub.y-10*u, x2=ub.x+ub.w+10*u, y2=ub.y+ub.h+10*u;
     o+=`<rect x="${r(x1)}" y="${r(y1)}" width="${r(x2-x1)}" height="${r(y2-y1)}" rx="${4*u}" fill="none" stroke="${SEL}" stroke-width="${u}" pointer-events="none"/>`;
+    if(!editing&&items.some(i=>!i.lock&&canRot(i))) o+=rotHandle(x2+16*u,y1-16*u,u,x2,y1);
     if(!editing&&items.some(i=>!i.lock&&!(i.type==='conn'&&(i.from||i.to)))) [['nw',x1,y1],['ne',x2,y1],['se',x2,y2],['sw',x1,y2]].forEach(([d,x,y])=>{   /* Ecken: alles Ausgewählte gemeinsam vergrößern oder verkleinern */
       o+=`<rect data-h="gs:${d}" x="${r(x-hit/2)}" y="${r(y-hit/2)}" width="${hit}" height="${hit}" fill="transparent"/><rect data-h="gs:${d}" x="${r(x-hs/2)}" y="${r(y-hs/2)}" width="${hs}" height="${hs}" rx="${2*u}" fill="${SEL}" stroke="#fff" stroke-width="${1.5*u}" style="paint-order:stroke"/>`; }); }
   const hv=hoverId&&byId(hoverId);
@@ -1135,8 +1159,15 @@ function renderOverlay(){
     o+=`<path d="${g.x!=null?`M${r(g.x)} ${r(g.a-12*u)}V${r(g.b+12*u)}`:`M${r(g.a-12*u)} ${r(g.y)}H${r(g.b+12*u)}`}" fill="none" stroke="#ff3d81" stroke-width="${1.2*u}" pointer-events="none"/>`;
   if(action&&action.type==='marquee'&&action.moved){ const a=action.w0,c=action.cur;
     o+=`<rect x="${Math.min(a.x,c.x)}" y="${Math.min(a.y,c.y)}" width="${Math.abs(c.x-a.x)}" height="${Math.abs(c.y-a.y)}" fill="rgba(23,99,207,.08)" stroke="${SEL}" stroke-width="${u}" pointer-events="none"/>`; }
+  if(action&&action.type==='rotate'&&action.moved){ const t=action.c;   /* Winkel beim Drehen anzeigen */
+    o+=`<g transform="translate(${r(t.x)} ${r(t.y)}) scale(${r(u)})" pointer-events="none"><rect x="-26" y="-13" width="52" height="26" rx="13" fill="${SEL}"/><text y="5" text-anchor="middle" font-family="${FONT}" font-size="14" font-weight="600" fill="#fff">${Math.round(action.shown)}°</text></g>`; }
   overlayG.innerHTML=o;
 }
+/* Drehen: Formen, Linien, Pfeile ohne Anschluss und Striche; Folien, Bahnen und Tabellen bleiben gerade */
+function canRot(it){ return it.type==='path'||(it.type==='conn'&&!it.from&&!it.to)||(it.type==='shape'&&!['frame','pool','table','quiz'].includes(it.kind)); }
+function rotHandle(x,y,u,ax,ay){ const R=(coarse?13:10)*u;
+  return `<path d="M${r(ax)} ${r(ay)}L${r(x)} ${r(y)}" stroke="${SEL}" stroke-width="${u}" pointer-events="none"/><circle data-h="rot:0" cx="${r(x)}" cy="${r(y)}" r="${(coarse?22:15)*u}" fill="transparent"/>`+
+    `<circle data-h="rot:0" cx="${r(x)}" cy="${r(y)}" r="${R}" fill="#fff" stroke="${SEL}" stroke-width="${1.5*u}"/><path d="M${r(x-R*0.45)} ${r(y-R*0.15)}a${r(R*0.48)} ${r(R*0.48)} 0 1 1 ${r(R*0.2)} ${r(R*0.52)}M${r(x-R*0.45)} ${r(y-R*0.15)}l${r(-R*0.05)} ${r(-R*0.38)}M${r(x-R*0.45)} ${r(y-R*0.15)}l${r(R*0.36)} ${r(-R*0.1)}" fill="none" stroke="${SEL}" stroke-width="${1.6*u}" stroke-linecap="round" pointer-events="none"/>`; }
 /* Hilfslinien: Kanten und Mitten der sichtbaren Formen, an denen Verschieben und Größenändern einrastet */
 function buildCand(skip){
   const rc=svg.getBoundingClientRect(), vx1=-view.x/view.k, vy1=-view.y/view.k, vx2=vx1+rc.width/view.k, vy2=vy1+rc.height/view.k, c={x:[],y:[]};
@@ -1268,7 +1299,7 @@ function loadBoards(){
 }
 /* Prüft und bereinigt ein Board aus Datei, Speicher oder Abgleich: nur bekannte Elemente, Zahlen, Farben und Texte bleiben übrig. */
 const DOC_FMT=3;   /* Version des Datenformats; ältere Apps erkennen daran Boards aus neueren Versionen */
-const KNOWN_KEYS=new Set('src id type kind x y w h text fill stroke sw colW rowH cells align ord ok pts tool tip ws from to p1 p2 style dash head arrow fa ta mm fs bold list al mc tc g lock fr fresh'.split(' '));
+const KNOWN_KEYS=new Set('rot src id type kind x y w h text fill stroke sw colW rowH cells align ord ok pts tool tip ws from to p1 p2 style dash head arrow fa ta mm fs bold list al mc tc g lock fr fresh'.split(' '));
 function keepExtra(s,o){   /* Eigenschaften, die diese Version nicht kennt, unverändert mitnehmen */
   for(const k in s){ if(KNOWN_KEYS.has(k)||k in o||!/^[a-zA-Z]\w{0,30}$/.test(k)||/^(constructor|toString|valueOf|hasOwnProperty)$/.test(k)) continue;
     const v=s[k]; if(v===undefined||typeof v==='function') continue; try{ const j=JSON.stringify(v); if(j&&j.length<=4000) o[k]=JSON.parse(j); }catch(e){} }
@@ -1310,6 +1341,7 @@ function cleanDoc(d){
     if(!o){ if(s.type&&!['shape','path','conn'].includes(s.type)&&extra.length<2000){ try{ const j=JSON.stringify(s); if(j.length<=20000) extra.push(JSON.parse(j)); }catch(e){} } continue; }
     keepExtra(s,o);
     if(o.type!=='path'){ if(s.fs) o.fs=num(s.fs,14,6,200); if(s.bold) o.bold=true; if(s.list) o.list=true; if(['left','center','right'].includes(s.al)) o.al=s.al; if(s.mm==='root'||s.mm==='node') o.mm=s.mm; if(Number.isInteger(s.mc)&&s.mc>=0&&s.mc<6) o.mc=s.mc; const tc=col(s.tc,null); if(tc&&tc!=='none') o.tc=tc; }
+    if(o.type==='shape'&&Number.isFinite(+s.rot)){ const a=((Math.round(+s.rot*100)/100)%360+360)%360; if(a) o.rot=a; }   /* Drehwinkel in Grad */
     const g=sid(s.g); if(g) o.g=g; if(s.lock) o.lock=true; const fr=sid(s.fr); if(fr) o.fr=fr;
     seen.add(id); out.push(o); const m=/^i(\d+)$/.exec(id); if(m) n=Math.max(n,+m[1]);
   }
@@ -1719,10 +1751,13 @@ function updateProps(){
   const items=[...sel].map(byId).filter(Boolean), penMode=!items.length, shut=!!palState.optsClosed, ot=$('optsToggle');
   document.body.classList.toggle('opts-closed',shut); ot.setAttribute('aria-expanded',!shut); ot.title=shut?'Optionen zum Werkzeug einblenden':'Optionen zum Werkzeug ausblenden';
   if(!items.length&&!DRAW[tool]){   /* ohne Auswahl: kurzer Hinweis je nach Werkzeug */
-    propsEl.innerHTML=`<div class="optHint">${{shape:'Form antippen: Farbe, Linie, Stärke, Reihenfolge und Gruppe erscheinen hier.',text:'Auf die Tafel tippen und schreiben. Für Größe, Fett und Ausrichtung den Text auswählen.',erase:'Über Striche und Elemente wischen, um sie zu löschen.',pan:'Tafel mit dem Finger oder der Maus verschieben.'}[tool]||'Element antippen: seine Optionen erscheinen hier. Für Stift, Pinsel und Marker oben das Werkzeug wählen.'}</div>`+(hasClip()?`<div class="pg"><b>Ablage</b><button class="pb" data-act="paste" title="Strg+V">Einfügen</button></div>`:'');
+    propsEl.innerHTML=`<div class="optHint">${{shape:'Form antippen: Farbe, Linie, Stärke, Reihenfolge und Gruppe erscheinen hier.',text:'Auf die Tafel tippen und schreiben. Für Größe, Fett und Ausrichtung den Text auswählen.',erase:'Über Striche und Elemente wischen, um sie zu löschen.',pan:'Tafel mit dem Finger oder der Maus verschieben.'}[tool]||'Element antippen: seine Optionen erscheinen hier. Für Stift, Pinsel und Marker oben das Werkzeug wählen.'}</div>`+(hasClip()?`<button class="pb optPaste" data-act="paste" title="Strg+V">Einfügen</button>`:'');
     return; }
   const ps=penStyles[drawTool], cur=items[0]||ps, hasShape=items.some(i=>i.type==='shape'), conns=items.filter(i=>i.type==='conn'), paths=items.filter(i=>i.type==='path');
   const sws=(act,on,none,lab)=>`<div class="sws">`+COLORS.filter(c=>none||c!=='none').map(c=>`<button class="sw${c==='none'?' none':''}" data-act="${act}" data-val="${c}" aria-pressed="${on===c}" title="${cname(c)}" aria-label="${lab}: ${cname(c)}" style="${c==='none'?'':'background:'+mapC(c)}"></button>`).join('')+`</div>`;
+  /* Farben: ein Knopf mit der aktuellen Farbe, die Auswahl klappt darunter auf */
+  const cd=(act,on,none,lab)=>{ CDROP[act]={html:sws(act,on,none,lab),lab}; const c=on&&on!=='none'?mapC(on):null;
+    return `<button class="pb cdrop" data-drop="${act}" aria-haspopup="true" title="${lab}: ${on?cname(on):'–'}" aria-label="${lab} wählen"><span class="cdot${c?'':' none'}"${c?` style="background:${c}"`:''}></span><i></i></button>`; };
   let h='';
   if(items.length===1&&items[0].type==='shape'&&items[0].mm) h+=`<div class="pg"><b>Mindmap</b><button class="pb wide" data-act="branch" title="Neuen Zweig an diesen Knoten hängen (beim Schreiben: Tab)">+ Zweig</button></div>`;
   if(items.length&&items.every(i=>i.kind==='check')) h+=`<div class="pg"><b>Quiz</b><button class="pb" data-act="qok" aria-pressed="${items.every(i=>i.ok)}" title="Als richtige Antwort markieren. In der Präsentation zeigt „Lösung“ die richtigen Antworten.">Richtig</button></div>`;
@@ -1731,9 +1766,9 @@ function updateProps(){
   const alable=texty.filter(i=>i.type==='shape'&&i.kind!=='pool'&&i.kind!=='frame');
   if(alable.length){ const A=alOf(alable[0]); h=h.replace(/<\/div><\/div>$/,`</div><div class="sws three"><button class="pb" data-act="txal" data-val="left" aria-pressed="${A==='left'}" title="Linksbündig" aria-label="Linksbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M3 9h9M3 13h14M3 17h9"/></svg></button><button class="pb" data-act="txal" data-val="center" aria-pressed="${A==='center'}" title="Zentriert" aria-label="Zentriert"><svg viewBox="0 0 20 20"><path d="M3 5h14M5.500 9h9M3 13h14M5.500 17h9"/></svg></button><button class="pb" data-act="txal" data-val="right" aria-pressed="${A==='right'}" title="Rechtsbündig" aria-label="Rechtsbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M8 9h9M3 13h14M8 17h9"/></svg></button></div></div>`); }
   const onlyText=items.length>0&&items.every(i=>i.type==='shape'&&i.kind==='text');
-  if(texty.length){ const t0=texty[0]; h+=`<div class="pg"><b>Schrift</b>${sws('tc',t0.tc||(t0.kind==='text'?t0.stroke:''),false,'Schriftfarbe')}</div>`; }
-  if(hasShape) h+=`<div class="pg"><b>${onlyText?'Hintergrund':'Füllung'}</b>${sws('fill',(items.find(i=>i.type==='shape')||{}).fill,true,'Füllung')}</div>`;
-  if(!onlyText) h+=`<div class="pg"><b>${penMode?DRAW[drawTool]+'farbe':'Linie'}</b>${sws('stroke',cur.stroke,hasShape&&!conns.length&&!paths.length,'Linie')}</div>`;
+  if(texty.length){ const t0=texty[0]; h+=`<div class="pg"><b>Schrift</b>${cd('tc',t0.tc||(t0.kind==='text'?t0.stroke:''),false,'Schriftfarbe')}</div>`; }
+  if(hasShape) h+=`<div class="pg"><b>${onlyText?'Hintergrund':'Füllung'}</b>${cd('fill',(items.find(i=>i.type==='shape')||{}).fill,true,'Füllung')}</div>`;
+  if(!onlyText) h+=`<div class="pg"><b>${penMode?DRAW[drawTool]+'farbe':'Linie'}</b>${cd('stroke',cur.stroke,hasShape&&!conns.length&&!paths.length,penMode?DRAW[drawTool]+'farbe':'Linie')}</div>`;
   const wl=penMode?WIDTHS[drawTool]:(cur.type==='path'?WIDTHS[cur.tool||'pen']:WIDTHS.shape);
   let near=0; wl.forEach((v,i)=>{ if(Math.abs(v-cur.sw)<Math.abs(wl[near]-cur.sw)) near=i; });
   if(!onlyText) h+=`<div class="pg"><b>Stärke</b>`+wl.map((v,i)=>`<button class="pb wbtn" data-act="sw" data-val="${v}" aria-pressed="${i===near}" title="Stärke ${i+1} von 5"><i class="lw" style="height:${1.5+i*2.5}px"></i></button>`).join('')+`</div>`;
@@ -1749,12 +1784,23 @@ function updateProps(){
     const ab=([v,t,d])=>`<button class="pb" data-act="al" data-val="${v}" title="${t}" aria-label="${t}"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="${d}"/></svg></button>`;
     h+=`<div class="pg"><b>Ausrichten</b><div class="sws three">`+AL.map(ab).join('')+`</div>`+(nUnits>=3?`<div class="sws two">`+[['dh','Waagerecht gleichmäßig verteilen','M3 2v16M17 2v16M8 6h4v8H8z'],['dv','Senkrecht gleichmäßig verteilen','M2 3h16M2 17h16M6 8h8v4H6z']].map(ab).join('')+`</div>`:'')+`</div>`; }
   if(items.length>1||items.some(i=>i.g)) h+=`<div class="pg"><b>Gruppe</b>`+(items.length>1?`<button class="pb" data-act="group" title="Strg+G">Gruppieren</button>`:'')+(items.some(i=>i.g)?`<button class="pb" data-act="ungroup" title="Strg+Umschalt+G">Gruppe lösen</button>`:'')+`</div>`;
-  if(items.length) h+=`<div class="pg"><b>Element</b><button class="pb" data-act="front">Nach vorn</button><button class="pb" data-act="back">Nach hinten</button><button class="pb" data-act="dup">Duplizieren</button><button class="pb" data-act="copy" title="Strg+C">Kopieren</button><button class="pb" data-act="lock" aria-pressed="${items.every(i=>i.lock)}" title="Gesperrte Elemente lassen sich nicht verschieben, ändern oder löschen">${items.every(i=>i.lock)?'Entsperren':'Sperren'}</button><button class="pb danger" data-act="del">Löschen</button></div>`;
-  if(hasClip()) h+=`<div class="pg"><b>Ablage</b><button class="pb" data-act="paste" title="Strg+V">Einfügen</button></div>`;
+  if(items.length) h+=`<div class="pg"><b>Element</b><button class="pb" data-act="front">Nach vorn</button><button class="pb" data-act="back">Nach hinten</button><button class="pb" data-act="dup">Duplizieren</button><button class="pb" data-act="copy" title="Strg+C">Kopieren</button><button class="pb" data-act="lock" aria-pressed="${items.every(i=>i.lock)}" title="Gesperrte Elemente lassen sich nicht verschieben, ändern oder löschen">${items.every(i=>i.lock)?'Entsperren':'Sperren'}</button><button class="pb danger" data-act="del">Löschen</button>`+(hasClip()?`<button class="pb" data-act="paste" title="Strg+V">Einfügen</button>`:'')+`</div>`;
   propsEl.innerHTML=h;
 }
+const CDROP={};
+function closeColorPop(){ const p=$('colorPop'); if(p&&!p.hidden){ p.hidden=true; p.innerHTML=''; } }
 propsEl.addEventListener('click',e=>{
-  const b=e.target.closest('[data-act]'); if(!b) return;
+  const d=e.target.closest('[data-drop]');
+  if(d){ e.stopPropagation(); const p=$('colorPop'), info=CDROP[d.dataset.drop]; if(!info) return;
+    if(!p.hidden&&p.dataset.for===d.dataset.drop){ closeColorPop(); return; }
+    p.innerHTML=`<div class="mh">${esc(info.lab)}</div>`+info.html; p.dataset.for=d.dataset.drop; p.hidden=false;
+    const r=d.getBoundingClientRect(), z=uiCfg.scale, w=p.offsetWidth*z; p.style.left=Math.max(6,Math.min(innerWidth-w-6,r.left+r.width/2-w/2))/z+'px'; p.style.top=(r.bottom+6)/z+'px'; return; }
+  const b=e.target.closest('[data-act]'); if(b) propsAct(b);
+});
+$('colorPop').addEventListener('click',e=>{ e.stopPropagation(); const b=e.target.closest('[data-act]'); if(!b) return; closeColorPop(); propsAct(b); });
+document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#colorPop,[data-drop]')) closeColorPop(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('colorPop').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeColorPop(); } },true);
+function propsAct(b){
   const act=b.dataset.act,val=b.dataset.val,items=[...sel].map(byId).filter(Boolean);
   if(act==='front') return reorder(true);
   if(act==='back') return reorder(false);
@@ -1798,7 +1844,7 @@ propsEl.addEventListener('click',e=>{
     if(it.type==='conn'){ if(act==='style') it.style=it.style==='straight'?'ortho':'straight'; if(act==='dash') it.dash=!it.dash; if(act==='head'){ const i=HEADS.findIndex(x=>x[0]===headOf(it)); it.head=HEADS[(i+1)%HEADS.length][0]; delete it.arrow; } }
   }
   commit(); render();
-});
+}
 
 /* ---------- Zeiger auf der Tafel ---------- */
 /* Magnetisches Andocken: sucht die Form in der Nähe des Pfeilendes und den passenden Andockpunkt */
@@ -1866,6 +1912,10 @@ svg.addEventListener('pointerdown',e=>{
   if(tool==='conn'){ startConn(base,item&&item.type==='shape'&&!noDock(item.kind)?item:null,w); return; }
   if(hEl){
     const [t,v]=hEl.dataset.h.split(':'), one=byId([...sel][0]);
+    if(t==='rot'){ const its=[...sel].map(byId).filter(i=>i&&!i.lock&&canRot(i)); if(its.length){
+        const c=its.length===1&&its[0].type==='shape'?{x:its[0].x+its[0].w/2,y:its[0].y+its[0].h/2}:(()=>{ const b=unionBox(its); return {x:b.x+b.w/2,y:b.y+b.h/2}; })();
+        action={...base,type:'rotate',c,a0:Math.atan2(w.y-c.y,w.x-c.x),single:its.length===1&&its[0].type==='shape',r0:its.length===1&&its[0].type==='shape'?(its[0].rot||0):0,shown:its.length===1&&its[0].type==='shape'?(its[0].rot||0):0,
+          orig:its.map(i=>({id:i.id,d:JSON.parse(JSON.stringify(i))})),deps:depsFor(its.map(i=>i.id))}; return; } }
     if(t==='gs'){ const its=[...sel].map(byId).filter(i=>i&&!i.lock), ub=unionBox(its.filter(i=>!(i.type==='conn'&&(i.from||i.to))));
       if(ub&&ub.w>1&&ub.h>1){ action={...base,type:'gresize',dir:v,box:{x1:ub.x,y1:ub.y,x2:ub.x+ub.w,y2:ub.y+ub.h},orig:its.map(i=>({id:i.id,d:JSON.parse(JSON.stringify(i))})),deps:depsFor(its.map(i=>i.id)),qmin:Math.max(0.05,12/Math.min(ub.w,ub.h))}; return; } }
     if(one&&(t==='tc'||t==='tr')){ action={...base,type:'tdiv',k:t==='tc'?'c':'r',i:+v,id:one.id,deps:depsFor([one.id]),o:{colW:one.colW.slice(),rowH:one.rowH.slice()}}; return; }
@@ -1927,10 +1977,20 @@ svg.addEventListener('pointermove',e=>{
         else if(it.type==='path') it.pts=d.pts.map(p=>[r(p[0]+dx),r(p[1]+dy)]);
         else { it.p1={x:r(d.p1.x+dx),y:r(d.p1.y+dy)}; it.p2={x:r(d.p2.x+dx),y:r(d.p2.y+dy)}; } }
       break; }
+    case 'rotate': {   /* in 15°-Schritten; eine einzelne Form rastet auf 0°, 15°, 30° … ein */
+      const deg=(Math.atan2(w.y-a.c.y,w.x-a.c.x)-a.a0)*180/Math.PI;
+      let D=Math.round(deg/15)*15; if(a.single) D=Math.round((a.r0+deg)/15)*15-a.r0;
+      a.shown=(((a.single?a.r0+D:D)%360)+360)%360; if(a.shown>180&&!a.single) a.shown-=360;
+      for(const o of a.orig){ const it=byId(o.id),d=o.d; if(!it) continue;
+        if(it.type==='shape'){ const cc=rotP({x:d.x+d.w/2,y:d.y+d.h/2},a.c,D); it.x=r(cc.x-d.w/2); it.y=r(cc.y-d.h/2); const nr=(((d.rot||0)+D)%360+360)%360; if(nr) it.rot=nr; else delete it.rot; }
+        else if(it.type==='path') it.pts=d.pts.map(p=>{ const q=rotP({x:p[0],y:p[1]},a.c,D); return [r(q.x),r(q.y)]; });
+        else { const q1=rotP(d.p1,a.c,D), q2=rotP(d.p2,a.c,D); it.p1={x:r(q1.x),y:r(q1.y)}; it.p2={x:r(q2.x),y:r(q2.y)}; } }
+      break; }
     case 'resize': {
       const it=byId(a.id),o=a.o,d=a.dir; if(!it) break;
+      const oc={x:o.x+o.w/2,y:o.y+o.h/2}, rot=it.rot||0; if(rot){ const q=rotP(w,oc,-rot); w.x=q.x; w.y=q.y; }   /* gedrehte Form: Zeiger in ihr eigenes Koordinatensystem */
       let x1=o.x,y1=o.y,x2=o.x+o.w,y2=o.y+o.h;
-      const cand=smart?(a.cand||(a.cand=buildCand(new Set([a.id])))):null;
+      const cand=smart&&!rot?(a.cand||(a.cand=buildCand(new Set([a.id])))):null;
       const SX=v=>{ const h=cand?nearCand(cand.x,[v],TOL):null; return h!==null?v+h:sn(v); }, SY=v=>{ const h=cand?nearCand(cand.y,[v],TOL):null; return h!==null?v+h:sn(v); };
       if(d.includes('w')) x1=Math.min(SX(w.x),x2-20); if(d.includes('e')) x2=Math.max(SX(w.x),x1+20);
       if(d.includes('n')) y1=Math.min(SY(w.y),y2-20); if(d.includes('s')) y2=Math.max(SY(w.y),y1+20);
@@ -1942,6 +2002,10 @@ svg.addEventListener('pointermove',e=>{
       it.x=x1; it.y=y1; it.w=x2-x1; it.h=y2-y1;
       if(it.kind==='table'){ it.colW=o.colW.map(v=>r(v*it.w/o.w)); it.rowH=o.rowH.map(v=>r(v*it.h/o.h)); }
       if(isSq(it.kind)){ const m=Math.max(it.w,it.h); if(d.includes('w')) it.x=x2-m; if(d.includes('n')) it.y=y2-m; it.w=it.h=m; }
+      if(rot){   /* die gegenüberliegende Seite bleibt auf der Tafel stehen */
+        const f={x:d.includes('w')?o.x+o.w:d.includes('e')?o.x:oc.x,y:d.includes('n')?o.y+o.h:d.includes('s')?o.y:oc.y};
+        const nf={x:d.includes('w')?it.x+it.w:d.includes('e')?it.x:it.x+it.w/2,y:d.includes('n')?it.y+it.h:d.includes('s')?it.y:it.y+it.h/2};
+        const F=rotP(f,oc,rot), F2=rotP(nf,{x:it.x+it.w/2,y:it.y+it.h/2},rot); it.x=r(it.x+F.x-F2.x); it.y=r(it.y+F.y-F2.y); }
       if(cand) a.guides=guideLines({x:it.x,y:it.y,w:it.w,h:it.h},cand);
       break; }
     case 'gresize': {   /* alles Ausgewählte gemeinsam um die gegenüberliegende Ecke skalieren */
@@ -2003,6 +2067,7 @@ function onUp(e){
         if(!a.moved||Math.hypot(l.x-f.x,l.y-f.y)<12){ removeIds(new Set([c.id])); sel.clear(); if(a.moved) break; doc=snapDoc(hist[hi]); break; } }
       commit(); break; }
     case 'move': if(a.moved) commit(); else if(tap(a.hitId,e)) return; break;
+    case 'rotate': if(a.moved) commit(); break;
     case 'resize': { const it=byId(a.id); if(it&&a.moved){ if(it.kind==='text'||it.kind==='table') autosize(it); commit(); } break; }
     case 'gresize': if(a.moved){ for(const o of a.orig){ const it=byId(o.id); if(it&&it.type==='shape'&&(it.kind==='text'||it.kind==='table')) autosize(it); } commit(); } break;
     case 'tdiv': { const it=byId(a.id); if(it&&a.moved){ autosize(it); commit(); } break; }
@@ -2098,6 +2163,7 @@ palEl.addEventListener('click',e=>{
 });
 $('palHandle').onclick=()=>{ palState.closed=!palState.closed; savePal(); renderPal(); };
 $('propsToggle').onclick=()=>{ palState.propsClosed=!palState.propsClosed; savePal(); applySides(); };
+palState.optsClosed=!(location.hostname==='localhost'&&localStorage.getItem('skizix-test-opts'));   /* (nur Tests auf localhost: offen lassen) */ /* beim Öffnen der App zu; ein Klick auf ein Werkzeug öffnet sie */
 $('optsToggle').onclick=()=>{ palState.optsClosed=!palState.optsClosed; savePal(); updateProps(); };
 /* rechte Leiste = Datei (Boards, Live, Export …); auf und zu über den Griff oder den Knopf „Datei“ */
 function applySides(){
@@ -2145,7 +2211,7 @@ palEl.addEventListener('pointerdown',e=>{
 });
 
 /* ---------- Leisten, Menü, Tastatur ---------- */
-$('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); setTool(b.dataset.tool); } });
+$('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); if(palState.optsClosed){ palState.optsClosed=false; savePal(); } setTool(b.dataset.tool); updateProps(); } });
 $('undo').onclick=undo; $('redo').onclick=redo; $('playBtn').onclick=()=>startPres();
 $('zoomIn').onclick=()=>zoomCenter(1.25); $('zoomOut').onclick=()=>zoomCenter(0.8); $('zoomLabel').onclick=fit;
 function fitMenu(){}

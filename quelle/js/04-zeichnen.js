@@ -44,8 +44,10 @@ function renderOverlay(){
       if(single&&!it.lock){ [['a',pts[0]],['b',pts[pts.length-1]]].forEach(([e,p])=>{
         o+=`<circle data-h="ce:${e}" cx="${r(p.x)}" cy="${r(p.y)}" r="${(coarse?20:14)*u}" fill="transparent"/><circle data-h="ce:${e}" cx="${r(p.x)}" cy="${r(p.y)}" r="${(coarse?9:6)*u}" fill="#fff" stroke="${SEL}" stroke-width="${2*u}"/>`; }); }
       continue; }
-    const b=bbox(it),p=4*u;
+    const rotd=it.type==='shape'&&it.rot?it.rot:0, b=rotd?{x:it.x,y:it.y,w:it.w,h:it.h}:bbox(it),p=4*u;
+    if(rotd) o+=`<g transform="rotate(${rotd} ${r(it.x+it.w/2)} ${r(it.y+it.h/2)})">`;   /* gedrehte Form: Rahmen und Griffe drehen mit */
     o+=`<rect x="${r(b.x-p)}" y="${r(b.y-p)}" width="${r(b.w+2*p)}" height="${r(b.h+2*p)}" fill="none" stroke="${SEL}" stroke-width="${1.5*u}" stroke-dasharray="${5*u} ${4*u}" pointer-events="none"/>`;
+    if(single&&!it.lock&&canRot(it)&&editing!==it.id) o+=rotHandle(b.x+b.w+p+14*u,b.y-p-14*u,u,b.x+b.w+p,b.y-p);
     if(it.lock) o+=`<g transform="translate(${r(b.x+b.w+p)} ${r(b.y-p)}) scale(${r(u*1.5)})" pointer-events="none"><circle r="9" fill="${SEL}"/><path d="${LOCKP}" transform="translate(0 -1.500)" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></g>`;
     if(single&&it.type==='shape'&&editing!==it.id&&!it.lock){
       if(!noDock(it.kind)){ const g=(coarse?32:22)*u;
@@ -63,9 +65,11 @@ function renderOverlay(){
         it.rowH.forEach((rh,i)=>{ y+=rh; o+=`<rect data-h="tr:${i}" x="${r(it.x-g-gh/2)}" y="${r(y-gh/2)}" width="${gh}" height="${gh}" fill="transparent"/><rect data-h="tr:${i}" x="${r(it.x-g-gl/2)}" y="${r(y-gw/2)}" width="${gl}" height="${gw}" rx="${3*u}" fill="${SEL}" stroke="#fff" stroke-width="${u}"/>`; });
       }
     }
+    if(rotd) o+='</g>';
   }
   if(items.length>1){ const ub=unionBox(items), x1=ub.x-10*u, y1=ub.y-10*u, x2=ub.x+ub.w+10*u, y2=ub.y+ub.h+10*u;
     o+=`<rect x="${r(x1)}" y="${r(y1)}" width="${r(x2-x1)}" height="${r(y2-y1)}" rx="${4*u}" fill="none" stroke="${SEL}" stroke-width="${u}" pointer-events="none"/>`;
+    if(!editing&&items.some(i=>!i.lock&&canRot(i))) o+=rotHandle(x2+16*u,y1-16*u,u,x2,y1);
     if(!editing&&items.some(i=>!i.lock&&!(i.type==='conn'&&(i.from||i.to)))) [['nw',x1,y1],['ne',x2,y1],['se',x2,y2],['sw',x1,y2]].forEach(([d,x,y])=>{   /* Ecken: alles Ausgewählte gemeinsam vergrößern oder verkleinern */
       o+=`<rect data-h="gs:${d}" x="${r(x-hit/2)}" y="${r(y-hit/2)}" width="${hit}" height="${hit}" fill="transparent"/><rect data-h="gs:${d}" x="${r(x-hs/2)}" y="${r(y-hs/2)}" width="${hs}" height="${hs}" rx="${2*u}" fill="${SEL}" stroke="#fff" stroke-width="${1.5*u}" style="paint-order:stroke"/>`; }); }
   const hv=hoverId&&byId(hoverId);
@@ -78,8 +82,15 @@ function renderOverlay(){
     o+=`<path d="${g.x!=null?`M${r(g.x)} ${r(g.a-12*u)}V${r(g.b+12*u)}`:`M${r(g.a-12*u)} ${r(g.y)}H${r(g.b+12*u)}`}" fill="none" stroke="#ff3d81" stroke-width="${1.2*u}" pointer-events="none"/>`;
   if(action&&action.type==='marquee'&&action.moved){ const a=action.w0,c=action.cur;
     o+=`<rect x="${Math.min(a.x,c.x)}" y="${Math.min(a.y,c.y)}" width="${Math.abs(c.x-a.x)}" height="${Math.abs(c.y-a.y)}" fill="rgba(23,99,207,.08)" stroke="${SEL}" stroke-width="${u}" pointer-events="none"/>`; }
+  if(action&&action.type==='rotate'&&action.moved){ const t=action.c;   /* Winkel beim Drehen anzeigen */
+    o+=`<g transform="translate(${r(t.x)} ${r(t.y)}) scale(${r(u)})" pointer-events="none"><rect x="-26" y="-13" width="52" height="26" rx="13" fill="${SEL}"/><text y="5" text-anchor="middle" font-family="${FONT}" font-size="14" font-weight="600" fill="#fff">${Math.round(action.shown)}°</text></g>`; }
   overlayG.innerHTML=o;
 }
+/* Drehen: Formen, Linien, Pfeile ohne Anschluss und Striche; Folien, Bahnen und Tabellen bleiben gerade */
+function canRot(it){ return it.type==='path'||(it.type==='conn'&&!it.from&&!it.to)||(it.type==='shape'&&!['frame','pool','table','quiz'].includes(it.kind)); }
+function rotHandle(x,y,u,ax,ay){ const R=(coarse?13:10)*u;
+  return `<path d="M${r(ax)} ${r(ay)}L${r(x)} ${r(y)}" stroke="${SEL}" stroke-width="${u}" pointer-events="none"/><circle data-h="rot:0" cx="${r(x)}" cy="${r(y)}" r="${(coarse?22:15)*u}" fill="transparent"/>`+
+    `<circle data-h="rot:0" cx="${r(x)}" cy="${r(y)}" r="${R}" fill="#fff" stroke="${SEL}" stroke-width="${1.5*u}"/><path d="M${r(x-R*0.45)} ${r(y-R*0.15)}a${r(R*0.48)} ${r(R*0.48)} 0 1 1 ${r(R*0.2)} ${r(R*0.52)}M${r(x-R*0.45)} ${r(y-R*0.15)}l${r(-R*0.05)} ${r(-R*0.38)}M${r(x-R*0.45)} ${r(y-R*0.15)}l${r(R*0.36)} ${r(-R*0.1)}" fill="none" stroke="${SEL}" stroke-width="${1.6*u}" stroke-linecap="round" pointer-events="none"/>`; }
 /* Hilfslinien: Kanten und Mitten der sichtbaren Formen, an denen Verschieben und Größenändern einrastet */
 function buildCand(skip){
   const rc=svg.getBoundingClientRect(), vx1=-view.x/view.k, vy1=-view.y/view.k, vx2=vx1+rc.width/view.k, vy2=vy1+rc.height/view.k, c={x:[],y:[]};

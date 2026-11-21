@@ -26,6 +26,18 @@ try:
   heads=[t.upper() for t in pg.locator('#props .pg>b').all_inner_texts()]
   check('Form: Auswahlrahmen nimmt nur Formen',('ELEMENT' in heads) and ('PINSELFORM' not in heads),str(heads))
   check('Form: Nach vorn und Gruppe-Optionen oben',pg.locator('#props [data-act="front"]').count()==1)
+  # Farbe als Aufklappfeld
+  check('Farben als Aufklappfeld statt Farbraster',pg.locator('#props .cdrop').count()>=2 and pg.locator('#props .sw').count()==0)
+  pg.click('#props [data-drop="fill"]'); pg.wait_for_timeout(150)
+  check('Farbfeld klappt auf',pg.is_visible('#colorPop') and pg.locator('#colorPop .sw').count()>=15)
+  pg.click('#colorPop [data-act="fill"][data-val="#ffd9c7"]'); pg.wait_for_timeout(250)
+  fill=[i for i in pg.evaluate(READ)['items'] if i['id']=='a'][0]['fill']
+  check('Farbe gewählt und Feld zu',fill=='#ffd9c7' and not pg.is_visible('#colorPop'),fill)
+  check('Kein Abschnitt „Ablage“ mehr',not any(t.upper()=='ABLAGE' for t in pg.locator('#props .pg>b').all_inner_texts()))
+  pg.click('#props [data-act="copy"]'); pg.wait_for_timeout(150)
+  check('Einfügen steht bei Kopieren und Duplizieren',pg.locator('#props .pg:has([data-act="copy"]) [data-act="paste"]').count()==1)
+  ok_c=pg.evaluate("()=>[...document.querySelectorAll('#props .pg')].every(g=>{const b=g.querySelector(':scope>b'); if(!b) return true; const kids=[...g.children].filter(x=>x!==b); const L=Math.min(...kids.map(k=>k.getBoundingClientRect().left)), R=Math.max(...kids.map(k=>k.getBoundingClientRect().right)), br=b.getBoundingClientRect(); const tw=b.scrollWidth; return Math.abs((L+R)/2-(br.left+br.right)/2)<2; })")
+  check('Überschriften mittig über ihren Knöpfen',ok_c)
   # Höhe bleibt gleich (kein Springen der Tafel)
   h1=pg.evaluate("()=>document.getElementById('board').getBoundingClientRect().top"); pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
   h2=pg.evaluate("()=>document.getElementById('board').getBoundingClientRect().top")
