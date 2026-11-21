@@ -33,7 +33,7 @@ try:
         t=pg.evaluate("async()=>{const s=document.getElementById('board');const t0=performance.now();for(let i=0;i<20;i++){s.dispatchEvent(new WheelEvent('wheel',{deltaY:i%2?-60:60,ctrlKey:true,clientX:800,clientY:450,bubbles:true,cancelable:true}));await new Promise(r=>requestAnimationFrame(r));}return (performance.now()-t0)/20}")
         res[f'zoom_{n}_ms_per_frame']=round(t,1)
         # Ziehen einer Form: Zeit pro pointermove
-        pg.click('#zoomLabel'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
+        einpassen(pg); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
         bb=pg.evaluate("()=>{const r=document.querySelector('#items [data-id=\"s0\"]').getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]}")
         pg.mouse.move(*bb); pg.mouse.down(); t0=time.time()
         for i in range(30): pg.mouse.move(bb[0]+i*3,bb[1]+i*2)
@@ -45,11 +45,11 @@ try:
         if n==1000:
             t0=time.time()
             with pg.expect_download(timeout=120000) as dl:
-                openFile(pg); pg.click('#menu [data-m="png"]')
+                exportiere(pg,'png')
             res['png_1000_s']=round(time.time()-t0,1)
             t0=time.time()
             with pg.expect_download(timeout=120000) as dl:
-                openFile(pg); pg.click('#menu [data-m="pdf"]')
+                exportiere(pg,'pdf')
             res['pdf_1000_s']=round(time.time()-t0,1)
     # Speicher voll? 4 große Boards
     res['quota']=pg.evaluate("""()=>{try{const big='x'.repeat(1024*1024);let i=0;for(;i<20;i++){localStorage.setItem('qtest'+i,big);} return 'kein Limit bis 20 MB-Zeichen'}catch(e){let n=0;for(let i=0;i<20;i++){if(localStorage.getItem('qtest'+i))n++;} for(let i=0;i<20;i++)localStorage.removeItem('qtest'+i); return 'Limit nach ca. '+n+' Mio. Zeichen'}}""")

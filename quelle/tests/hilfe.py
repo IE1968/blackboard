@@ -17,7 +17,15 @@ def check(name,cond,extra=''):
 
 def openFile(pg):
     """Datei-Leiste rechts öffnen (falls sie zu ist)."""
-    pg.evaluate("()=>{ if(document.querySelector('main').classList.contains('props-closed')) document.getElementById('menuBtn').click() }"); pg.wait_for_timeout(120)
+    pg.evaluate("()=>{ if(document.querySelector('main').classList.contains('props-closed')) document.getElementById('propsToggle').click() }"); pg.wait_for_timeout(120)
+
+def einpassen(pg):
+    """Alles einpassen (Umschalt+1)."""
+    pg.keyboard.press('Shift+Digit1')
+
+def exportiere(pg,fmt):
+    """Export-Knopf oben öffnen und Format wählen."""
+    pg.click('#expBtn'); pg.click(f'#expPop [data-m="{fmt}"]')
 
 def pact(pg,sel):
     """Knopf in der Optionsleiste klicken; liegt er in einem Aufklappfeld (Text, Element), dieses vorher öffnen."""

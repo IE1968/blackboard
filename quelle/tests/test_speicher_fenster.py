@@ -51,7 +51,7 @@ try:
     ok('Format-Version bleibt 4',d.get('fmt')==4)
     # --- 4: Folie duplizieren / kopieren
     pg.evaluate("(d)=>{localStorage.setItem('blackboard-b-b1',JSON.stringify(d));}",{'items':[S('f','frame',0,0,640,360,fill='none',ord=1),S('a','rect',100,100,140,80,'Inhalt'),S('t','text',100,40,300,40,'Titel',fill='none'),S('c','round',300,200,140,60,'Zwei'),{'id':'k','type':'conn','from':'a','to':'c','p1':{'x':0,'y':0},'p2':{'x':0,'y':0},'text':'','stroke':'#1c2a2e','sw':2,'style':'ortho','dash':False,'head':'arrow'},S('o','rect',800,100,100,60,'Außen')],'n':10})
-    pg.reload(); pg.wait_for_timeout(500); pg.click('#zoomLabel'); pg.wait_for_timeout(150); pg.keyboard.press('Escape')
+    pg.reload(); pg.wait_for_timeout(500); einpassen(pg); pg.wait_for_timeout(150); pg.keyboard.press('Escape')
     def clickW(x,y):
         t=pg.evaluate("()=>document.getElementById('world').getAttribute('transform')"); m=re.match(r'translate\(([-\d.]+) ([-\d.]+)\) scale\(([-\d.]+)\)',t)
         rc=pg.evaluate("()=>{const r=document.getElementById('board').getBoundingClientRect();return [r.left,r.top]}")

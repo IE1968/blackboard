@@ -11,7 +11,7 @@ try:
     pg.add_init_script("localStorage.setItem('skizix-test-opts','1')")
     pg.goto(URL); pg.wait_for_timeout(300)
     pg.evaluate("(d)=>{const b=JSON.parse(localStorage.getItem('blackboard-boards'));localStorage.setItem('blackboard-b-'+b.cur,JSON.stringify(d));}",doc)
-    pg.reload(); pg.wait_for_timeout(500); pg.click('#zoomLabel'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
+    pg.reload(); pg.wait_for_timeout(500); einpassen(pg); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
     for id in ['a','c']:
         bb=pg.evaluate("(id)=>{const r=document.querySelector('#items [data-id=\"'+id+'\"]').getBoundingClientRect();return [r.left+12,r.top+12]}",id)
         pg.mouse.click(*bb); pg.wait_for_timeout(450); pact(pg,'[data-act="list"]'); pg.wait_for_timeout(150); pg.keyboard.press('Escape')

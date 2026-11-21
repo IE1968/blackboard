@@ -89,7 +89,7 @@ try:
     pg.wait_for_timeout(600); pg.mouse.click(ax,ay); pg.wait_for_timeout(80); pact(pg,'[data-act="lock"]'); d=doc(); A2=[i for i in d['items'] if i['id']==A['id']][0]
     ok('Entsperren',not A2.get('lock'))
     # --- Gruppe skalieren
-    pg.keyboard.press('Escape'); pg.click('#zoomLabel'); pg.wait_for_timeout(150); pg.keyboard.press('Control+a'); pg.wait_for_timeout(80)
+    pg.keyboard.press('Escape'); einpassen(pg); pg.wait_for_timeout(150); pg.keyboard.press('Control+a'); pg.wait_for_timeout(80)
     h=pg.evaluate("()=>{const c=document.querySelectorAll('#overlay [data-h=\"gs:se\"]')[1];return [+c.getAttribute('x')+ +c.getAttribute('width')/2,+c.getAttribute('y')+ +c.getAttribute('height')/2]}")
     before=doc(); hx,hy=scr(h[0],h[1]); drag(hx,hy,hx+min(200,1380-hx),hy+min(200,890-hy)); after=doc()
     b0=[i for i in before['items'] if i['id']==B['id']][0]; b1=[i for i in after['items'] if i['id']==B['id']][0]
@@ -123,11 +123,11 @@ try:
     pg.screenshot(path='/tmp/bb-tests/board.png')
     # --- PDF je Folie
     with pg.expect_download(timeout=15000) as dl:
-        menu('pdf')
+        exportiere(pg,'pdf')
     path=dl.value.path(); data=open(path,'rb').read()
     ok('PDF mit 2 Seiten',data.startswith(b'%PDF') and b'/Count 2' in data,str(len(data)))
     open('/tmp/bb-tests/out.pdf','wb').write(data)
-    with pg.expect_download(timeout=15000) as dl: menu('png')
+    with pg.expect_download(timeout=15000) as dl: exportiere(pg,'png')
     ok('PNG-Export',dl.value.path() is not None)
     # reload -> Daten bleiben gültig (cleanDoc)
     n0=len(doc()['items']); pg.reload(); pg.wait_for_timeout(500); 

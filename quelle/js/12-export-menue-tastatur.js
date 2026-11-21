@@ -69,6 +69,8 @@ document.addEventListener('keydown',e=>{
   if(e.key.startsWith('Arrow')&&sel.size){ e.preventDefault(); const st=e.shiftKey?1:GRID, dx=k==='arrowleft'?-st:k==='arrowright'?st:0, dy=k==='arrowup'?-st:k==='arrowdown'?st:0;
     for(const it of [...sel].map(byId)){ if(!it||it.lock) continue; if(it.type==='shape'){ it.x+=dx; it.y+=dy; } else if(it.type==='path') it.pts=it.pts.map(p=>[p[0]+dx,p[1]+dy]); }
     commit(); render(); return; }
+  if(e.shiftKey&&e.code==='Digit1'){ e.preventDefault(); fit(); return; }
+  if(e.key==='0'){ e.preventDefault(); zoomCenter(1/view.k); return; }
   if(e.key==='?'){ e.preventDefault(); openKeys(); return; }
   const map={v:'select',f:'shape',p:'pen',b:'brush',m:'marker',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
 });

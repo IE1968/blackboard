@@ -14,7 +14,7 @@ try:
         pg.focus(f'.pal[data-kind="{k}"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(120); pg.keyboard.press('Escape')
     d=pg.evaluate("async()=>{await new Promise(r=>setTimeout(r,400));const b=JSON.parse(localStorage.getItem('blackboard-boards'));const db=await new Promise(r=>{const q=indexedDB.open('blackboard',1);q.onsuccess=()=>r(q.result)});const v=await new Promise(r=>{const q=db.transaction('docs').objectStore('docs').get(b.cur);q.onsuccess=()=>r(q.result)});db.close();return JSON.parse(v)}")
     k=[i.get('kind') for i in d['items']]; check('Quizfolie mit 3 Antworten',k.count('check')==3 and 'frame' in k,str(k))
-    pg.click('#zoomLabel'); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
+    einpassen(pg); pg.wait_for_timeout(200); pg.keyboard.press('Escape')
     # Antwort auswählen und "Richtig" setzen
     cid=[i['id'] for i in d['items'] if i.get('kind')=='check'][0]
     bb=pg.evaluate("(id)=>{const r=document.querySelector('#items [data-id=\"'+id+'\"]').getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]}",cid)

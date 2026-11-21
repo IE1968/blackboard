@@ -15,7 +15,7 @@ try:
   check('Optionsleiste beim Öffnen zu',not pg.is_visible('#props'))
   pg.click('#tools [data-tool="select"]'); pg.wait_for_timeout(150)
   check('Klick auf Werkzeug öffnet sie',pg.is_visible('#props'))
-  pg.click('#zoomLabel'); pg.wait_for_timeout(200)
+  einpassen(pg); pg.wait_for_timeout(200)
   def item_center(id):
       return pg.evaluate("(id)=>{const r=document.querySelector(`#items [data-id=\"${id}\"]`).getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2]}",id)
   cx,cy=item_center('a'); pg.mouse.click(cx,cy); pg.wait_for_timeout(200)

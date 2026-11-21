@@ -179,7 +179,7 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
 #keysBox dd{margin:0;color:var(--ink)}
 .dlgBtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .dlgBtns .pb{padding:9px 14px;font-size:14px}
-#menuBtn{position:relative}
+
 #liveBadge{flex:0 0 auto;font-size:11px;font-weight:600;letter-spacing:.06em;padding:4px 8px;border-radius:999px;background:#1e63d0;color:#fff;white-space:nowrap}
 #liveBadge[data-role="view"]{background:#7446c9}
 #liveBadge[data-st="off"]{background:#7a8790}
@@ -225,7 +225,7 @@ body.compact .brand{font-size:18px;gap:6px;padding:0}
 body.compact .brand .logo{width:24px;height:24px}
 body.compact #boardName{width:100%;min-width:0;padding:6px 8px;font-size:16px}
 body.compact .tb{min-width:38px;padding:8px 6px}
-body.compact .tb span,body.compact .sep,body.compact .spacer,body.compact #zoomGrp,body.compact #hint{display:none}
+body.compact .tb span,body.compact .sep,body.compact .spacer,body.compact #zoomGrp{display:none}
 body.compact #tools{order:99;flex:1 0 100%;min-width:0;justify-content:space-between;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--line);padding-top:4px}
 body.compact main{grid-template-columns:minmax(0,1fr)}
 body.compact #palette,body.compact #menu{position:absolute;top:0;bottom:0;width:112px;z-index:14}
@@ -271,7 +271,7 @@ body.compact #playBtn{display:none}
 
 #laserTrail{stroke:var(--accent)}
 /* Fenster „Ansicht“ und Konto */
-#viewPop,#ktPop{position:fixed;z-index:35;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain}
+#viewPop,#ktPop,#expPop{position:fixed;z-index:35;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain}
 #viewPop{width:min(372px,calc((100vw - 12px)/var(--ui)))}
 #viewPop .mh small,#ktPop .mh small{text-transform:none;letter-spacing:0;font-weight:400;opacity:.75;margin-left:4px}
 .vpGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:2px 4px 8px}
@@ -296,6 +296,9 @@ body.compact #playBtn{display:none}
 .vpTog::after{content:"aus";font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
 .vpTog[aria-pressed="true"]::after{content:"an";background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 #ktPop{min-width:220px}
+#expPop{min-width:180px}
+#expPop button{text-align:left;padding:9px 10px}
+#expPop button:hover{background:var(--hover)}
 #ktPopMail{padding:0 10px 8px;font-size:13px;word-break:break-all}
 #ktPop button{text-align:left;padding:9px 10px}
 #ktPop button:hover{background:var(--hover)}
@@ -374,4 +377,7 @@ body.touch #optsToggle::after{height:24px}
 #colorPop.menu .pb[aria-pressed="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
 #colorPop.menu .pb svg{width:18px;height:18px}
 #colorPop.menu .pb.danger{color:#e0553f}
+.mface .mlw{width:22px;vertical-align:middle}
+#colorPop.menu .wbtn{width:100%;padding:6px 14px}
+#colorPop.menu .wbtn .lw{width:100%}
 #props .optPaste{align-self:center}

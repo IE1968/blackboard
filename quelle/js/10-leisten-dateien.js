@@ -1,11 +1,19 @@
 /* ---------- Leisten, Menü, Tastatur ---------- */
 $('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); if(palState.optsClosed){ palState.optsClosed=false; savePal(); } setTool(b.dataset.tool); updateProps(); } });
 $('undo').onclick=undo; $('redo').onclick=redo; $('playBtn').onclick=()=>startPres();
-$('zoomIn').onclick=()=>zoomCenter(1.25); $('zoomOut').onclick=()=>zoomCenter(0.8); $('zoomLabel').onclick=fit;
+function zoomStep(d){ const p=Math.round(view.k*100), n=d>0?Math.floor(p/10)*10+10:Math.ceil(p/10)*10-10; zoomCenter(clamp(n,20,400)/100/view.k); }   /* immer auf volle 10 % */
+$('zoomIn').onclick=()=>zoomStep(1); $('zoomOut').onclick=()=>zoomStep(-1); $('zoomLabel').onclick=()=>zoomCenter(1/view.k);
 function fitMenu(){}
-$('menuBtn').onclick=e=>{ e.stopPropagation(); closeViewPop(); closeKtPop(); palState.propsClosed=!palState.propsClosed; savePal(); applySides();
-  if(!palState.propsClosed&&e.detail===0){ const f=menu.querySelector('button:not([hidden])'); if(f) f.focus(); } };
-document.addEventListener('pointerdown',e=>{ if(document.body.classList.contains('compact')&&!palState.propsClosed&&!menu.contains(e.target)&&!e.target.closest('#menuBtn,#propsToggle')) closeMenu(); });
+/* Export: kleines Auswahlfeld unter dem Knopf */
+function closeExpPop(){ if($('expPop').hidden) return; $('expPop').hidden=true; $('expBtn').setAttribute('aria-expanded','false'); }
+$('expBtn').onclick=e=>{ e.stopPropagation(); const p=$('expPop'); if(!p.hidden){ closeExpPop(); return; }
+  closeViewPop(); closeKtPop(); closeMenu(); p.hidden=false; $('expBtn').setAttribute('aria-expanded','true');
+  const br=$('expBtn').getBoundingClientRect(), z=uiCfg.scale, w=p.offsetWidth*z; p.style.left=Math.max(6,Math.min(innerWidth-w-6,br.left+br.width/2-w/2))/z+'px'; p.style.top=(br.bottom+6)/z+'px';
+  if(e.detail===0) p.querySelector('button').focus(); };
+$('expPop').addEventListener('click',e=>{ const b=e.target.closest('[data-m]'); if(!b) return; closeExpPop(); exportAs(b.dataset.m); });
+document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#expPop,#expBtn')) closeExpPop(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('expPop').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeExpPop(); $('expBtn').focus(); } },true);
+document.addEventListener('pointerdown',e=>{ if(document.body.classList.contains('compact')&&!palState.propsClosed&&!menu.contains(e.target)&&!e.target.closest('#propsToggle')) closeMenu(); });
 
 function buildSVG(box){
   const b=box||contentBox(30,true); if(!b) return null;

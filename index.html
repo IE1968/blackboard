@@ -197,7 +197,7 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
 #keysBox dd{margin:0;color:var(--ink)}
 .dlgBtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .dlgBtns .pb{padding:9px 14px;font-size:14px}
-#menuBtn{position:relative}
+
 #liveBadge{flex:0 0 auto;font-size:11px;font-weight:600;letter-spacing:.06em;padding:4px 8px;border-radius:999px;background:#1e63d0;color:#fff;white-space:nowrap}
 #liveBadge[data-role="view"]{background:#7446c9}
 #liveBadge[data-st="off"]{background:#7a8790}
@@ -243,7 +243,7 @@ body.compact .brand{font-size:18px;gap:6px;padding:0}
 body.compact .brand .logo{width:24px;height:24px}
 body.compact #boardName{width:100%;min-width:0;padding:6px 8px;font-size:16px}
 body.compact .tb{min-width:38px;padding:8px 6px}
-body.compact .tb span,body.compact .sep,body.compact .spacer,body.compact #zoomGrp,body.compact #hint{display:none}
+body.compact .tb span,body.compact .sep,body.compact .spacer,body.compact #zoomGrp{display:none}
 body.compact #tools{order:99;flex:1 0 100%;min-width:0;justify-content:space-between;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--line);padding-top:4px}
 body.compact main{grid-template-columns:minmax(0,1fr)}
 body.compact #palette,body.compact #menu{position:absolute;top:0;bottom:0;width:112px;z-index:14}
@@ -289,7 +289,7 @@ body.compact #playBtn{display:none}
 
 #laserTrail{stroke:var(--accent)}
 /* Fenster „Ansicht“ und Konto */
-#viewPop,#ktPop{position:fixed;z-index:35;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain}
+#viewPop,#ktPop,#expPop{position:fixed;z-index:35;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain}
 #viewPop{width:min(372px,calc((100vw - 12px)/var(--ui)))}
 #viewPop .mh small,#ktPop .mh small{text-transform:none;letter-spacing:0;font-weight:400;opacity:.75;margin-left:4px}
 .vpGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:2px 4px 8px}
@@ -314,6 +314,9 @@ body.compact #playBtn{display:none}
 .vpTog::after{content:"aus";font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
 .vpTog[aria-pressed="true"]::after{content:"an";background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 #ktPop{min-width:220px}
+#expPop{min-width:180px}
+#expPop button{text-align:left;padding:9px 10px}
+#expPop button:hover{background:var(--hover)}
 #ktPopMail{padding:0 10px 8px;font-size:13px;word-break:break-all}
 #ktPop button{text-align:left;padding:9px 10px}
 #ktPop button:hover{background:var(--hover)}
@@ -392,6 +395,9 @@ body.touch #optsToggle::after{height:24px}
 #colorPop.menu .pb[aria-pressed="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
 #colorPop.menu .pb svg{width:18px;height:18px}
 #colorPop.menu .pb.danger{color:#e0553f}
+.mface .mlw{width:22px;vertical-align:middle}
+#colorPop.menu .wbtn{width:100%;padding:6px 14px}
+#colorPop.menu .wbtn .lw{width:100%}
 #props .optPaste{align-self:center}
 </style>
 </head>
@@ -416,18 +422,19 @@ body.touch #optsToggle::after{height:24px}
       <button class="tb" id="redo" title="Wiederholen (Strg+Y)"><svg viewBox="0 0 24 24"><path d="M16 7l4 4-4 4M20 11H10a5 5 0 000 10h3"/></svg><span>Vor</span></button>
     </div>
     <div class="spacer"></div>
+    <button class="tb" id="expBtn" aria-expanded="false" aria-haspopup="true" aria-controls="expPop" title="Exportieren: Bild, Vektor oder PDF"><svg viewBox="0 0 24 24"><path d="M12 4v11M7.500 10.500L12 15l4.500-4.500M5 19h14"/></svg><span>Export</span></button>
     <button class="tb" id="playBtn" title="Präsentation starten: zeigt die Folien nacheinander im Vollbild"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M10 8v5l4.500-2.500zM8 21h8M12 17v4"/></svg><span>Zeigen</span></button>
     <button class="tb" id="viewBtn" aria-expanded="false" aria-haspopup="true" aria-controls="viewPop" title="Ansicht: Tafel, Muster, Farben und Größe"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 010 16z" fill="currentColor"/></svg><span>Ansicht</span></button>
     <div class="grp" id="zoomGrp">
       <button class="tb" id="zoomOut" title="Verkleinern"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
-      <button id="zoomLabel" title="Alles einpassen">100 %</button>
+      <button id="zoomLabel" title="Auf 100 % (Umschalt+1: alles einpassen)">100 %</button>
       <button class="tb" id="zoomIn" title="Vergrößern"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button>
     </div>
     <div class="sep"></div>
-    <button class="tb" id="menuBtn" aria-expanded="false" aria-haspopup="true" aria-controls="menu" title="Speichern, öffnen, leeren"><svg viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5zM9 4v5h6M8 20v-6h8v6"/></svg><span>Datei</span></button>
     <button id="liveBadge" type="button" hidden>LIVE</button>
     <button class="tb" id="ktBtn" type="button" title="Anmelden"><div class="ktAv" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4.500 20c1.500-4 4.500-5.500 7.500-5.500s6 1.500 7.500 5.500"/></svg><b id="ktInitial"></b></div><span>Konto</span></button>
   </div>
+  <div id="expPop" hidden role="menu" aria-label="Exportieren"><div class="mh">Exportieren</div><button data-m="png" role="menuitem">Bild (PNG)</button><button data-m="svg" role="menuitem">Vektor (SVG)</button><button data-m="pdf" role="menuitem">PDF (A4)</button></div>
   <div id="viewPop" hidden role="dialog" aria-label="Ansicht">
     <div class="mh">Tafel <small>für dieses Board</small></div><div class="vpGrid" id="vpSurf"></div>
     <div class="mh">Muster</div><div class="vpGrid" id="vpPat"></div>
@@ -457,18 +464,17 @@ body.touch #optsToggle::after{height:24px}
       <g id="world"><g id="items"></g><g id="overlay"></g></g>
     </svg>
     <textarea id="editor" hidden spellcheck="false" aria-label="Text der Form"></textarea>
-    <div id="hint">Form reinziehen · Doppelklick bearbeitet Text · Punkte am Rand einer Form ziehen einen Pfeil · Pfeilenden rasten an Formen ein</div>
     <div id="slides" hidden aria-label="Folienübersicht"><div class="sh"><b>Folien</b><button type="button" id="slAdd" title="Neue Folie rechts neben der letzten">+ Folie</button><button type="button" id="slPlay" title="Präsentation ab der markierten Folie">▶ Zeigen</button><button type="button" id="slClose" aria-label="Übersicht schließen" title="Schließen">✕</button></div><div id="slList" role="listbox" aria-label="Folien, zum Umsortieren ziehen"></div></div>
     <div id="toast" hidden role="status"></div>
     <div id="sr" role="status" aria-live="polite"></div>
   </section>
   <aside id="menu" aria-label="Datei">
     <button data-m="manage" id="manageBtn">Boards verwalten …</button>
+    <button data-m="new">+ Neues Board</button>
+    <button data-m="delboard" id="delBoard">Dieses Board löschen</button>
     <hr>
     <div class="mh">Boards</div>
     <div id="boardList"></div>
-    <button data-m="new">+ Neues Board</button>
-    <button data-m="delboard" id="delBoard">Dieses Board löschen</button>
     <hr>
     <div id="liveSec">
       <div class="mh">Live</div>
@@ -481,11 +487,6 @@ body.touch #optsToggle::after{height:24px}
     </div>
     <div class="mh">Präsentation</div>
     <button data-m="slides">Folienübersicht</button>
-    <hr>
-    <div class="mh">Export</div>
-    <button data-m="png">Bild (PNG)</button>
-    <button data-m="svg">Vektor (SVG)</button>
-    <button data-m="pdf">PDF (A4)</button>
     <hr>
     <div class="mh">Sicherung</div>
     <button data-m="json">Sichern (.json)</button>
@@ -539,7 +540,7 @@ body.touch #optsToggle::after{height:24px}
   </form>
 </div>
 <div id="tplDlg" hidden role="dialog" aria-modal="true" aria-labelledby="tplTitle"><div id="tplBox" tabindex="-1"><h2 id="tplTitle">Vorlage einfügen</h2><div id="tplGrid"></div><div class="dlgBtns"><button type="button" class="pb" id="tplClose">Schließen</button></div></div></div>
-<div id="keysDlg" hidden role="dialog" aria-modal="true" aria-labelledby="keysTitle"><div id="keysBox" tabindex="-1"><h2 id="keysTitle">Tastenkürzel</h2><h3>Werkzeuge</h3><dl><dt><kbd>V</kbd></dt><dd>Auswählen</dd><dt><kbd>P</kbd></dt><dd>Stift</dd><dt><kbd>B</kbd></dt><dd>Pinsel</dd><dt><kbd>M</kbd></dt><dd>Marker</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>E</kbd></dt><dd>Radierer</dd><dt><kbd>H</kbd> oder <kbd>Leertaste</kbd> halten</dt><dd>Tafel verschieben</dd></dl><h3>Bearbeiten</h3><dl><dt><kbd>Strg</kbd>+<kbd>Z</kbd> / <kbd>Strg</kbd>+<kbd>Y</kbd></dt><dd>Rückgängig / Wiederholen</dd><dt><kbd>Strg</kbd>+<kbd>C</kbd> <kbd>Strg</kbd>+<kbd>X</kbd> <kbd>Strg</kbd>+<kbd>V</kbd></dt><dd>Kopieren, Ausschneiden, Einfügen</dd><dt><kbd>Strg</kbd>+<kbd>D</kbd></dt><dd>Duplizieren</dd><dt><kbd>Strg</kbd>+<kbd>A</kbd></dt><dd>Alles auswählen</dd><dt><kbd>Strg</kbd>+<kbd>G</kbd> / <kbd>Strg</kbd>+<kbd>⇧</kbd>+<kbd>G</kbd></dt><dd>Gruppieren / Gruppe lösen</dd><dt><kbd>Entf</kbd></dt><dd>Löschen</dd><dt><kbd>Enter</kbd> oder <kbd>F2</kbd></dt><dd>Text der Auswahl bearbeiten</dd><dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Verschieben (mit <kbd>⇧</kbd> pixelgenau)</dd><dt><kbd>Esc</kbd></dt><dd>Auswahl aufheben, Aktion abbrechen</dd></dl><h3>Beim Ziehen</h3><dl><dt><kbd>⇧</kbd></dt><dd>Ecken: frei verformen · Pfeilende: in 45°-Schritten</dd><dt><kbd>Alt</kbd></dt><dd>Ohne Einrasten und Hilfslinien</dd><dt><kbd>Strg</kbd> + Mausrad</dt><dd>Zoomen</dd></dl><h3>Beim Schreiben</h3><dl><dt><kbd>Enter</kbd></dt><dd>Fertig</dd><dt><kbd>⇧</kbd>+<kbd>Enter</kbd></dt><dd>Neue Zeile</dd><dt><kbd>Tab</kbd></dt><dd>Tabelle: nächste Zelle · Mindmap: neuer Zweig</dd><dt><kbd>Esc</kbd></dt><dd>Abbrechen</dd></dl><h3>Präsentation</h3><dl><dt><kbd>→</kbd> <kbd>Leertaste</kbd></dt><dd>Weiter</dd><dt><kbd>←</kbd></dt><dd>Zurück</dd><dt><kbd>L</kbd></dt><dd>Laserpointer</dd><dt><kbd>A</kbd></dt><dd>Quiz-Lösung zeigen</dd><dt><kbd>Esc</kbd></dt><dd>Beenden</dd></dl><h3>Hilfe</h3><dl><dt><kbd>?</kbd></dt><dd>Diese Übersicht</dd></dl><div class="dlgBtns"><button type="button" class="pb" id="keysClose">Schließen</button></div></div></div>
+<div id="keysDlg" hidden role="dialog" aria-modal="true" aria-labelledby="keysTitle"><div id="keysBox" tabindex="-1"><h2 id="keysTitle">Tastenkürzel</h2><h3>Werkzeuge</h3><dl><dt><kbd>V</kbd></dt><dd>Auswählen</dd><dt><kbd>P</kbd></dt><dd>Stift</dd><dt><kbd>B</kbd></dt><dd>Pinsel</dd><dt><kbd>M</kbd></dt><dd>Marker</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>E</kbd></dt><dd>Radierer</dd><dt><kbd>H</kbd> oder <kbd>Leertaste</kbd> halten</dt><dd>Tafel verschieben</dd><dt><kbd>0</kbd></dt><dd>Zoom 100 %</dd><dt><kbd>Umschalt</kbd>+<kbd>1</kbd></dt><dd>Alles einpassen</dd></dl><h3>Bearbeiten</h3><dl><dt><kbd>Strg</kbd>+<kbd>Z</kbd> / <kbd>Strg</kbd>+<kbd>Y</kbd></dt><dd>Rückgängig / Wiederholen</dd><dt><kbd>Strg</kbd>+<kbd>C</kbd> <kbd>Strg</kbd>+<kbd>X</kbd> <kbd>Strg</kbd>+<kbd>V</kbd></dt><dd>Kopieren, Ausschneiden, Einfügen</dd><dt><kbd>Strg</kbd>+<kbd>D</kbd></dt><dd>Duplizieren</dd><dt><kbd>Strg</kbd>+<kbd>A</kbd></dt><dd>Alles auswählen</dd><dt><kbd>Strg</kbd>+<kbd>G</kbd> / <kbd>Strg</kbd>+<kbd>⇧</kbd>+<kbd>G</kbd></dt><dd>Gruppieren / Gruppe lösen</dd><dt><kbd>Entf</kbd></dt><dd>Löschen</dd><dt><kbd>Enter</kbd> oder <kbd>F2</kbd></dt><dd>Text der Auswahl bearbeiten</dd><dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Verschieben (mit <kbd>⇧</kbd> pixelgenau)</dd><dt><kbd>Esc</kbd></dt><dd>Auswahl aufheben, Aktion abbrechen</dd></dl><h3>Beim Ziehen</h3><dl><dt><kbd>⇧</kbd></dt><dd>Ecken: frei verformen · Pfeilende: in 45°-Schritten</dd><dt><kbd>Alt</kbd></dt><dd>Ohne Einrasten und Hilfslinien</dd><dt><kbd>Strg</kbd> + Mausrad</dt><dd>Zoomen</dd></dl><h3>Beim Schreiben</h3><dl><dt><kbd>Enter</kbd></dt><dd>Fertig</dd><dt><kbd>⇧</kbd>+<kbd>Enter</kbd></dt><dd>Neue Zeile</dd><dt><kbd>Tab</kbd></dt><dd>Tabelle: nächste Zelle · Mindmap: neuer Zweig</dd><dt><kbd>Esc</kbd></dt><dd>Abbrechen</dd></dl><h3>Präsentation</h3><dl><dt><kbd>→</kbd> <kbd>Leertaste</kbd></dt><dd>Weiter</dd><dt><kbd>←</kbd></dt><dd>Zurück</dd><dt><kbd>L</kbd></dt><dd>Laserpointer</dd><dt><kbd>A</kbd></dt><dd>Quiz-Lösung zeigen</dd><dt><kbd>Esc</kbd></dt><dd>Beenden</dd></dl><h3>Hilfe</h3><dl><dt><kbd>?</kbd></dt><dd>Diese Übersicht</dd></dl><div class="dlgBtns"><button type="button" class="pb" id="keysClose">Schließen</button></div></div></div>
 <div id="pres" hidden tabindex="-1" role="dialog" aria-modal="true" aria-label="Präsentation">
   <svg id="presSvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
   <svg id="laserSvg" xmlns="http://www.w3.org/2000/svg"><polyline id="laserTrail" fill="none" stroke="#2f8fff" stroke-opacity=".5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1786,7 +1787,7 @@ function updateProps(){
   if(!onlyText) h+=`<div class="pg"><b>${penMode?DRAW[drawTool]+'farbe':'Linie'}</b>${cd('stroke',cur.stroke,hasShape&&!conns.length&&!paths.length,penMode?DRAW[drawTool]+'farbe':'Linie')}</div>`;
   const wl=penMode?WIDTHS[drawTool]:(cur.type==='path'?WIDTHS[cur.tool||'pen']:WIDTHS.shape);
   let near=0; wl.forEach((v,i)=>{ if(Math.abs(v-cur.sw)<Math.abs(wl[near]-cur.sw)) near=i; });
-  if(!onlyText) h+=`<div class="pg"><b>Stärke</b>`+wl.map((v,i)=>`<button class="pb wbtn" data-act="sw" data-val="${v}" aria-pressed="${i===near}" title="Stärke ${i+1} von 5"><i class="lw" style="height:${1.5+i*2.5}px"></i></button>`).join('')+`</div>`;
+  if(!onlyText) h+=`<div class="pg"><b>Stärke</b>${md('sw','Stärke',wl.map((v,i)=>`<button class="pb wbtn" data-act="sw" data-val="${v}" aria-pressed="${i===near}" title="Stärke ${i+1} von 5"><i class="lw" style="height:${1.5+i*2.5}px"></i></button>`).join(''),`<span class="lw mlw" style="height:${1.5+near*2.5}px"></span>`)}</div>`;
   if(penMode||paths.length){ const tip=(paths[0]||ps).tip||'round';
     h+=`<div class="pg"><b>Pinselform</b>`+[['round','Rund'],['flat','Flach'],['calli','Schräg']].map(([v,t])=>`<button class="pb" data-act="tip" data-val="${v}" aria-pressed="${tip===v}">${t}</button>`).join('')+`</div>`; }
   if(conns.length){ const c=conns[0];
@@ -1797,7 +1798,7 @@ function updateProps(){
   const nUnits=items.length>1?selUnits().length:0;
   if(nUnits>=2){ const AL=[['l','Links ausrichten','M3 2v16M6 5h10v3H6zM6 12h6v3H6z'],['c','Waagerecht zentrieren','M10 2v16M4 5h12v3H4zM6.5 12h7v3h-7z'],['r','Rechts ausrichten','M17 2v16M4 5h10v3H4zM8 12h6v3H8z'],['t','Oben ausrichten','M2 3h16M5 6h3v10H5zM12 6h3v6h-3z'],['m','Senkrecht zentrieren','M2 10h16M5 4h3v12H5zM12 6.5h3v7h-3z'],['b','Unten ausrichten','M2 17h16M5 4h3v10H5zM12 8h3v6h-3z']];
     const ab=([v,t,d])=>`<button class="pb" data-act="al" data-val="${v}" title="${t}" aria-label="${t}"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="${d}"/></svg></button>`;
-    h+=`<div class="pg"><b>Ausrichten</b><div class="sws three">`+AL.map(ab).join('')+`</div>`+(nUnits>=3?`<div class="sws two">`+[['dh','Waagerecht gleichmäßig verteilen','M3 2v16M17 2v16M8 6h4v8H8z'],['dv','Senkrecht gleichmäßig verteilen','M2 3h16M2 17h16M6 8h8v4H6z']].map(ab).join('')+`</div>`:'')+`</div>`; }
+    h+=`<div class="pg"><b>Ausrichten</b>${md('al','Ausrichten',`<div class="sws three">`+AL.map(ab).join('')+`</div>`+(nUnits>=3?`<div class="sws two">`+[['dh','Waagerecht gleichmäßig verteilen','M3 2v16M17 2v16M8 6h4v8H8z'],['dv','Senkrecht gleichmäßig verteilen','M2 3h16M2 17h16M6 8h8v4H6z']].map(ab).join('')+`</div>`:''),`<svg viewBox="0 0 20 20" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:1.600"><path d="${AL[0][2]}"/></svg>`)}</div>`; }
   if(items.length>1||items.some(i=>i.g)) h+=`<div class="pg"><b>Gruppe</b>`+(items.length>1?`<button class="pb" data-act="group" title="Strg+G">Gruppieren</button>`:'')+(items.some(i=>i.g)?`<button class="pb" data-act="ungroup" title="Strg+Umschalt+G">Gruppe lösen</button>`:'')+`</div>`;
   if(items.length) h+=`<div class="pg"><b>Element</b>${md('elem','Element',`<button class="pb" data-act="front">Nach vorn</button><button class="pb" data-act="back">Nach hinten</button><button class="pb" data-act="dup">Duplizieren</button><button class="pb" data-act="copy" title="Strg+C">Kopieren</button><button class="pb" data-act="lock" aria-pressed="${items.every(i=>i.lock)}" title="Gesperrte Elemente lassen sich nicht verschieben, ändern oder löschen">${items.every(i=>i.lock)?'Entsperren':'Sperren'}</button>`+(hasClip()?`<button class="pb" data-act="paste" title="Strg+V">Einfügen</button>`:'')+`<button class="pb danger" data-act="del">Löschen</button>`,'<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4.500" cy="10" r="1.600"/><circle cx="10" cy="10" r="1.600"/><circle cx="15.500" cy="10" r="1.600"/></svg>')}</div>`;
   propsEl.innerHTML=h; refreshPop();
@@ -2188,7 +2189,7 @@ function applySides(){
   const shut=!!palState.propsClosed, pt=$('propsToggle');
   document.querySelector('main').classList.toggle('props-closed',shut);
   pt.textContent=shut?'‹':'›'; pt.setAttribute('aria-expanded',!shut); pt.title=shut?'Datei-Leiste ausklappen':'Datei-Leiste einklappen';
-  $('menuBtn').setAttribute('aria-expanded',!shut); if(!shut) renderBoardList();
+  if(!shut) renderBoardList();
 }
 palEl.addEventListener('click',e=>{   /* Tastatur: Eingabe oder Leertaste auf einem Symbol legt die Form in die Bildmitte */
   const b=e.target.closest('.pal'); if(!b||!b.dataset.kind||e.detail!==0) return;
@@ -2231,11 +2232,19 @@ palEl.addEventListener('pointerdown',e=>{
 /* ---------- Leisten, Menü, Tastatur ---------- */
 $('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); if(palState.optsClosed){ palState.optsClosed=false; savePal(); } setTool(b.dataset.tool); updateProps(); } });
 $('undo').onclick=undo; $('redo').onclick=redo; $('playBtn').onclick=()=>startPres();
-$('zoomIn').onclick=()=>zoomCenter(1.25); $('zoomOut').onclick=()=>zoomCenter(0.8); $('zoomLabel').onclick=fit;
+function zoomStep(d){ const p=Math.round(view.k*100), n=d>0?Math.floor(p/10)*10+10:Math.ceil(p/10)*10-10; zoomCenter(clamp(n,20,400)/100/view.k); }   /* immer auf volle 10 % */
+$('zoomIn').onclick=()=>zoomStep(1); $('zoomOut').onclick=()=>zoomStep(-1); $('zoomLabel').onclick=()=>zoomCenter(1/view.k);
 function fitMenu(){}
-$('menuBtn').onclick=e=>{ e.stopPropagation(); closeViewPop(); closeKtPop(); palState.propsClosed=!palState.propsClosed; savePal(); applySides();
-  if(!palState.propsClosed&&e.detail===0){ const f=menu.querySelector('button:not([hidden])'); if(f) f.focus(); } };
-document.addEventListener('pointerdown',e=>{ if(document.body.classList.contains('compact')&&!palState.propsClosed&&!menu.contains(e.target)&&!e.target.closest('#menuBtn,#propsToggle')) closeMenu(); });
+/* Export: kleines Auswahlfeld unter dem Knopf */
+function closeExpPop(){ if($('expPop').hidden) return; $('expPop').hidden=true; $('expBtn').setAttribute('aria-expanded','false'); }
+$('expBtn').onclick=e=>{ e.stopPropagation(); const p=$('expPop'); if(!p.hidden){ closeExpPop(); return; }
+  closeViewPop(); closeKtPop(); closeMenu(); p.hidden=false; $('expBtn').setAttribute('aria-expanded','true');
+  const br=$('expBtn').getBoundingClientRect(), z=uiCfg.scale, w=p.offsetWidth*z; p.style.left=Math.max(6,Math.min(innerWidth-w-6,br.left+br.width/2-w/2))/z+'px'; p.style.top=(br.bottom+6)/z+'px';
+  if(e.detail===0) p.querySelector('button').focus(); };
+$('expPop').addEventListener('click',e=>{ const b=e.target.closest('[data-m]'); if(!b) return; closeExpPop(); exportAs(b.dataset.m); });
+document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#expPop,#expBtn')) closeExpPop(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('expPop').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeExpPop(); $('expBtn').focus(); } },true);
+document.addEventListener('pointerdown',e=>{ if(document.body.classList.contains('compact')&&!palState.propsClosed&&!menu.contains(e.target)&&!e.target.closest('#propsToggle')) closeMenu(); });
 
 function buildSVG(box){
   const b=box||contentBox(30,true); if(!b) return null;
@@ -2718,6 +2727,8 @@ document.addEventListener('keydown',e=>{
   if(e.key.startsWith('Arrow')&&sel.size){ e.preventDefault(); const st=e.shiftKey?1:GRID, dx=k==='arrowleft'?-st:k==='arrowright'?st:0, dy=k==='arrowup'?-st:k==='arrowdown'?st:0;
     for(const it of [...sel].map(byId)){ if(!it||it.lock) continue; if(it.type==='shape'){ it.x+=dx; it.y+=dy; } else if(it.type==='path') it.pts=it.pts.map(p=>[p[0]+dx,p[1]+dy]); }
     commit(); render(); return; }
+  if(e.shiftKey&&e.code==='Digit1'){ e.preventDefault(); fit(); return; }
+  if(e.key==='0'){ e.preventDefault(); zoomCenter(1/view.k); return; }
   if(e.key==='?'){ e.preventDefault(); openKeys(); return; }
   const map={v:'select',f:'shape',p:'pen',b:'brush',m:'marker',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
 });
@@ -2964,7 +2975,7 @@ document.addEventListener('keyup',e=>{ if(pres) e.stopImmediatePropagation(); },
 
 /* ---------- Menü schließen ---------- */
 /* Die Datei-Leiste bleibt am PC offen; auf Tablet und Handy liegt sie über der Tafel und schließt nach einer Aktion */
-function closeMenu(focus){ if(!document.body.classList.contains('compact')||palState.propsClosed) return; palState.propsClosed=true; savePal(); applySides(); if(focus) $('menuBtn').focus(); }
+function closeMenu(focus){ if(!document.body.classList.contains('compact')||palState.propsClosed) return; palState.propsClosed=true; savePal(); applySides(); if(focus) $('propsToggle').focus(); }
 document.addEventListener('keydown',e=>{   /* Esc schließt das Menü, auch wenn der Fokus in einem Eingabefeld steht */
   if(e.key!=='Escape'||palState.propsClosed||!document.body.classList.contains('compact')) return; e.preventDefault(); e.stopImmediatePropagation(); closeMenu(true);
 },true);
