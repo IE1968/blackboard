@@ -37,6 +37,15 @@ try:
   n=len([i for i in pg.evaluate(READ)['items'] if i['type']=='path']); pg.evaluate(DRAW,['touch',[0.5]*20,600]); pg.wait_for_timeout(300)
   check('Finger wieder eingeschaltet: zeichnet',len([i for i in pg.evaluate(READ)['items'] if i['type']=='path'])==n+1)
   pg.click('#viewBtn'); pg.wait_for_timeout(200); pg.screenshot(path=OUT+'/stift.png')
+  # Glatter Umriss: keine Zacken (Kurvenstücke statt vieler Geradenstücke)
+  pg.keyboard.press('Escape'); pg.click('#viewBtn'); pg.click('#pressRow [data-press="normal"]'); pg.keyboard.press('Escape')
+  import random; random.seed(1); jitter=[0.4+random.uniform(-0.15,0.15) for _ in range(60)]
+  pg.evaluate(DRAW,['pen',jitter,200]); pg.wait_for_timeout(300)
+  d=pg.evaluate("()=>{const g=[...document.querySelectorAll('#items g.it')].pop(); const p=g.querySelectorAll('path')[1]; return p?p.getAttribute('d'):''}")
+  check('Umriss aus weichen Kurven',d.count('Q')>20 and d.count('L')==0,d[:60])
+  w=[i for i in pg.evaluate(READ)['items'] if i['type']=='path'][-1].get('ws',[])
+  jumps=max(abs(w[i]-w[i-1]) for i in range(1,len(w))) if len(w)>2 else 0
+  check('Breite schwankt bei zittrigem Druck kaum',jumps<0.12,f'größter Sprung {jumps:.3f}')
   check('keine Fehler',not errs,str(errs[:3]))
   br.close()
 finally: srv.terminate()

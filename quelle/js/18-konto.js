@@ -113,9 +113,7 @@ function ktSignedOut(msg){
   KT.s=null; ktStore(null); ktUi(); if(msg) toast(msg);
 }
 function ktUi(note){
-  const on=!!KT.s;
-  $('ktInfo').textContent=note||(on?'Angemeldet als '+KT.s.email:liveOk()?'Nicht angemeldet':'Hier nicht verfügbar');
-  $('ktLoginBtn').hidden=on||!liveOk(); $('ktLogoutBtn').hidden=!on;
+  if(note) toast(note);
   ktBtnUi(); liveBadge();
 }
 /* ---- Anmelde-Dialog ---- */

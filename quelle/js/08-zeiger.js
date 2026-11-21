@@ -95,8 +95,8 @@ svg.addEventListener('pointermove',e=>{
     const evs=a.pr&&e.getCoalescedEvents?(e.getCoalescedEvents()||[]):[]; let added=false;
     for(const ev of (evs.length?evs:[e])){
       const p=toWorld(ev.clientX,ev.clientY), l=a.pts[a.pts.length-1];
-      if(Math.hypot(p.x-l[0],p.y-l[1])*view.k<(a.pr?0.8:2)) continue;
-      if(a.pr){ const target=pressW(ev.pressure>0?ev.pressure:a.lp||0.25,ev); a.lp=ev.pressure>0?ev.pressure:a.lp; a.f=a.f*0.45+target*0.55; a.ws.push(r2(a.f)); }
+      if(Math.hypot(p.x-l[0],p.y-l[1])*view.k<(a.pr?1.4:2)) continue;
+      if(a.pr){ const target=pressW(ev.pressure>0?ev.pressure:a.lp||0.25,ev); a.lp=ev.pressure>0?ev.pressure:a.lp; a.f=a.f*0.62+target*0.38; a.ws.push(r2(a.f)); }
       else if(a.tool==='brush'){ const now=performance.now(), v=Math.hypot(ev.clientX-a.lx,ev.clientY-a.ly)/Math.max(1,now-a.t);
         a.f=a.f*0.65+clamp(1.45-v*0.55,0.35,1.45)*0.35; a.ws.push(r2(a.f)); a.t=now; a.lx=ev.clientX; a.ly=ev.clientY; }
       a.pts.push([r(p.x),r(p.y)]); added=true;

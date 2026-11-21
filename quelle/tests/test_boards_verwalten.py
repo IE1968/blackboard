@@ -11,6 +11,8 @@ try:
   def menu(m): pg.click('#menuBtn'); pg.click(f'#menu [data-m="{m}"]'); pg.wait_for_timeout(250)
   for nm in ['Alpha','Beta','Alpha','Gamma']: menu('new'); pg.fill('#boardName',nm); pg.wait_for_timeout(150)
   n0=len(boards()); check('5 Boards angelegt',n0==5,str(n0))
+  order=pg.evaluate("()=>[...document.getElementById('menu').children].slice(0,3).map(e=>e.id||e.className||e.textContent)")
+  check('„Boards verwalten“ ganz oben im Menü Datei',order[0]=='manageBtn',str(order))
   menu('manage'); check('Dialog offen',pg.is_visible('#bmDlg'))
   names=pg.eval_on_selector_all('#bmList .bmRow b',"e=>e.map(x=>x.textContent)")
   check('Sortiert, gleiche Namen untereinander',names[:2]==['Alpha','Alpha'],str(names))

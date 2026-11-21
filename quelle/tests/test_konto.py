@@ -26,16 +26,17 @@ try:
   def boards(pg): return pg.evaluate("()=>JSON.parse(localStorage.getItem('blackboard-boards')).list")
   def menu(pg,m): pg.click('#menuBtn'); pg.click(f'#menu [data-m="{m}"]'); pg.wait_for_timeout(200)
   def login(pg,pw='geheim123',keep=True):
-      menu(pg,'ktlogin'); pg.fill('#ktMail','ich@test.de'); pg.fill('#ktPw',pw)
+      pg.click('#ktBtn'); pg.wait_for_timeout(150); pg.fill('#ktMail','ich@test.de'); pg.fill('#ktPw',pw)
       if not keep: pg.uncheck('#ktKeep')
       pg.click('#ktGo'); pg.wait_for_timeout(600)
   def sync(pg): pg.evaluate("()=>window.dispatchEvent(new Event('focus'))"); pg.wait_for_timeout(900)
-  def info(pg): return pg.evaluate("()=>document.getElementById('ktInfo').textContent")
+  def info(pg): return pg.evaluate("()=>document.getElementById('ktBtn').title")
 
   # Gerät A mit einem Board voller Inhalt
   A_ctx,A=geraet()
   A.evaluate(LOAD,{'items':[S('a','rect',0,0,160,80,'Vom PC')],'n':5}); A.reload(); A.wait_for_timeout(800)
-  A.click('#menuBtn'); check('Abgemeldet: „Anmelden …“ im Menü',A.is_visible('#ktLoginBtn')); A.keyboard.press('Escape')
+  check('Abgemeldet: Konto-Knopf bietet Anmelden an',info(A).startswith('Anmelden') and A.is_visible('#ktBtn'))
+  check('Kein Konto-Abschnitt mehr im Menü Datei',A.locator('#menu #ktSec').count()==0)
   login(A,'falsch')
   check('Falsches Passwort wird gemeldet','stimmt nicht' in A.inner_text('#ktMsg'),A.inner_text('#ktMsg'))
   A.click('#ktClose')
@@ -100,8 +101,8 @@ try:
   check('Kein Link für eigene Geräte mehr',A.locator('#lvOwn').count()==0)
 
   # Abmelden
-  menu(A,'ktlogout'); A.wait_for_timeout(500)
-  check('Abgemeldet',info(A)=='Nicht angemeldet' and not A.evaluate("()=>!!localStorage.getItem('skizix-konto')"))
+  A.click('#ktBtn'); A.click('#ktPopOut'); A.wait_for_timeout(500)
+  check('Abgemeldet',info(A).startswith('Anmelden') and not A.evaluate("()=>!!localStorage.getItem('skizix-konto')"))
   check('Boards bleiben nach Abmelden auf dem Gerät',len(boards(A))>=1)
 
   # Ohne „Angemeldet bleiben“: nur für diese Sitzung

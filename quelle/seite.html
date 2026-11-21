@@ -66,23 +66,16 @@
   </div>
   <div id="ktPop" hidden role="dialog" aria-label="Konto">
     <div class="mh">Angemeldet als</div><div id="ktPopMail"></div>
-    <button type="button" id="ktPopManage">Boards verwalten …</button>
     <button type="button" id="ktPopOut">Abmelden</button>
   </div>
   <div id="menu" hidden>
+    <button data-m="manage" id="manageBtn">Boards verwalten und löschen …</button>
+    <hr>
     <div class="mh">Boards</div>
     <div id="boardList"></div>
     <button data-m="new">+ Neues Board</button>
     <button data-m="delboard" id="delBoard">Dieses Board löschen</button>
-    <button data-m="manage" id="manageBtn">Boards verwalten und löschen …</button>
     <hr>
-    <div id="ktSec">
-      <div class="mh">Konto</div>
-      <div class="mh" id="ktInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nicht angemeldet</div>
-      <button data-m="ktlogin" id="ktLoginBtn">Anmelden …</button>
-      <button data-m="ktlogout" id="ktLogoutBtn" hidden>Abmelden</button>
-      <hr>
-    </div>
     <div id="liveSec">
       <div class="mh">Live mit anderen</div>
       <div class="mh" id="liveInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nur auf diesem Gerät</div>
@@ -93,7 +86,6 @@
       <hr>
     </div>
     <div class="mh">Präsentation</div>
-    <button data-m="play">Präsentation starten</button>
     <button data-m="slides">Folienübersicht</button>
     <hr>
     <div class="mh">Exportieren</div>
@@ -105,7 +97,6 @@
     <button data-m="json">Board als Datei sichern (.json)</button>
     <button data-m="open">Board aus Datei laden …</button>
     <hr>
-    <button data-m="fit">Alles einpassen</button>
     <button data-m="tpl">Vorlage einfügen …</button>
     <button data-m="img">Bild einfügen …</button>
     <button data-m="keys">Tastenkürzel (?)</button>

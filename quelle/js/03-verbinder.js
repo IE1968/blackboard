@@ -80,6 +80,22 @@ function pathD(pts){
   for(let i=1;i<pts.length-1;i++){ const p=pts[i],q=pts[i+1]; d+=`Q${p[0]} ${p[1]} ${r((p[0]+q[0])/2)} ${r((p[1]+q[1])/2)}`; }
   const l=pts[pts.length-1]; return d+`L${l[0]} ${l[1]}`;
 }
+/* Punkte und Breiten glätten: verhindert perlenartige, zittrige Ränder bei schnellen, dichten Stiftdaten */
+function smoothStroke(pts,ws){
+  let p=[], w=[]; const minD=0.6;
+  for(let i=0;i<pts.length;i++){ const q=pts[i]; if(p.length&&i<pts.length-1&&Math.hypot(q[0]-p[p.length-1][0],q[1]-p[p.length-1][1])<minD) continue; p.push([q[0],q[1]]); w.push(ws&&ws[i]!=null?ws[i]:1); }
+  if(p.length<3) return {p,w};
+  for(let k=0;k<2;k++){ const np=p.map(x=>x.slice()); for(let i=1;i<p.length-1;i++){ np[i][0]=(p[i-1][0]+2*p[i][0]+p[i+1][0])/4; np[i][1]=(p[i-1][1]+2*p[i][1]+p[i+1][1])/4; } p=np; }
+  for(let k=0;k<3;k++){ const nw=w.slice(); for(let i=1;i<w.length-1;i++) nw[i]=(w[i-1]+2*w[i]+w[i+1])/4; w=nw; }
+  return {p,w};
+}
+/* Umriss als weiche Kurve (quadratische Bögen durch die Mittelpunkte) */
+function smoothOutline(Q){
+  const n=Q.length; if(n<3) return 'M'+Q.map(q=>r(q[0])+' '+r(q[1])).join('L')+'Z';
+  let d='M'+r((Q[0][0]+Q[1][0])/2)+' '+r((Q[0][1]+Q[1][1])/2);
+  for(let i=1;i<=n;i++){ const a=Q[i%n], b=Q[(i+1)%n]; d+='Q'+r(a[0])+' '+r(a[1])+' '+r((a[0]+b[0])/2)+' '+r((a[1]+b[1])/2); }
+  return d+'Z';
+}
 function strokeSVG(it){
   const pts=it.pts, tl=it.tool||'pen', tip=it.tip||'round', col=mapC(it.stroke), n=pts.length;
   let o='';
@@ -87,13 +103,13 @@ function strokeSVG(it){
   else if(tl!=='brush'&&tip!=='calli'&&!(tl==='pen'&&it.ws&&it.ws.length===n)){
     o=`<path d="${pathD(pts)}" fill="none" stroke="${col}" stroke-width="${it.sw}" stroke-linecap="${tip==='flat'?'square':'round'}" stroke-linejoin="${tip==='flat'?'bevel':'round'}"/>`;
   } else {
-    const L=[],B=[], ws=it.ws||[], hwAt=i=>it.sw*(tl!=='marker'&&ws[i]!=null?ws[i]:1)/2;
-    for(let i=0;i<n;i++){ const p=pts[i], hw=hwAt(i); let ox,oy;
+    const S=smoothStroke(pts,it.ws&&tl!=='marker'?it.ws:null), P=S.p, m=P.length, hwAt=i=>it.sw*S.w[i]/2, L=[],B=[];
+    for(let i=0;i<m;i++){ const p=P[i], hw=hwAt(i); let ox,oy;
       if(tip==='calli'){ ox=hw*0.7071; oy=-hw*0.7071; }
-      else { const a=pts[Math.max(0,i-1)], b=pts[Math.min(n-1,i+1)], dx=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dx,dy)||1; ox=-dy/l*hw; oy=dx/l*hw; }
-      L.push(r(p[0]+ox)+' '+r(p[1]+oy)); B.unshift(r(p[0]-ox)+' '+r(p[1]-oy)); }
-    o=`<path d="M${L.concat(B).join('L')}Z" fill="${col}" stroke="${col}" stroke-width="${tip==='calli'?Math.max(1,it.sw*0.12):0.8}" stroke-linejoin="round"/>`;
-    if(tip==='round') o+=`<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="${r(hwAt(0))}" fill="${col}"/><circle cx="${pts[n-1][0]}" cy="${pts[n-1][1]}" r="${r(hwAt(n-1))}" fill="${col}"/>`;
+      else { const a=P[Math.max(0,i-2)], b=P[Math.min(m-1,i+2)], dx=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dx,dy)||1; ox=-dy/l*hw; oy=dx/l*hw; }
+      L.push([p[0]+ox,p[1]+oy]); B.unshift([p[0]-ox,p[1]-oy]); }
+    o=`<path d="${smoothOutline(L.concat(B))}" fill="${col}" stroke="${col}" stroke-width="${tip==='calli'?Math.max(1,it.sw*0.12):0.5}" stroke-linejoin="round"/>`;
+    if(tip==='round') o+=`<circle cx="${r(P[0][0])}" cy="${r(P[0][1])}" r="${r(hwAt(0))}" fill="${col}"/><circle cx="${r(P[m-1][0])}" cy="${r(P[m-1][1])}" r="${r(hwAt(m-1))}" fill="${col}"/>`;
   }
   return tl==='marker'?`<g opacity="0.45">${o}</g>`:o;
 }
