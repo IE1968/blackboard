@@ -134,6 +134,9 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 .bmRow b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bmRow small{font-size:11px;color:var(--muted)}
 .bmRow.dup b::after{content:"  doppelt";font-size:10px;font-weight:600;color:#e8a23a;letter-spacing:.04em}
+.bmTop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#bmSame{padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-size:12px}
+#bmSame:hover{background:var(--hover)}
 .bmAll{display:flex;align-items:center;gap:10px;padding:4px 9px;font-size:13px;cursor:pointer}
 #bmMsg{min-height:18px;font-size:13px}
 #bmDel:not(:disabled){background:#c94040;border-color:#c94040;color:#fff}
@@ -413,7 +416,7 @@ body.compact #playBtn{display:none}
   <div id="bmBox">
     <h2 id="bmTitle">Boards verwalten</h2>
     <p>Kreuze die Boards an, die weg sollen. Gleiche Namen stehen untereinander, so findest du doppelte Boards schnell.</p>
-    <label class="bmAll"><input type="checkbox" id="bmAll"> Alle auswählen</label>
+    <div class="bmTop"><label class="bmAll"><input type="checkbox" id="bmAll"> Alle auswählen</label><button type="button" id="bmSame" title="Kreuzt Boards an, die es mit gleichem Namen und gleichem Inhalt mehrfach gibt. Je eins bleibt übrig.">Gleiche ankreuzen</button></div>
     <div id="bmList" role="group" aria-label="Boards"></div>
     <div id="bmMsg" role="status"></div>
     <div class="dlgBtns"><button type="button" class="pb danger" id="bmDel" disabled>Löschen</button><button type="button" class="pb" id="bmClose">Schließen</button></div>
@@ -1308,6 +1311,15 @@ $('bmDel').onclick=()=>{
   const ids=bmSel(), d=$('bmDel'); if(!ids.length) return;
   if(!d.dataset.sure){ d.dataset.sure='1'; d.textContent='Wirklich '+(ids.length===1?'1 Board':ids.length+' Boards')+' löschen?'; $('bmMsg').textContent=ktOn()?'Sie verschwinden auch auf deinen anderen angemeldeten Geräten. Das lässt sich nicht zurückholen.':'Das lässt sich nicht zurückholen.'; return; }
   finishEdit(); const n=removeBoards(ids); bmRender(); $('bmMsg').textContent=(n===1?'1 Board':n+' Boards')+' gelöscht.'; toast((n===1?'1 Board':n+' Boards')+' gelöscht.');
+};
+/* Boards mit gleichem Namen und gleichem Inhalt: alle bis auf eins ankreuzen (behalten wird das geöffnete, sonst das zuletzt geänderte) */
+$('bmSame').onclick=()=>{
+  const groups=new Map();
+  for(const b of boards.list){ const d=b.id===boards.cur?doc:storedDoc(b.id); const k=String(b.name).trim().toLowerCase()+'\u0000'+JSON.stringify(d?d.items:[]); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(b); }
+  const pick=new Set();
+  for(const g of groups.values()){ if(g.length<2) continue; g.sort((a,b)=>(b.id===boards.cur)-(a.id===boards.cur)||(b.updated||0)-(a.updated||0)); g.slice(1).forEach(b=>pick.add(b.id)); }
+  $('bmList').querySelectorAll('input').forEach(i=>i.checked=pick.has(i.dataset.id)); bmUpd();
+  $('bmMsg').textContent=pick.size?(pick.size===1?'1 Board':pick.size+' Boards')+' mit gleichem Namen und Inhalt angekreuzt. Je eins bleibt.':'Keine Boards mit gleichem Namen und gleichem Inhalt gefunden.';
 };
 $('bmClose').onclick=closeBmDlg;
 $('bmDlg').addEventListener('pointerdown',e=>{ if(e.target===$('bmDlg')) closeBmDlg(); });
@@ -2643,19 +2655,19 @@ function ghApi(cfg,path,opt){
 }
 function setSync(st,err){
   syncState=st; syncErr=err||''; if(st==='ok') syncAt=Date.now();
-  if(syncCfg) $('menuBtn').dataset.sync=st; else delete $('menuBtn').dataset.sync;
+  if(syncCfg&&!ktOn()) $('menuBtn').dataset.sync=st; else delete $('menuBtn').dataset.sync;
   renderSyncInfo();
 }
 function renderSyncInfo(){
   $('syncSec').hidden=!canSync; if(!canSync) return;
   const t=syncAt?new Date(syncAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}):'';
-  $('syncInfo').textContent=!syncCfg?'Nicht eingerichtet':syncState==='busy'?'Wird synchronisiert …':syncState==='wait'?'Änderungen warten auf den Abgleich':
+  $('syncInfo').textContent=!syncCfg?'Nicht eingerichtet':ktOn()?'Pausiert: Deine Boards laufen über dein Konto':syncState==='busy'?'Wird synchronisiert …':syncState==='wait'?'Änderungen warten auf den Abgleich':
     syncState==='auth'?'Zugang abgelehnt: Schlüssel prüfen':syncState==='err'?(syncErr||'Keine Verbindung')+' – wird erneut versucht':t?'Synchronisiert um '+t+' Uhr':'Verbunden mit '+syncCfg.owner+'/'+syncCfg.repo;
-  $('syncNowBtn').hidden=!syncCfg; $('syncCfgBtn').textContent=syncCfg?'Einstellungen …':'Einrichten …';
+  $('syncNowBtn').hidden=!syncCfg||ktOn(); $('syncCfgBtn').textContent=syncCfg?'Einstellungen …':'Einrichten …';
   liveBadge();
 }
 function scheduleSync(ms){
-  if(!syncCfg||!canSync) return;
+  if(!syncCfg||!canSync||ktOn()) return;   /* mit Konto läuft alles über Supabase; zwei Abgleiche gleichzeitig würden Boards verdoppeln */
   if(syncState!=='busy'&&boards.list.some(b=>b.dirty)) setSync('wait');
   clearTimeout(syncTimer); syncTimer=setTimeout(()=>syncNow(false),ms);
 }
@@ -2679,7 +2691,7 @@ function dropLocalBoard(id){
   if(boards.cur===id) openBoard(boards.list[0].id);
 }
 async function syncNow(manual){
-  if(!syncCfg||!canSync) return;
+  if(!syncCfg||!canSync||ktOn()) return;
   if(syncBusy){ syncAgain=true; return; }
   if(action||editing){ scheduleSync(2000); return; }
   syncBusy=true; setSync('busy'); const cfg=syncCfg;
@@ -3151,7 +3163,7 @@ async function ktSync(){
     const gone=ktGoneList();
     if(gone.length){ await ktRest('PATCH','?key=in.('+gone.join(',')+')',{del:true},'return=minimal'); lsSet(KT_GONE,'[]'); }
     const rows=await ktRest('GET','?select=key,name,del',null)||[], srv=new Map(rows.map(r=>[r.key,r]));
-    const up=[], fresh=[], drop=[]; let idx=false;
+    const up=[], fresh=[], drop=[]; let idx=ktDedupe();
     for(const b of boards.list){
       if(b.tok) continue;   /* Gast-Board */
       if(!b.live){ b.live=liveNewKey(); b.kNew=true; b.liveDirty=true; idx=true; }
@@ -3190,6 +3202,16 @@ async function ktSync(){
   }catch(e){ if(e&&e.status===404) ktUi('Konto-Tabelle fehlt in Supabase. Bitte das Skript 01-konto.sql ausführen.'); }
   finally{ KT.busy=false; if(KT.again) setTimeout(ktSync,300); }
 }
+/* Zwei Boards mit demselben Schlüssel auf einem Gerät (z. B. einmal vom Konto, einmal vom alten GitHub-Abgleich): eins behalten */
+function ktDedupe(){
+  const seen=new Map(), extra=[];
+  for(const b of boards.list){ if(!b.live) continue; const o=seen.get(b.live); if(!o){ seen.set(b.live,b); continue; }
+    const keepB=b.id===boards.cur||(o.id!==boards.cur&&(b.updated||0)>(o.updated||0)); if(keepB){ seen.set(b.live,b); extra.push(o); } else extra.push(b); }
+  if(!extra.length) return false;
+  for(const b of extra) docDel(b.id);
+  const ex=new Set(extra); boards.list=boards.list.filter(b=>!ex.has(b));
+  return true;
+}
 function ktSoon(ms){ if(!KT.s) return; clearTimeout(KT.t); KT.t=setTimeout(ktSync,ms||1500); }
 /* lokal gelöschtes eigenes Board: im Konto als gelöscht markieren, damit es auch auf den anderen Geräten verschwindet */
 function ktGone(b){
@@ -3198,7 +3220,7 @@ function ktGone(b){
   if(KT.s) ktSoon(300);
 }
 function ktSignedOut(msg){
-  KT.s=null; ktStore(null); ktUi(); if(msg) toast(msg);
+  KT.s=null; ktStore(null); ktUi(); setSync(syncCfg?'wait':'off'); if(syncCfg) scheduleSync(800); if(msg) toast(msg);
 }
 function ktUi(note){
   const on=!!KT.s;
@@ -3216,7 +3238,7 @@ $('ktForm').addEventListener('submit',async e=>{
   try{
     const j=await ktAuth('token?grant_type=password',{email:mail,password:pw});
     KT.s=ktFrom(j,keep); ktStore(KT.s); try{ lsSet('skizix-konto-mail',mail); }catch(_){}
-    closeKtDlg(); ktUi(); toast('Angemeldet. Deine Boards werden mit dem Konto abgeglichen …'); ktSync();
+    clearTimeout(syncTimer); closeKtDlg(); ktUi(); renderSyncInfo(); setSync(syncState); toast('Angemeldet. Deine Boards werden mit dem Konto abgeglichen …'); ktSync();
   }catch(err){
     msg.textContent=err&&err.code==='invalid_credentials'||(err&&err.status===400&&/invalid/i.test(err.msg||''))?'E-Mail-Adresse oder Passwort stimmt nicht.'
       :err&&err.code==='email_not_confirmed'?'Die E-Mail-Adresse ist noch nicht bestätigt.'

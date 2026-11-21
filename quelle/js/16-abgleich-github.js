@@ -12,19 +12,19 @@ function ghApi(cfg,path,opt){
 }
 function setSync(st,err){
   syncState=st; syncErr=err||''; if(st==='ok') syncAt=Date.now();
-  if(syncCfg) $('menuBtn').dataset.sync=st; else delete $('menuBtn').dataset.sync;
+  if(syncCfg&&!ktOn()) $('menuBtn').dataset.sync=st; else delete $('menuBtn').dataset.sync;
   renderSyncInfo();
 }
 function renderSyncInfo(){
   $('syncSec').hidden=!canSync; if(!canSync) return;
   const t=syncAt?new Date(syncAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}):'';
-  $('syncInfo').textContent=!syncCfg?'Nicht eingerichtet':syncState==='busy'?'Wird synchronisiert …':syncState==='wait'?'Änderungen warten auf den Abgleich':
+  $('syncInfo').textContent=!syncCfg?'Nicht eingerichtet':ktOn()?'Pausiert: Deine Boards laufen über dein Konto':syncState==='busy'?'Wird synchronisiert …':syncState==='wait'?'Änderungen warten auf den Abgleich':
     syncState==='auth'?'Zugang abgelehnt: Schlüssel prüfen':syncState==='err'?(syncErr||'Keine Verbindung')+' – wird erneut versucht':t?'Synchronisiert um '+t+' Uhr':'Verbunden mit '+syncCfg.owner+'/'+syncCfg.repo;
-  $('syncNowBtn').hidden=!syncCfg; $('syncCfgBtn').textContent=syncCfg?'Einstellungen …':'Einrichten …';
+  $('syncNowBtn').hidden=!syncCfg||ktOn(); $('syncCfgBtn').textContent=syncCfg?'Einstellungen …':'Einrichten …';
   liveBadge();
 }
 function scheduleSync(ms){
-  if(!syncCfg||!canSync) return;
+  if(!syncCfg||!canSync||ktOn()) return;   /* mit Konto läuft alles über Supabase; zwei Abgleiche gleichzeitig würden Boards verdoppeln */
   if(syncState!=='busy'&&boards.list.some(b=>b.dirty)) setSync('wait');
   clearTimeout(syncTimer); syncTimer=setTimeout(()=>syncNow(false),ms);
 }
@@ -48,7 +48,7 @@ function dropLocalBoard(id){
   if(boards.cur===id) openBoard(boards.list[0].id);
 }
 async function syncNow(manual){
-  if(!syncCfg||!canSync) return;
+  if(!syncCfg||!canSync||ktOn()) return;
   if(syncBusy){ syncAgain=true; return; }
   if(action||editing){ scheduleSync(2000); return; }
   syncBusy=true; setSync('busy'); const cfg=syncCfg;

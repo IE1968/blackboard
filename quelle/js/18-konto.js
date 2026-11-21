@@ -53,7 +53,7 @@ async function ktSync(){
     const gone=ktGoneList();
     if(gone.length){ await ktRest('PATCH','?key=in.('+gone.join(',')+')',{del:true},'return=minimal'); lsSet(KT_GONE,'[]'); }
     const rows=await ktRest('GET','?select=key,name,del',null)||[], srv=new Map(rows.map(r=>[r.key,r]));
-    const up=[], fresh=[], drop=[]; let idx=false;
+    const up=[], fresh=[], drop=[]; let idx=ktDedupe();
     for(const b of boards.list){
       if(b.tok) continue;   /* Gast-Board */
       if(!b.live){ b.live=liveNewKey(); b.kNew=true; b.liveDirty=true; idx=true; }
@@ -92,6 +92,16 @@ async function ktSync(){
   }catch(e){ if(e&&e.status===404) ktUi('Konto-Tabelle fehlt in Supabase. Bitte das Skript 01-konto.sql ausführen.'); }
   finally{ KT.busy=false; if(KT.again) setTimeout(ktSync,300); }
 }
+/* Zwei Boards mit demselben Schlüssel auf einem Gerät (z. B. einmal vom Konto, einmal vom alten GitHub-Abgleich): eins behalten */
+function ktDedupe(){
+  const seen=new Map(), extra=[];
+  for(const b of boards.list){ if(!b.live) continue; const o=seen.get(b.live); if(!o){ seen.set(b.live,b); continue; }
+    const keepB=b.id===boards.cur||(o.id!==boards.cur&&(b.updated||0)>(o.updated||0)); if(keepB){ seen.set(b.live,b); extra.push(o); } else extra.push(b); }
+  if(!extra.length) return false;
+  for(const b of extra) docDel(b.id);
+  const ex=new Set(extra); boards.list=boards.list.filter(b=>!ex.has(b));
+  return true;
+}
 function ktSoon(ms){ if(!KT.s) return; clearTimeout(KT.t); KT.t=setTimeout(ktSync,ms||1500); }
 /* lokal gelöschtes eigenes Board: im Konto als gelöscht markieren, damit es auch auf den anderen Geräten verschwindet */
 function ktGone(b){
@@ -100,7 +110,7 @@ function ktGone(b){
   if(KT.s) ktSoon(300);
 }
 function ktSignedOut(msg){
-  KT.s=null; ktStore(null); ktUi(); if(msg) toast(msg);
+  KT.s=null; ktStore(null); ktUi(); setSync(syncCfg?'wait':'off'); if(syncCfg) scheduleSync(800); if(msg) toast(msg);
 }
 function ktUi(note){
   const on=!!KT.s;
@@ -118,7 +128,7 @@ $('ktForm').addEventListener('submit',async e=>{
   try{
     const j=await ktAuth('token?grant_type=password',{email:mail,password:pw});
     KT.s=ktFrom(j,keep); ktStore(KT.s); try{ lsSet('skizix-konto-mail',mail); }catch(_){}
-    closeKtDlg(); ktUi(); toast('Angemeldet. Deine Boards werden mit dem Konto abgeglichen …'); ktSync();
+    clearTimeout(syncTimer); closeKtDlg(); ktUi(); renderSyncInfo(); setSync(syncState); toast('Angemeldet. Deine Boards werden mit dem Konto abgeglichen …'); ktSync();
   }catch(err){
     msg.textContent=err&&err.code==='invalid_credentials'||(err&&err.status===400&&/invalid/i.test(err.msg||''))?'E-Mail-Adresse oder Passwort stimmt nicht.'
       :err&&err.code==='email_not_confirmed'?'Die E-Mail-Adresse ist noch nicht bestätigt.'

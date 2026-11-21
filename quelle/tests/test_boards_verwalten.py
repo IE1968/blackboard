@@ -17,6 +17,11 @@ try:
   check('Doppelte markiert',pg.locator('#bmList .bmRow.dup').count()==2)
   check('Löschen ohne Auswahl gesperrt',pg.is_disabled('#bmDel'))
   pg.screenshot(path=OUT+'/boards_verwalten.png')
+  pg.click('#bmSame')
+  sel=[x.get_attribute('data-id') for x in pg.locator('#bmList .bmRow input:checked').all()]
+  check('„Gleiche ankreuzen“: von zwei leeren „Alpha“ wird eins angekreuzt',len(sel)==1 and 'Gleich' not in pg.inner_text('#bmMsg') and '1 Board' in pg.inner_text('#bmMsg'),pg.inner_text('#bmMsg'))
+  pg.uncheck('#bmAll') if pg.is_checked('#bmAll') else None
+  pg.locator('#bmList .bmRow input:checked').first.uncheck()
   rows=pg.locator('#bmList .bmRow input'); rows.nth(0).check(); rows.nth(2).check()
   check('Knopf zählt mit',pg.inner_text('#bmDel')=='2 Boards löschen')
   pg.click('#bmDel'); check('Erst Rückfrage','Wirklich' in pg.inner_text('#bmDel'))

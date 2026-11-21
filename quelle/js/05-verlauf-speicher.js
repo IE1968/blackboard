@@ -225,6 +225,15 @@ $('bmDel').onclick=()=>{
   if(!d.dataset.sure){ d.dataset.sure='1'; d.textContent='Wirklich '+(ids.length===1?'1 Board':ids.length+' Boards')+' löschen?'; $('bmMsg').textContent=ktOn()?'Sie verschwinden auch auf deinen anderen angemeldeten Geräten. Das lässt sich nicht zurückholen.':'Das lässt sich nicht zurückholen.'; return; }
   finishEdit(); const n=removeBoards(ids); bmRender(); $('bmMsg').textContent=(n===1?'1 Board':n+' Boards')+' gelöscht.'; toast((n===1?'1 Board':n+' Boards')+' gelöscht.');
 };
+/* Boards mit gleichem Namen und gleichem Inhalt: alle bis auf eins ankreuzen (behalten wird das geöffnete, sonst das zuletzt geänderte) */
+$('bmSame').onclick=()=>{
+  const groups=new Map();
+  for(const b of boards.list){ const d=b.id===boards.cur?doc:storedDoc(b.id); const k=String(b.name).trim().toLowerCase()+'\u0000'+JSON.stringify(d?d.items:[]); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(b); }
+  const pick=new Set();
+  for(const g of groups.values()){ if(g.length<2) continue; g.sort((a,b)=>(b.id===boards.cur)-(a.id===boards.cur)||(b.updated||0)-(a.updated||0)); g.slice(1).forEach(b=>pick.add(b.id)); }
+  $('bmList').querySelectorAll('input').forEach(i=>i.checked=pick.has(i.dataset.id)); bmUpd();
+  $('bmMsg').textContent=pick.size?(pick.size===1?'1 Board':pick.size+' Boards')+' mit gleichem Namen und Inhalt angekreuzt. Je eins bleibt.':'Keine Boards mit gleichem Namen und gleichem Inhalt gefunden.';
+};
 $('bmClose').onclick=closeBmDlg;
 $('bmDlg').addEventListener('pointerdown',e=>{ if(e.target===$('bmDlg')) closeBmDlg(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('bmDlg').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeBmDlg(); } },true);

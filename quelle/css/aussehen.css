@@ -116,6 +116,9 @@ main.props-closed #props{padding:0;border:0;overflow:hidden}
 .bmRow b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bmRow small{font-size:11px;color:var(--muted)}
 .bmRow.dup b::after{content:"  doppelt";font-size:10px;font-weight:600;color:#e8a23a;letter-spacing:.04em}
+.bmTop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#bmSame{padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-size:12px}
+#bmSame:hover{background:var(--hover)}
 .bmAll{display:flex;align-items:center;gap:10px;padding:4px 9px;font-size:13px;cursor:pointer}
 #bmMsg{min-height:18px;font-size:13px}
 #bmDel:not(:disabled){background:#c94040;border-color:#c94040;color:#fff}
