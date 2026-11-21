@@ -83,7 +83,8 @@ try:
     # --- 7: Touch-Griffe
     c2=b.new_context(viewport={'width':820,'height':1180},has_touch=True,is_mobile=True); p2=c2.new_page(); p2.goto(URL); p2.wait_for_timeout(400)
     w=p2.evaluate("()=>[document.getElementById('palHandle').getBoundingClientRect().width,document.getElementById('propsToggle').getBoundingClientRect().width]")
-    ok('Touch-Griffe ≥ 44 px',min(w)>=44,str(w)); p2.screenshot(path='/tmp/bb-tests/tablet_new.png'); c2.close()
+    hit=p2.evaluate("()=>{const h=document.getElementById('palHandle').getBoundingClientRect(), t=document.getElementById('propsToggle').getBoundingClientRect(); return [document.elementFromPoint(h.left+43,h.top+h.height/2)===document.getElementById('palHandle'), document.elementFromPoint(t.right-43,t.top+t.height/2)===document.getElementById('propsToggle')]}")
+    ok('Touch-Griffe: Tippfläche ≥ 44 px',all(hit),str(w)+' '+str(hit)); p2.screenshot(path='/tmp/bb-tests/tablet_new.png'); c2.close()
     b.close()
 finally: srv.terminate()
 print('RESULT',sum(res),'/',len(res))

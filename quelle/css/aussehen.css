@@ -49,9 +49,9 @@ header{position:relative;min-width:0;zoom:var(--ui);border-bottom:1px solid var(
 main{--palw:calc(112px*var(--ui));--propw:calc(104px*var(--ui));position:relative;display:grid;grid-template-columns:var(--palw) minmax(0,1fr) var(--propw);min-height:0}
 main.props-closed{--propw:0px}
 main.pal-closed{--palw:0px}
-#palHandle{position:absolute;left:var(--palw);top:50%;transform:translateY(-50%);z-index:15;width:calc(28px*var(--ui));height:calc(92px*var(--ui));padding:0;border-radius:0 12px 12px 0;background:var(--panel);border:1px solid var(--line);border-left:0;color:var(--ink);font-size:calc(24px*var(--ui));line-height:1}
+#palHandle{position:absolute;left:var(--palw);top:50%;transform:translateY(-50%);z-index:15;width:calc(14px*var(--ui));height:calc(92px*var(--ui));padding:0;border-radius:0 8px 8px 0;background:var(--panel);border:1px solid var(--line);border-left:0;color:var(--ink);font-size:calc(18px*var(--ui));line-height:1}
 #palHandle:hover,#propsToggle:hover{color:var(--ink);background:var(--hover)}
-#propsToggle{position:absolute;right:var(--propw);top:50%;transform:translateY(-50%);z-index:6;width:calc(28px*var(--ui));height:calc(92px*var(--ui));padding:0;border-radius:12px 0 0 12px;background:var(--panel);border:1px solid var(--line);border-right:0;color:var(--ink);font-size:calc(24px*var(--ui));line-height:1}
+#propsToggle{position:absolute;right:var(--propw);top:50%;transform:translateY(-50%);z-index:6;width:calc(14px*var(--ui));height:calc(92px*var(--ui));padding:0;border-radius:8px 0 0 8px;background:var(--panel);border:1px solid var(--line);border-right:0;color:var(--ink);font-size:calc(18px*var(--ui));line-height:1}
 #palette,#props,#toast{zoom:var(--ui)}
 #palette{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding:10px 6px 20px}
 .gh{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;font:600 11px/1.2 var(--body);letter-spacing:.03em;text-transform:uppercase;color:var(--muted);padding:7px 2px 5px;margin-top:4px;text-align:center}
@@ -230,8 +230,13 @@ body.compact #palette{width:112px}
 body.compact #palette{left:0;box-shadow:8px 0 24px rgba(0,0,0,.35)}
 body.compact #props{right:0;box-shadow:-8px 0 24px rgba(0,0,0,.35)}
 body.compact main.pal-closed #palette,body.compact main.props-closed #props{display:none}
-body.compact #palHandle,body.compact #propsToggle{width:calc(24px*var(--ui));height:calc(72px*var(--ui));font-size:calc(20px*var(--ui))}
-body.touch #palHandle,body.touch #propsToggle{width:44px;height:88px;font-size:24px}
+body.compact #palHandle,body.compact #propsToggle{width:calc(14px*var(--ui));height:calc(72px*var(--ui));font-size:calc(17px*var(--ui))}
+body.touch #palHandle,body.touch #propsToggle{width:22px;height:88px;font-size:20px}
+/* schmal sichtbar, aber zum Antippen breiter (unsichtbare Fläche daneben) */
+#palHandle::after,#propsToggle::after{content:'';position:absolute;top:0;bottom:0;width:16px}
+#palHandle::after{left:100%}
+#propsToggle::after{right:100%}
+body.touch #palHandle::after,body.touch #propsToggle::after{width:24px}
 body.compact #menu{right:6px;overscroll-behavior:contain}
 body.compact #menu button{padding:8px 12px}
 body.compact #menu .mh{padding:6px 12px 2px}
