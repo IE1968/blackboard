@@ -3,7 +3,7 @@
 const INK='#1c2a2e', INK_D='#eef3f3';
 let SEL='#1763cf', darkBoard=true, presLive=null, plainOut=false;
 function tink(){ return darkBoard?INK_D:INK; }
-function paper(){ return darkBoard?'#0d1011':'#fbfbf8'; }
+function paper(){ const s=BG_OK?SURF[bgCur().s]:null; return s&&s.dark===darkBoard?s.bg:(darkBoard?'#0d1011':'#fbfbf8'); }   /* Farbe der Tafel (für Export, Präsentation, Beschriftungen) */
 function mapC(c){ if(!darkBoard) return c; if(c===INK) return INK_D; if(c==='#ffffff') return '#1b2427'; return c; }
 function onFill(f){ return f==='none'?tink():(isDark(mapC(f))?'#ffffff':INK); }
 function vis(it){ return Object.assign({},it,{fill:mapC(it.fill),stroke:mapC(it.stroke)}); }

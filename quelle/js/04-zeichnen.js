@@ -16,6 +16,7 @@ function viewNeedsRender(){
   const v=viewRect(), R=drawn.R; return v.x<R.x||v.y<R.y||v.x+v.w>R.x+R.w||v.y+v.h>R.y+R.h||view.k<drawn.k/2.5;
 }
 function render(){
+  applyBg();
   for(const id of [...sel]) if(!byId(id)) sel.delete(id);
   const vis=visibleItems(); noText=drawn.lod&&!editing;
   itemsG.innerHTML=vis.map(itemSVG).join(''); noText=false;
@@ -99,7 +100,7 @@ function applyView(){
   worldG.setAttribute('transform',`translate(${r(view.x)} ${r(view.y)}) scale(${view.k})`);
   let g=20*view.k; while(g<12) g*=5;
   gridP.setAttribute('width',g); gridP.setAttribute('height',g);
-  gridP.setAttribute('x',r(view.x%g-1.5)); gridP.setAttribute('y',r(view.y%g-1.5));
+  gridP.setAttribute('x',r(view.x%g-1.5)); gridP.setAttribute('y',r(view.y%g-1.5)); patShape();
   $('zoomLabel').textContent=Math.round(view.k*100)+' %';
   renderOverlay(); if(editing) placeEditor();
   if(viewNeedsRender()&&!viewRaf) viewRaf=requestAnimationFrame(()=>{ viewRaf=0; if(viewNeedsRender()) render(); });

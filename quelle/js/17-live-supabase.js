@@ -25,16 +25,16 @@ async function liveFetch(c){
   return {name:row.name,doc:d,chan:row.chan,role:row.role==='view'?'view':'edit',exp:row.expires_at?Date.parse(row.expires_at):null};
 }
 function liveSnap(){ const m=new Map(); for(const it of doc.items) m.set(it.id,JSON.stringify(it)); return {m,ord:doc.items.map(i=>i.id)}; }
-function liveSetBase(){ const s=liveSnap(); LV.base=s.m; LV.ord=s.ord; }
+function liveSetBase(){ const s=liveSnap(); LV.base=s.m; LV.ord=s.ord; LV.bg=JSON.stringify(doc.bg||null); }
 function liveDiff(){
   if(!LV.base) return null;
   const up=[], del=[], cur=new Set();
   for(const it of doc.items){ cur.add(it.id); const j=JSON.stringify(it); if(LV.base.get(it.id)!==j) up.push(it); }
   for(const id of LV.base.keys()) if(!cur.has(id)) del.push(id);
   const a=LV.ord.filter(id=>cur.has(id)), b=doc.items.map(i=>i.id).filter(id=>LV.base.has(id));
-  const moved=a.length!==b.length||a.some((id,i)=>id!==b[i]);
-  if(!up.length&&!del.length&&!moved) return null;
-  const o={up,del}; if(moved) o.ord=doc.items.map(i=>i.id); return o;
+  const moved=a.length!==b.length||a.some((id,i)=>id!==b[i]), bgCh=JSON.stringify(doc.bg||null)!==LV.bg;
+  if(!up.length&&!del.length&&!moved&&!bgCh) return null;
+  const o={up,del}; if(moved) o.ord=doc.items.map(i=>i.id); if(bgCh) o.bg=doc.bg||null; return o;
 }
 /* Wird nach jeder eigenen Änderung aufgerufen (Speichern, Rückgängig, Board wechseln) */
 function liveTick(){
@@ -46,7 +46,7 @@ function liveTick(){
   if(!LV.joined||!LV.base){ b.liveDirty=true; saveIdx(); liveBadge(); return; }
   const o=liveDiff(); if(!o) return;
   liveSetBase(); b.liveDirty=true; saveIdx();
-  const msg={t:'ops',up:o.up,del:o.del,nm:b.name}; if(o.ord) msg.ord=o.ord;
+  const msg={t:'ops',up:o.up,del:o.del,nm:b.name}; if(o.ord) msg.ord=o.ord; if('bg' in o) msg.bg=o.bg;
   if(JSON.stringify(msg).length>200000) liveSave(0,true); else { liveSend(msg); liveSave(1500); }
 }
 function liveSend(msg){
@@ -116,6 +116,7 @@ function liveApply(m){
   if(Array.isArray(m.ord)){ const rank=new Map(m.ord.map((id,i)=>[id,i])); const known=items.filter(i=>rank.has(i.id)).sort((x,y)=>rank.get(x.id)-rank.get(y.id)), rest=items.filter(i=>!rank.has(i.id)); items=known.concat(rest); }
   const mine=c.role==='view'?null:liveDiff();   /* eigene, noch nicht verschickte Änderungen bleiben erhalten */
   doc.items=items; for(const id of [...sel]) if(!byId(id)) sel.delete(id);
+  if('bg' in m&&!(mine&&'bg' in mine)){ const bg=cleanBg(m.bg); if(bg) doc.bg=bg; else delete doc.bg; }   /* Fläche und Muster, von einem anderen Gerät geändert */
   liveHist(clean,del);
   liveSetBase();
   if(mine){ for(const it of mine.up) LV.base.delete(it.id); for(const id of mine.del) if(!byId(id)) LV.base.set(id,'-'); }
@@ -150,8 +151,8 @@ async function liveResync(){
   if(mine){ const del=new Set(mine.del), pos=new Map(); items=items.filter(i=>!del.has(i.id)); items.forEach((it,i)=>pos.set(it.id,i));
     for(const it of mine.up){ if(pos.has(it.id)) items[pos.get(it.id)]=it; else items.push(it); } }
   else if(!LV.base&&b.liveDirty&&b.role!=='view'){ const pos=new Map(items.map((it,i)=>[it.id,i])); items=items.slice(); for(const it of doc.items){ if(pos.has(it.id)) items[pos.get(it.id)]=it; else items.push(it); } }
-  const changed=JSON.stringify(items)!==JSON.stringify(doc.items);
-  doc=Object.assign({},doc,{items,n:Math.max(doc.n||0,r.doc.n||0)}); for(const id of [...sel]) if(!byId(id)) sel.delete(id);
+  const bgS=(mine&&'bg' in mine)?doc.bg:r.doc.bg, changed=JSON.stringify(items)!==JSON.stringify(doc.items)||JSON.stringify(bgS||null)!==JSON.stringify(doc.bg||null);
+  doc=Object.assign({},doc,{items,n:Math.max(doc.n||0,r.doc.n||0)}); if(bgS) doc.bg=bgS; else delete doc.bg; for(const id of [...sel]) if(!byId(id)) sel.delete(id);
   if(r.name&&r.name!==b.name){ b.name=String(r.name).slice(0,40); $('boardName').value=b.name; saveIdx(); }
   if(changed){ resetHist(); persist(); render(); }
   liveSetBase();

@@ -91,7 +91,7 @@ function shapeBody(s){
     case 'nsloop': { const t=Math.min(36,h*0.4),b=Math.min(24,w*0.2); return `<polygon points="0,0 ${w},0 ${w},${t} ${b},${t} ${b},${h} 0,${h}" ${f}/>`; }
     case 'nsloopf': { const t=Math.min(36,h*0.4),b=Math.min(24,w*0.2); return `<polygon points="0,0 ${b},0 ${b},${h-t} ${w},${h-t} ${w},${h} 0,${h}" ${f}/>`; }
     case 'nscall': { const b=Math.min(10,w*0.1); return `<rect width="${w}" height="${h}" ${f}/><path d="M${b} 0V${h}M${w-b} 0V${h}" ${ln}/>`; }
-    case 'frame': { const c=darkBoard?'#4d9fff':'#1763cf', no=s.id?frameNo(s.id):0, lab=(no?'Folie '+no:'Folie')+(s.text?' · '+String(s.text).replace(/\s+/g,' ').slice(0,40):'');
+    case 'frame': { const c=SEL, no=s.id?frameNo(s.id):0, lab=(no?'Folie '+no:'Folie')+(s.text?' · '+String(s.text).replace(/\s+/g,' ').slice(0,40):'');
       mctx.font='600 15px '+FONT; const lw=Math.round(mctx.measureText(lab).width+24), gw=coarse?40:26;   /* unsichtbarer breiter Rand zum Anfassen */
       return `<rect width="${w}" height="${h}" fill="none" stroke="#000" stroke-opacity="0" stroke-width="${gw}" pointer-events="stroke"/><rect width="${w}" height="${h}" fill="none" stroke="${c}" stroke-width="3" stroke-dasharray="12 6" pointer-events="none"/><rect y="-34" width="${lw}" height="32" rx="6" fill="${c}"/><text x="12" y="-12.5" font-family="${FONT}" font-size="15" font-weight="600" fill="${darkBoard?'#031a3a':'#ffffff'}" pointer-events="none">${esc(lab)}</text>`; }
     case 'image': return s.src?`<image href="${s.src}" width="${w}" height="${h}" preserveAspectRatio="none"/>`+(sw>0?`<rect width="${w}" height="${h}" fill="none" stroke="${s.stroke}" stroke-width="${sw}"/>`:''):`<rect width="${w}" height="${h}" fill="rgba(128,128,128,.15)" stroke="#888" stroke-dasharray="6 4"/>`;

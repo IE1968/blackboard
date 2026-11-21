@@ -133,6 +133,7 @@ function cleanDoc(d){
   for(const o of out) if(o.type==='conn'){ if(!shapes.has(o.from)){ o.from=null; delete o.fa; } if(!shapes.has(o.to)){ o.to=null; delete o.ta; } }
   const fmt=num(d.fmt,1,1,1e6), r={items:out,n:Math.max(n,num(d.n,0,0,1e9)),fmt:Math.max(fmt,DOC_FMT)};
   if(extra.length) r.extra=extra;
+  const bg=cleanBg(d.bg); if(bg) r.bg=bg;   /* Fläche und Muster der Tafel */
   return r;
 }
 const isNewer=d=>!!d&&d.fmt>DOC_FMT;

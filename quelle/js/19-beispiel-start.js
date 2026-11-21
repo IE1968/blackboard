@@ -16,7 +16,6 @@ function exampleDoc(){
   return d;
 }
 function start(data){
-  setBoardBg(lsGet('blackboard-bg')!=='light',true);
   loadBoards();
   const hot=data&&data.doc?cleanDoc(data.doc):null;
   doc=hot||storedDoc(boards.cur)||exampleDoc(); fitTexts(); hist=[]; hi=-1; commit(); setTool('select'); render(); if(isNewer(doc)) setTimeout(newerWarn,600);

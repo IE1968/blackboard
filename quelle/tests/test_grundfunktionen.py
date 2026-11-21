@@ -44,11 +44,11 @@ try:
     ok('Einrasten an Oberkante',abs(B['y']-A['y'])<0.01,f"A.y={A['y']} B.y={B['y']}")
     ok('Hilfslinie sichtbar',g)
     # Einrasten aus -> frei
-    menu('snap'); pg.keyboard.press('Escape')
+    pg.click('#viewBtn'); pg.click('#snapBtn'); pg.keyboard.press('Escape')
     bx,by=scr(B['x']+B['w']/2,B['y']+B['h']/2); drag(bx,by,bx+3,by+137)
     d=doc(); A,B=[i for i in d['items'] if i['type']=='shape']
     ok('Einrasten aus: freie Position',abs(B['y']-A['y']-137)<0.01 and (B['x']%10)!=0 ,f"B={B['x']},{B['y']}")
-    menu('snap'); pg.keyboard.press('Escape')
+    pg.click('#viewBtn'); pg.click('#snapBtn'); pg.keyboard.press('Escape')
     # --- Andocken
     add('lineArrow'); d=doc(); C=[i for i in d['items'] if i['type']=='conn'][0]
     ex,ey=scr(C['p2']['x'],C['p2']['y'])

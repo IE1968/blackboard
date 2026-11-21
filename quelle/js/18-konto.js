@@ -116,7 +116,7 @@ function ktUi(note){
   const on=!!KT.s;
   $('ktInfo').textContent=note||(on?'Angemeldet als '+KT.s.email:liveOk()?'Nicht angemeldet':'Hier nicht verfügbar');
   $('ktLoginBtn').hidden=on||!liveOk(); $('ktLogoutBtn').hidden=!on;
-  liveBadge();
+  ktBtnUi(); liveBadge();
 }
 /* ---- Anmelde-Dialog ---- */
 function openKtDlg(){ $('ktMsg').textContent=''; $('ktPw').value=''; $('ktDlg').hidden=false; ($('ktMail').value?$('ktPw'):$('ktMail')).focus(); }

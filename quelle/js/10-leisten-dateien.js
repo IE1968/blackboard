@@ -1,10 +1,5 @@
 /* ---------- Leisten, Menü, Tastatur ---------- */
 $('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); setTool(b.dataset.tool); } });
-function setBoardBg(d,keep){
-  darkBoard=d; SEL=d?'#4d9fff':'#1763cf'; $('stage').classList.toggle('dark',d); editor.style.borderColor=SEL;
-  if(!keep){ lsSet('blackboard-bg',d?'dark':'light'); render(); }
-}
-$('bgBtn').onclick=()=>{ finishEdit(); setBoardBg(!darkBoard); };
 $('undo').onclick=undo; $('redo').onclick=redo; $('playBtn').onclick=()=>startPres();
 $('zoomIn').onclick=()=>zoomCenter(1.25); $('zoomOut').onclick=()=>zoomCenter(0.8); $('zoomLabel').onclick=fit;
 function fitMenu(){ const top=document.querySelector('main').getBoundingClientRect().top, vh=(window.visualViewport&&window.visualViewport.height)||window.innerHeight; menu.style.maxHeight=Math.max(160,(vh-top-14)/uiCfg.scale)+'px'; }

@@ -27,18 +27,16 @@ function iconFor(kind,W,H){
 /* PC = Maus als Hauptzeiger; Smartphones und Tablets werden mit dem Finger bedient */
 const isPC=!!(window.matchMedia&&matchMedia('(pointer:fine)').matches&&matchMedia('(hover:hover)').matches);
 const pcScale=()=>isPC&&innerWidth/1.25>1000&&innerHeight/1.25>500?1.25:1;   /* am PC 125 %, sofern der Bildschirm groß genug ist */
-let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true};
-try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false}; }catch(e){}
+let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true,theme:'blue'};
+try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false,theme:['blue','orange','green','grey'].includes(u.theme)?u.theme:'blue'}; }catch(e){}
 function isCompactNow(){ return innerWidth/uiCfg.scale<=1000||innerHeight/uiCfg.scale<=500; }
 function applyLayout(){
   const w=innerWidth/uiCfg.scale, c=document.body.classList; c.toggle('touch',!isPC);
   document.documentElement.style.setProperty('--ui',uiCfg.scale); c.toggle('hc',uiCfg.hc);
-  c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1100); c.toggle('narrow',w<=480); c.toggle('tiny',w<=330); c.toggle('midwide',w>=640);
+  c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1280); c.toggle('narrow',w<=480); c.toggle('tiny',w<=330); c.toggle('midwide',w>=640);
   document.querySelectorAll('#uiRow button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===uiCfg.scale));
-  const hb=document.getElementById('hcBtn'); if(hb){ hb.textContent='Hoher Kontrast: '+(uiCfg.hc?'an':'aus'); hb.setAttribute('aria-pressed',uiCfg.hc); }
-  $('snapBtn').textContent='Hilfslinien und Einrasten: '+(uiCfg.snap?'an':'aus');
-  $('gridBtn').textContent='Rasterpunkte: '+(uiCfg.grid?'an':'aus');
-  $('gridRect').style.display=uiCfg.grid?'':'none';
+  $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
+  applyTheme();
 }
 function setUi(ch){ Object.assign(uiCfg,ch); try{ localStorage.setItem('blackboard-ui',JSON.stringify(uiCfg)); }catch(e){} applyLayout(); applyView(); }
 applyLayout();
