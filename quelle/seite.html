@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Skizix</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#101617">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Skizix">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<!-- Schriften sind eingebettet (keine externen Abrufe). Roboto Mono: Copyright 2015 The Roboto Mono Project Authors (https://github.com/googlefonts/robotomono). Doto: Copyright 2024 The Doto Project Authors (https://github.com/oliverlalan/Doto). Beide lizenziert unter der SIL Open Font License 1.1, https://openfontlicense.org -->
+<style id="fontBoard">{{css/schrift-tafel.css}}</style>
+<style>{{css/schrift-logo.css}}</style>
+<style>
+{{css/aussehen.css}}</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand"><svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="4" width="24" height="16" rx="3"/><path d="M7 15l4-5 3 3 3-4 4 5M10 25h8M14 20v5"/></svg><span>Ski<i>zix</i></span></div>
+    <input id="boardName" type="text" maxlength="40" aria-label="Name des Boards" title="Name des Boards (zum Umbenennen einfach tippen)">
+    <button id="liveBadge" type="button" hidden>LIVE</button>
+    <div class="grp" id="tools" role="toolbar" aria-label="Werkzeuge">
+      <button class="tb" data-tool="select" title="Auswählen und verschieben (V)"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 2-2 6z"/></svg><span>Auswahl</span></button>
+      <button class="tb" data-tool="pen" title="Freihand zeichnen (P)"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span>Stift</span></button>
+      <button class="tb" data-tool="brush" title="Pinsel: Strich wird je nach Tempo oder Stiftdruck dicker und dünner (B)"><svg viewBox="0 0 24 24"><path d="M19 4l1.5 1.5-8 9-2.5 1 1-2.5zM9.5 16.5c-2 0-3 1.2-3 2.3S5.500 20 4 20c2.500 1 6.500.500 6.500-2.500"/></svg><span>Pinsel</span></button>
+      <button class="tb" data-tool="marker" title="Marker: breit und durchscheinend (M)"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-8 8H7v-5zM4 21h9"/></svg><span>Marker</span></button>
+      <button class="tb" data-tool="text" title="Text setzen (T)"><svg viewBox="0 0 24 24"><path d="M5 6h14M12 6v13M9 19h6"/></svg><span>Text</span></button>
+      <button class="tb" data-tool="erase" title="Radieren (E)"><svg viewBox="0 0 24 24"><path d="M9 19h11M4 14l9-9 6 6-8 8H8z"/></svg><span>Radierer</span></button>
+      <button class="tb" data-tool="pan" title="Tafel verschieben (H oder Leertaste halten)"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg><span>Hand</span></button>
+    </div>
+    <div class="sep"></div>
+    <div class="grp">
+      <button class="tb" id="undo" title="Rückgängig (Strg+Z)"><svg viewBox="0 0 24 24"><path d="M8 7L4 11l4 4M4 11h10a5 5 0 010 10h-3"/></svg><span>Zurück</span></button>
+      <button class="tb" id="redo" title="Wiederholen (Strg+Y)"><svg viewBox="0 0 24 24"><path d="M16 7l4 4-4 4M20 11H10a5 5 0 000 10h3"/></svg><span>Vor</span></button>
+    </div>
+    <div class="spacer"></div>
+    <button class="tb" id="playBtn" title="Präsentation starten: zeigt die Folien nacheinander im Vollbild"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M10 8v5l4.500-2.500zM8 21h8M12 17v4"/></svg><span>Zeigen</span></button>
+    <button class="tb" id="bgBtn" title="Tafel zwischen Schwarz und Weiß umschalten"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 010 16z" fill="currentColor"/></svg><span>Tafel</span></button>
+    <div class="grp" id="zoomGrp">
+      <button class="tb" id="zoomOut" title="Verkleinern"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
+      <button id="zoomLabel" title="Alles einpassen">100 %</button>
+      <button class="tb" id="zoomIn" title="Vergrößern"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button>
+    </div>
+    <div class="sep"></div>
+    <button class="tb" id="menuBtn" aria-expanded="false" aria-haspopup="true" aria-controls="menu" title="Speichern, öffnen, leeren"><svg viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5zM9 4v5h6M8 20v-6h8v6"/></svg><span>Datei</span></button>
+  </div>
+  <div id="menu" hidden>
+    <div class="mh">Boards</div>
+    <div id="boardList"></div>
+    <button data-m="new">+ Neues Board</button>
+    <button data-m="delboard" id="delBoard">Dieses Board löschen</button>
+    <hr>
+    <div class="mh">Präsentation</div>
+    <button data-m="play">Präsentation starten</button>
+    <button data-m="slides">Folienübersicht</button>
+    <hr>
+    <div class="mh">Exportieren</div>
+    <button data-m="png">Als Bild (PNG)</button>
+    <button data-m="svg">Als Vektorgrafik (SVG)</button>
+    <button data-m="pdf">Als PDF (A4, je Folie eine Seite)</button>
+    <hr>
+    <div class="mh">Sicherung</div>
+    <button data-m="json">Board als Datei sichern (.json)</button>
+    <button data-m="open">Board aus Datei laden …</button>
+    <hr>
+    <div id="liveSec">
+      <div class="mh">Live mit anderen</div>
+      <div class="mh" id="liveInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nur auf diesem Gerät</div>
+      <button data-m="livestart" id="liveStartBtn">Live schalten und teilen …</button>
+      <button data-m="liveshare" id="liveShareBtn" hidden>Teilen und Links verwalten …</button>
+      <button data-m="livestop" id="liveStopBtn" hidden>Live beenden (nur hier)</button>
+      <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Live-Link einfügen" aria-label="Live-Link zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
+      <hr>
+    </div>
+    <div id="syncSec">
+      <div class="mh">Synchronisierung</div>
+      <div class="mh" id="syncInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nicht eingerichtet</div>
+      <button data-m="syncnow" id="syncNowBtn" hidden>Jetzt synchronisieren</button>
+      <button data-m="synccfg" id="syncCfgBtn">Einrichten …</button>
+      <hr>
+    </div>
+    <div class="mh">Anzeige</div>
+    <div class="mrow" id="uiRow"><button data-m="ui" data-v="1">100 %</button><button data-m="ui" data-v="1.25">125 %</button><button data-m="ui" data-v="1.5">150 %</button></div>
+    <button data-m="hc" id="hcBtn">Hoher Kontrast: aus</button>
+    <button data-m="snap" id="snapBtn">Hilfslinien und Einrasten: an</button>
+    <button data-m="gridv" id="gridBtn">Rasterpunkte: an</button>
+    <hr>
+    <button data-m="fit">Alles einpassen</button>
+    <button data-m="tpl">Vorlage einfügen …</button>
+    <button data-m="img">Bild einfügen …</button>
+    <button data-m="keys">Tastenkürzel (?)</button>
+    <button data-m="example">Beispiel laden</button>
+    <button data-m="clear">Board leeren</button>
+  </div>
+</header>
+<main>
+  <aside id="palette" aria-label="Formen"></aside>
+  <button id="palHandle" aria-controls="palette"></button>
+  <section id="stage">
+    <svg id="board" xmlns="http://www.w3.org/2000/svg" tabindex="0" role="application" aria-label="Zeichenfläche. Mit Tab von Element zu Element, Pfeiltasten verschieben, Eingabe ändert den Text, Entf löscht.">
+      <defs><pattern id="grid" patternUnits="userSpaceOnUse" width="20" height="20"><circle cx="1.5" cy="1.5" r="1.3" fill="var(--dot)"/></pattern></defs>
+      <rect id="gridRect" width="100%" height="100%" fill="url(#grid)"/>
+      <g id="world"><g id="items"></g><g id="overlay"></g></g>
+    </svg>
+    <textarea id="editor" hidden spellcheck="false" aria-label="Text der Form"></textarea>
+    <div id="hint">Form reinziehen · Doppelklick bearbeitet Text · Punkte am Rand einer Form ziehen einen Pfeil · Pfeilenden rasten an Formen ein</div>
+    <div id="slides" hidden aria-label="Folienübersicht"><div class="sh"><b>Folien</b><button type="button" id="slAdd" title="Neue Folie rechts neben der letzten">+ Folie</button><button type="button" id="slPlay" title="Präsentation ab der markierten Folie">▶ Zeigen</button><button type="button" id="slClose" aria-label="Übersicht schließen" title="Schließen">✕</button></div><div id="slList" role="listbox" aria-label="Folien, zum Umsortieren ziehen"></div></div>
+    <div id="toast" hidden role="status"></div>
+    <div id="sr" role="status" aria-live="polite"></div>
+  </section>
+  <aside id="props" aria-label="Farben und Optionen"></aside>
+  <button id="propsToggle" aria-controls="props"></button>
+</main>
+<div id="liveDlg" hidden role="dialog" aria-modal="true" aria-labelledby="lvTitle">
+  <div id="liveBox">
+    <h2 id="lvTitle">Live teilen</h2>
+    <p>Wer einen Link bekommt, kommt ohne Anmeldung ins Board. Du kannst jeden Link jederzeit wieder beenden.</p>
+    <label for="lvExp">Gültig</label>
+    <select id="lvExp"><option value="">ohne Ablauf</option><option value="1h">1 Stunde</option><option value="today" selected>bis heute 23:59 Uhr</option><option value="7d">7 Tage</option></select>
+    <div class="lvBtns"><button type="button" id="lvEdit" class="pri">Link zum Mitzeichnen</button><button type="button" id="lvView">Link zum Ansehen</button></div>
+    <input id="lvOut" type="text" readonly hidden aria-label="Erstellter Link">
+    <div id="lvMsg" role="status"></div>
+    <h3>Aktive Links</h3>
+    <div id="lvList"></div>
+    <h3>Deine eigenen Geräte</h3>
+    <p>Dieser Link gibt vollen Zugriff, auch auf die Links oben. Nur für dich, nicht weitergeben.</p>
+    <div class="lvBtns"><button type="button" id="lvOwn">Link für eigene Geräte</button><button type="button" id="lvClose">Fertig</button></div>
+  </div>
+</div>
+<div id="syncDlg" hidden role="dialog" aria-modal="true" aria-labelledby="syTitle">
+  <form id="syncForm" autocomplete="off">
+    <h2 id="syTitle">Synchronisierung über GitHub</h2>
+    <p>Skizix legt deine Boards als Dateien in einem privaten GitHub-Repository ab. Die Angaben bleiben nur auf diesem Gerät gespeichert.</p>
+    <label for="syOwner">GitHub-Benutzername</label><input id="syOwner" type="text" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <label for="syRepo">Repository für die Boards</label><input id="syRepo" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="z. B. Boards">
+    <label for="syToken">Zugangsschlüssel (Token)</label><input id="syToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+    <div id="syMsg" role="status"></div>
+    <div class="dlgBtns"><button type="submit" class="pb" id="syGo">Verbinden</button><button type="button" class="pb danger" id="syOff" hidden>Trennen</button><button type="button" class="pb" id="syClose">Schließen</button></div>
+  </form>
+</div>
+<div id="tplDlg" hidden role="dialog" aria-modal="true" aria-labelledby="tplTitle"><div id="tplBox" tabindex="-1"><h2 id="tplTitle">Vorlage einfügen</h2><div id="tplGrid"></div><div class="dlgBtns"><button type="button" class="pb" id="tplClose">Schließen</button></div></div></div>
+<div id="keysDlg" hidden role="dialog" aria-modal="true" aria-labelledby="keysTitle"><div id="keysBox" tabindex="-1"><h2 id="keysTitle">Tastenkürzel</h2><h3>Werkzeuge</h3><dl><dt><kbd>V</kbd></dt><dd>Auswählen</dd><dt><kbd>P</kbd></dt><dd>Stift</dd><dt><kbd>B</kbd></dt><dd>Pinsel</dd><dt><kbd>M</kbd></dt><dd>Marker</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>E</kbd></dt><dd>Radierer</dd><dt><kbd>H</kbd> oder <kbd>Leertaste</kbd> halten</dt><dd>Tafel verschieben</dd></dl><h3>Bearbeiten</h3><dl><dt><kbd>Strg</kbd>+<kbd>Z</kbd> / <kbd>Strg</kbd>+<kbd>Y</kbd></dt><dd>Rückgängig / Wiederholen</dd><dt><kbd>Strg</kbd>+<kbd>C</kbd> <kbd>Strg</kbd>+<kbd>X</kbd> <kbd>Strg</kbd>+<kbd>V</kbd></dt><dd>Kopieren, Ausschneiden, Einfügen</dd><dt><kbd>Strg</kbd>+<kbd>D</kbd></dt><dd>Duplizieren</dd><dt><kbd>Strg</kbd>+<kbd>A</kbd></dt><dd>Alles auswählen</dd><dt><kbd>Strg</kbd>+<kbd>G</kbd> / <kbd>Strg</kbd>+<kbd>⇧</kbd>+<kbd>G</kbd></dt><dd>Gruppieren / Gruppe lösen</dd><dt><kbd>Entf</kbd></dt><dd>Löschen</dd><dt><kbd>Enter</kbd> oder <kbd>F2</kbd></dt><dd>Text der Auswahl bearbeiten</dd><dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Verschieben (mit <kbd>⇧</kbd> pixelgenau)</dd><dt><kbd>Esc</kbd></dt><dd>Auswahl aufheben, Aktion abbrechen</dd></dl><h3>Beim Ziehen</h3><dl><dt><kbd>⇧</kbd></dt><dd>Ecken: frei verformen · Pfeilende: in 45°-Schritten</dd><dt><kbd>Alt</kbd></dt><dd>Ohne Einrasten und Hilfslinien</dd><dt><kbd>Strg</kbd> + Mausrad</dt><dd>Zoomen</dd></dl><h3>Beim Schreiben</h3><dl><dt><kbd>Enter</kbd></dt><dd>Fertig</dd><dt><kbd>⇧</kbd>+<kbd>Enter</kbd></dt><dd>Neue Zeile</dd><dt><kbd>Tab</kbd></dt><dd>Tabelle: nächste Zelle · Mindmap: neuer Zweig</dd><dt><kbd>Esc</kbd></dt><dd>Abbrechen</dd></dl><h3>Präsentation</h3><dl><dt><kbd>→</kbd> <kbd>Leertaste</kbd></dt><dd>Weiter</dd><dt><kbd>←</kbd></dt><dd>Zurück</dd><dt><kbd>L</kbd></dt><dd>Laserpointer</dd><dt><kbd>A</kbd></dt><dd>Quiz-Lösung zeigen</dd><dt><kbd>Esc</kbd></dt><dd>Beenden</dd></dl><h3>Hilfe</h3><dl><dt><kbd>?</kbd></dt><dd>Diese Übersicht</dd></dl><div class="dlgBtns"><button type="button" class="pb" id="keysClose">Schließen</button></div></div></div>
+<div id="pres" hidden tabindex="-1" role="dialog" aria-modal="true" aria-label="Präsentation">
+  <svg id="presSvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+  <svg id="laserSvg" xmlns="http://www.w3.org/2000/svg"><polyline id="laserTrail" fill="none" stroke="#2f8fff" stroke-opacity=".5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div id="laser" hidden></div>
+  <div id="presBar">
+    <button id="presPrev" title="Vorherige Folie (Pfeil links)" aria-label="Vorherige Folie"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <span id="presNo" role="status"></span>
+    <button id="presNext" title="Nächste Folie (Pfeil rechts oder Leertaste)" aria-label="Nächste Folie"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button id="presSolve" aria-pressed="false" title="Lösung zeigen (A)" style="font-size:13px;font-weight:600;padding:0 10px">Lösung</button>
+    <button id="presLaser" aria-pressed="false" title="Laserpointer (L)" aria-label="Laserpointer"><svg viewBox="0 0 24 24"><path d="M4 20l8-8"/><circle cx="16" cy="8" r="4" fill="#2f8fff" stroke="none"/></svg></button>
+    <button id="presClose" title="Präsentation beenden (Esc)" aria-label="Präsentation beenden"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+</div>
+<input type="file" id="file" accept=".json,application/json" hidden>
+<input type="file" id="imgFile" accept="image/*" hidden>
+<script>
+{{js}}</script>
+</body>
+</html>
