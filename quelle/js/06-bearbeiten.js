@@ -270,8 +270,9 @@ function finishEdit(cancel){
 editor.addEventListener('blur',()=>finishEdit());
 editor.addEventListener('input',placeEditor);
 editor.addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); finishEdit(); }
-  else if(e.key==='Escape'){ e.preventDefault(); finishEdit(true); }
+  /* Enter = neuer Absatz; fertig mit Strg+Enter, Esc oder Tippen daneben. Mindmap-Knoten: Enter = fertig (Umschalt+Enter = neue Zeile) */
+  if(e.key==='Enter'&&(e.ctrlKey||e.metaKey||(!e.shiftKey&&!editCell&&(byId(editing)||{}).mm))){ e.preventDefault(); finishEdit(); }
+  else if(e.key==='Escape'){ e.preventDefault(); finishEdit(); }
   else if(e.key==='Tab'&&!editCell&&(byId(editing)||{}).mm){ e.preventDefault(); const id=editing; finishEdit(); addBranch(id); }   /* Mindmap: Tab hängt direkt einen neuen Zweig an */
   else if(e.key==='Tab'&&editCell){ e.preventDefault(); const id=editing,t=byId(id); let {r:rr,c}=editCell;
     c+=e.shiftKey?-1:1; if(c>=t.colW.length){ c=0; rr++; } if(c<0){ c=t.colW.length-1; rr--; }
