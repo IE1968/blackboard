@@ -1,5 +1,5 @@
 """Skizix: nimmt ein kurzes Vorführvideo für die Website auf.
-Ein künstlicher Mauszeiger zieht Vorlagen herein, bearbeitet Karten, öffnet ein neues Board und zeichnet.
+Startet mit einem Kanban-Board; ein künstlicher Mauszeiger bearbeitet und verschiebt Karten, öffnet ein neues Board mit Mindmap, wechselt die Tafel und zeichnet.
 Aufruf:  python3 quelle/werkzeuge/demo_video.py   → website/bilder/skizix-demo.mp4 und .webm
 """
 import os, sys, math, glob, shutil, subprocess, time
@@ -10,6 +10,7 @@ from playwright.sync_api import sync_playwright
 W,H=1280,760
 ZIEL=os.path.join(DIST,'website','bilder')
 ROH='/tmp/skizix-demo'
+START=[1.2]   # Sekunde im Rohvideo, ab der die Vorführung beginnt
 
 CURSOR="""
 (()=>{ const mk=()=>{ if(document.getElementById('fakeCur')) return;
@@ -57,25 +58,22 @@ def aufnehmen():
             br=p.chromium.launch(executable_path=CHROME)
             ctx=br.new_context(viewport={'width':W,'height':H},record_video_dir=ROH,record_video_size={'width':W,'height':H})
             ctx.add_init_script("localStorage.setItem('skizix-test-opts','1')"); ctx.add_init_script(CURSOR)
-            pg=ctx.new_page(); pg.goto(URL); pg.wait_for_timeout(1200)
-            m=Maus(pg); pg.mouse.move(m.x,m.y)
-            pg.keyboard.press('Shift+Digit1'); pg.wait_for_timeout(1400)
-            # 1) neues Board
-            m.klick(*mitte(pg,'#menu [data-m="new"]'),warten=700)
-            # 2) Formenleiste: Allgemein zu, Vorlagen auf
-            m.klick(*mitte(pg,'.gh[data-g="Allgemein"]'),warten=250)
-            m.klick(*mitte(pg,'.gh[data-g="Vorlagen"]'),warten=350)
-            # 3) Scrum-Board hereinziehen
+            t0=time.time(); pg=ctx.new_page(); pg.goto(URL); pg.wait_for_timeout(1200)
+            # Vorbereitung (wird später abgeschnitten): leeres Board auf Leinenpapier mit Kanban-Vorlage
+            pg.click('#menu [data-m="clear"]'); pg.click('#viewBtn'); pg.click('#vpSurf [data-s="paper"]'); pg.keyboard.press('Escape')
+            pg.click('.gh[data-g="Allgemein"]'); pg.click('.gh[data-g="Vorlagen"]'); pg.wait_for_timeout(200)
             bx=pg.evaluate("()=>{const r=document.getElementById('board').getBoundingClientRect();return [r.left,r.top,r.width,r.height]}")
-            sx,sy=mitte(pg,'.pal[data-kind="scrum"]')
-            m.ziehen(sx,sy,bx[0]+bx[2]/2,bx[1]+bx[3]*0.48,ms=1100,warten=700)
-            m.klick(bx[0]+bx[2]-40,bx[1]+bx[3]-30,warten=300)   # Auswahl aufheben
-            # 4) Karte umbenennen
-            x,y=textpos(pg,'Task A'); m.doppel(x,y)
-            pg.keyboard.press('Control+a'); pg.keyboard.type('Login bauen',delay=85); pg.wait_for_timeout(250); pg.keyboard.press('Escape'); pg.wait_for_timeout(400)
-            # 5) Karte in die nächste Spalte ziehen
-            x,y=textpos(pg,'Login bauen'); m.ziehen(x,y,x+170,y+85,ms=900,warten=500)
-            # 6) Farbe der Karte ändern
+            sx,sy=mitte(pg,'.pal[data-kind="kanban"]'); pg.mouse.move(sx,sy); pg.mouse.down(); pg.mouse.move(bx[0]+bx[2]/2,bx[1]+bx[3]*0.5,steps=8); pg.mouse.up()
+            pg.keyboard.press('Escape'); pg.wait_for_timeout(5200)   # Hinweise ausblenden lassen
+            m=Maus(pg); m.x,m.y=bx[0]+bx[2]-120,bx[1]+bx[3]-90; pg.mouse.move(m.x,m.y); pg.wait_for_timeout(300)
+            START[0]=time.time()-t0
+            pg.wait_for_timeout(900)
+            # 1) Karte umbenennen
+            x,y=textpos(pg,'Aufgabe 1'); m.doppel(x,y)
+            pg.keyboard.press('Control+a'); pg.keyboard.type('Website planen',delay=85); pg.wait_for_timeout(250); pg.keyboard.press('Escape'); pg.wait_for_timeout(400)
+            # 2) Karte in die nächste Spalte ziehen
+            x,y=textpos(pg,'Website planen'); m.ziehen(x,y,x+200,y+85,ms=900,warten=500)
+            # 3) Farbe der Karte ändern
             m.klick(*mitte(pg,'#props [data-drop="fill"]'),warten=350)
             m.klick(*mitte(pg,'#colorPop [data-val="#d3f0dc"]'),warten=450)
             m.klick(bx[0]+bx[2]-40,bx[1]+bx[3]-30,warten=600)
@@ -112,10 +110,10 @@ def aufnehmen():
 def umwandeln(roh):   # 1,4-fach beschleunigt, damit das Video kurz bleibt
     os.makedirs(ZIEL,exist_ok=True)
     mp4=os.path.join(ZIEL,'skizix-demo.mp4'); webm=os.path.join(ZIEL,'skizix-demo.webm'); poster=os.path.join(ZIEL,'skizix-demo.jpg')
-    start='1.2'   # die ersten Ladesekunden abschneiden
+    start=str(round(START[0],2))   # Vorbereitung abschneiden
     subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',start,'-i',roh,'-vf','setpts=0.7*PTS','-c:v','libx264','-preset','veryfast','-crf','24','-pix_fmt','yuv420p','-movflags','+faststart','-an',mp4],check=True)
     subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',start,'-i',roh,'-vf','setpts=0.7*PTS','-c:v','libvpx-vp9','-b:v','0','-crf','36','-row-mt','1','-deadline','good','-cpu-used','4','-an',webm],check=True)
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss','8','-i',mp4,'-frames:v','1','-q:v','3',poster],check=True)
+    subprocess.run(['ffmpeg','-y','-loglevel','error','-i',mp4,'-frames:v','1','-q:v','3',poster],check=True)   # Standbild = erstes Bild
     return mp4,webm,poster
 
 if __name__=='__main__':
