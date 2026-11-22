@@ -105,9 +105,3 @@ footer a{color:var(--muted)}
   nav.main a{padding:6px 8px;font-size:13px}
   header.top .btn{display:none}
 }
-
-/* Design-Umschalter (nur in der Entwurfsphase) */
-.designwahl{position:fixed;right:16px;bottom:16px;z-index:50;display:flex;gap:4px;align-items:center;background:#111a1c;color:#e9eef1;border:1px solid #2c3a3d;border-radius:12px;padding:6px 8px;font:600 13px var(--body);box-shadow:0 10px 30px rgba(0,0,0,.35)}
-.designwahl span{padding:0 6px;opacity:.8}
-.designwahl button{font:inherit;color:inherit;background:transparent;border:1px solid transparent;border-radius:8px;padding:6px 10px;cursor:pointer}
-.designwahl button[aria-pressed="true"]{background:#4d9fff;color:#031a3a}

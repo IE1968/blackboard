@@ -1,11 +1,16 @@
-/* Design „Hell“: klar und freundlich, weiße Flächen, blaue Akzente. Wird nach stil.css geladen. */
+/* Design „Hell“ mit blauer Kopf- und Fußleiste. Wird nach stil.css geladen. */
 :root{--bg:#f6f8fb;--panel:#ffffff;--panel2:#eef3fa;--line:#dbe3ee;--fg:#16202a;--muted:#5b6b7c;--accent:#1e63d0;--accent-ink:#ffffff}
-header.top{background:rgba(255,255,255,.9)}
-.hero h1{color:var(--accent)}
+header.top{background:#1e63d0;border-bottom:0;box-shadow:0 2px 14px rgba(20,60,130,.25)}
+header.top .brand{color:#fff}
+header.top .brand .logo path[style]{fill:#fff!important}
+nav.main a{color:#fff}
+nav.main a:hover,nav.main a[aria-current="page"]{background:rgba(255,255,255,.16);color:#fff}
+header.top .btn{background:#fff;color:#1e63d0;border-color:#fff}
 .vid,.shot{box-shadow:0 24px 60px rgba(30,60,110,.18);background:#fff}
 .card{box-shadow:0 6px 20px rgba(30,60,110,.07);border-color:#e3e9f2}
 section.alt{background:linear-gradient(180deg,#eef3fa,#f6f8fb)}
 .tags span{background:#fff}
 .btn.ghost{background:#fff}
 kbd{background:#fff}
-footer{background:#fff}
+footer{background:#1e63d0;color:#dbe8ff;border-top:0}
+footer a{color:#fff}
