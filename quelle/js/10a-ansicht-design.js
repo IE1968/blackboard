@@ -39,15 +39,18 @@ function applyBg(){
 }
 /* Inhalt des Musters in der aktuellen Rastergröße */
 function patShape(){
-  const p=gridP.dataset.p||'dots', g=+gridP.getAttribute('width')||20, o=1.5, c='var(--dot)';
-  let h='';
+  const p=gridP.dataset.p||'dots', g=+gridP.getAttribute('width')||20, h=patHTML(p,g);
+  if(gridP.dataset.h!==p+g){ gridP.dataset.h=p+g; gridP.innerHTML=h; }
+  $('gridRect').style.display=p==='none'?'none':'';
+}
+function patHTML(p,g){
+  const o=1.5, c='var(--dot)'; let h='';
   if(p==='dots') h=`<circle cx="${o}" cy="${o}" r="1.3" fill="${c}"/>`;
   else if(p==='grid') h=`<path d="M${o} 0V${r(g)}M0 ${o}H${r(g)}" stroke="${c}" stroke-width="1" fill="none"/>`;
   else if(p==='lines') h=`<path d="M0 ${o}H${r(g)}" stroke="${c}" stroke-width="1" fill="none"/>`;
   else if(p==='mm'){ const q=g/5; let d=''; for(let i=1;i<5;i++) d+=`M${r(o+q*i)} 0V${r(g)}M0 ${r(o+q*i)}H${r(g)}`;
     h=`<path d="${d}" stroke="${c}" stroke-width=".6" stroke-opacity=".55" fill="none"/><path d="M${o} 0V${r(g)}M0 ${o}H${r(g)}" stroke="${c}" stroke-width="1.1" fill="none"/>`; }
-  if(gridP.dataset.h!==p+g){ gridP.dataset.h=p+g; gridP.innerHTML=h; }
-  $('gridRect').style.display=p==='none'?'none':'';
+  return h;
 }
 /* Fläche oder Muster für dieses Board wählen (geht an alle, die das Board sehen) */
 function setBoardSurface(ch){

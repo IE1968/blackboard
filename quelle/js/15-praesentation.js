@@ -23,10 +23,15 @@ function startPres(fromId){
   const fr=frames(); let slides=fr.map(f=>({x:f.x,y:f.y,w:f.w,h:f.h})), whole=false;
   if(!slides.length){ const b=contentBox(30,true); if(!b){ toast('Das Board ist leer.'); return; } slides=[b]; whole=true; }
   assignFrames();
-  presSvg.innerHTML=`<defs><clipPath id="presClip"><rect id="presClipR"/></clipPath></defs><g id="presBody" clip-path="url(#presClip)"></g>`;
+  /* Hintergrund wie auf dem Board: Fläche mit Struktur und Muster (Punkte, Karos, Linien …) */
+  const cs=getComputedStyle($('stage')), pat=gridP.dataset.p||'dots';
+  for(const k of ['backgroundColor','backgroundImage','backgroundSize','backgroundPosition','backgroundRepeat']) presEl.style[k]=cs[k];
+  presEl.style.setProperty('--dot',cs.getPropertyValue('--dot'));
+  presSvg.innerHTML=`<defs><clipPath id="presClip"><rect id="presClipR"/></clipPath><pattern id="presGrid" width="20" height="20" x="-1.5" y="-1.5" patternUnits="userSpaceOnUse">${pat==='none'?'':patHTML(pat,20)}</pattern></defs>`+
+    (pat==='none'?'':`<rect x="-200000" y="-200000" width="400000" height="400000" fill="url(#presGrid)" pointer-events="none"/>`)+`<g id="presBody" clip-path="url(#presClip)"></g>`;
   pres=presLive={slides,whole,ids:fr.map(f=>f.id),i:Math.max(0,fr.findIndex(f=>f.id===fromId)),laser:false,trail:[],fs:false,ticks:new Set(),shown:new Set(),quiz:doc.items.some(i=>i.kind==='check')};
   presRender();
-  presEl.style.background=paper(); presEl.hidden=false; presBox(slides[pres.i]); presBar(); presWake(); presEl.focus();
+  presEl.hidden=false; presBox(slides[pres.i]); presBar(); presWake(); presEl.focus();
   try{ const q=presEl.requestFullscreen&&presEl.requestFullscreen(); if(q&&q.then) q.then(()=>{ if(pres) pres.fs=true; },()=>{}); }catch(e){}
 }
 function stopPres(){
