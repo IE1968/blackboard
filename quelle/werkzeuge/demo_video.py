@@ -16,10 +16,10 @@ START=[1.2]   # Sekunde im Rohvideo, ab der die Vorführung beginnt
 CURSOR="""
 (()=>{ const mk=()=>{ if(document.getElementById('fakeCur')) return;
   const c=document.createElement('div'); c.id='fakeCur';
-  c.innerHTML='<svg width="26" height="30" viewBox="0 0 26 30"><path d="M3 2l0 22 6-5.5 4 9 4-1.8-4-8.7 8.2-.5z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg><i></i>';
-  const st=document.createElement('style'); st.textContent='#fakeCur{position:fixed;left:0;top:0;z-index:2147483647;pointer-events:none;transform:translate(-100px,-100px);filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}#fakeCur svg{position:absolute;left:-3px;top:-2px;transition:transform .12s}#fakeCur.down svg{transform:scale(.86)}#fakeCur i{position:absolute;left:-16px;top:-16px;width:32px;height:32px;border-radius:50%;background:rgba(77,159,255,.45);transform:scale(0);opacity:0}#fakeCur.down i{animation:rip .5s ease-out}@keyframes rip{0%{transform:scale(.2);opacity:1}100%{transform:scale(1.4);opacity:0}}';
+  c.innerHTML='<svg width="26" height="30" viewBox="0 0 26 30"><path d="M3 2l0 22 6-5.5 4 9 4-1.8-4-8.7 8.2-.5z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg><i></i><b><svg width="34" height="34" viewBox="0 0 34 34"><path d="M4 30l2.500-8.500L24 4l6 6L12.500 27.500z" fill="#ffd54a" stroke="#111" stroke-width="1.600" stroke-linejoin="round"/><path d="M21 7l6 6" stroke="#111" stroke-width="1.600"/><path d="M4 30l2.500-8.500 6 6z" fill="#f3d6b0" stroke="#111" stroke-width="1.400" stroke-linejoin="round"/><path d="M4 30l1-3.400 2.400 2.400z" fill="#111"/></svg></b>';
+  const st=document.createElement('style'); st.textContent='#fakeCur{position:fixed;left:0;top:0;z-index:2147483647;pointer-events:none;transform:translate(-100px,-100px);filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}#fakeCur svg{position:absolute;left:-3px;top:-2px;transition:transform .12s}#fakeCur.down svg{transform:scale(.86)}#fakeCur b{position:absolute;left:-4px;top:-30px;display:none}#fakeCur.stift b{display:block}#fakeCur.stift svg:first-child{display:none}#fakeCur.stift i{display:none}#fakeCur i{position:absolute;left:-16px;top:-16px;width:32px;height:32px;border-radius:50%;background:rgba(77,159,255,.45);transform:scale(0);opacity:0}#fakeCur.down i{animation:rip .5s ease-out}@keyframes rip{0%{transform:scale(.2);opacity:1}100%{transform:scale(1.4);opacity:0}}';
   document.head.appendChild(st); document.body.appendChild(c);
-  addEventListener('pointermove',e=>{ c.style.transform=`translate(${e.clientX}px,${e.clientY}px)`; },true);
+  addEventListener('pointermove',e=>{ c.style.transform=`translate(${e.clientX}px,${e.clientY}px)`; const s=document.getElementById('board'); c.classList.toggle('stift',!!(s&&/t-(pen|brush|marker)/.test(s.getAttribute('class')||'')&&e.target.closest&&e.target.closest('#board'))); },true);
   addEventListener('pointerdown',e=>{ c.classList.remove('down'); void c.offsetWidth; c.classList.add('down'); c.style.transform=`translate(${e.clientX}px,${e.clientY}px)`; },true);
   addEventListener('pointerup',()=>setTimeout(()=>c.classList.remove('down'),160),true); };
   if(document.body) mk(); else addEventListener('DOMContentLoaded',mk); })();
@@ -67,7 +67,7 @@ def schreiben(pg,m,linien,ms_je=3):
         m.x,m.y=L[-1]; pg.mouse.up()
 
 def aufnehmen():
-    from handschrift import strokes
+    from handschrift_caveat import strokes
     shutil.rmtree(ROH,ignore_errors=True); os.makedirs(ROH)
     srv=server()
     try:
@@ -78,24 +78,22 @@ def aufnehmen():
             t0=time.time(); pg=ctx.new_page(); pg.goto(URL); pg.wait_for_timeout(1200)
             # Vorbereitung (wird abgeschnitten): leeres, weißes Board in 100 %
             pg.click('#menu [data-m="clear"]'); pg.click('#viewBtn'); pg.click('#vpSurf [data-s="white"]'); pg.keyboard.press('Escape')
-            pg.keyboard.press('0'); pg.wait_for_timeout(5200)
+            pg.click('#propsToggle'); pg.keyboard.press('0'); pg.wait_for_timeout(5200)
             bx=pg.evaluate("()=>{const r=document.getElementById('board').getBoundingClientRect();return [r.left,r.top,r.width,r.height]}")
             L,T,BW,BH=bx
             m=Maus(pg); m.x,m.y=L+BW*0.5,T+BH*0.6; pg.mouse.move(m.x,m.y); pg.wait_for_timeout(300)
             weg=lambda: m.klick(L+BW-30,T+BH-25,warten=250)
             START[0]=time.time()-t0
             pg.wait_for_timeout(700)
-            # 1) Mit dem Stift: Agenda
+            # 1) Mit dem Stift: Hallo
             m.klick(*mitte(pg,'#tools [data-tool="pen"]'),warten=300)
-            schreiben(pg,m,strokes('Agenda:',L+50,T+95,30))
-            for i,t in enumerate(['Scrum-Board','Mindmap','Präsentation']):
-                schreiben(pg,m,strokes('• '+t,L+60,T+160+i*58,19))
-            pg.wait_for_timeout(500)
+            schreiben(pg,m,strokes('Hallo',L+60,T+125,95))
+            pg.wait_for_timeout(600)
             # 2) Dasselbe als Text
             m.klick(*mitte(pg,'#tools [data-tool="text"]'),warten=200)
-            m.klick(L+560,T+90,warten=350); pg.keyboard.type('Agenda',delay=80); pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
+            m.klick(L+470,T+80,warten=350); pg.keyboard.type('Agenda',delay=80); pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
             m.klick(*mitte(pg,'#tools [data-tool="text"]'),warten=200)
-            m.klick(L+560,T+175,warten=350)
+            m.klick(L+470,T+165,warten=350)
             for i,t in enumerate(['Scrum-Board','Mindmap','Präsentation']):
                 if i: pg.keyboard.press('Enter')
                 pg.keyboard.type(t,delay=60)
@@ -158,9 +156,16 @@ def aufnehmen():
             for a in range(0,361,20): m.zu(W/2+math.cos(math.radians(a))*220,H/2+math.sin(math.radians(a))*120,ms=60,stufen=3)
             pg.keyboard.press('l'); pg.wait_for_timeout(300)
             m.klick(*mitte(pg,'#presClose'),warten=900)
-            # 6) Danke mit dem Stift
+            # 6) Danke mit dem Stift – in einen freien Streifen über oder unter dem Inhalt
             m.klick(*mitte(pg,'#tools [data-tool="pen"]'),warten=300)
-            schreiben(pg,m,strokes('Danke für Ihre Aufmerksamkeit!',L+110,T+75,23))
+            for _ in range(3):
+                bx=pg.evaluate("()=>{const r=document.getElementById('board').getBoundingClientRect();return [r.left,r.top,r.width,r.height]}"); L,T,BW,BH=bx
+                h=pg.evaluate("()=>{let y1=1e9,y2=-1e9;for(const s of document.querySelectorAll('#items [data-id], #items path')){const r=s.getBoundingClientRect(); if(!r.width&&!r.height) continue; y1=Math.min(y1,r.top);y2=Math.max(y2,r.bottom);} return [y1,y2]}")
+                oben=h[0]-T; unten=T+BH-h[1]
+                if max(oben,unten)>=95: break
+                m.klick(*mitte(pg,'#zoomOut'),warten=300)
+            base=T+oben/2+22 if oben>=unten else h[1]+unten/2+22
+            schreiben(pg,m,strokes('Danke für Ihre Aufmerksamkeit!',L+80,base,54))
             m.klick(*mitte(pg,'#tools [data-tool="select"]'),warten=300)
             m.zu(L+BW-140,T+BH-90,ms=600); pg.wait_for_timeout(2200)
             vid=pg.video.path(); ctx.close(); br.close()
@@ -173,7 +178,7 @@ def umwandeln(roh):   # 1,4-fach beschleunigt, damit das Video kurz bleibt
     start=str(round(START[0],2))   # Vorbereitung abschneiden
     subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',start,'-i',roh,'-vf','setpts=0.55*PTS','-c:v','libx264','-preset','veryfast','-crf','24','-pix_fmt','yuv420p','-movflags','+faststart','-an',mp4],check=True)
     subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',start,'-i',roh,'-vf','setpts=0.55*PTS','-c:v','libvpx-vp9','-b:v','0','-crf','36','-row-mt','1','-deadline','good','-cpu-used','4','-an',webm],check=True)
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss','16','-i',mp4,'-frames:v','1','-q:v','3',poster],check=True)   # Standbild: fertig geschriebene Agenda
+    subprocess.run(['ffmpeg','-y','-loglevel','error','-sseof','-0.6','-i',mp4,'-frames:v','1','-q:v','3',poster],check=True)   # Standbild: letztes Bild mit allem und „Danke“
     return mp4,webm,poster
 
 if __name__=='__main__':
