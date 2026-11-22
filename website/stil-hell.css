@@ -15,22 +15,32 @@ kbd{background:#fff}
 footer{background:#1e63d0;color:#dbe8ff;border-top:0}
 footer a{color:#fff}
 
-/* Kopf- und Fußleiste: blaue, abgerundete Leisten, die mit Abstand zum Rand schweben (gleiche Größe) */
-header.top{position:relative;top:auto;background:transparent;box-shadow:none;border:0;padding:12px 16px 0;backdrop-filter:none}
-header.top .wrap,footer .wrap{background:#1e63d0;border-radius:999px;box-shadow:0 10px 30px rgba(20,60,130,.28);min-height:64px;padding:0 10px 0 22px;max-width:1120px}
+/* Kopf- und Fußleiste: blaue Leisten über die ganze Breite */
+header.top{position:relative;top:auto;background:#1e63d0;box-shadow:0 4px 18px rgba(20,60,130,.22);border:0;backdrop-filter:none}
+header.top .wrap{min-height:68px}
 header.top .brand{order:0;margin-left:0;color:#fff}
 header.top nav.main{order:1;margin:0 auto}
 nav.main a{color:#fff}
 nav.main a:hover,nav.main a[aria-current="page"]{background:rgba(255,255,255,.18);color:#fff;border-radius:999px}
 header.top .btn{order:2;background:#fff;color:#1e63d0;border-color:#fff;border-radius:999px}
-.hero{padding-top:44px}
-footer{background:transparent;border:0;padding:20px 16px 26px;color:#dbe8ff}
-footer .wrap{padding:0 26px;color:#dbe8ff}
+footer{background:#1e63d0;border:0;padding:0;color:#dbe8ff}
+footer .wrap{min-height:68px;color:#dbe8ff}
 footer nav{margin-left:auto}
 footer a{color:#fff;text-decoration:none;padding:8px 12px;border-radius:999px}
 footer a:hover{background:rgba(255,255,255,.18)}
-@media (max-width:620px){
-  footer .wrap{border-radius:28px;justify-content:center;text-align:center;padding:12px 10px}
+/* Menü mit drei Strichen auf dem Handy */
+.burger{display:none;order:3;margin-left:auto;width:46px;height:42px;border:0;border-radius:10px;background:transparent;cursor:pointer;padding:10px;flex-direction:column;justify-content:space-between}
+.burger span{display:block;height:3px;border-radius:3px;background:#fff;transition:transform .2s,opacity .2s}
+header.top.offen .burger span:nth-child(1){transform:translateY(8.5px) rotate(45deg)}
+header.top.offen .burger span:nth-child(2){opacity:0}
+header.top.offen .burger span:nth-child(3){transform:translateY(-8.5px) rotate(-45deg)}
+@media (max-width:700px){
+  header.top .wrap{flex-wrap:wrap;gap:0 10px}
+  .burger{display:flex}
+  header.top nav.main,header.top .btn{display:none}
+  header.top.offen nav.main{display:flex;order:4;width:100%;flex-direction:column;gap:2px;margin:6px 0 4px}
+  header.top.offen nav.main a{font-size:17px;padding:12px 14px;border-radius:10px}
+  header.top.offen .btn{display:flex;order:5;width:100%;justify-content:center;margin:4px 0 14px;font-size:16px;padding:12px}
+  footer .wrap{justify-content:center;text-align:center;padding:14px 10px}
   footer nav{margin:0 auto;flex-wrap:wrap;justify-content:center;gap:2px}
-  header.top .wrap{padding:0 8px 0 16px}
 }
