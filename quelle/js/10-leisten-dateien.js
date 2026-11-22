@@ -10,7 +10,7 @@ $('expBtn').onclick=e=>{ e.stopPropagation(); const p=$('expPop'); if(!p.hidden)
   closeViewPop(); closeKtPop(); closeMenu(); p.hidden=false; $('expBtn').setAttribute('aria-expanded','true');
   const br=$('expBtn').getBoundingClientRect(), z=uiCfg.scale, w=p.offsetWidth*z; p.style.left=Math.max(6,Math.min(innerWidth-w-6,br.left+br.width/2-w/2))/z+'px'; p.style.top=(br.bottom+6)/z+'px';
   if(e.detail===0) p.querySelector('button').focus(); };
-$('expPop').addEventListener('click',e=>{ const b=e.target.closest('[data-m]'); if(!b) return; closeExpPop(); exportAs(b.dataset.m); });
+$('expPop').addEventListener('click',e=>{ const b=e.target.closest('[data-m]'); if(!b) return; closeExpPop(); if(b.dataset.m==='json') saveJSON(); else exportAs(b.dataset.m); });
 document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#expPop,#expBtn')) closeExpPop(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('expPop').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeExpPop(); $('expBtn').focus(); } },true);
 document.addEventListener('pointerdown',e=>{ if(document.body.classList.contains('compact')&&!palState.propsClosed&&!menu.contains(e.target)&&!e.target.closest('#propsToggle')) closeMenu(); });

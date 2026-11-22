@@ -51,7 +51,7 @@
     <button id="liveBadge" type="button" hidden>LIVE</button>
     <button class="tb" id="ktBtn" type="button" title="Anmelden"><div class="ktAv" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4.500 20c1.500-4 4.500-5.500 7.500-5.500s6 1.500 7.500 5.500"/></svg><b id="ktInitial"></b></div><span>Konto</span></button>
   </div>
-  <div id="expPop" hidden role="menu" aria-label="Exportieren"><div class="mh">Exportieren</div><button data-m="png" role="menuitem">Bild (PNG)</button><button data-m="svg" role="menuitem">Vektor (SVG)</button><button data-m="pdf" role="menuitem">PDF (A4)</button></div>
+  <div id="expPop" hidden role="menu" aria-label="Exportieren"><div class="mh">Exportieren</div><button data-m="png" role="menuitem">Bild (PNG)</button><button data-m="svg" role="menuitem">Vektor (SVG)</button><button data-m="pdf" role="menuitem">PDF (A4)</button><button data-m="json" role="menuitem" title="Sicherungsdatei, die sich mit „Board laden“ wieder öffnen lässt">Sicherung (.json)</button></div>
   <div id="viewPop" hidden role="dialog" aria-label="Ansicht">
     <div class="mh">Tafel <small>für dieses Board</small></div><div class="vpGrid" id="vpSurf"></div>
     <div class="mh">Muster</div><div class="vpGrid" id="vpPat"></div>
@@ -88,6 +88,7 @@
   <aside id="menu" aria-label="Datei">
     <button data-m="manage" id="manageBtn">Boards verwalten …</button>
     <button data-m="new">+ Neues Board</button>
+    <button data-m="open">Board laden …</button>
     <button data-m="delboard" id="delBoard">Dieses Board löschen</button>
     <hr>
     <div class="mh">Boards</div>
@@ -104,10 +105,6 @@
     </div>
     <div class="mh">Präsentation</div>
     <button data-m="slides">Folienübersicht</button>
-    <hr>
-    <div class="mh">Sicherung</div>
-    <button data-m="json">Sichern (.json)</button>
-    <button data-m="open">Laden …</button>
     <hr>
     <button data-m="tpl">Vorlage …</button>
     <button data-m="img">Bild …</button>

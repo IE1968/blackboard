@@ -435,7 +435,7 @@ body.touch #optsToggle::after{height:24px}
     <button id="liveBadge" type="button" hidden>LIVE</button>
     <button class="tb" id="ktBtn" type="button" title="Anmelden"><div class="ktAv" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4.500 20c1.500-4 4.500-5.500 7.500-5.500s6 1.500 7.500 5.500"/></svg><b id="ktInitial"></b></div><span>Konto</span></button>
   </div>
-  <div id="expPop" hidden role="menu" aria-label="Exportieren"><div class="mh">Exportieren</div><button data-m="png" role="menuitem">Bild (PNG)</button><button data-m="svg" role="menuitem">Vektor (SVG)</button><button data-m="pdf" role="menuitem">PDF (A4)</button></div>
+  <div id="expPop" hidden role="menu" aria-label="Exportieren"><div class="mh">Exportieren</div><button data-m="png" role="menuitem">Bild (PNG)</button><button data-m="svg" role="menuitem">Vektor (SVG)</button><button data-m="pdf" role="menuitem">PDF (A4)</button><button data-m="json" role="menuitem" title="Sicherungsdatei, die sich mit „Board laden“ wieder öffnen lässt">Sicherung (.json)</button></div>
   <div id="viewPop" hidden role="dialog" aria-label="Ansicht">
     <div class="mh">Tafel <small>für dieses Board</small></div><div class="vpGrid" id="vpSurf"></div>
     <div class="mh">Muster</div><div class="vpGrid" id="vpPat"></div>
@@ -472,6 +472,7 @@ body.touch #optsToggle::after{height:24px}
   <aside id="menu" aria-label="Datei">
     <button data-m="manage" id="manageBtn">Boards verwalten …</button>
     <button data-m="new">+ Neues Board</button>
+    <button data-m="open">Board laden …</button>
     <button data-m="delboard" id="delBoard">Dieses Board löschen</button>
     <hr>
     <div class="mh">Boards</div>
@@ -488,10 +489,6 @@ body.touch #optsToggle::after{height:24px}
     </div>
     <div class="mh">Präsentation</div>
     <button data-m="slides">Folienübersicht</button>
-    <hr>
-    <div class="mh">Sicherung</div>
-    <button data-m="json">Sichern (.json)</button>
-    <button data-m="open">Laden …</button>
     <hr>
     <button data-m="tpl">Vorlage …</button>
     <button data-m="img">Bild …</button>
@@ -2293,7 +2290,7 @@ $('expBtn').onclick=e=>{ e.stopPropagation(); const p=$('expPop'); if(!p.hidden)
   closeViewPop(); closeKtPop(); closeMenu(); p.hidden=false; $('expBtn').setAttribute('aria-expanded','true');
   const br=$('expBtn').getBoundingClientRect(), z=uiCfg.scale, w=p.offsetWidth*z; p.style.left=Math.max(6,Math.min(innerWidth-w-6,br.left+br.width/2-w/2))/z+'px'; p.style.top=(br.bottom+6)/z+'px';
   if(e.detail===0) p.querySelector('button').focus(); };
-$('expPop').addEventListener('click',e=>{ const b=e.target.closest('[data-m]'); if(!b) return; closeExpPop(); exportAs(b.dataset.m); });
+$('expPop').addEventListener('click',e=>{ const b=e.target.closest('[data-m]'); if(!b) return; closeExpPop(); if(b.dataset.m==='json') saveJSON(); else exportAs(b.dataset.m); });
 document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#expPop,#expBtn')) closeExpPop(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('expPop').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeExpPop(); $('expBtn').focus(); } },true);
 document.addEventListener('pointerdown',e=>{ if(document.body.classList.contains('compact')&&!palState.propsClosed&&!menu.contains(e.target)&&!e.target.closest('#propsToggle')) closeMenu(); });
@@ -2720,6 +2717,7 @@ async function exportAs(kind){
     await saveFile(fileBase()+'.pdf',pdf);
   }catch(e){ toast(e==='empty'?'Das Board ist leer.':'Der Export hat nicht geklappt. Bitte noch einmal versuchen.'); }
 }
+function saveJSON(){ saveFile(fileBase()+'.json',JSON.stringify(Object.assign({},doc,{fmt:Math.max(doc.fmt||0,DOC_FMT)}))); }
 menu.addEventListener('click',e=>{
   const bb=e.target.closest('[data-b]');
   if(bb){ closeMenu(); if(bb.dataset.b!==boards.cur) openBoard(bb.dataset.b); renderBoardList(); return; }
@@ -2746,7 +2744,7 @@ menu.addEventListener('click',e=>{
     case 'delboard': deleteBoard(); break;
     case 'manage': openBmDlg(); break;
     case 'png': case 'svg': case 'pdf': exportAs(b.dataset.m); break;
-    case 'json': saveFile(fileBase()+'.json',JSON.stringify(Object.assign({},doc,{fmt:Math.max(doc.fmt||0,DOC_FMT)}))); break;
+    case 'json': saveJSON(); break;
     case 'open': $('file').value=''; $('file').click(); break;
     case 'example': doc=exampleDoc(); doc.fmt=DOC_FMT; sel.clear(); commit(); render(); fit(); break;
     case 'clear': doc={items:[],n:doc.n}; sel.clear(); commit(); render(); toast('Board geleert. Mit „Zurück“ holst du alles wieder.'); break;

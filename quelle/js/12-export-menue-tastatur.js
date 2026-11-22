@@ -10,6 +10,7 @@ async function exportAs(kind){
     await saveFile(fileBase()+'.pdf',pdf);
   }catch(e){ toast(e==='empty'?'Das Board ist leer.':'Der Export hat nicht geklappt. Bitte noch einmal versuchen.'); }
 }
+function saveJSON(){ saveFile(fileBase()+'.json',JSON.stringify(Object.assign({},doc,{fmt:Math.max(doc.fmt||0,DOC_FMT)}))); }
 menu.addEventListener('click',e=>{
   const bb=e.target.closest('[data-b]');
   if(bb){ closeMenu(); if(bb.dataset.b!==boards.cur) openBoard(bb.dataset.b); renderBoardList(); return; }
@@ -36,7 +37,7 @@ menu.addEventListener('click',e=>{
     case 'delboard': deleteBoard(); break;
     case 'manage': openBmDlg(); break;
     case 'png': case 'svg': case 'pdf': exportAs(b.dataset.m); break;
-    case 'json': saveFile(fileBase()+'.json',JSON.stringify(Object.assign({},doc,{fmt:Math.max(doc.fmt||0,DOC_FMT)}))); break;
+    case 'json': saveJSON(); break;
     case 'open': $('file').value=''; $('file').click(); break;
     case 'example': doc=exampleDoc(); doc.fmt=DOC_FMT; sel.clear(); commit(); render(); fit(); break;
     case 'clear': doc={items:[],n:doc.n}; sel.clear(); commit(); render(); toast('Board geleert. Mit „Zurück“ holst du alles wieder.'); break;

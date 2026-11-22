@@ -13,7 +13,7 @@ try:
   w=pg.evaluate("()=>[document.getElementById('palette').getBoundingClientRect().width,document.getElementById('menu').getBoundingClientRect().width]")
   check('Rechte Leiste so breit wie die linke',abs(w[0]-w[1])<1.5,str(w))
   check('Rechts: Datei-Inhalte ohne Export',pg.locator('main #menu #boardList').count()==1 and pg.locator('main #menu [data-m="pdf"]').count()==0)
-  check('Neues Board und Löschen direkt unter Boards verwalten',pg.evaluate("()=>{const k=[...document.querySelectorAll('#menu > *')]; const i=k.findIndex(e=>e.id==='manageBtn'); return k[i+1].dataset.m==='new'&&k[i+2].id==='delBoard'}"))
+  check('Neues Board und Löschen direkt unter Boards verwalten',pg.evaluate("()=>{const k=[...document.querySelectorAll('#menu > *')]; const i=k.findIndex(e=>e.id==='manageBtn'); return k[i+1].dataset.m==='new'&&k[i+2].dataset.m==='open'&&k[i+3].id==='delBoard'}"))
   check('Kein Hinweistext auf der Tafel',pg.locator('#hint').count()==0)
   # Optionsleiste je Werkzeug
   pg.click('#tools [data-tool="pen"]'); pg.wait_for_timeout(150)
@@ -74,7 +74,8 @@ try:
   pg.keyboard.press('Shift+Digit1'); pg.wait_for_timeout(100); pg.click('#zoomIn'); check('Zoom rastet auf volle 10 %',int(zl().split()[0])%10==0,zl()); pg.click('#zoomLabel')
   # Export oben
   pg.click('#expBtn'); pg.wait_for_timeout(120)
-  check('Export-Knopf zeigt Auswahl',pg.is_visible('#expPop') and pg.locator('#expPop [data-m]').count()==3)
+  check('Export-Knopf zeigt Auswahl',pg.is_visible('#expPop') and pg.locator('#expPop [data-m]').count()==4 and pg.locator('#expPop [data-m="json"]').count()==1)
+  check('Abschnitt Sicherung weg, Board laden unter Neues Board',pg.locator('#menu [data-m="json"]').count()==0 and pg.evaluate("()=>{const k=[...document.querySelectorAll('#menu > *')]; const i=k.findIndex(e=>e.dataset.m==='new'); return k[i+1].dataset.m==='open'}"))
   pg.keyboard.press('Escape'); pg.wait_for_timeout(100); check('Esc schließt die Export-Auswahl',not pg.is_visible('#expPop'))
   # Grunge
   pg.click('#viewBtn'); pg.click('#vpSurf [data-s="grunge"]'); pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
