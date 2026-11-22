@@ -122,10 +122,18 @@ footer a{color:var(--muted)}
 
 /* Größere Überschriften und große Tafeln neben dem Text */
 h2{font-size:clamp(28px,3.4vw,40px);line-height:1.15;margin-bottom:14px}
-h2 small{font-size:14px;margin-bottom:10px}
+h2 small{font-size:clamp(16px,1.6vw,20px);letter-spacing:.14em;margin-bottom:12px}
 .sub{font-size:16.5px}
 .duo.gross{max-width:1320px;gap:44px}
 .duo.gross.links{grid-template-columns:minmax(260px,1fr) 2fr}
 .duo.gross.rechts{grid-template-columns:2fr minmax(260px,1fr)}
 .duo.gross .wolke{max-width:none;margin:0;border:0;border-radius:0;box-shadow:none}
 @media (max-width:820px){.duo.gross.links,.duo.gross.rechts{grid-template-columns:1fr}}
+
+.duo.gross.links{align-items:start}
+.duo.gross.links h2{margin-top:0}
+.card.probieren{text-align:center;padding:48px 36px}
+.card.probieren h3{font-size:clamp(26px,2.6vw,34px);margin:0 0 14px}
+.card.probieren p{font-size:19px;margin:0 0 28px}
+.card.probieren .btn{font-size:19px;padding:15px 28px}
+.card.probieren p.klein{font-size:16px;margin:22px 0 0}

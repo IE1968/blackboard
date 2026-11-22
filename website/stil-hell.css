@@ -18,3 +18,39 @@ footer a{color:#fff}
 header.top nav.main{order:1;margin-left:-12px}
 header.top .btn{order:2}
 header.top .brand{order:3;margin-left:auto}
+
+/* ===== Drei Vorschläge für die Kopfleiste ===== */
+.kopfwahl{position:fixed;right:16px;bottom:16px;z-index:50;display:flex;gap:4px;align-items:center;background:#111a1c;color:#e9eef1;border-radius:12px;padding:6px 8px;font:600 13px var(--body);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.kopfwahl span{padding:0 6px;opacity:.8}
+.kopfwahl button{font:inherit;color:inherit;background:transparent;border:0;border-radius:8px;padding:6px 10px;cursor:pointer}
+.kopfwahl button[aria-pressed="true"]{background:#4d9fff;color:#031a3a}
+
+/* Vorschlag 1 „Klar“: weiß, Logo links, Menü rechts, blauer Knopf, blaue Linie unten */
+.kopf-1 header.top{background:rgba(255,255,255,.96);border-bottom:3px solid #1e63d0;box-shadow:0 2px 12px rgba(20,40,70,.06)}
+.kopf-1 header.top .wrap{min-height:72px}
+.kopf-1 header.top .brand{order:0;margin-left:0;color:#16202a}
+.kopf-1 header.top .brand .logo path[style]{fill:#1e63d0!important}
+.kopf-1 header.top .brand .logo{width:40px;height:40px}.kopf-1 header.top .brand .wm{height:26px}
+.kopf-1 header.top nav.main{order:1;margin-left:auto}
+.kopf-1 nav.main a{color:#16202a;font-size:15px}
+.kopf-1 nav.main a:hover,.kopf-1 nav.main a[aria-current="page"]{background:transparent;color:#1e63d0;box-shadow:inset 0 -3px 0 #1e63d0;border-radius:0}
+.kopf-1 header.top .btn{order:2;background:#1e63d0;color:#fff;border-color:#1e63d0;border-radius:999px;padding:10px 20px}
+
+/* Vorschlag 2 „Blau groß“: höhere blaue Leiste mit Verlauf, Menü links, großes Logo rechts */
+.kopf-2 header.top{background:linear-gradient(100deg,#1e63d0 0%,#2f7cf6 55%,#1a4fae 100%);box-shadow:0 6px 24px rgba(20,60,130,.28)}
+.kopf-2 header.top .wrap{min-height:88px}
+.kopf-2 header.top .brand .logo{width:48px;height:48px}.kopf-2 header.top .brand .wm{height:32px}
+.kopf-2 nav.main a{font-size:16px;font-weight:600;padding:10px 16px;border-radius:999px}
+.kopf-2 nav.main a[aria-current="page"]{background:#fff;color:#1e63d0}
+.kopf-2 header.top .btn{border-radius:999px;padding:11px 22px;box-shadow:0 6px 16px rgba(0,0,0,.18)}
+
+/* Vorschlag 3 „Schwebend“: weiße, abgerundete Leiste mit Schatten, die über der Seite schwebt */
+.kopf-3 header.top{background:transparent;box-shadow:none;border:0;top:12px;padding:12px 16px 0;backdrop-filter:none}
+.kopf-3 header.top .wrap{background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-radius:999px;box-shadow:0 10px 30px rgba(20,40,70,.16);min-height:64px;padding:0 10px 0 22px;max-width:1120px}
+.kopf-3 header.top .brand{order:0;margin-left:0;color:#16202a}
+.kopf-3 header.top .brand .logo path[style]{fill:#1e63d0!important}
+.kopf-3 header.top nav.main{order:1;margin:0 auto}
+.kopf-3 nav.main a{color:#16202a}
+.kopf-3 nav.main a:hover,.kopf-3 nav.main a[aria-current="page"]{background:#eaf1fd;color:#1e63d0;border-radius:999px}
+.kopf-3 header.top .btn{order:2;background:#1e63d0;color:#fff;border-color:#1e63d0;border-radius:999px}
+.kopf-3 .hero{padding-top:44px}
