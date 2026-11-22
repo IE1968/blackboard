@@ -73,7 +73,7 @@ def aufnehmen():
     try:
         with sync_playwright() as p:
             br=p.chromium.launch(executable_path=CHROME)
-            ctx=br.new_context(viewport={'width':W,'height':H},record_video_dir=ROH,record_video_size={'width':W,'height':H})
+            ctx=br.new_context(accept_downloads=True,viewport={'width':W,'height':H},record_video_dir=ROH,record_video_size={'width':W,'height':H})
             ctx.add_init_script("localStorage.setItem('skizix-test-opts','1')"); ctx.add_init_script(CURSOR)
             t0=time.time(); pg=ctx.new_page(); pg.goto(URL); pg.wait_for_timeout(1200)
             # Vorbereitung (wird abgeschnitten): leeres, weißes Board in 100 %
@@ -156,16 +156,25 @@ def aufnehmen():
             for a in range(0,361,20): m.zu(W/2+math.cos(math.radians(a))*220,H/2+math.sin(math.radians(a))*120,ms=60,stufen=3)
             pg.keyboard.press('l'); pg.wait_for_timeout(300)
             m.klick(*mitte(pg,'#presClose'),warten=900)
-            # 6) Danke mit dem Stift – in einen freien Streifen über oder unter dem Inhalt
+            # 6) Board speichern: Export als Bild (PNG)
+            m.klick(*mitte(pg,'#expBtn'),warten=500)
+            m.klick(*mitte(pg,'#expPop [data-m="png"]'),warten=1400)
+            # 7) Rechte Leiste aufklappen, neues Board
+            m.klick(*mitte(pg,'#propsToggle'),warten=500)
+            m.klick(*mitte(pg,'#menu [data-m="new"]'),warten=900)
+            bx=pg.evaluate("()=>{const r=document.getElementById('board').getBoundingClientRect();return [r.left,r.top,r.width,r.height]}"); L,T,BW,BH=bx
+            # 8) „Danke!“ mit dem Stift und ein orangefarbener Smiley
             m.klick(*mitte(pg,'#tools [data-tool="pen"]'),warten=300)
-            for _ in range(3):
-                bx=pg.evaluate("()=>{const r=document.getElementById('board').getBoundingClientRect();return [r.left,r.top,r.width,r.height]}"); L,T,BW,BH=bx
-                h=pg.evaluate("()=>{let y1=1e9,y2=-1e9;for(const s of document.querySelectorAll('#items [data-id], #items path')){const r=s.getBoundingClientRect(); if(!r.width&&!r.height) continue; y1=Math.min(y1,r.top);y2=Math.max(y2,r.bottom);} return [y1,y2]}")
-                oben=h[0]-T; unten=T+BH-h[1]
-                if max(oben,unten)>=95: break
-                m.klick(*mitte(pg,'#zoomOut'),warten=300)
-            base=T+oben/2+22 if oben>=unten else h[1]+unten/2+22
-            schreiben(pg,m,strokes('Danke für Ihre Aufmerksamkeit!',L+80,base,54))
+            schreiben(pg,m,strokes('Danke!',L+BW*0.16,T+BH*0.58,130))
+            pg.wait_for_timeout(300)
+            m.klick(*mitte(pg,'#props [data-drop="stroke"]'),warten=300)
+            m.klick(*mitte(pg,'#colorPop [data-val="#d97a00"]'),warten=300)
+            m.klick(*mitte(pg,'#props [data-drop="sw"]'),warten=300)
+            m.klick(*pg.evaluate("()=>{const b=[...document.querySelectorAll('#colorPop .wbtn')][2].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]}"),warten=300)
+            cx,cy,r=L+BW*0.72,T+BH*0.46,95
+            schreiben(pg,m,[[(cx+math.cos(math.radians(a))*r,cy+math.sin(math.radians(a))*r*1.02) for a in range(-80,300,8)]])
+            schreiben(pg,m,[[(cx-32,cy-28),(cx-31,cy-20),(cx-32,cy-12)],[(cx+32,cy-28),(cx+31,cy-20),(cx+32,cy-12)]])
+            schreiben(pg,m,[[(cx+math.cos(math.radians(a))*55,cy+10+math.sin(math.radians(a))*40) for a in range(20,165,8)]])
             m.klick(*mitte(pg,'#tools [data-tool="select"]'),warten=300)
             m.zu(L+BW-140,T+BH-90,ms=600); pg.wait_for_timeout(2200)
             vid=pg.video.path(); ctx.close(); br.close()
