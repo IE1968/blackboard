@@ -44,7 +44,7 @@ header{position:relative;min-width:0;zoom:var(--ui);border-bottom:1px solid var(
 .bar::-webkit-scrollbar{display:none}
 .brand{display:flex;align-items:center;gap:8px;font:900 30px/1 var(--display);letter-spacing:0;white-space:nowrap;padding:2px 6px 2px 0}
 .brand .logo{width:32px;height:32px;fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.brand span,.brand i{font-style:normal;color:var(--accent)}
+.brand .wm{height:.72em;width:auto;aspect-ratio:720/166;fill:none;stroke:var(--accent);stroke-width:15;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .grp{display:flex;align-items:center;gap:2px}
 .sep{width:1px;align-self:stretch;background:var(--line);margin:4px 0}
 .tb{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:46px;padding:5px 4px 4px;font-size:11px;font-weight:500;color:var(--muted);white-space:nowrap}
@@ -234,6 +234,11 @@ body.liveview #tools .tb:not([data-tool="pan"]),body.liveview #menu [data-m="cle
 #toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);font-weight:500;padding:8px 14px;border-radius:10px;font-size:13px;z-index:20;max-width:calc(100% - 24px)}
 
 body.nolabels .tb span{display:none}
+body.nolabels .tb{min-width:38px}
+body.nolabels:not(.compact) .bar{gap:4px}
+body.nolabels:not(.compact) #boardName{flex:0 1 130px;min-width:80px}
+body.nolabels:not(.compact) .brand{font-size:24px;gap:6px}
+body.nolabels:not(.compact) .brand .logo{width:28px;height:28px}
 body.nolabels .tb{min-width:38px;padding:8px 6px}
 .mrow{display:flex;gap:6px;padding:2px 10px 6px}
 #menu .mrow button{flex:1;text-align:center;padding:7px 0;border:1px solid var(--line)}
@@ -271,7 +276,7 @@ body.compact.narrow .brand .logo{width:20px;height:20px}
 body.compact.narrow .tb{min-width:34px;padding:8px 4px}
 body.compact.narrow #boardName{padding:6px}
 body.compact.narrow .grp{gap:0}
-body.compact.tiny .brand span{display:none}
+body.compact.tiny .brand .wm{display:none}
 body.compact.midwide #tools{order:0;flex:0 1 auto;border-top:0;padding-top:0;justify-content:flex-start}
 #board [data-h="gs:nw"],#board [data-h="gs:se"]{cursor:nwse-resize}
 #board [data-h="gs:ne"],#board [data-h="gs:sw"]{cursor:nesw-resize}
@@ -416,7 +421,7 @@ body.touch #optsToggle::after{height:24px}
 <body>
 <header>
   <div class="bar">
-    <div class="brand"><svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="4" width="24" height="16" rx="3"/><path d="M7 15l4-5 3 3 3-4 4 5M10 25h8M14 20v5"/></svg><span>Ski<i>zix</i></span></div>
+    <div class="brand"><svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="4" width="24" height="16" rx="3"/><path d="M19.500 8.200c-2.300-1-8-1.100-8.200 1.100-.2 2.100 7.800 1.400 7.500 4-.3 2.300-6.300 2.300-9.600 1.200M10 25h8M14 20v5"/></svg><svg class="wm" viewBox="36 52 720 166" role="img" aria-label="Skizix"><path d="M100 113L170 107M104 113L117 192L46 186M318 62L200 200M262 130L333 118M268 132L322 173M413 140L372 196M427 112v.1M505 126L575 121L460 208L535 199M647 140L595 207M664 108v.1M745 133L655 210M685 142L730 198"/></svg></div>
     <input id="boardName" type="text" maxlength="40" aria-label="Name des Boards" title="Name des Boards (zum Umbenennen einfach tippen)">
     <div class="grp" id="tools" role="toolbar" aria-label="Werkzeuge">
       <button class="tb" data-tool="select" title="Auswählen und verschieben (V)"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 2-2 6z"/></svg><span>Auswahl</span></button>
@@ -2204,11 +2209,11 @@ const isPC=!!(window.matchMedia&&matchMedia('(pointer:fine)').matches&&matchMedi
 const pcScale=()=>isPC&&innerWidth/1.25>1000&&innerHeight/1.25>500?1.25:1;   /* am PC 125 %, sofern der Bildschirm groß genug ist */
 let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true,theme:'blue',press:'normal',finger:true,fingerSet:false};
 try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false,theme:'blue',press:['off','soft','normal','strong'].includes(u.press)?u.press:'normal',finger:u.finger!==false,fingerSet:!!u.fingerSet}; }catch(e){}
-function isCompactNow(){ return innerWidth/uiCfg.scale<=1000||innerHeight/uiCfg.scale<=500; }
+function isCompactNow(){ return innerWidth/uiCfg.scale<=1040||innerHeight/uiCfg.scale<=500; }
 function applyLayout(){
   const w=innerWidth/uiCfg.scale, c=document.body.classList; c.toggle('touch',!isPC);
   document.documentElement.style.setProperty('--ui',uiCfg.scale); c.toggle('hc',uiCfg.hc);
-  c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1280); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
+  c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1400); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
   document.querySelectorAll('#uiRow button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
   applyTheme();

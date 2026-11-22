@@ -26,7 +26,7 @@ header{position:relative;min-width:0;zoom:var(--ui);border-bottom:1px solid var(
 .bar::-webkit-scrollbar{display:none}
 .brand{display:flex;align-items:center;gap:8px;font:900 30px/1 var(--display);letter-spacing:0;white-space:nowrap;padding:2px 6px 2px 0}
 .brand .logo{width:32px;height:32px;fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.brand span,.brand i{font-style:normal;color:var(--accent)}
+.brand .wm{height:.72em;width:auto;aspect-ratio:720/166;fill:none;stroke:var(--accent);stroke-width:15;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .grp{display:flex;align-items:center;gap:2px}
 .sep{width:1px;align-self:stretch;background:var(--line);margin:4px 0}
 .tb{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:46px;padding:5px 4px 4px;font-size:11px;font-weight:500;color:var(--muted);white-space:nowrap}
@@ -216,6 +216,11 @@ body.liveview #tools .tb:not([data-tool="pan"]),body.liveview #menu [data-m="cle
 #toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);font-weight:500;padding:8px 14px;border-radius:10px;font-size:13px;z-index:20;max-width:calc(100% - 24px)}
 
 body.nolabels .tb span{display:none}
+body.nolabels .tb{min-width:38px}
+body.nolabels:not(.compact) .bar{gap:4px}
+body.nolabels:not(.compact) #boardName{flex:0 1 130px;min-width:80px}
+body.nolabels:not(.compact) .brand{font-size:24px;gap:6px}
+body.nolabels:not(.compact) .brand .logo{width:28px;height:28px}
 body.nolabels .tb{min-width:38px;padding:8px 6px}
 .mrow{display:flex;gap:6px;padding:2px 10px 6px}
 #menu .mrow button{flex:1;text-align:center;padding:7px 0;border:1px solid var(--line)}
@@ -253,7 +258,7 @@ body.compact.narrow .brand .logo{width:20px;height:20px}
 body.compact.narrow .tb{min-width:34px;padding:8px 4px}
 body.compact.narrow #boardName{padding:6px}
 body.compact.narrow .grp{gap:0}
-body.compact.tiny .brand span{display:none}
+body.compact.tiny .brand .wm{display:none}
 body.compact.midwide #tools{order:0;flex:0 1 auto;border-top:0;padding-top:0;justify-content:flex-start}
 #board [data-h="gs:nw"],#board [data-h="gs:se"]{cursor:nwse-resize}
 #board [data-h="gs:ne"],#board [data-h="gs:sw"]{cursor:nesw-resize}
