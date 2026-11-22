@@ -68,7 +68,8 @@ def schreiben(pg,m,linien,ms_je=3):
 
 def aufnehmen():
     from handschrift_caveat import strokes
-    shutil.rmtree(ROH,ignore_errors=True); os.makedirs(ROH)
+    import beispiel_boards
+    shutil.rmtree(ROH,ignore_errors=True); os.makedirs(ROH); beispiel_boards.schreiben(ROH+'/bsp')
     srv=server()
     try:
         with sync_playwright() as p:
@@ -76,107 +77,96 @@ def aufnehmen():
             ctx=br.new_context(accept_downloads=True,viewport={'width':W,'height':H},record_video_dir=ROH,record_video_size={'width':W,'height':H})
             ctx.add_init_script("localStorage.setItem('skizix-test-opts','1')"); ctx.add_init_script(CURSOR)
             t0=time.time(); pg=ctx.new_page(); pg.goto(URL); pg.wait_for_timeout(1200)
-            # Vorbereitung (wird abgeschnitten): leeres, weißes Board in 100 %
-            pg.click('#menu [data-m="clear"]'); pg.click('#viewBtn'); pg.click('#vpSurf [data-s="white"]'); pg.keyboard.press('Escape')
+            # ---- Vorbereitung (wird abgeschnitten): drei fertige Boards, dann ein leeres Workshop-Board
+            def name(n): pg.fill('#boardName',n); pg.keyboard.press('Enter'); pg.wait_for_timeout(200)
+            pg.set_input_files('#file',ROH+'/bsp/netzwerk.json'); pg.wait_for_timeout(600); name('Firmennetz')
+            pg.click('#menu [data-m="new"]'); pg.wait_for_timeout(400); pg.set_input_files('#file',ROH+'/bsp/bpmn.json'); pg.wait_for_timeout(600); name('IT-Störung (BPMN)')
+            pg.click('#menu [data-m="new"]'); pg.wait_for_timeout(400)
+            pg.evaluate("()=>document.querySelector('[data-tpl]').click()"); pg.wait_for_timeout(300)
+            tn=pg.evaluate("()=>[...document.querySelectorAll('#tplGrid .tc b')].map(b=>b.textContent)")
+            pg.click(f'#tplGrid [data-t="{[i for i,t in enumerate(tn) if t.startswith('Ishikawa')][0]}"]'); pg.wait_for_timeout(400); pg.keyboard.press('Escape')
+            pg.click('#viewBtn'); pg.click('#vpSurf [data-s="slate"]'); pg.keyboard.press('Escape'); pg.keyboard.press('Shift+Digit1'); name('Ursachenanalyse')
+            pg.click('#menu [data-m="new"]'); pg.wait_for_timeout(400); name('Workshop')
+            pg.click('#viewBtn'); pg.click('#vpSurf [data-s="white"]'); pg.keyboard.press('Escape')
             pg.click('#propsToggle'); pg.keyboard.press('0'); pg.wait_for_timeout(5200)
             bx=pg.evaluate("()=>{const r=document.getElementById('board').getBoundingClientRect();return [r.left,r.top,r.width,r.height]}")
             L,T,BW,BH=bx
             m=Maus(pg); m.x,m.y=L+BW*0.5,T+BH*0.6; pg.mouse.move(m.x,m.y); pg.wait_for_timeout(300)
-            weg=lambda: m.klick(L+BW-30,T+BH-25,warten=250)
+            weg=lambda: m.klick(L+BW-30,T+BH-25,warten=200)
             START[0]=time.time()-t0
-            pg.wait_for_timeout(700)
-            # 1) Mit dem Stift: Hallo
-            m.klick(*mitte(pg,'#tools [data-tool="pen"]'),warten=300)
-            schreiben(pg,m,strokes('Hallo',L+60,T+125,95))
-            pg.wait_for_timeout(600)
-            # 2) Dasselbe als Text
-            m.klick(*mitte(pg,'#tools [data-tool="text"]'),warten=200)
-            m.klick(L+470,T+80,warten=350); pg.keyboard.type('Agenda',delay=80); pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
-            m.klick(*mitte(pg,'#tools [data-tool="text"]'),warten=200)
-            m.klick(L+470,T+165,warten=350)
+            pg.wait_for_timeout(500)
+            # 1) Stift: Hallo
+            m.klick(*mitte(pg,'#tools [data-tool="pen"]'),warten=200)
+            schreiben(pg,m,strokes('Hallo',L+60,T+120,85))
+            # 2) Text: Agenda groß und fett, Punkte als Aufzählung
+            m.klick(*mitte(pg,'#tools [data-tool="text"]'),warten=150)
+            m.klick(L+430,T+75,warten=250); pg.keyboard.type('Agenda',delay=45); pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
+            m.klick(*mitte(pg,'#tools [data-tool="text"]'),warten=150)
+            m.klick(L+430,T+150,warten=250)
             for i,t in enumerate(['Scrum-Board','Mindmap','Präsentation']):
                 if i: pg.keyboard.press('Enter')
-                pg.keyboard.type(t,delay=60)
-            pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
-            # Agenda größer und fett
-            m.klick(*textpos(pg,'Agenda'),warten=300)
-            m.klick(*mitte(pg,'#props [data-drop="text"]'),warten=300)
-            for _ in range(7): m.klick(*mitte(pg,'#colorPop [data-act="fsup"]'),warten=150)
-            m.klick(*mitte(pg,'#colorPop [data-act="bold"]'),warten=400)
+                pg.keyboard.type(t,delay=35)
+            pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
+            m.klick(*textpos(pg,'Agenda'),warten=200)
+            m.klick(*mitte(pg,'#props [data-drop="text"]'),warten=200)
+            for _ in range(6): m.klick(*mitte(pg,'#colorPop [data-act="fsup"]'),warten=90)
+            m.klick(*mitte(pg,'#colorPop [data-act="bold"]'),warten=250)
+            m.klick(*textpos(pg,'Mindmap'),warten=200)
+            m.klick(*mitte(pg,'#props [data-drop="text"]'),warten=200)
+            m.klick(*mitte(pg,'#colorPop [data-act="list"]'),warten=200)
+            for _ in range(3): m.klick(*mitte(pg,'#colorPop [data-act="fsup"]'),warten=90)
             weg()
-            # Unterpunkte als Aufzählung
-            m.klick(*textpos(pg,'Mindmap'),warten=300)
-            m.klick(*mitte(pg,'#props [data-drop="text"]'),warten=300)
-            m.klick(*mitte(pg,'#colorPop [data-act="list"]'),warten=350)
-            for _ in range(4): m.klick(*mitte(pg,'#colorPop [data-act="fsup"]'),warten=150)
-            weg(); pg.wait_for_timeout(400)
-            # 3) Präsentation bauen: verkleinern
-            for _ in range(5): m.klick(*mitte(pg,'#zoomOut'),warten=170)
-            pg.wait_for_timeout(300)
-            # Formen für Folie 2
-            sx,sy=mitte(pg,'.pal[data-kind="gRound"]'); m.ziehen(sx,sy,*w2s(pg,120,620),ms=800,warten=350)
-            pg.keyboard.type('Idee',delay=80); pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
-            sx,sy=mitte(pg,'.pal[data-kind="ellipse"]'); m.ziehen(sx,sy,*w2s(pg,400,620),ms=800,warten=350)
-            pg.keyboard.type('Ergebnis',delay=80); pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+            # 3) Kanban-Vorlage dazu
+            for _ in range(4): m.klick(*mitte(pg,'#zoomOut'),warten=110)
+            m.klick(*mitte(pg,'.gh[data-g="Allgemein"]'),warten=150)
+            m.klick(*mitte(pg,'.gh[data-g="Vorlagen"]'),warten=200)
+            sx,sy=mitte(pg,'.pal[data-kind="kanban"]'); m.ziehen(sx,sy,*w2s(pg,1120,230),ms=700,warten=350)
             weg()
-            x,y=w2s(pg,120,620); m.klick(x,y,warten=350)
-            hx,hy=pg.evaluate("()=>{let b=null;for(const c of document.querySelectorAll('#overlay circle[data-h=\"cn:0\"]')){const r=c.getBoundingClientRect(); const p=[r.left+r.width/2,r.top+r.height/2]; if(!b||p[0]>b[0]) b=p;} return b}")
-            m.ziehen(hx,hy,*w2s(pg,400,620),ms=700,warten=400)
-            weg()
-            # Vorlage für Folie 3
-            m.klick(*mitte(pg,'.gh[data-g="Allgemein"]'),warten=200)
-            m.klick(*mitte(pg,'.gh[data-g="Vorlagen"]'),warten=300)
-            sx,sy=mitte(pg,'.pal[data-kind="kanban"]'); m.ziehen(sx,sy,*w2s(pg,1040,625),ms=900,warten=500)
-            weg()
-            # Folien darüberlegen und an den Inhalt anpassen (Umschalt: Ecken frei ziehen)
-            m.klick(*mitte(pg,'.gh[data-g="Präsentation"]'),warten=300)
+            # 4) Zwei Folien darüberlegen
+            m.klick(*mitte(pg,'.gh[data-g="Präsentation"]'),warten=200)
             def huelle(texte):
                 return pg.evaluate("""T=>{let x1=1e9,y1=1e9,x2=-1e9,y2=-1e9; for(const s of document.querySelectorAll('#items [data-id]')){ if(![...s.querySelectorAll('tspan,text')].some(e=>T.includes(e.textContent))) continue; const r=s.getBoundingClientRect(); x1=Math.min(x1,r.left);y1=Math.min(y1,r.top);x2=Math.max(x2,r.right);y2=Math.max(y2,r.bottom);} return [x1,y1,x2,y2]}""",texte)
             def folie(texte,rand):
                 h=huelle(texte); cx,cy=(h[0]+h[2])/2,(h[1]+h[3])/2
-                sx,sy=mitte(pg,'.pal[data-kind="frame"]'); m.ziehen(sx,sy,cx,cy,ms=850,warten=350)
+                sx,sy=mitte(pg,'.pal[data-kind="frame"]'); m.ziehen(sx,sy,cx,cy,ms=650,warten=250)
                 pg.keyboard.down('Shift')
-                x,y=griff(pg,'rs:nw'); m.ziehen(x,y,h[0]-rand,h[1]-rand,ms=420,warten=150)
-                x,y=griff(pg,'rs:se'); m.ziehen(x,y,h[2]+rand,h[3]+rand,ms=420,warten=150)
+                x,y=griff(pg,'rs:nw'); m.ziehen(x,y,h[0]-rand,h[1]-rand,ms=320,warten=100)
+                x,y=griff(pg,'rs:se'); m.ziehen(x,y,h[2]+rand,h[3]+rand,ms=320,warten=100)
                 pg.keyboard.up('Shift'); weg()
-            folie(['Agenda','Scrum-Board'],26)
-            folie(['Idee','Ergebnis'],34)
-            folie(['To Do'],18)
-            # 4) Tafel ausprobieren
-            m.klick(*mitte(pg,'#viewBtn'),warten=400)
-            for s_ in ['chalk','paper','grunge','slate']: m.klick(*mitte(pg,f'#vpSurf [data-s="{s_}"]'),warten=650)
-            weg(); pg.wait_for_timeout(300)
-            # 5) Präsentation zeigen
-            m.klick(*mitte(pg,'#playBtn'),warten=300)
-            m.klick(*mitte(pg,'#presPop [data-m="play"]'),warten=2300)
-            m.zu(W*0.55,H*0.55,ms=500)
-            nb=mitte(pg,'#presNext')
-            m.klick(*nb,warten=2300); m.klick(*nb,warten=1300)
-            pg.keyboard.press('l'); pg.wait_for_timeout(150)
-            for a in range(0,361,20): m.zu(W/2+math.cos(math.radians(a))*220,H/2+math.sin(math.radians(a))*120,ms=60,stufen=3)
-            pg.keyboard.press('l'); pg.wait_for_timeout(300)
-            m.klick(*mitte(pg,'#presClose'),warten=900)
-            # 6) Board speichern: Export als Bild (PNG)
-            m.klick(*mitte(pg,'#expBtn'),warten=500)
-            m.klick(*mitte(pg,'#expPop [data-m="png"]'),warten=1400)
-            # 7) Rechte Leiste aufklappen, neues Board
-            m.klick(*mitte(pg,'#propsToggle'),warten=500)
-            m.klick(*mitte(pg,'#menu [data-m="new"]'),warten=900)
+            folie(['Agenda','Scrum-Board'],22)
+            folie(['To Do'],16)
+            # 5) Tafel wählen
+            m.klick(*mitte(pg,'#viewBtn'),warten=250)
+            m.klick(*mitte(pg,'#vpSurf [data-s="slate"]'),warten=450)
+            weg()
+            # 6) Präsentieren
+            m.klick(*mitte(pg,'#playBtn'),warten=200)
+            m.klick(*mitte(pg,'#presPop [data-m="play"]'),warten=1700)
+            m.klick(*mitte(pg,'#presNext'),warten=1700)
+            m.klick(*mitte(pg,'#presClose'),warten=600)
+            # 7) Als Bild speichern
+            m.klick(*mitte(pg,'#expBtn'),warten=300)
+            m.klick(*mitte(pg,'#expPop [data-m="png"]'),warten=900)
+            # 8) Fertige Boards zeigen
+            m.klick(*mitte(pg,'#propsToggle'),warten=400)
+            for n in ('Firmennetz','IT-Störung (BPMN)','Ursachenanalyse'):
+                b=pg.locator('#boardList button',has_text=n).first.bounding_box()
+                m.klick(b['x']+b['width']/2,b['y']+b['height']/2,warten=3600)
+            # 9) Neues Board: Danke! und ein Smiley
+            m.klick(*mitte(pg,'#menu [data-m="new"]'),warten=700)
             bx=pg.evaluate("()=>{const r=document.getElementById('board').getBoundingClientRect();return [r.left,r.top,r.width,r.height]}"); L,T,BW,BH=bx
-            # 8) „Danke!“ mit dem Stift und ein orangefarbener Smiley
-            m.klick(*mitte(pg,'#tools [data-tool="pen"]'),warten=300)
+            m.klick(*mitte(pg,'#tools [data-tool="pen"]'),warten=200)
             schreiben(pg,m,strokes('Danke!',L+BW*0.16,T+BH*0.58,130))
-            pg.wait_for_timeout(300)
-            m.klick(*mitte(pg,'#props [data-drop="stroke"]'),warten=300)
-            m.klick(*mitte(pg,'#colorPop [data-val="#d97a00"]'),warten=300)
-            m.klick(*mitte(pg,'#props [data-drop="sw"]'),warten=300)
-            m.klick(*pg.evaluate("()=>{const b=[...document.querySelectorAll('#colorPop .wbtn')][2].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]}"),warten=300)
+            m.klick(*mitte(pg,'#props [data-drop="stroke"]'),warten=200)
+            m.klick(*mitte(pg,'#colorPop [data-val="#d97a00"]'),warten=200)
+            m.klick(*mitte(pg,'#props [data-drop="sw"]'),warten=200)
+            m.klick(*pg.evaluate("()=>{const b=[...document.querySelectorAll('#colorPop .wbtn')][2].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]}"),warten=200)
             cx,cy,r=L+BW*0.72,T+BH*0.46,95
             schreiben(pg,m,[[(cx+math.cos(math.radians(a))*r,cy+math.sin(math.radians(a))*r*1.02) for a in range(-80,300,8)]])
             schreiben(pg,m,[[(cx-32,cy-28),(cx-31,cy-20),(cx-32,cy-12)],[(cx+32,cy-28),(cx+31,cy-20),(cx+32,cy-12)]])
             schreiben(pg,m,[[(cx+math.cos(math.radians(a))*55,cy+10+math.sin(math.radians(a))*40) for a in range(20,165,8)]])
-            m.klick(*mitte(pg,'#tools [data-tool="select"]'),warten=300)
-            m.zu(L+BW-140,T+BH-90,ms=600); pg.wait_for_timeout(2200)
+            m.klick(*mitte(pg,'#tools [data-tool="select"]'),warten=200)
+            m.zu(L+BW-140,T+BH-90,ms=500); pg.wait_for_timeout(1800)
             vid=pg.video.path(); ctx.close(); br.close()
             return vid
     finally: srv.terminate()
@@ -185,8 +175,8 @@ def umwandeln(roh):   # 1,4-fach beschleunigt, damit das Video kurz bleibt
     os.makedirs(ZIEL,exist_ok=True)
     mp4=os.path.join(ZIEL,'skizix-demo.mp4'); webm=os.path.join(ZIEL,'skizix-demo.webm'); poster=os.path.join(ZIEL,'skizix-demo.jpg')
     start=str(round(START[0],2))   # Vorbereitung abschneiden
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',start,'-i',roh,'-vf','setpts=0.55*PTS','-c:v','libx264','-preset','veryfast','-crf','24','-pix_fmt','yuv420p','-movflags','+faststart','-an',mp4],check=True)
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',start,'-i',roh,'-vf','setpts=0.55*PTS','-c:v','libvpx-vp9','-b:v','0','-crf','36','-row-mt','1','-deadline','good','-cpu-used','4','-an',webm],check=True)
+    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',start,'-i',roh,'-vf','setpts=0.5*PTS','-c:v','libx264','-preset','veryfast','-crf','24','-pix_fmt','yuv420p','-movflags','+faststart','-an',mp4],check=True)
+    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',start,'-i',roh,'-vf','setpts=0.5*PTS','-c:v','libvpx-vp9','-b:v','0','-crf','36','-row-mt','1','-deadline','good','-cpu-used','4','-an',webm],check=True)
     subprocess.run(['ffmpeg','-y','-loglevel','error','-sseof','-0.6','-i',mp4,'-frames:v','1','-q:v','3',poster],check=True)   # Standbild: letztes Bild mit allem und „Danke“
     return mp4,webm,poster
 
