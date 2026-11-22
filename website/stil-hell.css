@@ -44,3 +44,14 @@ header.top.offen .burger span:nth-child(3){transform:translateY(-8.5px) rotate(-
   footer .wrap{justify-content:center;text-align:center;padding:14px 10px}
   footer nav{margin:0 auto;flex-wrap:wrap;justify-content:center;gap:2px}
 }
+@media (max-width:700px){
+  /* Aufgeklapptes Menü: alle drei Einträge als gleiche Kästen, der aktive weiß mit 20 % Transparenz */
+  header.top.offen nav.main a,header.top.offen .btn{display:flex;justify-content:center;width:100%;background:rgba(255,255,255,.18);color:#fff;border:0;border-radius:12px;font:600 17px var(--body);padding:13px 14px;margin:0;box-shadow:none}
+  header.top.offen nav.main a[aria-current="page"]{background:rgba(255,255,255,.8);color:#1e63d0}
+  header.top.offen nav.main{gap:8px;margin:8px 0}
+  header.top.offen .btn{margin:0 0 14px}
+  /* „Jetzt ausprobieren“ und Fußleiste mittig */
+  .card.probieren{margin:0 auto;width:100%;max-width:460px}
+  footer .wrap{flex-direction:column;align-items:center;gap:6px}
+  footer nav{width:100%;justify-content:center}
+}
