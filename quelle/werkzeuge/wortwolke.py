@@ -20,13 +20,13 @@ WOERTER={'Kanban':10,'Mindmap':10,'Scrum':9,'Gantt':9,'SWOT':8,'Zeitstrahl':8,'R
  'Timeline':2,'Aktivität':1,'Lane':1,'Gateway':1,'Ereignis':1,'Klasse':1,'Entität':1,'Schleife':1,'Router':1,'Server':1,'Cloud':1,'Start':1,
  'Ende':1,'Ja':1,'Nein':1,'Phase':1,'Woche':1,'Quartal':1,'Version':1,'Test':1,'Abnahme':1,'Konzept':1,'Design':1,'Daten':1,'Rollen':1,'Ursache':1,
  'Wirkung':1,'Lösung':1,'Frage':1,'Antwort':1,'Folie':1,'Laser':1,'Stift':1,'Marker':1,'Pinsel':1,'Tafel':1}
-FARBEN=['#f25022','#7fba00','#00a4ef','#ffb900']; KLEIN='#8c969c'
-W,H=900,560; RAND=3
+FARBEN=['#ffb59c','#c4e89a','#9ad8ff','#ffe39a']; KLEIN='#d5dde2'   # Pastell, hell
+W,H=900,560; RAND=11
 def main(seed=7):
     random.seed(seed)
     f=TTFont(TTF); gf=instantiateVariableFont(f,{'wght':700}); gs=gf.getGlyphSet(); cmap=gf.getBestCmap(); upm=gf['head'].unitsPerEm
     belegt=np.zeros((H,W),bool); teile=[]
-    for i,(wort,g) in enumerate(sorted(WOERTER.items(),key=lambda x:-x[1])):
+    for i,(wort,g) in enumerate(sorted([w for w in WOERTER.items() if w[1]>=2],key=lambda x:-x[1])):
         fs=round(12+g*8.2); senk=g<=6 and random.random()<0.22
         font=ImageFont.truetype(TTF,fs)
         try: font.set_variation_by_axes([700])
@@ -60,7 +60,7 @@ def main(seed=7):
     # Tafel: Monitor mit Fuß wie im Logo, groß
     TX,TY=50,50
     svg=f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 790" role="img" aria-label="Wortwolke mit Vorlagen und Methoden: Kanban, Mindmap, Scrum, Gantt, SWOT, Zeitstrahl, Roadmap, BPMN und viele mehr">
-<rect x="22" y="22" width="956" height="616" rx="40" fill="#101617" stroke="#16202a" stroke-width="20"/>
+<rect x="22" y="22" width="956" height="616" rx="40" fill="#101617" fill-opacity=".5" stroke="#16202a" stroke-width="20"/>
 <path d="M500 650V722M70 744H930" stroke="#16202a" stroke-width="20" stroke-linecap="round"/>
 <g transform="translate({TX} {TY})">{"".join(teile)}</g></svg>'''
     open(ZIEL,'w').write(svg); print('Wörter platziert:',len(teile),'von',len(WOERTER),'·',os.path.getsize(ZIEL)//1024,'KB')
