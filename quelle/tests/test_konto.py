@@ -97,7 +97,7 @@ try:
   check('Abgelaufene Anmeldung still erneuert',any(l[0]=='refresh' for l in state()['log']))
 
   # Live beenden gibt es für eigene Boards nicht, Besitzer-Link auch nicht
-  openFile(A); check('Kein „Live beenden“ bei eigenen Boards',not A.is_visible('#liveStopBtn')); A.keyboard.press('Escape')
+  live(A); check('Kein „Live beenden“ bei eigenen Boards',not A.is_visible('#liveStopBtn')); A.keyboard.press('Escape')
   check('Kein Link für eigene Geräte mehr',A.locator('#lvOwn').count()==0)
 
   # Abmelden

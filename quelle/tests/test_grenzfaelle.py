@@ -64,7 +64,7 @@ try:
     x=doc()['items'][0]['x']; check('Rückgängig über 160 Schritte',x==0,str(x))
     # 10 Leeres Board präsentieren / exportieren
     load([])
-    pg.click('#playBtn'); pg.wait_for_timeout(200); t=pg.evaluate("()=>document.getElementById('toast').textContent"); check('Leeres Board: Hinweis statt Präsentation','leer' in t,t)
+    starte(pg); pg.wait_for_timeout(200); t=pg.evaluate("()=>document.getElementById('toast').textContent"); check('Leeres Board: Hinweis statt Präsentation','leer' in t,t)
     # 11 Board-Namen sehr lang / Sonderzeichen in Dateiname
     pg.fill('#boardName','Test: Q1/Q2 <Plan> "neu"?'); pg.keyboard.press('Enter')
     with pg.expect_download(timeout=20000) as dl:

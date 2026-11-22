@@ -39,6 +39,6 @@ try:
     bad=pg.evaluate("""()=>{const out=new Set();for(const e of document.querySelectorAll('header *,#palette *,#props *,#menu *,#presBar *,#syncForm *,#toast,#hint')){ if(!e.childNodes.length||![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())) continue; const f=getComputedStyle(e).fontFamily; if(!/^("?Roboto Mono|"?Doto)/.test(f)) out.add(e.tagName+'#'+e.id+'.'+e.className+' -> '+f.slice(0,40)); } return [...out]}""")
     print('Fremde Schriften:',bad)
     pg.screenshot(path='/tmp/bb-tests/blue_menu.png'); pg.keyboard.press('Escape')
-    pg.click('#playBtn'); pg.keyboard.press('l'); pg.mouse.move(500,400); pg.mouse.move(600,430,steps=4); pg.screenshot(path='/tmp/bb-tests/blue_laser.png',clip={'x':350,'y':300,'width':400,'height':250}); pg.keyboard.press('Escape')
+    starte(pg); pg.keyboard.press('l'); pg.mouse.move(500,400); pg.mouse.move(600,430,steps=4); pg.screenshot(path='/tmp/bb-tests/blue_laser.png',clip={'x':350,'y':300,'width':400,'height':250}); pg.keyboard.press('Escape')
     print('ERR',errs); b.close()
 finally: srv.terminate()

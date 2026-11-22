@@ -181,6 +181,8 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
 .dlgBtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .dlgBtns .pb{padding:9px 14px;font-size:14px}
 
+#liveBtn{position:relative}
+#liveBtn #liveBadge{position:absolute;top:-2px;right:-6px;line-height:1.2;pointer-events:none}
 #liveBadge{flex:0 0 auto;font-size:11px;font-weight:600;letter-spacing:.06em;padding:4px 8px;border-radius:999px;background:#1e63d0;color:#fff;white-space:nowrap}
 #liveBadge[data-role="view"]{background:#7446c9}
 #liveBadge[data-st="off"]{background:#7a8790}
@@ -254,7 +256,7 @@ body.compact.midwide #tools{order:0;flex:0 1 auto;border-top:0;padding-top:0;jus
 #board [data-h="gs:ne"],#board [data-h="gs:sw"]{cursor:nesw-resize}
 #board [data-h^="tc"]{cursor:col-resize}
 #board [data-h^="tr"]{cursor:row-resize}
-body.compact #playBtn{display:none}
+body.compact #keysBtn{display:none}
 .pal.palbtn{cursor:pointer;color:var(--accent)}
 /* Präsentation: liegt über allem, zeigt Folie für Folie */
 #pres{position:fixed;inset:0;z-index:80;background:#000;touch-action:none;user-select:none;-webkit-user-select:none;outline:none}
@@ -272,7 +274,7 @@ body.compact #playBtn{display:none}
 
 #laserTrail{stroke:var(--accent)}
 /* Fenster „Ansicht“ und Konto */
-#viewPop,#ktPop,#expPop{position:fixed;z-index:35;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain}
+#viewPop,#ktPop,.hdrPop{position:fixed;z-index:35;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain}
 #viewPop{width:min(372px,calc((100vw - 12px)/var(--ui)))}
 #viewPop .mh small,#ktPop .mh small{text-transform:none;letter-spacing:0;font-weight:400;opacity:.75;margin-left:4px}
 .vpGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:2px 4px 8px}
@@ -297,9 +299,15 @@ body.compact #playBtn{display:none}
 .vpTog::after{content:"aus";font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
 .vpTog[aria-pressed="true"]::after{content:"an";background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 #ktPop{min-width:220px}
-#expPop{min-width:180px}
-#expPop button{text-align:left;padding:9px 10px}
-#expPop button:hover{background:var(--hover)}
+.hdrPop{min-width:190px}
+.hdrPop button{text-align:left;padding:9px 10px;color:var(--fg)}
+.hdrPop button:hover{background:var(--hover)}
+#livePop{width:250px}
+#livePop .mh{text-align:center}
+#livePop #liveInfo{color:var(--fg);opacity:.75;text-align:center;padding:0 6px 6px;font-size:12px}
+#livePop form{display:flex;gap:6px;padding:6px 4px 2px}
+#livePop form input{flex:1;min-width:0}
+#livePop form button{border:1px solid var(--line);border-radius:8px;text-align:center}
 #ktPopMail{padding:0 10px 8px;font-size:13px;word-break:break-all}
 #ktPop button{text-align:left;padding:9px 10px}
 #ktPop button:hover{background:var(--hover)}

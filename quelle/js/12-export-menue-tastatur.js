@@ -20,8 +20,11 @@ menu.addEventListener('click',e=>{
   if(b.dataset.m==='snap'){ setUi({snap:!uiCfg.snap}); return; }
   if(b.dataset.m==='gridv'){ setUi({grid:!uiCfg.grid}); return; }
   if(b.dataset.m==='delboard'&&!b.dataset.sure){ b.dataset.sure='1'; b.textContent='Wirklich löschen? Das lässt sich nicht zurückholen.'; e.stopPropagation(); return; }
-  closeMenu(); finishEdit();
-  switch(b.dataset.m){
+  closeMenu(); menuDo(b.dataset.m);
+});
+function menuDo(m){
+  finishEdit();
+  switch(m){
     case 'new': newBoard(); break;
     case 'fit': fit(); break;
     case 'keys': openKeys(); break;
@@ -36,13 +39,13 @@ menu.addEventListener('click',e=>{
     case 'ktlogout': ktLogout(); break;
     case 'delboard': deleteBoard(); break;
     case 'manage': openBmDlg(); break;
-    case 'png': case 'svg': case 'pdf': exportAs(b.dataset.m); break;
+    case 'png': case 'svg': case 'pdf': exportAs(m); break;
     case 'json': saveJSON(); break;
     case 'open': $('file').value=''; $('file').click(); break;
     case 'example': doc=exampleDoc(); doc.fmt=DOC_FMT; sel.clear(); commit(); render(); fit(); break;
     case 'clear': doc={items:[],n:doc.n}; sel.clear(); commit(); render(); toast('Board geleert. Mit „Zurück“ holst du alles wieder.'); break;
   }
-});
+}
 $('boardName').addEventListener('input',e=>{ curBoard().name=e.target.value.trim()||'Board'; markDirty(); ktSoon(3000); });
 $('boardName').addEventListener('keydown',e=>{ if(e.key==='Enter') e.target.blur(); });
 $('file').addEventListener('change',async e=>{

@@ -27,6 +27,14 @@ def exportiere(pg,fmt):
     """Export-Knopf oben öffnen und Format wählen."""
     pg.click('#expBtn'); pg.click(f'#expPop [data-m="{fmt}"]')
 
+def starte(pg):
+    """Präsentation starten (Zeigen → Präsentation starten)."""
+    pg.click('#playBtn'); pg.click('#presPop [data-m="play"]')
+
+def live(pg):
+    """Live-Auswahl oben öffnen."""
+    if pg.locator('#livePop[hidden]').count(): pg.click('#liveBtn'); pg.wait_for_timeout(120)
+
 def pact(pg,sel):
     """Knopf in der Optionsleiste klicken; liegt er in einem Aufklappfeld (Text, Element), dieses vorher öffnen."""
     loc=pg.locator('#props '+sel)

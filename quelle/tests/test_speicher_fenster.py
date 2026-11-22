@@ -77,7 +77,6 @@ try:
     ok('Tastenkürzel mit ?',pg.evaluate("()=>!document.getElementById('keysDlg').hidden")); pg.screenshot(path='/tmp/bb-tests/keys.png')
     pg.keyboard.press('Escape'); ok('Schließen mit Esc',pg.evaluate("()=>document.getElementById('keysDlg').hidden"))
     # --- 9: Beispiel
-    openFile(pg); pg.click('#menu [data-m="example"]'); pg.wait_for_timeout(300); pg.screenshot(path='/tmp/bb-tests/example.png')
     ok('ERR leer',not errs,str(errs))
     ctx.close()
     # --- 7: Touch-Griffe

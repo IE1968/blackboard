@@ -320,6 +320,6 @@ $('liveJoinForm').addEventListener('submit',async e=>{
   closeMenu(); if(await liveJoin(p)) inp.value='';
 });
 
-$('liveBadge').onclick=e=>{ e.stopPropagation(); const c=liveCur(); if(c&&c.own) openLiveDlg(); else toast(c&&c.role==='view'?'Du siehst dieses Live-Board nur an.':'Du zeichnest live mit.'); };
+
 $('boardName').addEventListener('change',()=>{ const c=liveCur(); if(c&&c.role!=='view'&&LV.joined){ liveSend({t:'ops',up:[],del:[],nm:curBoard().name}); liveSave(1500); } });
 

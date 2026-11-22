@@ -18,7 +18,12 @@ try:
   pg=b.new_page(viewport={'width':1400,'height':900})
   pg.on('console',lambda m: errs.append(m.text) if m.type=='error' else None); pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.goto(URL); pg.wait_for_timeout(700)
-  def menu(m): openFile(pg); pg.click(f'#menu [data-m="{m}"]'); pg.wait_for_timeout(200)
+  def menu(m):
+    if m=='tpl': pg.evaluate("()=>document.querySelector('[data-tpl]').click()")
+    elif m=='img': pg.evaluate("()=>document.querySelector('.pal[data-kind=\"image\"]').click()")
+    elif m=='slides': pg.click('#playBtn'); pg.click('#presPop [data-m="slides"]')
+    else: openFile(pg); pg.click(f'#menu [data-m="{m}"]')
+    pg.wait_for_timeout(200)
   menu('clear')
   # Bild über Menü
   with pg.expect_file_chooser() as fc: menu('img')

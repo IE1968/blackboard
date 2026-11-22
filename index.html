@@ -199,6 +199,8 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
 .dlgBtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .dlgBtns .pb{padding:9px 14px;font-size:14px}
 
+#liveBtn{position:relative}
+#liveBtn #liveBadge{position:absolute;top:-2px;right:-6px;line-height:1.2;pointer-events:none}
 #liveBadge{flex:0 0 auto;font-size:11px;font-weight:600;letter-spacing:.06em;padding:4px 8px;border-radius:999px;background:#1e63d0;color:#fff;white-space:nowrap}
 #liveBadge[data-role="view"]{background:#7446c9}
 #liveBadge[data-st="off"]{background:#7a8790}
@@ -272,7 +274,7 @@ body.compact.midwide #tools{order:0;flex:0 1 auto;border-top:0;padding-top:0;jus
 #board [data-h="gs:ne"],#board [data-h="gs:sw"]{cursor:nesw-resize}
 #board [data-h^="tc"]{cursor:col-resize}
 #board [data-h^="tr"]{cursor:row-resize}
-body.compact #playBtn{display:none}
+body.compact #keysBtn{display:none}
 .pal.palbtn{cursor:pointer;color:var(--accent)}
 /* Präsentation: liegt über allem, zeigt Folie für Folie */
 #pres{position:fixed;inset:0;z-index:80;background:#000;touch-action:none;user-select:none;-webkit-user-select:none;outline:none}
@@ -290,7 +292,7 @@ body.compact #playBtn{display:none}
 
 #laserTrail{stroke:var(--accent)}
 /* Fenster „Ansicht“ und Konto */
-#viewPop,#ktPop,#expPop{position:fixed;z-index:35;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain}
+#viewPop,#ktPop,.hdrPop{position:fixed;z-index:35;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain}
 #viewPop{width:min(372px,calc((100vw - 12px)/var(--ui)))}
 #viewPop .mh small,#ktPop .mh small{text-transform:none;letter-spacing:0;font-weight:400;opacity:.75;margin-left:4px}
 .vpGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:2px 4px 8px}
@@ -315,9 +317,15 @@ body.compact #playBtn{display:none}
 .vpTog::after{content:"aus";font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
 .vpTog[aria-pressed="true"]::after{content:"an";background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 #ktPop{min-width:220px}
-#expPop{min-width:180px}
-#expPop button{text-align:left;padding:9px 10px}
-#expPop button:hover{background:var(--hover)}
+.hdrPop{min-width:190px}
+.hdrPop button{text-align:left;padding:9px 10px;color:var(--fg)}
+.hdrPop button:hover{background:var(--hover)}
+#livePop{width:250px}
+#livePop .mh{text-align:center}
+#livePop #liveInfo{color:var(--fg);opacity:.75;text-align:center;padding:0 6px 6px;font-size:12px}
+#livePop form{display:flex;gap:6px;padding:6px 4px 2px}
+#livePop form input{flex:1;min-width:0}
+#livePop form button{border:1px solid var(--line);border-radius:8px;text-align:center}
 #ktPopMail{padding:0 10px 8px;font-size:13px;word-break:break-all}
 #ktPop button{text-align:left;padding:9px 10px}
 #ktPop button:hover{background:var(--hover)}
@@ -423,8 +431,9 @@ body.touch #optsToggle::after{height:24px}
       <button class="tb" id="redo" title="Wiederholen (Strg+Y)"><svg viewBox="0 0 24 24"><path d="M16 7l4 4-4 4M20 11H10a5 5 0 000 10h3"/></svg><span>Vor</span></button>
     </div>
     <div class="spacer"></div>
+    <button class="tb" id="keysBtn" title="Tastenkürzel (?)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.500 9.500a2.500 2.500 0 114 2c-1 .7-1.500 1.200-1.500 2.300M12 17h.01"/></svg><span>Hilfe</span></button>
     <button class="tb" id="expBtn" aria-expanded="false" aria-haspopup="true" aria-controls="expPop" title="Exportieren: Bild, Vektor oder PDF"><svg viewBox="0 0 24 24"><path d="M12 4v11M7.500 10.500L12 15l4.500-4.500M5 19h14"/></svg><span>Export</span></button>
-    <button class="tb" id="playBtn" title="Präsentation starten: zeigt die Folien nacheinander im Vollbild"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M10 8v5l4.500-2.500zM8 21h8M12 17v4"/></svg><span>Zeigen</span></button>
+    <button class="tb" id="playBtn" aria-expanded="false" aria-haspopup="true" aria-controls="presPop" title="Präsentation: starten oder Folienübersicht"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M10 8v5l4.500-2.500zM8 21h8M12 17v4"/></svg><span>Zeigen</span></button>
     <button class="tb" id="viewBtn" aria-expanded="false" aria-haspopup="true" aria-controls="viewPop" title="Ansicht: Tafel, Muster, Farben und Größe"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 010 16z" fill="currentColor"/></svg><span>Ansicht</span></button>
     <div class="grp" id="zoomGrp">
       <button class="tb" id="zoomOut" title="Verkleinern"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
@@ -432,10 +441,21 @@ body.touch #optsToggle::after{height:24px}
       <button class="tb" id="zoomIn" title="Vergrößern"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button>
     </div>
     <div class="sep"></div>
-    <button id="liveBadge" type="button" hidden>LIVE</button>
+    <button class="tb" id="liveBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="livePop" title="Live: Board mit anderen Geräten teilen"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.500 8.500a5 5 0 000 7M15.500 8.500a5 5 0 010 7M5.600 5.600a9 9 0 000 12.800M18.400 5.600a9 9 0 010 12.800"/></svg><span>Live</span><b id="liveBadge" hidden>LIVE</b></button>
     <button class="tb" id="ktBtn" type="button" title="Anmelden"><div class="ktAv" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4.500 20c1.500-4 4.500-5.500 7.500-5.500s6 1.500 7.500 5.500"/></svg><b id="ktInitial"></b></div><span>Konto</span></button>
   </div>
-  <div id="expPop" hidden role="menu" aria-label="Exportieren"><div class="mh">Exportieren</div><button data-m="png" role="menuitem">Bild (PNG)</button><button data-m="svg" role="menuitem">Vektor (SVG)</button><button data-m="pdf" role="menuitem">PDF (A4)</button><button data-m="json" role="menuitem" title="Sicherungsdatei, die sich mit „Board laden“ wieder öffnen lässt">Sicherung (.json)</button></div>
+  <div id="presPop" class="hdrPop" hidden role="menu" aria-label="Präsentation"><div class="mh">Präsentation</div><button data-m="play" role="menuitem">▶ Präsentation starten</button><button data-m="slides" role="menuitem">Folienübersicht</button></div>
+  <div id="livePop" class="hdrPop" hidden role="dialog" aria-label="Live">
+<div id="liveSec">
+      <div class="mh">Live</div>
+      <div class="mh" id="liveInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nur auf diesem Gerät</div>
+      <button data-m="livestart" id="liveStartBtn">Live schalten …</button>
+      <button data-m="liveshare" id="liveShareBtn" hidden>Teilen und Links …</button>
+      <button data-m="livestop" id="liveStopBtn" hidden>Live beenden</button>
+      <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Live-Link einfügen" aria-label="Live-Link zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
+    </div>
+  </div>
+  <div id="expPop" class="hdrPop" hidden role="menu" aria-label="Exportieren"><div class="mh">Exportieren</div><button data-m="png" role="menuitem">Bild (PNG)</button><button data-m="svg" role="menuitem">Vektor (SVG)</button><button data-m="pdf" role="menuitem">PDF (A4)</button><button data-m="json" role="menuitem" title="Sicherungsdatei, die sich mit „Board laden“ wieder öffnen lässt">Sicherung (.json)</button></div>
   <div id="viewPop" hidden role="dialog" aria-label="Ansicht">
     <div class="mh">Tafel <small>für dieses Board</small></div><div class="vpGrid" id="vpSurf"></div>
     <div class="mh">Muster</div><div class="vpGrid" id="vpPat"></div>
@@ -473,28 +493,11 @@ body.touch #optsToggle::after{height:24px}
     <button data-m="manage" id="manageBtn">Boards verwalten …</button>
     <button data-m="new">+ Neues Board</button>
     <button data-m="open">Board laden …</button>
-    <button data-m="delboard" id="delBoard">Dieses Board löschen</button>
+    <button data-m="clear">Board leeren</button>
+    <button data-m="delboard" id="delBoard">Board löschen</button>
     <hr>
     <div class="mh">Boards</div>
     <div id="boardList"></div>
-    <hr>
-    <div id="liveSec">
-      <div class="mh">Live</div>
-      <div class="mh" id="liveInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nur auf diesem Gerät</div>
-      <button data-m="livestart" id="liveStartBtn">Live schalten …</button>
-      <button data-m="liveshare" id="liveShareBtn" hidden>Teilen und Links …</button>
-      <button data-m="livestop" id="liveStopBtn" hidden>Live beenden</button>
-      <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Live-Link einfügen" aria-label="Live-Link zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
-      <hr>
-    </div>
-    <div class="mh">Präsentation</div>
-    <button data-m="slides">Folienübersicht</button>
-    <hr>
-    <button data-m="tpl">Vorlage …</button>
-    <button data-m="img">Bild …</button>
-    <button data-m="keys">Tastenkürzel</button>
-    <button data-m="example">Beispiel laden</button>
-    <button data-m="clear">Board leeren</button>
   </aside>
   <button id="propsToggle" aria-controls="menu"></button>
   <button id="optsToggle" aria-controls="props"><i></i></button>
@@ -1419,7 +1422,7 @@ function removeBoards(ids){
 }
 function renderBoardList(){
   $('boardList').innerHTML=boards.list.map(b=>`<button data-b="${b.id}" aria-current="${b.id===boards.cur}">${b.id===boards.cur?'✓ ':''}${esc(b.name)}</button>`).join('');
-  const d=$('delBoard'); d.textContent='Dieses Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
+  const d=$('delBoard'); d.textContent='Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
 }
 function fileBase(){ return (curBoard().name||'').trim().replace(/[^\wäöüÄÖÜß -]+/g,'').replace(/\s+/g,'-')||'skizix'; }
 function assignFrames(){
@@ -2202,7 +2205,7 @@ function isCompactNow(){ return innerWidth/uiCfg.scale<=1000||innerHeight/uiCfg.
 function applyLayout(){
   const w=innerWidth/uiCfg.scale, c=document.body.classList; c.toggle('touch',!isPC);
   document.documentElement.style.setProperty('--ui',uiCfg.scale); c.toggle('hc',uiCfg.hc);
-  c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1280); c.toggle('narrow',w<=480); c.toggle('tiny',w<=330); c.toggle('midwide',w>=640);
+  c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1280); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
   document.querySelectorAll('#uiRow button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
   applyTheme();
@@ -2280,19 +2283,23 @@ palEl.addEventListener('pointerdown',e=>{
 
 /* ---------- Leisten, Menü, Tastatur ---------- */
 $('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); if(palState.optsClosed){ palState.optsClosed=false; savePal(); } setTool(b.dataset.tool); updateProps(); } });
-$('undo').onclick=undo; $('redo').onclick=redo; $('playBtn').onclick=()=>startPres();
+$('undo').onclick=undo; $('redo').onclick=redo; $('keysBtn').onclick=()=>{ closeHdrPops(); openKeys(); };
 function zoomStep(d){ const p=Math.round(view.k*100), n=d>0?Math.floor(p/10)*10+10:Math.ceil(p/10)*10-10; zoomCenter(clamp(n,20,400)/100/view.k); }   /* immer auf volle 10 % */
 $('zoomIn').onclick=()=>zoomStep(1); $('zoomOut').onclick=()=>zoomStep(-1); $('zoomLabel').onclick=()=>zoomCenter(1/view.k);
 function fitMenu(){}
-/* Export: kleines Auswahlfeld unter dem Knopf */
-function closeExpPop(){ if($('expPop').hidden) return; $('expPop').hidden=true; $('expBtn').setAttribute('aria-expanded','false'); }
-$('expBtn').onclick=e=>{ e.stopPropagation(); const p=$('expPop'); if(!p.hidden){ closeExpPop(); return; }
-  closeViewPop(); closeKtPop(); closeMenu(); p.hidden=false; $('expBtn').setAttribute('aria-expanded','true');
-  const br=$('expBtn').getBoundingClientRect(), z=uiCfg.scale, w=p.offsetWidth*z; p.style.left=Math.max(6,Math.min(innerWidth-w-6,br.left+br.width/2-w/2))/z+'px'; p.style.top=(br.bottom+6)/z+'px';
-  if(e.detail===0) p.querySelector('button').focus(); };
-$('expPop').addEventListener('click',e=>{ const b=e.target.closest('[data-m]'); if(!b) return; closeExpPop(); if(b.dataset.m==='json') saveJSON(); else exportAs(b.dataset.m); });
-document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#expPop,#expBtn')) closeExpPop(); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('expPop').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeExpPop(); $('expBtn').focus(); } },true);
+/* Kleine Auswahlfelder unter den Knöpfen oben: Export, Präsentation, Live */
+const HDRPOPS=[['expBtn','expPop'],['playBtn','presPop'],['liveBtn','livePop']];
+function closeHdrPops(){ for(const [b,p] of HDRPOPS){ if(!$(p).hidden){ $(p).hidden=true; $(b).setAttribute('aria-expanded','false'); } } }
+function closeExpPop(){ closeHdrPops(); }
+for(const [bid,pid] of HDRPOPS){
+  $(bid).onclick=e=>{ e.stopPropagation(); const p=$(pid), was=!p.hidden; closeHdrPops(); if(was) return;
+    closeViewPop(); closeKtPop(); closeMenu(); if(pid==='livePop') liveBadge(); p.hidden=false; $(bid).setAttribute('aria-expanded','true');
+    const br=$(bid).getBoundingClientRect(), z=uiCfg.scale, w=p.offsetWidth*z; p.style.left=Math.max(6,Math.min(innerWidth-w-6,br.left+br.width/2-w/2))/z+'px'; p.style.top=(br.bottom+6)/z+'px';
+    if(e.detail===0){ const f=p.querySelector('button:not([hidden]),input'); if(f) f.focus(); } };
+  $(pid).addEventListener('click',e=>{ const b=e.target.closest('[data-m]'); if(!b) return; closeHdrPops(); menuDo(b.dataset.m); });
+}
+document.addEventListener('pointerdown',e=>{ if(!e.target.closest('.hdrPop,#expBtn,#playBtn,#liveBtn')) closeHdrPops(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ const o=HDRPOPS.find(([b,p])=>!$(p).hidden); if(o){ e.preventDefault(); e.stopImmediatePropagation(); closeHdrPops(); $(o[0]).focus(); } } },true);
 document.addEventListener('pointerdown',e=>{ if(document.body.classList.contains('compact')&&!palState.propsClosed&&!menu.contains(e.target)&&!e.target.closest('#propsToggle')) closeMenu(); });
 
 function buildSVG(box){
@@ -2727,8 +2734,11 @@ menu.addEventListener('click',e=>{
   if(b.dataset.m==='snap'){ setUi({snap:!uiCfg.snap}); return; }
   if(b.dataset.m==='gridv'){ setUi({grid:!uiCfg.grid}); return; }
   if(b.dataset.m==='delboard'&&!b.dataset.sure){ b.dataset.sure='1'; b.textContent='Wirklich löschen? Das lässt sich nicht zurückholen.'; e.stopPropagation(); return; }
-  closeMenu(); finishEdit();
-  switch(b.dataset.m){
+  closeMenu(); menuDo(b.dataset.m);
+});
+function menuDo(m){
+  finishEdit();
+  switch(m){
     case 'new': newBoard(); break;
     case 'fit': fit(); break;
     case 'keys': openKeys(); break;
@@ -2743,13 +2753,13 @@ menu.addEventListener('click',e=>{
     case 'ktlogout': ktLogout(); break;
     case 'delboard': deleteBoard(); break;
     case 'manage': openBmDlg(); break;
-    case 'png': case 'svg': case 'pdf': exportAs(b.dataset.m); break;
+    case 'png': case 'svg': case 'pdf': exportAs(m); break;
     case 'json': saveJSON(); break;
     case 'open': $('file').value=''; $('file').click(); break;
     case 'example': doc=exampleDoc(); doc.fmt=DOC_FMT; sel.clear(); commit(); render(); fit(); break;
     case 'clear': doc={items:[],n:doc.n}; sel.clear(); commit(); render(); toast('Board geleert. Mit „Zurück“ holst du alles wieder.'); break;
   }
-});
+}
 $('boardName').addEventListener('input',e=>{ curBoard().name=e.target.value.trim()||'Board'; markDirty(); ktSoon(3000); });
 $('boardName').addEventListener('keydown',e=>{ if(e.key==='Enter') e.target.blur(); });
 $('file').addEventListener('change',async e=>{
@@ -3354,7 +3364,7 @@ $('liveJoinForm').addEventListener('submit',async e=>{
   closeMenu(); if(await liveJoin(p)) inp.value='';
 });
 
-$('liveBadge').onclick=e=>{ e.stopPropagation(); const c=liveCur(); if(c&&c.own) openLiveDlg(); else toast(c&&c.role==='view'?'Du siehst dieses Live-Board nur an.':'Du zeichnest live mit.'); };
+
 $('boardName').addEventListener('change',()=>{ const c=liveCur(); if(c&&c.role!=='view'&&LV.joined){ liveSend({t:'ops',up:[],del:[],nm:curBoard().name}); liveSave(1500); } });
 
 /* ---------- Konto: Anmeldung mit E-Mail und Passwort, alle eigenen Boards auf allen angemeldeten Geräten ----------
