@@ -55,3 +55,14 @@ header.top.offen .burger span:nth-child(3){transform:translateY(-8.5px) rotate(-
   footer .wrap{flex-direction:column;align-items:center;gap:6px}
   footer nav{width:100%;justify-content:center}
 }
+/* Schutz gegen seitliches Verrutschen auf Handys (nichts darf breiter als der Bildschirm werden) */
+html{overflow-x:hidden}
+body{overflow-x:clip}
+@media (max-width:700px){
+  .duo{display:block}
+  .duo>*{margin-left:auto;margin-right:auto}
+  .card.probieren{display:block;margin:28px auto 0;width:auto;max-width:460px;box-sizing:border-box}
+  footer .wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;max-width:none;margin:0;padding:16px 12px;box-sizing:border-box}
+  footer nav{display:flex;justify-content:center;flex-wrap:wrap;width:100%;margin:0}
+  footer span{display:block;width:100%;text-align:center}
+}
