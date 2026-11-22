@@ -16,7 +16,7 @@ footer{background:#1e63d0;color:#dbe8ff;border-top:0}
 footer a{color:#fff}
 
 /* Kopf- und Fußleiste: blaue, abgerundete Leisten, die mit Abstand zum Rand schweben (gleiche Größe) */
-header.top{background:transparent;box-shadow:none;border:0;top:12px;padding:12px 16px 0;backdrop-filter:none}
+header.top{position:relative;top:auto;background:transparent;box-shadow:none;border:0;padding:12px 16px 0;backdrop-filter:none}
 header.top .wrap,footer .wrap{background:#1e63d0;border-radius:999px;box-shadow:0 10px 30px rgba(20,60,130,.28);min-height:64px;padding:0 10px 0 22px;max-width:1120px}
 header.top .brand{order:0;margin-left:0;color:#fff}
 header.top nav.main{order:1;margin:0 auto}
