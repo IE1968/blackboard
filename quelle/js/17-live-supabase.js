@@ -241,6 +241,9 @@ function liveBadge(){
   if(on){ const n=LV.peers.size+1, lbl=c.role==='view'?'ANSEHEN':'LIVE'; el.dataset.st=LV.joined?'ok':'off'; el.dataset.role=c.role;
     el.textContent=LV.joined?(lbl+(n>1?' · '+n:'')):lbl+' …';
     el.title=(c.role==='view'?'Nur ansehen. ':'')+(LV.joined?(n>1?n+' Geräte sind mit diesem Board verbunden':'Verbunden, gerade niemand sonst da'):'Verbindung wird aufgebaut …'); }
+  const lb=$('liveBtn'); if(lb){ lb.classList.toggle('isLive',on); lb.dataset.st=on?(LV.joined?'ok':'off'):''; lb.dataset.role=on?c.role:'';
+    lb.querySelector('span').textContent=on?(c.role==='view'?'Ansehen':'Live')+(LV.joined&&LV.peers.size?' · '+(LV.peers.size+1):''):'Live';
+    lb.title=on?el.title:'Live: Board mit anderen Geräten teilen'; }
   const info=$('liveInfo'); if(!info) return;
   info.textContent=!liveOk()?'Hier nicht verfügbar':!on?'Nur auf diesem Gerät':(c.own?'':c.role==='view'?'Gast, nur ansehen · ':'Gast, mitzeichnen · ')+(LV.joined?(LV.peers.size?'verbunden mit '+LV.peers.size+(LV.peers.size>1?' anderen Geräten':' anderem Gerät'):'verbunden, niemand sonst da'):'Verbindung wird aufgebaut …');
   $('liveStartBtn').hidden=on||!liveOk(); $('liveShareBtn').hidden=!(on&&c.own); $('liveStopBtn').hidden=!on||(c.own&&ktOn());
