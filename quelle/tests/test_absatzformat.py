@@ -31,6 +31,14 @@ try:
   d=it(); check('Neuer Absatz erbt die Aufzählung',d['text'].split('\n')==['Titel','Punkt eins','Punkt zwei','Punkt drei','Schluss'] and d['pf']==['b','l','l','l',''],str(d['pf']))
   # bleibt nach dem Neuladen
   pg.reload(); pg.wait_for_timeout(500); check('Absatzformate bleiben gespeichert',it()['pf']==['b','l','l','l',''])
+  # freier Text: Aufzählung bricht die Zeilen nicht um, Fett ebenfalls nicht
+  pg.evaluate(LOAD,{'items':[{'id':'t','type':'shape','kind':'text','x':300,'y':500,'w':130,'h':70,'text':'Scrum-Board\nMindmap\nPräsentation','fill':'none','stroke':'#1c2a2e','sw':2}],'conns':[]}); pg.reload(); pg.wait_for_timeout(500)
+  bt=pg.evaluate("()=>{const r=document.querySelector('[data-id=\"t\"]').getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]}")
+  pg.mouse.click(*bt); pg.wait_for_timeout(250); pact(pg,'[data-act="list"]'); pg.wait_for_timeout(250); pg.keyboard.press('Escape')
+  for _ in range(3): pact(pg,'[data-act="fsup"]') if pg.locator('#colorPop:not([hidden])').count()==0 else pg.click('#colorPop [data-act="fsup"]')
+  pg.wait_for_timeout(250)
+  zeilen=pg.evaluate("()=>[...document.querySelectorAll('[data-id=\"t\"] tspan')].filter(t=>t.textContent!=='•').map(t=>t.textContent)")
+  check('Text mit Aufzählung bricht nicht um',zeilen==['Scrum-Board','Mindmap','Präsentation'],str(zeilen))
   pg.screenshot(path=OUT+'/absatzformat.png')
   check('keine Fehler',not errs,str(errs[:3]))
   br.close()

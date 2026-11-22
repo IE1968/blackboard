@@ -236,8 +236,9 @@ function autosize(s){
     s.w=sum(s.colW); s.h=sum(s.rowH); return; }
   const tb=textBox(s);
   if(s.kind==='text'){
-    if(s.fresh){ const ls=wrap(s.text||' ',320); s.w=Math.max(60,up10(Math.max(...ls.map(measure))+16)); delete s.fresh; }
-    if(s.fresh&&(s.list||(s.pf&&s.pf.some(v=>v.includes('l'))))) s.w=Math.max(s.w,up10(s.w+FS*1.25));
+    if(s.fresh){ let mw=0; const B0=BOLD;   /* Breite nach dem längsten Absatz, mit Fett und Platz für Aufzählungspunkte */
+      (s.text||' ').split('\n').forEach((para,pi)=>{ const f=pfOf(s,pi); BOLD=f.b; for(const l of wrap(para,320)) mw=Math.max(mw,measure(l)+(f.l?Math.round(FS*1.25):0)); });
+      BOLD=B0; s.w=Math.max(60,up10(mw+16)); delete s.fresh; }
     s.h=Math.max(30,up10(lineCount(s,s.text||' ',s.w-15)*LH+10));
   } else if(tb.mode==='center'||tb.mode==='left'){
     const need=(lineCount(s,s.text||'',tb.maxW)*LH+14)*(tb.grow||1)+Math.abs(tb.dy||0)*2;
