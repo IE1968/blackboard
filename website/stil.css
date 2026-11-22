@@ -43,6 +43,8 @@ h2 small{display:block;font-size:12px;letter-spacing:.12em;text-transform:upperc
 .card h3{margin:0 0 6px;font-size:16px;color:var(--fg)}
 .card p{margin:0;color:var(--muted);font-size:14px}
 .card .ic{width:34px;height:34px;margin-bottom:10px;fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.vid{border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45);background:#0d1011}
+.vid video{display:block;width:100%;height:auto;cursor:pointer}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
 .duo img{border:1px solid var(--line);border-radius:12px}
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}

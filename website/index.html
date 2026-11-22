@@ -36,13 +36,17 @@
     </div>
   </div></section>
 
-  <section><div class="wrap duo">
-    <div>
-      <h2><small>Vorlagen</small>Sofort loslegen</h2>
-      <p class="sub">17 fertige Vorlagen für typische Methoden – ein Klick, und das Gerüst steht auf dem Board.</p>
-      <div class="tags"><span>Kanban-Board</span><span>Scrum-Board</span><span>Mindmap</span><span>SWOT-Analyse</span><span>Eisenhower-Matrix</span><span>Retrospektive</span><span>Zeitstrahl</span><span>Business Model Canvas</span><span>Ishikawa</span><span>Organigramm</span><span>PDCA-Zyklus</span><span>RACI-Matrix</span><span>Stakeholder-Matrix</span><span>Projektsteckbrief</span><span>Empathy Map</span><span>5-Why</span><span>Prozesslandkarte</span></div>
+  <section><div class="wrap">
+    <h2><small>So geht's</small>Vorlage reinziehen, loslegen</h2>
+    <p class="sub">Scrum-Board in die Tafel ziehen, Karten beschriften und verschieben, ein neues Board mit Mindmap anlegen, Zweige anhängen und mit dem Stift markieren – so schnell geht's.</p>
+    <div class="vid">
+      <video id="demo" autoplay muted loop playsinline preload="metadata" poster="bilder/skizix-demo.jpg" width="1280" height="760" aria-label="Vorführung: Scrum-Board und Mindmap in Skizix anlegen und bearbeiten">
+        <source src="bilder/skizix-demo.webm" type="video/webm">
+        <source src="bilder/skizix-demo.mp4" type="video/mp4">
+      </video>
     </div>
-    <img src="bilder/app-kanban.jpg" width="1440" height="860" alt="Kanban-Vorlage mit den Spalten To Do, In Progress und Done auf Leinenpapier" loading="lazy">
+    <p class="sub" style="margin-top:26px">17 fertige Vorlagen für typische Methoden – ein Klick, und das Gerüst steht auf dem Board:</p>
+    <div class="tags"><span>Kanban-Board</span><span>Scrum-Board</span><span>Mindmap</span><span>SWOT-Analyse</span><span>Eisenhower-Matrix</span><span>Retrospektive</span><span>Zeitstrahl</span><span>Business Model Canvas</span><span>Ishikawa</span><span>Organigramm</span><span>PDCA-Zyklus</span><span>RACI-Matrix</span><span>Stakeholder-Matrix</span><span>Projektsteckbrief</span><span>Empathy Map</span><span>5-Why</span><span>Prozesslandkarte</span></div>
   </div></section>
 
   <section class="alt"><div class="wrap duo">
@@ -82,5 +86,12 @@
   <span>© 2026 Skizix</span>
   <nav><a href="anleitung.html">Anleitung</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></nav>
 </div></footer>
+<script>
+/* Wer weniger Bewegung eingestellt hat, bekommt das Video angehalten mit Steuerleiste */
+(function(){ var v=document.getElementById('demo'); if(!v) return;
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){ v.removeAttribute('autoplay'); v.pause(); v.controls=true; }
+  v.addEventListener('click',function(){ v.paused?v.play():v.pause(); });
+})();
+</script>
 </body>
 </html>
