@@ -70,6 +70,27 @@ const TEMPLATES=[
    let prev=B('round',0,60,420,60,'Problem: …',{fill:TC.orange,bold:true,fs:15});
    for(let i=1;i<=5;i++){ const n=B('round',0,60+i*95,420,60,'Warum '+i+'? …',{fill:i===5?TC.green:TC.white,fs:14}); A(prev,n,'s','n'); prev=n; }
    B('note',460,535,200,70,'Grundursache gefunden: Maßnahme ableiten',{fill:TC.yellow,fs:13}); }},
+ {name:'Gantt-Diagramm',info:'Aufgaben als Balken über zehn Wochen, mit Meilenstein',make(K){ const {H,B,TB}=K; H(0,0,700,'Gantt-Diagramm',26);
+   const T=['Analyse','Konzept','Design','Umsetzung','Test','Abnahme'], cw=[180].concat(Array(10).fill(64)), rh=[40].concat(Array(T.length).fill(46));
+   TB(0,60,cw,rh,[['Aufgabe'].concat(Array.from({length:10},(_,i)=>'KW '+(i+1)))].concat(T.map(t=>[t].concat(Array(10).fill('')))));
+   [[0,2,TC.blue],[1,3,TC.blue],[3,3,TC.violet],[4,4,TC.orange],[7,2,TC.yellow],[9,1,TC.green]].forEach(([s,d,c],r)=>B('round',180+s*64+4,60+40+r*46+9,d*64-8,28,'',{fill:c,sw:1.500}));
+   B('diamond',180+10*64-18,60+40+T.length*46+12,36,36,'',{fill:TC.green}); K.X(180+7*64-30,60+40+T.length*46+18,190,'Meilenstein: Abnahme',13,{al:'right',tc:'#5b6870'}); }},
+ {name:'Zeitstrahl senkrecht',info:'Ereignisse von oben nach unten, abwechselnd links und rechts',make(K){ const {H,L,B,X}=K; H(0,0,700,'Zeitstrahl',26);
+   L(400,60,400,700,{sw:4});
+   [['2022','Idee'],['2023','Erste Version'],['2024','Erweiterung'],['2025','Neue Kunden'],['2026','Heute']].forEach(([d,t],i)=>{ const y=100+i*130, li=i%2===0;
+     B('ellipse',386,y-14,28,28,'',{fill:i===4?TC.green:TC.blue,sw:3}); L(li?386:414,y,li?330:470,y,{head:'none',dash:true});
+     B('round',li?150:470,y-40,180,80,'',{fill:TC.white}); X(li?160:480,y-32,160,d,15,{bold:true,al:'center'}); X(li?160:480,y-6,160,t,13,{al:'center'}); }); }},
+ {name:'Roadmap',info:'Vorhaben je Bereich über vier Quartale',make(K){ const {H,B,X}=K; H(0,0,700,'Roadmap',26);
+   ['Q1','Q2','Q3','Q4'].forEach((q,i)=>B('rect',160+i*220,60,220,44,q,{fill:TC.grey,bold:true,fs:16}));
+   [['Produkt',TC.blue,[[0,1.6,'Grundfunktionen'],[1.8,2,'Version 2.0']]],['Technik',TC.violet,[[0.3,1.4,'Neue Server'],[2,1.8,'Schnittstellen']]],['Marketing',TC.orange,[[1,1.5,'Website'],[2.7,1.2,'Messe']]]].forEach(([n,c,its],r)=>{ const y=104+r*120;
+     B('rect',0,y,160,120,n,{fill:c,bold:true,fs:15}); B('rect',160,y,880,120,'',{fill:TC.white});
+     its.forEach(([s,d,t])=>B('round',170+s*220,y+34,d*220-20,52,t,{fill:c,fs:14})); }); }},
+ {name:'Zahlenstrahl 0–20',info:'Zahlenstrahl in Einerschritten für Rechenwege',make(K){ const {H,L,X}=K; H(0,0,700,'Zahlenstrahl',26);
+   const x0=40, st=50; L(x0-20,160,x0+20*st+40,160,{sw:3});
+   for(let i=0;i<=20;i++){ const x=x0+i*st, g=i%5===0; L(x,g?140:148,x,g?180:172,{head:'none',sw:g?3:2}); X(x-25,188,50,String(i),g?16:14,{al:'center',bold:g}); } }},
+ {name:'Zahlenstrahl 0–100',info:'Zehner beschriftet, Fünferschritte als Striche',make(K){ const {H,L,X}=K; H(0,0,700,'Zahlenstrahl bis 100',26);
+   const x0=40, st=10; L(x0-20,160,x0+100*st+40,160,{sw:3});
+   for(let i=0;i<=100;i+=5){ const x=x0+i*st, g=i%10===0; L(x,g?138:148,x,g?182:172,{head:'none',sw:g?3:2}); if(g) X(x-25,190,50,String(i),15,{al:'center',bold:i%50===0}); } }},
  {name:'Kanban-Board',info:'To Do, In Arbeit, Erledigt',kind:'kanban'},
  {name:'Scrum-Board',info:'Backlog, Sprint, Review',kind:'scrum'},
  {name:'Mindmap',info:'Thema mit Zweigen, per „+ Zweig“ erweiterbar',kind:'mindmap'}

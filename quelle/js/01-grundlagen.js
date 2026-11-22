@@ -36,6 +36,8 @@ const KINDS={
   gDia:{label:'Raute',as:'diamond',w:120,h:90},
   tri:{label:'Dreieck',w:120,h:100},
   hex:{label:'Sechseck',w:140,h:90},
+  trap:{label:'Trapez',w:140,h:90},
+  para:{label:'Parallelogramm',w:150,h:80},
   star:{label:'Stern',w:110,h:110},
   arrowr:{label:'Blockpfeil',w:140,h:70},
   arrowlr:{label:'Doppelpfeil',w:150,h:70},
@@ -117,7 +119,7 @@ const KINDS={
   netcloud:{label:'Internet',as:'cloud',w:150,h:95,text:'Internet'},
   netdb:{label:'Speicher',as:'db',w:80,h:80}
 };
-const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','star','arrowr','arrowlr','bubble','cloud','cross','note','bullets','image','table','card']],
+const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','trap','para','star','arrowr','arrowlr','bubble','cloud','cross','note','bullets','image','table','card']],
   ['Vorlagen',['kanban','scrum','mindmap']],
   ['Präsentation',['frame','quiz','check']],
   ['Flussdiagramm',['term','diamond','io','doc','db']],

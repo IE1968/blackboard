@@ -17,6 +17,8 @@ function shapeBody(s){
     case 'gwx': { const d=m*0.17; return dia+`<path d="M${cx-d} ${cy-d}L${cx+d} ${cy+d}M${cx+d} ${cy-d}L${cx-d} ${cy+d}" ${LN(sw*1.6)}/>`; }
     case 'gwplus': { const d=m*0.23; return dia+`<path d="M${cx-d} ${cy}H${cx+d}M${cx} ${cy-d}V${cy+d}" ${LN(sw*1.6)}/>`; }
     case 'gwo': return dia+`<circle cx="${cx}" cy="${cy}" r="${m*0.2}" ${LN(sw*1.4)}/>`;
+    case 'trap': { const d=Math.min(w*0.22,h*0.6); return `<polygon points="${d},0 ${w-d},0 ${w},${h} 0,${h}" ${f}/>`; }
+    case 'para':
     case 'io': { const d=Math.min(w*0.2,h*0.4); return `<polygon points="${d},0 ${w},0 ${w-d},${h} 0,${h}" ${f}/>`; }
     case 'doc': { const a=h*0.12; return `<path d="M0 0H${w}V${h-a}Q${w*0.75} ${h-3*a} ${cx} ${h-a}T0 ${h-a}Z" ${f}/>`; }
     case 'db': { const ry=Math.min(h*0.15,14); return `<path d="M0 ${ry}A${cx} ${ry} 0 0 1 ${w} ${ry}V${h-ry}A${cx} ${ry} 0 0 1 0 ${h-ry}Z" ${f}/><path d="M0 ${ry}A${cx} ${ry} 0 0 0 ${w} ${ry}" ${ln}/>`; }
