@@ -14,3 +14,7 @@ section.alt{background:linear-gradient(180deg,#eef3fa,#f6f8fb)}
 kbd{background:#fff}
 footer{background:#1e63d0;color:#dbe8ff;border-top:0}
 footer a{color:#fff}
+/* Kopfleiste: Menü und „App öffnen“ links, Logo rechts */
+header.top nav.main{order:1;margin-left:-12px}
+header.top .btn{order:2}
+header.top .brand{order:3;margin-left:auto}
