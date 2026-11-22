@@ -135,3 +135,14 @@ h2 small{font-size:clamp(16px,1.6vw,20px);letter-spacing:.14em;margin-bottom:12p
 .card.probieren p{font-size:19px;margin:0 0 28px}
 .card.probieren .btn{font-size:19px;padding:15px 28px}
 .card.probieren p.klein{font-size:16px;margin:22px 0 0}
+/* Anleitung auf dem Handy: nichts breiter als der Bildschirm */
+.layout>*{min-width:0}
+@media (max-width:700px){
+  .layout{gap:18px}
+  table.keys,table.keys tbody,table.keys tr,table.keys td{display:block;width:auto}
+  table.keys tr{padding:8px 0;border-bottom:1px solid var(--line)}
+  table.keys td{border:0;padding:2px 0}
+  table.keys td:first-child{white-space:normal;width:auto}
+  kbd{white-space:nowrap;display:inline-block;margin:1px 0}
+  .doc p,.doc li{overflow-wrap:anywhere}
+}
