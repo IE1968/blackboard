@@ -979,8 +979,9 @@ function autosize(s){
     s.w=sum(s.colW); s.h=sum(s.rowH); return; }
   const tb=textBox(s);
   if(s.kind==='text'){
-    if(s.fresh){ const ls=wrap(s.text||' ',320); s.w=Math.max(60,up10(Math.max(...ls.map(measure))+16)); delete s.fresh; }
-    if(s.fresh&&(s.list||(s.pf&&s.pf.some(v=>v.includes('l'))))) s.w=Math.max(s.w,up10(s.w+FS*1.25));
+    if(s.fresh){ let mw=0; const B0=BOLD;   /* Breite nach dem längsten Absatz, mit Fett und Platz für Aufzählungspunkte */
+      (s.text||' ').split('\n').forEach((para,pi)=>{ const f=pfOf(s,pi); BOLD=f.b; for(const l of wrap(para,320)) mw=Math.max(mw,measure(l)+(f.l?Math.round(FS*1.25):0)); });
+      BOLD=B0; s.w=Math.max(60,up10(mw+16)); delete s.fresh; }
     s.h=Math.max(30,up10(lineCount(s,s.text||' ',s.w-15)*LH+10));
   } else if(tb.mode==='center'||tb.mode==='left'){
     const need=(lineCount(s,s.text||'',tb.maxW)*LH+14)*(tb.grow||1)+Math.abs(tb.dy||0)*2;
@@ -1906,7 +1907,7 @@ function propsAct(b){
   const listOn=act==='list'&&!items.filter(canList).every(i=>i.pf?i.pf.length&&String(i.text).split('\n').every((_,k)=>pfOf(i,k).l):i.list);
   for(const it of items){ if(it.lock) continue;
     if(act==='list'&&canList(it)&&it.pf){ const n=String(it.text||'').split('\n').length-1; if(listOn!==String(it.text||'').split('\n').every((_,k)=>pfOf(it,k).l)) setParaFmt(it,it.text||'',0,n,'l'); autosize(it); }
-    else if(act==='list'&&canList(it)){ if(listOn){ it.list=true; if(it.text) it.text=it.text.split('\n').map(l=>l.replace(/^\s*[•\-–]\s+/,'')).join('\n'); } else delete it.list; autosize(it); }
+    else if(act==='list'&&canList(it)){ if(listOn){ it.list=true; if(it.kind==='text') it.fresh=true;   /* Breite neu: Platz für die Aufzählungspunkte */ if(it.text) it.text=it.text.split('\n').map(l=>l.replace(/^\s*[•\-–]\s+/,'')).join('\n'); } else delete it.list; autosize(it); }
     if(it.type!=='path'&&(act==='fsup'||act==='fsdown'||act==='bold')){
       if(act==='bold'){ if(it.pf){ const n=String(it.text||'').split('\n').length-1; setParaFmt(it,it.text||'',0,n,'b'); } else it.bold=!it.bold; } else it.fs=clamp((it.fs||14)+(act==='fsup'?2:-2),10,40);
       if(it.kind==='text') it.fresh=true; autosize(it); }

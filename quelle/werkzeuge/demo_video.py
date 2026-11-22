@@ -1,9 +1,10 @@
 """Skizix: nimmt ein kurzes Vorführvideo für die Website auf.
-Startet mit einem Kanban-Board; ein künstlicher Mauszeiger bearbeitet und verschiebt Karten, öffnet ein neues Board mit Mindmap, wechselt die Tafel und zeichnet.
+Ablauf: mit dem Stift „Agenda“ schreiben, dasselbe als Text (groß, fett, Aufzählung), drei Folien mit Formen
+und Kanban-Vorlage bauen, Tafeln ausprobieren, präsentieren, danach „Danke für Ihre Aufmerksamkeit!“ schreiben.
 Aufruf:  python3 quelle/werkzeuge/demo_video.py   → website/bilder/skizix-demo.mp4 und .webm
 """
 import os, sys, math, glob, shutil, subprocess, time
-HIER=os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0,os.path.join(HIER,'..','tests'))
+HIER=os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0,os.path.join(HIER,'..','tests')); sys.path.insert(0,HIER)
 from hilfe import *
 from playwright.sync_api import sync_playwright
 
@@ -50,7 +51,23 @@ def mitte(pg,sel):
 def textpos(pg,text):
     return pg.evaluate("""t=>{ for(const s of document.querySelectorAll('#items [data-id]')){ if([...s.querySelectorAll('tspan,text')].some(e=>e.textContent===t)){ const r=s.getBoundingClientRect(); return [r.left+r.width/2,r.top+r.height/2]; } } return null }""",text)
 
+def w2s(pg,wx,wy):
+    return pg.evaluate("""([wx,wy])=>{ const t=document.getElementById('world').getAttribute('transform'), m=/translate\\(([-\\d.]+) ([-\\d.]+)\\) scale\\(([-\\d.]+)\\)/.exec(t), r=document.getElementById('board').getBoundingClientRect();
+      return [r.left+(+m[1])+wx*(+m[3]), r.top+(+m[2])+wy*(+m[3])]; }""",[wx,wy])
+def griff(pg,name):
+    b=pg.locator(f'#overlay [data-h="{name}"]').last.bounding_box(); return (b['x']+b['width']/2,b['y']+b['height']/2)
+
+def schreiben(pg,m,linien,ms_je=3):
+    """Handschrift: jede Linie mit kurzem Anflug, dann fein unterteilt gezeichnet."""
+    for L in linien:
+        m.zu(*L[0],ms=70,stufen=3); pg.mouse.down()
+        for (x0,y0),(x1,y1) in zip(L,L[1:]):
+            n=max(1,int(math.hypot(x1-x0,y1-y0)/9))
+            for i in range(1,n+1): pg.mouse.move(x0+(x1-x0)*i/n,y0+(y1-y0)*i/n); pg.wait_for_timeout(ms_je)
+        m.x,m.y=L[-1]; pg.mouse.up()
+
 def aufnehmen():
+    from handschrift import strokes
     shutil.rmtree(ROH,ignore_errors=True); os.makedirs(ROH)
     srv=server()
     try:
@@ -59,50 +76,93 @@ def aufnehmen():
             ctx=br.new_context(viewport={'width':W,'height':H},record_video_dir=ROH,record_video_size={'width':W,'height':H})
             ctx.add_init_script("localStorage.setItem('skizix-test-opts','1')"); ctx.add_init_script(CURSOR)
             t0=time.time(); pg=ctx.new_page(); pg.goto(URL); pg.wait_for_timeout(1200)
-            # Vorbereitung (wird später abgeschnitten): leeres Board auf Leinenpapier mit Kanban-Vorlage
-            pg.click('#menu [data-m="clear"]'); pg.click('#viewBtn'); pg.click('#vpSurf [data-s="paper"]'); pg.keyboard.press('Escape')
-            pg.click('.gh[data-g="Allgemein"]'); pg.click('.gh[data-g="Vorlagen"]'); pg.wait_for_timeout(200)
+            # Vorbereitung (wird abgeschnitten): leeres, weißes Board in 100 %
+            pg.click('#menu [data-m="clear"]'); pg.click('#viewBtn'); pg.click('#vpSurf [data-s="white"]'); pg.keyboard.press('Escape')
+            pg.keyboard.press('0'); pg.wait_for_timeout(5200)
             bx=pg.evaluate("()=>{const r=document.getElementById('board').getBoundingClientRect();return [r.left,r.top,r.width,r.height]}")
-            sx,sy=mitte(pg,'.pal[data-kind="kanban"]'); pg.mouse.move(sx,sy); pg.mouse.down(); pg.mouse.move(bx[0]+bx[2]/2,bx[1]+bx[3]*0.5,steps=8); pg.mouse.up()
-            pg.keyboard.press('Escape'); pg.wait_for_timeout(5200)   # Hinweise ausblenden lassen
-            m=Maus(pg); m.x,m.y=bx[0]+bx[2]-120,bx[1]+bx[3]-90; pg.mouse.move(m.x,m.y); pg.wait_for_timeout(300)
+            L,T,BW,BH=bx
+            m=Maus(pg); m.x,m.y=L+BW*0.5,T+BH*0.6; pg.mouse.move(m.x,m.y); pg.wait_for_timeout(300)
+            weg=lambda: m.klick(L+BW-30,T+BH-25,warten=250)
             START[0]=time.time()-t0
-            pg.wait_for_timeout(900)
-            # 1) Karte umbenennen
-            x,y=textpos(pg,'Aufgabe 1'); m.doppel(x,y)
-            pg.keyboard.press('Control+a'); pg.keyboard.type('Website planen',delay=85); pg.wait_for_timeout(250); pg.keyboard.press('Escape'); pg.wait_for_timeout(400)
-            # 2) Karte in die nächste Spalte ziehen
-            x,y=textpos(pg,'Website planen'); m.ziehen(x,y,x+200,y+85,ms=900,warten=500)
-            # 3) Farbe der Karte ändern
-            m.klick(*mitte(pg,'#props [data-drop="fill"]'),warten=350)
-            m.klick(*mitte(pg,'#colorPop [data-val="#d3f0dc"]'),warten=450)
-            m.klick(bx[0]+bx[2]-40,bx[1]+bx[3]-30,warten=600)
-            # 7) noch ein neues Board mit Mindmap
-            m.klick(*mitte(pg,'#menu [data-m="new"]'),warten=700)
-            sx,sy=mitte(pg,'.pal[data-kind="mindmap"]')
-            m.ziehen(sx,sy,bx[0]+bx[2]/2,bx[1]+bx[3]*0.5,ms=1000,warten=700)
-            m.klick(bx[0]+bx[2]-40,bx[1]+bx[3]-30,warten=300)
-            x,y=textpos(pg,'Thema'); m.doppel(x,y)
-            pg.keyboard.press('Control+a'); pg.keyboard.type('Projekt',delay=90); pg.keyboard.press('Escape'); pg.wait_for_timeout(350)
-            x,y=textpos(pg,'Idee 2'); m.klick(x,y,warten=350)
-            m.klick(*mitte(pg,'#props [data-act="branch"]'),warten=350)
-            pg.keyboard.type('Termin',delay=90); pg.keyboard.press('Enter'); pg.wait_for_timeout(500)
-            m.klick(bx[0]+bx[2]-40,bx[1]+bx[3]-30,warten=300)
-            # 8) Tafel Schiefer
-            m.klick(*mitte(pg,'#viewBtn'),warten=400)
-            m.klick(*mitte(pg,'#vpSurf [data-s="slate"]'),warten=500)
-            m.klick(bx[0]+bx[2]-40,bx[1]+bx[3]-30,warten=300)
-            # 9) Stift: Projekt einkreisen und Haken
+            pg.wait_for_timeout(700)
+            # 1) Mit dem Stift: Agenda
             m.klick(*mitte(pg,'#tools [data-tool="pen"]'),warten=300)
-            m.klick(*mitte(pg,'#props [data-drop="stroke"]'),warten=300)
-            m.klick(*mitte(pg,'#colorPop [data-val="#f2c200"]'),warten=300)
-            cx,cy=textpos(pg,'Projekt')
-            kreis=[(cx+math.cos(a)*118,cy+math.sin(a)*62) for a in [i/48*2*math.pi*1.08-0.5 for i in range(49)]]
-            m.pfad(kreis,ms_je=20)
-            x,y=textpos(pg,'Termin'); x+=80
-            m.pfad([(x-12,y+2),(x-4,y+10),(x+3,y+16),(x+12,y+2),(x+22,y-12),(x+30,y-22)],ms_je=45)
+            schreiben(pg,m,strokes('Agenda:',L+50,T+95,30))
+            for i,t in enumerate(['Scrum-Board','Mindmap','Präsentation']):
+                schreiben(pg,m,strokes('• '+t,L+60,T+160+i*58,19))
+            pg.wait_for_timeout(500)
+            # 2) Dasselbe als Text
+            m.klick(*mitte(pg,'#tools [data-tool="text"]'),warten=200)
+            m.klick(L+560,T+90,warten=350); pg.keyboard.type('Agenda',delay=80); pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
+            m.klick(*mitte(pg,'#tools [data-tool="text"]'),warten=200)
+            m.klick(L+560,T+175,warten=350)
+            for i,t in enumerate(['Scrum-Board','Mindmap','Präsentation']):
+                if i: pg.keyboard.press('Enter')
+                pg.keyboard.type(t,delay=60)
+            pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
+            # Agenda größer und fett
+            m.klick(*textpos(pg,'Agenda'),warten=300)
+            m.klick(*mitte(pg,'#props [data-drop="text"]'),warten=300)
+            for _ in range(7): m.klick(*mitte(pg,'#colorPop [data-act="fsup"]'),warten=150)
+            m.klick(*mitte(pg,'#colorPop [data-act="bold"]'),warten=400)
+            weg()
+            # Unterpunkte als Aufzählung
+            m.klick(*textpos(pg,'Mindmap'),warten=300)
+            m.klick(*mitte(pg,'#props [data-drop="text"]'),warten=300)
+            m.klick(*mitte(pg,'#colorPop [data-act="list"]'),warten=350)
+            for _ in range(4): m.klick(*mitte(pg,'#colorPop [data-act="fsup"]'),warten=150)
+            weg(); pg.wait_for_timeout(400)
+            # 3) Präsentation bauen: verkleinern
+            for _ in range(5): m.klick(*mitte(pg,'#zoomOut'),warten=170)
+            pg.wait_for_timeout(300)
+            # Formen für Folie 2
+            sx,sy=mitte(pg,'.pal[data-kind="gRound"]'); m.ziehen(sx,sy,*w2s(pg,120,620),ms=800,warten=350)
+            pg.keyboard.type('Idee',delay=80); pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+            sx,sy=mitte(pg,'.pal[data-kind="ellipse"]'); m.ziehen(sx,sy,*w2s(pg,400,620),ms=800,warten=350)
+            pg.keyboard.type('Ergebnis',delay=80); pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+            weg()
+            x,y=w2s(pg,120,620); m.klick(x,y,warten=350)
+            hx,hy=pg.evaluate("()=>{let b=null;for(const c of document.querySelectorAll('#overlay circle[data-h=\"cn:0\"]')){const r=c.getBoundingClientRect(); const p=[r.left+r.width/2,r.top+r.height/2]; if(!b||p[0]>b[0]) b=p;} return b}")
+            m.ziehen(hx,hy,*w2s(pg,400,620),ms=700,warten=400)
+            weg()
+            # Vorlage für Folie 3
+            m.klick(*mitte(pg,'.gh[data-g="Allgemein"]'),warten=200)
+            m.klick(*mitte(pg,'.gh[data-g="Vorlagen"]'),warten=300)
+            sx,sy=mitte(pg,'.pal[data-kind="kanban"]'); m.ziehen(sx,sy,*w2s(pg,1040,625),ms=900,warten=500)
+            weg()
+            # Folien darüberlegen und an den Inhalt anpassen (Umschalt: Ecken frei ziehen)
+            m.klick(*mitte(pg,'.gh[data-g="Präsentation"]'),warten=300)
+            def huelle(texte):
+                return pg.evaluate("""T=>{let x1=1e9,y1=1e9,x2=-1e9,y2=-1e9; for(const s of document.querySelectorAll('#items [data-id]')){ if(![...s.querySelectorAll('tspan,text')].some(e=>T.includes(e.textContent))) continue; const r=s.getBoundingClientRect(); x1=Math.min(x1,r.left);y1=Math.min(y1,r.top);x2=Math.max(x2,r.right);y2=Math.max(y2,r.bottom);} return [x1,y1,x2,y2]}""",texte)
+            def folie(texte,rand):
+                h=huelle(texte); cx,cy=(h[0]+h[2])/2,(h[1]+h[3])/2
+                sx,sy=mitte(pg,'.pal[data-kind="frame"]'); m.ziehen(sx,sy,cx,cy,ms=850,warten=350)
+                pg.keyboard.down('Shift')
+                x,y=griff(pg,'rs:nw'); m.ziehen(x,y,h[0]-rand,h[1]-rand,ms=420,warten=150)
+                x,y=griff(pg,'rs:se'); m.ziehen(x,y,h[2]+rand,h[3]+rand,ms=420,warten=150)
+                pg.keyboard.up('Shift'); weg()
+            folie(['Agenda','Scrum-Board'],26)
+            folie(['Idee','Ergebnis'],34)
+            folie(['To Do'],18)
+            # 4) Tafel ausprobieren
+            m.klick(*mitte(pg,'#viewBtn'),warten=400)
+            for s_ in ['chalk','paper','grunge','slate']: m.klick(*mitte(pg,f'#vpSurf [data-s="{s_}"]'),warten=650)
+            weg(); pg.wait_for_timeout(300)
+            # 5) Präsentation zeigen
+            m.klick(*mitte(pg,'#playBtn'),warten=300)
+            m.klick(*mitte(pg,'#presPop [data-m="play"]'),warten=2300)
+            m.zu(W*0.55,H*0.55,ms=500)
+            nb=mitte(pg,'#presNext')
+            m.klick(*nb,warten=2300); m.klick(*nb,warten=1300)
+            pg.keyboard.press('l'); pg.wait_for_timeout(150)
+            for a in range(0,361,20): m.zu(W/2+math.cos(math.radians(a))*220,H/2+math.sin(math.radians(a))*120,ms=60,stufen=3)
+            pg.keyboard.press('l'); pg.wait_for_timeout(300)
+            m.klick(*mitte(pg,'#presClose'),warten=900)
+            # 6) Danke mit dem Stift
+            m.klick(*mitte(pg,'#tools [data-tool="pen"]'),warten=300)
+            schreiben(pg,m,strokes('Danke für Ihre Aufmerksamkeit!',L+110,T+75,23))
             m.klick(*mitte(pg,'#tools [data-tool="select"]'),warten=300)
-            m.zu(bx[0]+bx[2]-120,bx[1]+bx[3]-80,ms=600); pg.wait_for_timeout(1800)
+            m.zu(L+BW-140,T+BH-90,ms=600); pg.wait_for_timeout(2200)
             vid=pg.video.path(); ctx.close(); br.close()
             return vid
     finally: srv.terminate()
@@ -111,9 +171,9 @@ def umwandeln(roh):   # 1,4-fach beschleunigt, damit das Video kurz bleibt
     os.makedirs(ZIEL,exist_ok=True)
     mp4=os.path.join(ZIEL,'skizix-demo.mp4'); webm=os.path.join(ZIEL,'skizix-demo.webm'); poster=os.path.join(ZIEL,'skizix-demo.jpg')
     start=str(round(START[0],2))   # Vorbereitung abschneiden
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',start,'-i',roh,'-vf','setpts=0.7*PTS','-c:v','libx264','-preset','veryfast','-crf','24','-pix_fmt','yuv420p','-movflags','+faststart','-an',mp4],check=True)
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',start,'-i',roh,'-vf','setpts=0.7*PTS','-c:v','libvpx-vp9','-b:v','0','-crf','36','-row-mt','1','-deadline','good','-cpu-used','4','-an',webm],check=True)
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-i',mp4,'-frames:v','1','-q:v','3',poster],check=True)   # Standbild = erstes Bild
+    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',start,'-i',roh,'-vf','setpts=0.55*PTS','-c:v','libx264','-preset','veryfast','-crf','24','-pix_fmt','yuv420p','-movflags','+faststart','-an',mp4],check=True)
+    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss',start,'-i',roh,'-vf','setpts=0.55*PTS','-c:v','libvpx-vp9','-b:v','0','-crf','36','-row-mt','1','-deadline','good','-cpu-used','4','-an',webm],check=True)
+    subprocess.run(['ffmpeg','-y','-loglevel','error','-ss','16','-i',mp4,'-frames:v','1','-q:v','3',poster],check=True)   # Standbild: fertig geschriebene Agenda
     return mp4,webm,poster
 
 if __name__=='__main__':
