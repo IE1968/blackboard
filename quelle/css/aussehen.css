@@ -393,3 +393,11 @@ body.touch #optsToggle::after{height:24px}
 #colorPop.menu .wbtn{width:100%;padding:6px 14px}
 #colorPop.menu .wbtn .lw{width:100%}
 #props .optPaste{align-self:center}
+
+/* Kopfleiste verdichten, wenn sie nicht passt (siehe fitBar) */
+body.eng1 .bar{gap:4px}
+body.eng1 #boardName{width:110px;min-width:80px}
+body.eng2 #zoomOut,body.eng2 #zoomIn{display:none}
+body.eng3 #keysBtn{display:none}
+body.eng4 .brand .wm{height:.62em}
+body.eng5 .brand .wm{display:none}

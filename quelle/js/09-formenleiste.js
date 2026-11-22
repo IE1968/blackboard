@@ -36,8 +36,15 @@ function applyLayout(){
   c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1280); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
   document.querySelectorAll('#uiRow button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
-  applyTheme();
+  applyTheme(); fitBar();
 }
+/* Kopfleiste: Passt sie nicht in die Breite, stufenweise verdichten, damit Live und Konto immer sichtbar bleiben */
+function fitBar(){
+  const c=document.body.classList, bar=document.querySelector('header .bar'); if(!bar) return;
+  for(let i=1;i<=5;i++) c.remove('eng'+i);
+  for(let i=1;i<=5&&bar.scrollWidth>bar.clientWidth+1;i++) c.add('eng'+i);
+}
+addEventListener('load',fitBar);
 function setUi(ch){ Object.assign(uiCfg,ch); try{ localStorage.setItem('blackboard-ui',JSON.stringify(uiCfg)); }catch(e){} applyLayout(); applyView(); }
 applyLayout();
 try{ const ps=JSON.parse(localStorage.getItem('blackboard-pal')); if(ps&&ps.open) palState=ps; }catch(e){}
