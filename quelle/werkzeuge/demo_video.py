@@ -8,7 +8,7 @@ HIER=os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0,os.path.join(
 from hilfe import *
 from playwright.sync_api import sync_playwright
 
-W,H=1280,760
+W,H=1440,856
 ZIEL=os.path.join(DIST,'website','bilder')
 ROH='/tmp/skizix-demo'
 START=[1.2]   # Sekunde im Rohvideo, ab der die Vorführung beginnt
