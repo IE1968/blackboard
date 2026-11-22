@@ -38,14 +38,15 @@ header{position:relative;min-width:0;zoom:var(--ui);border-bottom:1px solid var(
 #boardName:hover,#boardName:focus{border-color:var(--accent);outline:none}
 .mh{font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 12px 4px}
 #boardList{display:flex;flex-direction:column}
-#boardList button[aria-current="true"]{font-weight:600;color:var(--accent)}
+#boardList button[aria-current="true"]{font-weight:600}
 #zoomLabel{min-width:54px;padding:8px 6px;font-weight:500;font-variant-numeric:tabular-nums;font-size:13px}
 #zoomLabel:hover{background:var(--hover)}
 #menu{zoom:var(--ui);min-width:0;min-height:0;background:var(--panel);border-left:1px solid var(--line);padding:8px 5px 20px;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 main.props-closed #menu{padding:0;border:0;overflow:hidden}
 #menu .mh{text-align:center;padding:10px 2px 4px;font-size:11px;letter-spacing:.03em}
 #menu button{text-align:left;padding:7px 6px;font-size:12px;line-height:1.25;color:var(--fg);white-space:normal;overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}
-#menu #boardList button{color:var(--ink)}
+#menu #boardList button{color:var(--fg)}
+#menu #liveInfo{color:var(--fg);opacity:.75;padding-top:0}
 #menu button:hover{background:var(--hover)}
 #menu hr{border:0;border-top:1px solid var(--line);margin:6px 2px;width:auto}
 #menu #liveInfo{text-align:center;font-size:11px;padding:0 2px 4px}

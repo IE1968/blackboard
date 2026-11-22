@@ -260,14 +260,19 @@ function finishEdit(cancel){
   const it=byId(editing); editing=null; editor.hidden=true;
   if(it){
     const v=editor.value.replace(/\s+$/,'');
-    if(!cancel){ if(it.kind==='table') it.cells[editCell.r][editCell.c]=v; else it.text=v; }
+    if(!cancel){ if(it.kind==='table') it.cells[editCell.r][editCell.c]=v; else { if(it.pf){ it.pf=remapPf(it.text||'',v,it.pf); if(!it.pf.some(x=>x)) delete it.pf; } it.text=v; } }
     if(it.type==='shape'&&it.kind==='text'&&!it.text){ removeIds(new Set([it.id])); sel.delete(it.id); }
     else autosize(it);
     commit();
   }
   render();
 }
-editor.addEventListener('blur',()=>finishEdit());
+let keepEdit=0, edSel=null;   /* Tippen in die Optionsleiste beendet das Schreiben nicht; die Markierung bleibt erhalten */
+editor.addEventListener('blur',()=>{ if(Date.now()-keepEdit<800) return; finishEdit(); });
+function holdEdit(e){ if(editing==null||!e.target.closest('button,.pg,.pmenu,#colorPop')) return; keepEdit=Date.now(); edSel=[editor.selectionStart,editor.selectionEnd]; if(e.type==='mousedown') e.preventDefault(); }
+for(const el of [propsEl,$('colorPop')]){ el.addEventListener('pointerdown',holdEdit,true); el.addEventListener('mousedown',holdEdit,true); }
+function backToEdit(){ if(editing==null) return; editor.focus({preventScroll:true}); if(edSel) editor.setSelectionRange(edSel[0],edSel[1]); }
+function editParas(){ const v=editor.value, [a,b]=edSel||[editor.selectionStart,editor.selectionEnd], cnt=p=>(v.slice(0,p).match(/\n/g)||[]).length; return [cnt(a),cnt(b>a?b-1:b)]; }
 editor.addEventListener('input',placeEditor);
 editor.addEventListener('keydown',e=>{
   /* Enter = neuer Absatz; fertig mit Strg+Enter, Esc oder Tippen daneben. Mindmap-Knoten: Enter = fertig (Umschalt+Enter = neue Zeile) */

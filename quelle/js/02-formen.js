@@ -160,6 +160,33 @@ function listLines(text,maxW){   /* jeder Absatz bekommt ein Aufzählungszeichen
     wrap(para.replace(/^\s*[•\-–]\s+/,''),Math.max(20,maxW-ind)).forEach((t,i)=>out.push({t,b:i===0})); }
   return {ind,out};
 }
+/* Absatzformate: s.pf = je Absatz 'b' (fett) und/oder 'l' (Aufzählung). Ohne pf gelten bold/list für den ganzen Text. */
+function pfOf(s,i){ if(s.pf){ const v=s.pf[i]||''; return {b:v.includes('b'),l:v.includes('l')&&canList(s)}; } return {b:!!s.bold,l:!!s.list&&canList(s)}; }
+function paraLines(s,text,maxW){
+  const ind=Math.round(FS*1.25), out=[], B0=BOLD; let anyL=false;
+  String(text).split('\n').forEach((para,pi)=>{ const f=pfOf(s,pi); BOLD=f.b; if(f.l) anyL=true;
+    if(f.l&&para.trim()) wrap(para.replace(/^\s*[•\-–]\s+/,''),Math.max(20,maxW-ind)).forEach((t,i)=>out.push({t,bul:i===0,l:true,w:f.b}));
+    else wrap(para,maxW).forEach(t=>out.push({t,bul:false,l:f.l,w:f.b})); });
+  BOLD=B0; return {ind,out,anyL};
+}
+function lineCount(s,T,W){ return s.pf?paraLines(s,T,W).out.length:(s.list?listLines(T,W).out:wrap(T,W)).length; }
+function remapPf(oldT,newT,pf){   /* Absatzformate beim Bearbeiten mitführen: neue Absätze erben vom Absatz davor */
+  const O=String(oldT).split('\n'), N=String(newT).split('\n'); let k=0; while(k<O.length&&k<N.length&&O[k]===N[k]) k++;
+  let m=0; while(m<O.length-k&&m<N.length-k&&O[O.length-1-m]===N[N.length-1-m]) m++;
+  const res=pf.slice(0,k).map(v=>v||''), oldMid=O.length-m-k;
+  for(let j=0;j<N.length-m-k;j++) res.push(j<oldMid?(pf[k+j]||''):(k>0?pf[k-1]||'':pf[k]||''));
+  for(let i=O.length-m;i<O.length;i++) res.push(pf[i]||'');
+  return res;
+}
+function setParaFmt(it,text,i0,i1,flag){   /* flag 'b' oder 'l' für die Absätze i0..i1 umschalten */
+  const P=String(text).split('\n'); i1=Math.min(i1,P.length-1);
+  const pf=P.map((_,i)=>{ const f=pfOf(it,i); return (f.b?'b':'')+(f.l?'l':''); });
+  const on=!pf.slice(i0,i1+1).every(v=>v.includes(flag));
+  for(let i=i0;i<=i1;i++){ let v=pf[i].replace(flag,''); if(on) v+=flag; pf[i]=(v.includes('b')?'b':'')+(v.includes('l')?'l':''); }
+  delete it.bold; delete it.list;
+  if(pf.some(v=>v)) it.pf=pf; else delete it.pf;
+  if(flag==='l'&&on) it.text=P.map((l,i)=>i>=i0&&i<=i1?l.replace(/^\s*[•\-–]\s+/,''):l).join('\n');
+}
 function alOf(s){ if(s.al) return s.al; if(s.kind==='table') return s.align==='left'?'left':'center'; const m=textBox(s).mode; return m==='left'?'left':'center'; }
 function shapeText(s){
   if(noText) return '';
@@ -178,6 +205,14 @@ function shapeText(s){
   if(!L&&s.al&&tb.mode!=='pool'){   /* eigene Ausrichtung: links, mittig oder rechts im Textbereich der Form */
     const x0=tb.mode==='left'?tb.pad:s.w/2-tb.maxW/2, x1=tb.mode==='left'?Math.min(s.w-6,tb.pad+tb.maxW):s.w/2+tb.maxW/2;
     if(s.al==='left'){ x=x0; anchor='start'; } else if(s.al==='right'){ x=x1; anchor='end'; } else { x=(x0+x1)/2; anchor='middle'; } }
+  if(s.pf&&tb.mode!=='pool'&&tb.mode!=='below'){   /* einzelne Absätze fett oder als Aufzählung */
+    const Q=paraLines(s,s.text,tb.maxW), n2=Q.out.length; y0=s.h/2+(tb.dy||0)-(n2-1)*LH/2+FS*0.35;
+    const fw=o=>o.w?' font-weight="600"':'';
+    if(Q.anyL){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
+      return `<text font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
+        Q.out.map((o,i)=>(o.bul?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}"${fw(o)}>${BUL}</tspan>`:'')+(o.t?`<tspan x="${r(x0+(o.l?Q.ind:0))}" y="${r(y0+i*LH)}"${fw(o)}>${esc(o.t)}</tspan>`:'')).join('')+`</text>`; }
+    return `<text${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
+      Q.out.map((o,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}"${fw(o)}>${esc(o.t)}</tspan>`).join('')+`</text>`; }
   if(L){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
     return `<text${BOLD?' font-weight="600"':''} font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
       L.out.map((o,i)=>(o.b?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}">${BUL}</tspan>`:'')+(o.t?`<tspan x="${r(x0+L.ind)}" y="${r(y0+i*LH)}">${esc(o.t)}</tspan>`:'')).join('')+`</text>`; }
@@ -188,7 +223,7 @@ function fitTexts(){   /* nach dem Laden: Formen, aus denen Text herausragt, so 
   let ch=false;
   for(const s of doc.items){ if(s.type!=='shape'||s.kind==='frame'||!BODY_KINDS.has(s.kind)||(!s.text&&s.kind!=='table')) continue;
     const before=s.h+'|'+(s.rowH||'');
-    if(s.kind==='text'){ useFont(s); const need=up10((s.list?listLines(s.text,s.w-15).out:wrap(s.text,s.w-15)).length*LH+10); if(need>s.h) s.h=need; }
+    if(s.kind==='text'){ useFont(s); const need=up10(lineCount(s,s.text,s.w-15)*LH+10); if(need>s.h) s.h=need; }
     else autosize(s);
     if(before!==s.h+'|'+(s.rowH||'')) ch=true; }
   return ch;
@@ -202,10 +237,10 @@ function autosize(s){
   const tb=textBox(s);
   if(s.kind==='text'){
     if(s.fresh){ const ls=wrap(s.text||' ',320); s.w=Math.max(60,up10(Math.max(...ls.map(measure))+16)); delete s.fresh; }
-    if(s.fresh&&s.list) s.w=Math.max(s.w,up10(s.w+FS*1.25));
-    s.h=Math.max(30,up10((s.list?listLines(s.text||' ',s.w-15).out:wrap(s.text||' ',s.w-15)).length*LH+10));
+    if(s.fresh&&(s.list||(s.pf&&s.pf.some(v=>v.includes('l'))))) s.w=Math.max(s.w,up10(s.w+FS*1.25));
+    s.h=Math.max(30,up10(lineCount(s,s.text||' ',s.w-15)*LH+10));
   } else if(tb.mode==='center'||tb.mode==='left'){
-    const need=((s.list?listLines(s.text||'',tb.maxW).out:wrap(s.text||'',tb.maxW)).length*LH+14)*(tb.grow||1)+Math.abs(tb.dy||0)*2;
+    const need=(lineCount(s,s.text||'',tb.maxW)*LH+14)*(tb.grow||1)+Math.abs(tb.dy||0)*2;
     if(need>s.h) s.h=up10(need);
   }
 }

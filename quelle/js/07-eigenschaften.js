@@ -20,7 +20,7 @@ function updateProps(){
   if(items.length&&items.every(i=>i.kind==='check')) h+=`<div class="pg"><b>Quiz</b><button class="pb" data-act="qok" aria-pressed="${items.every(i=>i.ok)}" title="Als richtige Antwort markieren. In der Präsentation zeigt „Lösung“ die richtigen Antworten.">Richtig</button></div>`;
   const texty=items.filter(i=>i.type!=='path');
   let tm='';   /* Text: Knöpfe kommen in ein Aufklappfeld */
-  if(texty.length) tm=(items.length===1?`<button class="pb wide" data-act="edit">Text ändern</button>`:'')+`<div class="sws two"><button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><button class="pb" data-act="fsup" title="Schrift größer">A+</button></div><div class="sws two"><button class="pb" data-act="bold" aria-pressed="${!!texty[0].bold}" title="Fett">Fett</button><button class="pb" data-act="list" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>i.list)}" title="Aufzählung: jeder Absatz beginnt mit einem Punkt" aria-label="Aufzählung"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.600" fill="currentColor" stroke="none"/><path d="M10 7h10M10 12h10M10 17h10" stroke-linecap="round"/></svg></button></div></div>`;
+  if(texty.length) tm=(items.length===1?`<button class="pb wide" data-act="edit">Text ändern</button>`:'')+`<div class="sws two"><button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><button class="pb" data-act="fsup" title="Schrift größer">A+</button></div><div class="sws two"><button class="pb" data-act="bold" aria-pressed="${allF(texty[0],'b')}" title="Fett">Fett</button><button class="pb" data-act="list" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>allF(i,'l'))}" title="Aufzählung: jeder Absatz beginnt mit einem Punkt" aria-label="Aufzählung"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.600" fill="currentColor" stroke="none"/><path d="M10 7h10M10 12h10M10 17h10" stroke-linecap="round"/></svg></button></div></div>`;
   const alable=texty.filter(i=>i.type==='shape'&&i.kind!=='pool'&&i.kind!=='frame');
   if(alable.length){ const A=alOf(alable[0]); tm=tm.replace(/<\/div><\/div>$/,`</div><div class="sws three"><button class="pb" data-act="txal" data-val="left" aria-pressed="${A==='left'}" title="Linksbündig" aria-label="Linksbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M3 9h9M3 13h14M3 17h9"/></svg></button><button class="pb" data-act="txal" data-val="center" aria-pressed="${A==='center'}" title="Zentriert" aria-label="Zentriert"><svg viewBox="0 0 20 20"><path d="M3 5h14M5.500 9h9M3 13h14M5.500 17h9"/></svg></button><button class="pb" data-act="txal" data-val="right" aria-pressed="${A==='right'}" title="Rechtsbündig" aria-label="Rechtsbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M8 9h9M3 13h14M8 17h9"/></svg></button></div></div>`); }
   if(tm) h+=`<div class="pg"><b>Text</b>${md('text','Text',tm.replace('<div class="pg"><b>Text</b>','').replace(/<\/div>$/,''),'Aa')}</div>`;
@@ -46,9 +46,10 @@ function updateProps(){
   if(items.length) h+=`<div class="pg"><b>Element</b>${md('elem','Element',`<button class="pb" data-act="front">Nach vorn</button><button class="pb" data-act="back">Nach hinten</button><button class="pb" data-act="dup">Duplizieren</button><button class="pb" data-act="copy" title="Strg+C">Kopieren</button><button class="pb" data-act="lock" aria-pressed="${items.every(i=>i.lock)}" title="Gesperrte Elemente lassen sich nicht verschieben, ändern oder löschen">${items.every(i=>i.lock)?'Entsperren':'Sperren'}</button>`+(hasClip()?`<button class="pb" data-act="paste" title="Strg+V">Einfügen</button>`:'')+`<button class="pb danger" data-act="del">Löschen</button>`,'<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4.500" cy="10" r="1.600"/><circle cx="10" cy="10" r="1.600"/><circle cx="15.500" cy="10" r="1.600"/></svg>')}</div>`;
   propsEl.innerHTML=h; refreshPop();
 }
-const CDROP={};
+const CDROP={}; let paraSel=null;   /* zuletzt markierte Absätze (Fett/Aufzählung) */
+function allF(i,f){ if(paraSel&&paraSel.id===i.id){ const R=[]; for(let k=paraSel.i0;k<=paraSel.i1;k++) R.push(pfOf(i,k)[f]); return R.every(Boolean); } if(!i.pf) return f==='b'?!!i.bold:!!i.list; return String(i.text||'').split('\n').every((_,k)=>pfOf(i,k)[f]); }
 function refreshPop(){ const p=$('colorPop'); if(!p||p.hidden) return; const info=CDROP[p.dataset.for]; if(!info||!$('props').querySelector(`[data-drop="${p.dataset.for}"]`)){ closeColorPop(); return; } p.classList.toggle('menu',!!info.menu); p.innerHTML=`<div class="mh">${esc(info.lab)}</div>`+info.html; }
-function closeColorPop(){ const p=$('colorPop'); if(p&&!p.hidden){ p.hidden=true; p.innerHTML=''; } }
+function closeColorPop(){ paraSel=null; const p=$('colorPop'); if(p&&!p.hidden){ p.hidden=true; p.innerHTML=''; } }
 propsEl.addEventListener('click',e=>{
   const d=e.target.closest('[data-drop]');
   if(d){ e.stopPropagation(); const p=$('colorPop'), info=CDROP[d.dataset.drop]; if(!info) return;
@@ -64,6 +65,14 @@ document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#colorPop,[da
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('colorPop').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeColorPop(); } },true);
 function propsAct(b){
   const act=b.dataset.act,val=b.dataset.val,items=[...sel].map(byId).filter(Boolean);
+  /* Fett/Aufzählung beim Schreiben: nur für die markierten Absätze. Danach ist das Ergebnis sichtbar,
+     und weitere Klicks im offenen Textfeld gelten weiter für dieselben Absätze. */
+  const pt=editing!=null?byId(editing):(paraSel&&sel.size===1&&sel.has(paraSel.id)&&!$('colorPop').hidden?byId(paraSel.id):null);
+  if(pt&&(act==='bold'||act==='list')&&pt.kind!=='table'&&!pt.lock&&(act==='bold'||canList(pt))){
+    let i0,i1; if(editing!=null){ [i0,i1]=editParas(); pt.text=editor.value; finishEdit(); sel=new Set([pt.id]); } else ({i0,i1}=paraSel);
+    setParaFmt(pt,pt.text||'',i0,i1,act==='bold'?'b':'l'); paraSel={id:pt.id,i0,i1};
+    if(pt.kind==='text') pt.fresh=true; autosize(pt); commit(); render(); return; }
+  if(editing!=null&&!['edit','del','dup','copy','paste'].includes(act)) setTimeout(backToEdit,0);
   if(act==='front') return reorder(true);
   if(act==='back') return reorder(false);
   if(act==='dup') return duplicateSel();
@@ -92,11 +101,12 @@ function propsAct(b){
     if(act==='delrow'&&tb.rowH.length>1){ tb.rowH.splice(ri,1); tb.cells.splice(ri,1); }
     tb.w=sum(tb.colW); tb.h=sum(tb.rowH);
   }
-  const listOn=act==='list'&&!items.filter(canList).every(i=>i.list);
+  const listOn=act==='list'&&!items.filter(canList).every(i=>i.pf?i.pf.length&&String(i.text).split('\n').every((_,k)=>pfOf(i,k).l):i.list);
   for(const it of items){ if(it.lock) continue;
-    if(act==='list'&&canList(it)){ if(listOn){ it.list=true; if(it.text) it.text=it.text.split('\n').map(l=>l.replace(/^\s*[•\-–]\s+/,'')).join('\n'); } else delete it.list; autosize(it); }
+    if(act==='list'&&canList(it)&&it.pf){ const n=String(it.text||'').split('\n').length-1; if(listOn!==String(it.text||'').split('\n').every((_,k)=>pfOf(it,k).l)) setParaFmt(it,it.text||'',0,n,'l'); autosize(it); }
+    else if(act==='list'&&canList(it)){ if(listOn){ it.list=true; if(it.text) it.text=it.text.split('\n').map(l=>l.replace(/^\s*[•\-–]\s+/,'')).join('\n'); } else delete it.list; autosize(it); }
     if(it.type!=='path'&&(act==='fsup'||act==='fsdown'||act==='bold')){
-      if(act==='bold') it.bold=!it.bold; else it.fs=clamp((it.fs||14)+(act==='fsup'?2:-2),10,40);
+      if(act==='bold'){ if(it.pf){ const n=String(it.text||'').split('\n').length-1; setParaFmt(it,it.text||'',0,n,'b'); } else it.bold=!it.bold; } else it.fs=clamp((it.fs||14)+(act==='fsup'?2:-2),10,40);
       if(it.kind==='text') it.fresh=true; autosize(it); }
     if(act==='fill'&&it.type==='shape') it.fill=val;
     if(act==='stroke'&&(val!=='none'||it.type==='shape')) it.stroke=val;
