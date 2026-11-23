@@ -90,7 +90,7 @@ function propsAct(b){
   if(act==='lock'){ const on=!items.every(i=>i.lock); items.forEach(i=>{ if(on) i.lock=true; else delete i.lock; }); commit(); render(); return; }
   if(items.length&&items.every(i=>i.lock)&&act!=='edit'){ toast('Das Element ist gesperrt. Erst unter „Element“ entsperren.'); return; }
   if(act==='edit'){ const it=items[0]; if(it) startEdit(it.id,lastCell&&lastCell.id===it.id?lastCell.cell:null); return; }
-  if(!items.length){ const ps=penStyles[drawTool]; if(act==='stroke') ps.stroke=val; if(act==='sw') ps.sw=+val; if(act==='tip') ps.tip=val; updateProps(); return; }
+  if(!items.length){ const ps=penStyles[drawTool]; if(act==='stroke') ps.stroke=val; if(act==='sw') ps.sw=+val; if(act==='tip') ps.tip=val; penTs=Date.now(); penPush(); updateProps(); return; }
   const tb=items[0];
   if(tb.kind==='table'){
     /* Bezug ist die zuletzt angeklickte Zelle; ohne Klick die letzte Spalte bzw. Zeile */

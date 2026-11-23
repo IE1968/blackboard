@@ -49,6 +49,18 @@ function liveTick(){
   const msg={t:'ops',up:o.up,del:o.del,nm:b.name}; if(o.ord) msg.ord=o.ord; if('bg' in o) msg.bg=o.bg;
   if(JSON.stringify(msg).length>200000) liveSave(0,true); else { liveSend(msg); liveSave(1500); }
 }
+/* Stifteinstellungen zwischen eigenen Geräten (gleiches Konto) abgleichen; Gäste übernehmen nichts */
+let penTs=0;
+function penMe(){ if(typeof ktOn!=='function'||!ktOn()||!KT.s.uid) return ''; let h=2166136261; for(const ch of 'skizix:'+KT.s.uid){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } return h.toString(36); }
+function penPush(){ const c=liveCur(), u=penMe(); if(!c||!c.own||!u||!penTs) return; liveSend({t:'pen',u,ts:penTs,cfg:penStyles}); }
+function penIn(m){
+  const c=liveCur(), u=penMe(); if(!c||!c.own||!u||m.u!==u||!m.cfg||!(m.ts>penTs)) return;
+  for(const k of ['pen','brush','marker']){ const x=m.cfg[k]; if(!x) continue; const ps=penStyles[k];
+    if(typeof x.stroke==='string'&&/^(#[0-9a-fA-F]{3,8}|rgba?\([0-9.,%\s]+\)|none|transparent)$/.test(x.stroke)) ps.stroke=x.stroke;
+    if(isFinite(+x.sw)&&+x.sw>0&&+x.sw<=200) ps.sw=+x.sw;
+    if(x.tip==='round'||x.tip==='flat') ps.tip=x.tip; }
+  penTs=m.ts; if(typeof updateProps==='function') updateProps();
+}
 function liveSend(msg){
   if(!LV.ws||LV.ws.readyState!==1||!LV.joined) return false;
   try{ LV.ws.send(JSON.stringify({topic:LV.topic,event:'broadcast',payload:{type:'broadcast',event:'m',payload:Object.assign({dev:DEV},msg)},ref:String(++LV.ref),join_ref:LV.joinRef})); return true; }catch(e){ return false; }
@@ -95,7 +107,8 @@ function liveDraftEnd(dev){ for(const [id,d] of LV.drafts) if(!dev||d.dev===dev)
 /* ---- Änderungen anderer Geräte übernehmen ---- */
 function liveApply(m){
   if(!m||m.dev===DEV) return;
-  if(m.t==='hi'||m.t==='here'){ const isNew=!LV.peers.has(m.dev); LV.peers.set(m.dev,{at:Date.now()}); if(m.t==='hi') liveSend({t:'here'}); if(isNew&&m.t==='hi') toast('Jemand ist dem Live-Board beigetreten.'); liveBadge(); return; }
+  if(m.t==='hi'||m.t==='here'){ const isNew=!LV.peers.has(m.dev); LV.peers.set(m.dev,{at:Date.now()}); if(m.t==='hi'){ liveSend({t:'here'}); penPush(); } if(isNew&&m.t==='hi') toast('Jemand ist dem Live-Board beigetreten.'); liveBadge(); return; }
+  if(m.t==='pen'){ penIn(m); return; }
   if(m.t==='bye'){ LV.peers.delete(m.dev); liveDraftEnd(m.dev); liveBadge(); return; }
   LV.peers.set(m.dev,Object.assign(LV.peers.get(m.dev)||{},{at:Date.now()}));
   if(m.t==='dr'){ liveDraftIn(m); return; }
