@@ -159,7 +159,7 @@ function removeBoards(ids){
   return gone.length;
 }
 function renderBoardList(){
-  $('boardList').innerHTML=boards.list.map(b=>`<button data-b="${b.id}" aria-current="${b.id===boards.cur}">${b.id===boards.cur?'✓ ':''}${esc(b.name)}</button>`).join('');
+  $('boardList').innerHTML=folderListHTML();
   const d=$('delBoard'); (d.querySelector('.t')||d).textContent='Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
 }
 function fileBase(){ return (curBoard().name||'').trim().replace(/[^\wäöüÄÖÜß -]+/g,'').replace(/\s+/g,'-')||'skizix'; }
@@ -203,17 +203,17 @@ function toast(msg){ toastEl.textContent=msg; toastEl.hidden=false; clearTimeout
 function bmInfo(b){
   let n=0; const d=b.id===boards.cur?doc:storedDoc(b.id); if(d) n=d.items.length;
   const t=b.updated?new Date(b.updated):null;
-  return (n===1?'1 Element':n+' Elemente')+(t?' · geändert '+t.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})+', '+t.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}):'')+(b.tok?' · Gast':'')+(b.id===boards.cur?' · gerade geöffnet':'');
+  return (fClean(b.f)?'Ordner „'+fClean(b.f)+'“ · ':'')+(n===1?'1 Element':n+' Elemente')+(t?' · geändert '+t.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})+', '+t.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}):'')+(b.tok?' · Gast':'')+(b.id===boards.cur?' · gerade geöffnet':'');
 }
 function bmRender(){
   const L=boards.list.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),'de',{numeric:true})||((b.updated||0)-(a.updated||0)));
   const cnt=new Map(); for(const b of L){ const k=String(b.name).trim().toLowerCase(); cnt.set(k,(cnt.get(k)||0)+1); }
   $('bmList').innerHTML=L.map(b=>`<label class="bmRow${cnt.get(String(b.name).trim().toLowerCase())>1?' dup':''}"><input type="checkbox" data-id="${b.id}"><span><b>${esc(b.name)}</b><small>${esc(bmInfo(b))}</small></span></label>`).join('');
-  $('bmAll').checked=false; bmUpd();
+  $('bmAll').checked=false; bmFolderOpts(); bmUpd();
 }
 function bmSel(){ return [...$('bmList').querySelectorAll('input:checked')].map(i=>i.dataset.id); }
 function bmUpd(){
-  const n=bmSel().length, d=$('bmDel'); d.disabled=!n; delete d.dataset.sure;
+  const n=bmSel().length, d=$('bmDel'); d.disabled=!n; delete d.dataset.sure; $('bmMove').disabled=!n;
   d.textContent=n?(n===1?'1 Board löschen':n+' Boards löschen'):'Löschen'; $('bmMsg').textContent='';
   const all=$('bmList').querySelectorAll('input'); $('bmAll').checked=!!all.length&&n===all.length;
 }

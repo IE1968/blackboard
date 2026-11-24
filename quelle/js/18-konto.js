@@ -52,17 +52,29 @@ async function ktSync(){
   try{
     const gone=ktGoneList();
     if(gone.length){ await ktRest('PATCH','?key=in.('+gone.join(',')+')',{del:true},'return=minimal'); lsSet(KT_GONE,'[]'); }
-    const rows=await ktRest('GET','?select=key,name,del',null)||[], srv=new Map(rows.map(r=>[r.key,r]));
+    let rows;
+    try{ rows=await ktRest('GET','?select=key,name,del'+(KT.noF?'':',folder'),null)||[]; }
+    catch(e){ if(KT.noF||!e||e.status!==400) throw e; KT.noF=true; rows=await ktRest('GET','?select=key,name,del',null)||[];   /* Spalte „folder“ fehlt noch: Ordner nur auf diesem Gerät */
+      if(folderList().length&&!KT.noFWarn){ KT.noFWarn=true; toast('Ordner bleiben vorerst nur auf diesem Gerät: Bitte in Supabase das Skript 02-ordner.sql ausführen.'); } }
+    const srv=new Map(rows.map(r=>[r.key,r])), row=b=>Object.assign({key:b.live,name:String(b.name||'Board').slice(0,120),del:false},KT.noF?{}:{folder:fClean(b.f)});
     const up=[], fresh=[], drop=[]; let idx=ktDedupe();
     for(const b of boards.list){
       if(b.tok) continue;   /* Gast-Board */
       if(!b.live){ b.live=liveNewKey(); b.kNew=true; b.liveDirty=true; idx=true; }
       const r=srv.get(b.live);
       if(r&&r.del){ drop.push(b); continue; }
-      if(!r){ up.push({key:b.live,name:String(b.name||'Board').slice(0,120),del:false}); if(b.kNew) fresh.push(b); b.kName=b.name; idx=true; continue; }
-      if(b.kName!==undefined&&b.name!==b.kName){ up.push({key:b.live,name:String(b.name||'Board').slice(0,120),del:false}); b.kName=b.name; idx=true; }
+      if(!r){ up.push(row(b)); if(b.kNew) fresh.push(b); b.kName=b.name; if(!KT.noF) b.kFolder=fClean(b.f); idx=true; continue; }
+      let push=false;
+      if(b.kName!==undefined&&b.name!==b.kName){ push=true; b.kName=b.name; idx=true; }
       else if(r.name&&r.name!==b.name){ b.name=String(r.name).slice(0,40); b.kName=r.name; idx=true; if(b.id===boards.cur) $('boardName').value=b.name; }
       else if(b.kName===undefined){ b.kName=b.name; idx=true; }
+      if(!KT.noF){   /* Ordner: hier geändert → hochladen, anderswo geändert → übernehmen */
+        const lf=fClean(b.f), sf=fClean(r.folder);
+        if(b.kFolder===undefined){ if(lf&&!sf) push=true; else if(sf&&!lf) b.f=sf; b.kFolder=fClean(b.f); idx=true; }
+        else if(lf!==b.kFolder){ push=true; b.kFolder=lf; idx=true; }
+        else if(sf!==lf){ b.f=sf; b.kFolder=sf; idx=true; }
+      }
+      if(push) up.push(row(b));
     }
     /* neue Boards zuerst hochladen, dann ins Konto eintragen: so findet ein anderes Gerät immer schon den Inhalt */
     for(const b of fresh){
@@ -77,7 +89,7 @@ async function ktSync(){
       if(r.del||boards.list.some(b=>b.live===r.key)) continue;
       let f=null; try{ f=await liveFetch({k:r.key,own:true}); }catch(e){ continue; }
       if(!f) continue;   /* Inhalt noch nicht hochgeladen: beim nächsten Abgleich */
-      const nb={id:genId(),name:String(r.name||f.name||'Board').slice(0,40),live:r.key}; nb.kName=r.name;
+      const nb={id:genId(),name:String(r.name||f.name||'Board').slice(0,40),live:r.key}; nb.kName=r.name; if(!KT.noF){ nb.f=fClean(r.folder); nb.kFolder=nb.f; }
       boards.list.push(nb); docSet(nb.id,JSON.stringify(f.doc)); added++; idx=true;
     }
     /* auf einem anderen Gerät gelöscht */

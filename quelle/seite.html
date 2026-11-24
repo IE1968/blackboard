@@ -107,7 +107,7 @@
     <button data-m="clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 20h12M5 15l9-9 5 5-8 8H8z"/></svg>Board leeren</button>
     <button data-m="delboard" id="delBoard"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span class="t">Board löschen</span></button>
     <hr>
-    <div class="mh">Boards</div>
+    <div class="mh mhRow"><span>Boards</span><button type="button" id="newFolder" title="Neuen Ordner anlegen">+ Ordner</button></div>
     <div id="boardList"></div>
   </aside>
   <button id="propsToggle" aria-controls="menu"></button>
@@ -132,11 +132,11 @@
 <div id="bmDlg" hidden role="dialog" aria-modal="true" aria-labelledby="bmTitle">
   <div id="bmBox">
     <h2 id="bmTitle">Boards verwalten</h2>
-    <p>Kreuze die Boards an, die weg sollen. Gleiche Namen stehen untereinander, so findest du doppelte Boards schnell.</p>
+    <p>Kreuze Boards an, um sie in einen Ordner zu verschieben oder zu löschen. Gleiche Namen stehen untereinander, so findest du doppelte Boards schnell.</p>
     <div class="bmTop"><label class="bmAll"><input type="checkbox" id="bmAll"> Alle auswählen</label><button type="button" id="bmSame" title="Kreuzt Boards an, die es mit gleichem Namen und gleichem Inhalt mehrfach gibt. Je eins bleibt übrig.">Gleiche ankreuzen</button></div>
     <div id="bmList" role="group" aria-label="Boards"></div>
     <div id="bmMsg" role="status"></div>
-    <div class="dlgBtns"><button type="button" class="pb danger" id="bmDel" disabled>Löschen</button><button type="button" class="pb" id="bmClose">Schließen</button></div>
+    <div class="dlgBtns"><select id="bmMove" disabled aria-label="Angekreuzte Boards in einen Ordner verschieben"></select><button type="button" class="pb danger" id="bmDel" disabled>Löschen</button><button type="button" class="pb" id="bmClose">Schließen</button></div>
   </div>
 </div>
 <div id="colorPop" hidden role="dialog" aria-label="Farbe wählen"></div>

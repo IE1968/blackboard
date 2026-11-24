@@ -482,7 +482,7 @@ body.light .sw.none,body.light .cdot.none{border-color:rgba(24,24,26,.3)}
 #boardList button[aria-current="true"]{background:var(--acc-soft);color:var(--accent)}
 
 /* ---- Schritt 3: schwebende Seitenfelder, breitere Formenleiste mit Namen und Suche, breitere Board-Leiste ---- */
-main{--palw:calc(184px*var(--ui));--propw:calc(184px*var(--ui));background:var(--chrome)}
+main{--palw:calc(204px*var(--ui));--propw:calc(204px*var(--ui));background:var(--chrome)}
 #palette,#menu{margin:10px;border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
 body.light #palette,body.light #menu{box-shadow:0 10px 30px rgba(24,24,26,.08),0 1px 2px rgba(24,24,26,.06)}
 #palette{margin-right:6px;padding:12px 10px 20px}
@@ -525,3 +525,34 @@ body.compact #palette,body.compact #menu{margin:8px;width:150px;bottom:0;top:0;h
 body.compact .palgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
 body.compact .pal span{display:none}
 body.compact .pal{min-height:42px}
+
+/* ---- Ordner in der Board-Liste ---- */
+#menu .mhRow{display:flex;align-items:center;justify-content:space-between;gap:6px}
+#menu .mhRow #newFolder{font:600 11.5px/1 var(--body);letter-spacing:0;text-transform:none;color:var(--accent);padding:5px 8px;border-radius:8px;white-space:nowrap}
+#menu .mhRow #newFolder:hover{background:var(--acc-soft)}
+.fh{display:flex;align-items:center;gap:2px;margin-top:4px}
+#menu .fhT{flex:1;min-width:0;display:flex;align-items:center;gap:7px;font-weight:700;padding:8px 8px}
+.fhT i{width:9px;height:9px;border-radius:3px;background:var(--fc);flex:none}
+.fhT span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fhT small{font-size:11px;font-weight:600;color:var(--muted);padding:1px 7px;border-radius:999px;background:var(--hover)}
+.fhT::after{content:'';flex:none;width:6px;height:6px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);margin:0 2px}
+.fhT[aria-expanded="true"]::after{transform:translateY(-2px) rotate(45deg)}
+#menu .fhM{flex:none;width:30px;padding:6px 0!important;text-align:center!important;color:var(--muted);font-weight:700}
+.fAct{display:flex;gap:4px;padding:2px 4px 6px 22px}
+#menu .fAct button{flex:1;text-align:center;padding:6px 4px;font-size:12px;border:1px solid var(--line)}
+#menu .fAct .fDel{color:var(--c-coral)}
+.fIn{margin-left:12px;padding-left:6px;border-left:2px solid color-mix(in srgb,var(--fc) 45%,transparent)}
+.fIn #x{display:none}
+#boardList .fIn button::before{background:var(--fc)!important}
+.fEmpty{font-size:11.5px;color:var(--muted);padding:6px 8px;line-height:1.35}
+.fRest{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:12px 10px 4px}
+.fNew{padding:4px 2px}
+.fNew input{width:100%;font:500 13px/1.2 var(--body);color:var(--ink);background:var(--hover);border:1px solid var(--accent);border-radius:9px;padding:8px 10px;outline:none}
+#bmMove{font:500 13px/1.2 var(--body);color:var(--ink);background:var(--chrome);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-right:auto;max-width:100%}
+#bmMove:disabled{opacity:.45}
+#boardList .fh button::before{content:none!important;display:none!important}
+#boardList [data-b] .bn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#boardList [data-b]{width:100%}
+#menu .fhM{width:24px}
+.fhT::after{margin:0 0 0 1px}
+#menu .fhT{gap:6px;padding:8px 6px}

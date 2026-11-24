@@ -27,10 +27,13 @@ class H(BaseHTTPRequestHandler):
         u=urlparse(self.path)
         if u.path=='/__state': return self.out(200,S)
         if u.path=='/__reset': reset(); return self.out(200,{})
+        if u.path=='/__nofolder': S['nofolder']=True; return self.out(200,{})
         if u.path=='/rest/v1/skizix_konto_boards':
             uid=self.uid()
             if not uid: return self.out(401,{'message':'JWT expired'})
-            return self.out(200,[{k:r[k] for k in ('key','name','del')} for r in S['konto'] if r['user_id']==uid])
+            sel=(parse_qs(u.query).get('select',['key,name,del'])[0]).split(',')
+            if 'folder' in sel and S.get('nofolder'): return self.out(400,{'message':'column skizix_konto_boards.folder does not exist'})
+            return self.out(200,[{k:r.get(k,'' if k=='folder' else None) for k in sel} for r in S['konto'] if r['user_id']==uid])
         self.out(404,{'message':'not found'})
     def do_PATCH(self):
         u=urlparse(self.path); uid=self.uid(); q=parse_qs(u.query); b=self.body()
