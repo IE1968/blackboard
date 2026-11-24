@@ -35,6 +35,17 @@ try:
   check('Checkliste wieder an',it()['pf']==['c','c','c'])
   pact(pg,'[data-act="chk"]'); pg.wait_for_timeout(150)
   check('Checkliste aus',not [i for i in pg.evaluate(READ)['items'] if i.get('pf')])
+  # Beim Schreiben: Feld durchsichtig, Kästchen bleiben sichtbar und wachsen mit
+  pg.keyboard.press('Escape'); openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
+  pg.focus('.pal[data-kind="checklist"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(200); pg.keyboard.press('Escape'); pg.keyboard.press('Escape')
+  t=pg.locator('#items text').first.bounding_box(); pg.mouse.dblclick(t['x']+80,t['y']+10); pg.wait_for_timeout(200)
+  check('Beim Schreiben: kein weißes Feld',pg.evaluate("()=>getComputedStyle(document.getElementById('editor')).backgroundColor")=='rgba(0, 0, 0, 0)')
+  check('Beim Schreiben: Kästchen sichtbar',pg.locator('#items .ckBox').count()==3)
+  pg.keyboard.press('Control+End'); pg.keyboard.press('Enter'); pg.keyboard.type('Neu'); pg.wait_for_timeout(150)
+  check('Neue Zeile bekommt sofort ein Kästchen',pg.locator('#items .ckBox').count()==4)
+  check('Text nicht doppelt (nur im Eingabefeld)',pg.locator('#items tspan',has_text='Erste').count()==0)
+  pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
+  check('Fertig: vier Zeilen mit Kästchen',it()['pf']==['c','c','c','c'] and it()['text'].endswith('Neu'))
   # Vorlagen
   pg.keyboard.press('Escape'); openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
   pg.evaluate("()=>document.querySelector('[data-tpl]').click()"); pg.wait_for_timeout(300)

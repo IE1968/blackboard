@@ -211,11 +211,18 @@ function checkHit(s,w){
   return -1;
 }
 function alOf(s){ if(s.al) return s.al; if(s.kind==='table') return s.align==='left'?'left':'center'; const m=textBox(s).mode; return m==='left'?'left':'center'; }
+let edMarks=false;   /* true: nur Marker (•, Kästchen), keinen Text ausgeben */
+function inlineEd(s){ return s&&s.type==='shape'&&!['table','frame','pool'].includes(s.kind)&&textBox(s).mode!=='pool'; }
 function shapeText(s){
   if(noText) return '';
   useFont(s);
   if(s.kind==='table') return tableText(s);
-  if(!s.text||editing===s.id||s.kind==='frame') return '';
+  if(editing===s.id&&!s._ed){   /* beim Schreiben: nur Aufzählungspunkte und Kästchen zeichnen, den Text zeigt das Eingabefeld darüber */
+    if(!s._ed&&(edMarks||!inlineEd(s)||!(s.pf||s.list))) return '';
+    const T=editor.value, s2=Object.assign({},s,{text:T}); if(s.pf) s2.pf=remapPf(s.text||'',T,s.pf);
+    if(!(s2.pf?s2.pf.some(v=>/[lcx]/.test(v)):s.list)||textBox(s).mode==='below') return '';
+    edMarks=true; try{ return shapeText(Object.assign(s2,{_ed:1})); } finally{ edMarks=false; } }
+  if(!s.text||s.kind==='frame') return '';
   const tb=textBox(s), L=s.list&&canList(s)&&tb.mode!=='pool'&&tb.mode!=='below'?listLines(s.text,tb.maxW):null, lines=L?L.out.map(o=>o.t):wrap(s.text,tb.maxW), n=lines.length;
   let x=s.w/2,y0,anchor='middle',fill=tink(),extra='';
   if(tb.mode==='below'){ y0=s.h+LH; }
@@ -237,12 +244,12 @@ function shapeText(s){
           :`<rect class="ckBox" x="${r(x0+0.75)}" y="${r(by+0.75)}" width="${bx-1.5}" height="${bx-1.5}" rx="${r(bx*0.22)}" fill="none" stroke="${fill}" stroke-width="1.5"/>`; }).join('');
       const dec=o=>o.x?' text-decoration="line-through" opacity=".55"':'';
       return `<g pointer-events="none">${box}<text font-family="${FONT}" font-size="${FS}" fill="${fill}">`+
-        Q.out.map((o,i)=>(o.bul&&!o.c?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}"${fw(o)}>${BUL}</tspan>`:'')+(o.t?`<tspan x="${r(x0+(o.l?Q.ind:0))}" y="${r(y0+i*LH)}"${fw(o)}${dec(o)}>${esc(o.t)}</tspan>`:'')).join('')+`</text></g>`; }
+        Q.out.map((o,i)=>(o.bul&&!o.c?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}"${fw(o)}>${BUL}</tspan>`:'')+(o.t&&!edMarks?`<tspan x="${r(x0+(o.l?Q.ind:0))}" y="${r(y0+i*LH)}"${fw(o)}${dec(o)}>${esc(o.t)}</tspan>`:'')).join('')+`</text></g>`; }
     return `<text${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
       Q.out.map((o,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}"${fw(o)}>${esc(o.t)}</tspan>`).join('')+`</text>`; }
   if(L){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
     return `<text${BOLD?' font-weight="600"':''} font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
-      L.out.map((o,i)=>(o.b?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}">${BUL}</tspan>`:'')+(o.t?`<tspan x="${r(x0+L.ind)}" y="${r(y0+i*LH)}">${esc(o.t)}</tspan>`:'')).join('')+`</text>`; }
+      L.out.map((o,i)=>(o.b?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}">${BUL}</tspan>`:'')+(o.t&&!edMarks?`<tspan x="${r(x0+L.ind)}" y="${r(y0+i*LH)}">${esc(o.t)}</tspan>`:'')).join('')+`</text>`; }
   return `<text${extra}${BOLD?' font-weight="600"':''}${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
     lines.map((l,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}">${esc(l)}</tspan>`).join('')+`</text>`;
 }

@@ -254,7 +254,7 @@ body.touch #palHandle,body.touch #propsToggle{width:22px;height:88px;font-size:2
 #palHandle::after{left:100%}
 #propsToggle::after{right:100%}
 body.touch #palHandle::after,body.touch #propsToggle::after{width:24px}
-body.compact #editor{font-size:16px}
+body.compact #editor:not(.inl){font-size:16px}
 body.compact.narrow .bar{gap:4px;padding:5px 6px}
 body.compact.narrow .brand{font-size:15px;gap:4px}
 body.compact.narrow .brand .logo{width:20px;height:20px}
@@ -650,3 +650,5 @@ body.floatbar #props .pg>b{font-size:10px;letter-spacing:.02em;text-transform:no
 #qzPlay .qpRes.no{color:#ee6a57;font-size:22px;font-weight:800}
 #qzPlay .qpOff{background:#e9b52f;color:#18181a;text-align:center;font-size:13px;font-weight:600;padding:6px}
 @media (prefers-reduced-motion: reduce){ #qzPlay .qpSpin{animation:none} }
+#editor.inl{background:transparent;border:0;border-radius:2px;outline:1px dashed var(--sel,#1763cf);outline-offset:3px;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;font-family:'Roboto Mono',ui-monospace,Menlo,Consolas,monospace;box-sizing:border-box}
+#editor.inl::selection{background:rgba(91,140,245,.38)}

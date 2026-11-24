@@ -273,7 +273,7 @@ body.touch #palHandle,body.touch #propsToggle{width:22px;height:88px;font-size:2
 #palHandle::after{left:100%}
 #propsToggle::after{right:100%}
 body.touch #palHandle::after,body.touch #propsToggle::after{width:24px}
-body.compact #editor{font-size:16px}
+body.compact #editor:not(.inl){font-size:16px}
 body.compact.narrow .bar{gap:4px;padding:5px 6px}
 body.compact.narrow .brand{font-size:15px;gap:4px}
 body.compact.narrow .brand .logo{width:20px;height:20px}
@@ -669,6 +669,8 @@ body.floatbar #props .pg>b{font-size:10px;letter-spacing:.02em;text-transform:no
 #qzPlay .qpRes.no{color:#ee6a57;font-size:22px;font-weight:800}
 #qzPlay .qpOff{background:#e9b52f;color:#18181a;text-align:center;font-size:13px;font-weight:600;padding:6px}
 @media (prefers-reduced-motion: reduce){ #qzPlay .qpSpin{animation:none} }
+#editor.inl{background:transparent;border:0;border-radius:2px;outline:1px dashed var(--sel,#1763cf);outline-offset:3px;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;font-family:'Roboto Mono',ui-monospace,Menlo,Consolas,monospace;box-sizing:border-box}
+#editor.inl::selection{background:rgba(91,140,245,.38)}
 </style>
 </head>
 <body>
@@ -1221,11 +1223,18 @@ function checkHit(s,w){
   return -1;
 }
 function alOf(s){ if(s.al) return s.al; if(s.kind==='table') return s.align==='left'?'left':'center'; const m=textBox(s).mode; return m==='left'?'left':'center'; }
+let edMarks=false;   /* true: nur Marker (•, Kästchen), keinen Text ausgeben */
+function inlineEd(s){ return s&&s.type==='shape'&&!['table','frame','pool'].includes(s.kind)&&textBox(s).mode!=='pool'; }
 function shapeText(s){
   if(noText) return '';
   useFont(s);
   if(s.kind==='table') return tableText(s);
-  if(!s.text||editing===s.id||s.kind==='frame') return '';
+  if(editing===s.id&&!s._ed){   /* beim Schreiben: nur Aufzählungspunkte und Kästchen zeichnen, den Text zeigt das Eingabefeld darüber */
+    if(!s._ed&&(edMarks||!inlineEd(s)||!(s.pf||s.list))) return '';
+    const T=editor.value, s2=Object.assign({},s,{text:T}); if(s.pf) s2.pf=remapPf(s.text||'',T,s.pf);
+    if(!(s2.pf?s2.pf.some(v=>/[lcx]/.test(v)):s.list)||textBox(s).mode==='below') return '';
+    edMarks=true; try{ return shapeText(Object.assign(s2,{_ed:1})); } finally{ edMarks=false; } }
+  if(!s.text||s.kind==='frame') return '';
   const tb=textBox(s), L=s.list&&canList(s)&&tb.mode!=='pool'&&tb.mode!=='below'?listLines(s.text,tb.maxW):null, lines=L?L.out.map(o=>o.t):wrap(s.text,tb.maxW), n=lines.length;
   let x=s.w/2,y0,anchor='middle',fill=tink(),extra='';
   if(tb.mode==='below'){ y0=s.h+LH; }
@@ -1247,12 +1256,12 @@ function shapeText(s){
           :`<rect class="ckBox" x="${r(x0+0.75)}" y="${r(by+0.75)}" width="${bx-1.5}" height="${bx-1.5}" rx="${r(bx*0.22)}" fill="none" stroke="${fill}" stroke-width="1.5"/>`; }).join('');
       const dec=o=>o.x?' text-decoration="line-through" opacity=".55"':'';
       return `<g pointer-events="none">${box}<text font-family="${FONT}" font-size="${FS}" fill="${fill}">`+
-        Q.out.map((o,i)=>(o.bul&&!o.c?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}"${fw(o)}>${BUL}</tspan>`:'')+(o.t?`<tspan x="${r(x0+(o.l?Q.ind:0))}" y="${r(y0+i*LH)}"${fw(o)}${dec(o)}>${esc(o.t)}</tspan>`:'')).join('')+`</text></g>`; }
+        Q.out.map((o,i)=>(o.bul&&!o.c?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}"${fw(o)}>${BUL}</tspan>`:'')+(o.t&&!edMarks?`<tspan x="${r(x0+(o.l?Q.ind:0))}" y="${r(y0+i*LH)}"${fw(o)}${dec(o)}>${esc(o.t)}</tspan>`:'')).join('')+`</text></g>`; }
     return `<text${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
       Q.out.map((o,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}"${fw(o)}>${esc(o.t)}</tspan>`).join('')+`</text>`; }
   if(L){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
     return `<text${BOLD?' font-weight="600"':''} font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
-      L.out.map((o,i)=>(o.b?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}">${BUL}</tspan>`:'')+(o.t?`<tspan x="${r(x0+L.ind)}" y="${r(y0+i*LH)}">${esc(o.t)}</tspan>`:'')).join('')+`</text>`; }
+      L.out.map((o,i)=>(o.b?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}">${BUL}</tspan>`:'')+(o.t&&!edMarks?`<tspan x="${r(x0+L.ind)}" y="${r(y0+i*LH)}">${esc(o.t)}</tspan>`:'')).join('')+`</text>`; }
   return `<text${extra}${BOLD?' font-weight="600"':''}${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
     lines.map((l,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}">${esc(l)}</tspan>`).join('')+`</text>`;
 }
@@ -2180,8 +2189,36 @@ function editRect(it){
   const w=Math.max(it.w,110),h=Math.max(it.h,32);
   return {x:it.x+it.w/2-w/2,y:it.y+it.h/2-h/2,w,h};
 }
+/* Schreiben direkt in der Form: das Eingabefeld ist durchsichtig, liegt genau über dem Text und hat dessen Farbe.
+   Aufzählungspunkte und Kästchen zeichnet das Board darunter, so bleibt die Formatierung sichtbar. */
+function edTextColor(s){ const tb=textBox(s); let f=tink(); if(tb.mode!=='below'){ f=onFill(s.fill); if(s.kind==='text') f=s.stroke==='none'?onFill(s.fill):mapC(s.stroke); } if(s.tc) f=mapC(s.tc); return f; }
 function placeEditor(){
-  const it=byId(editing); if(!it) return; useFont(it); editor.style.fontWeight=BOLD?'600':'400'; const R=editRect(it),k=view.k;
+  const it=byId(editing); if(!it) return; useFont(it); editor.style.fontWeight=BOLD?'600':'400'; const k=view.k;
+  if(inlineEd(it)&&!editCell){
+    const tb=textBox(it), T=editor.value, pf=it.pf?remapPf(it.text||'',T,it.pf):null, s2=Object.assign({},it,{text:T}); if(pf) s2.pf=pf; else delete s2.pf;
+    let n, ind=0;
+    if(s2.pf&&tb.mode!=='below'){ const Q=paraLines(s2,T,tb.maxW); n=Q.out.length; if(Q.anyL) ind=Q.ind; }
+    else if(it.list&&canList(it)&&tb.mode!=='below'){ const L=listLines(T,tb.maxW); n=L.out.length; ind=L.ind; }
+    else n=wrap(T,tb.maxW).length;
+    n=Math.max(1,n);
+    let base0;   /* Grundlinie der ersten Zeile, wie beim Zeichnen */
+    if(tb.mode==='below') base0=it.h+LH; else base0=it.h/2+(tb.dy||0)-(n-1)*LH/2+FS*0.35;
+    const top=base0-FS*0.35-LH/2;
+    let x0, w, al;
+    if(ind){ x0=(tb.mode==='left'?tb.pad:Math.max(6,it.w/2-tb.maxW/2))+ind; w=Math.max(20,tb.maxW-ind); al='left'; }
+    else if(tb.mode==='left'){ x0=tb.pad; w=tb.maxW; al=it.al||'left'; }
+    else { x0=it.w/2-tb.maxW/2; w=tb.maxW; al=it.al||'center'; }
+    editor.classList.add('inl');
+    editor.style.left=(view.x+(it.x+x0)*k)+'px'; editor.style.top=(view.y+(it.y+top)*k)+'px';
+    editor.style.width=(w*k+2)+'px'; editor.style.height=(n*LH*k+2)+'px';
+    editor.style.fontSize=(FS*k)+'px'; editor.style.lineHeight=(LH*k)+'px'; editor.style.padding='0';
+    editor.style.textAlign=al; editor.style.color=edTextColor(it); editor.style.caretColor=edTextColor(it);
+    if(editor.scrollHeight>editor.clientHeight+1) editor.style.height=(editor.scrollHeight+2)+'px';   /* falls das Feld anders umbricht: nichts abschneiden */
+    if(it.rot){ editor.style.transformOrigin=((it.w/2-x0)*k)+'px '+((it.h/2-top)*k)+'px'; editor.style.transform='rotate('+it.rot+'deg)'; } else editor.style.transform='';
+    return;
+  }
+  editor.classList.remove('inl'); editor.style.color=editor.style.caretColor=editor.style.transform='';
+  const R=editRect(it);
   const lines=Math.max(1,editor.value.split('\n').length), H=R.h*k, lh=LH*k;
   editor.style.left=(view.x+R.x*k)+'px'; editor.style.top=(view.y+R.y*k)+'px';
   editor.style.width=Math.max(90,R.w*k)+'px'; editor.style.height=Math.max(H,lines*lh+8)+'px';
@@ -2213,7 +2250,7 @@ function holdEdit(e){ if(editing==null||!e.target.closest('button,.pg,.pmenu,#co
 for(const el of [propsEl,$('colorPop')]){ el.addEventListener('pointerdown',holdEdit,true); el.addEventListener('mousedown',holdEdit,true); }
 function backToEdit(){ if(editing==null) return; editor.focus({preventScroll:true}); if(edSel) editor.setSelectionRange(edSel[0],edSel[1]); }
 function editParas(){ const v=editor.value, [a,b]=edSel||[editor.selectionStart,editor.selectionEnd], cnt=p=>(v.slice(0,p).match(/\n/g)||[]).length; return [cnt(a),cnt(b>a?b-1:b)]; }
-editor.addEventListener('input',placeEditor);
+editor.addEventListener('input',()=>{ placeEditor(); const it=byId(editing); if(it&&(it.pf||it.list)) render(); });   /* Punkte und Kästchen wandern mit */
 editor.addEventListener('keydown',e=>{
   /* Enter = neuer Absatz; fertig mit Strg+Enter, Esc oder Tippen daneben. Mindmap-Knoten: Enter = fertig (Umschalt+Enter = neue Zeile) */
   if(e.key==='Enter'&&(e.ctrlKey||e.metaKey||(!e.shiftKey&&!editCell&&(byId(editing)||{}).mm))){ e.preventDefault(); finishEdit(); }

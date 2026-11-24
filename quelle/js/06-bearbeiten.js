@@ -240,8 +240,36 @@ function editRect(it){
   const w=Math.max(it.w,110),h=Math.max(it.h,32);
   return {x:it.x+it.w/2-w/2,y:it.y+it.h/2-h/2,w,h};
 }
+/* Schreiben direkt in der Form: das Eingabefeld ist durchsichtig, liegt genau über dem Text und hat dessen Farbe.
+   Aufzählungspunkte und Kästchen zeichnet das Board darunter, so bleibt die Formatierung sichtbar. */
+function edTextColor(s){ const tb=textBox(s); let f=tink(); if(tb.mode!=='below'){ f=onFill(s.fill); if(s.kind==='text') f=s.stroke==='none'?onFill(s.fill):mapC(s.stroke); } if(s.tc) f=mapC(s.tc); return f; }
 function placeEditor(){
-  const it=byId(editing); if(!it) return; useFont(it); editor.style.fontWeight=BOLD?'600':'400'; const R=editRect(it),k=view.k;
+  const it=byId(editing); if(!it) return; useFont(it); editor.style.fontWeight=BOLD?'600':'400'; const k=view.k;
+  if(inlineEd(it)&&!editCell){
+    const tb=textBox(it), T=editor.value, pf=it.pf?remapPf(it.text||'',T,it.pf):null, s2=Object.assign({},it,{text:T}); if(pf) s2.pf=pf; else delete s2.pf;
+    let n, ind=0;
+    if(s2.pf&&tb.mode!=='below'){ const Q=paraLines(s2,T,tb.maxW); n=Q.out.length; if(Q.anyL) ind=Q.ind; }
+    else if(it.list&&canList(it)&&tb.mode!=='below'){ const L=listLines(T,tb.maxW); n=L.out.length; ind=L.ind; }
+    else n=wrap(T,tb.maxW).length;
+    n=Math.max(1,n);
+    let base0;   /* Grundlinie der ersten Zeile, wie beim Zeichnen */
+    if(tb.mode==='below') base0=it.h+LH; else base0=it.h/2+(tb.dy||0)-(n-1)*LH/2+FS*0.35;
+    const top=base0-FS*0.35-LH/2;
+    let x0, w, al;
+    if(ind){ x0=(tb.mode==='left'?tb.pad:Math.max(6,it.w/2-tb.maxW/2))+ind; w=Math.max(20,tb.maxW-ind); al='left'; }
+    else if(tb.mode==='left'){ x0=tb.pad; w=tb.maxW; al=it.al||'left'; }
+    else { x0=it.w/2-tb.maxW/2; w=tb.maxW; al=it.al||'center'; }
+    editor.classList.add('inl');
+    editor.style.left=(view.x+(it.x+x0)*k)+'px'; editor.style.top=(view.y+(it.y+top)*k)+'px';
+    editor.style.width=(w*k+2)+'px'; editor.style.height=(n*LH*k+2)+'px';
+    editor.style.fontSize=(FS*k)+'px'; editor.style.lineHeight=(LH*k)+'px'; editor.style.padding='0';
+    editor.style.textAlign=al; editor.style.color=edTextColor(it); editor.style.caretColor=edTextColor(it);
+    if(editor.scrollHeight>editor.clientHeight+1) editor.style.height=(editor.scrollHeight+2)+'px';   /* falls das Feld anders umbricht: nichts abschneiden */
+    if(it.rot){ editor.style.transformOrigin=((it.w/2-x0)*k)+'px '+((it.h/2-top)*k)+'px'; editor.style.transform='rotate('+it.rot+'deg)'; } else editor.style.transform='';
+    return;
+  }
+  editor.classList.remove('inl'); editor.style.color=editor.style.caretColor=editor.style.transform='';
+  const R=editRect(it);
   const lines=Math.max(1,editor.value.split('\n').length), H=R.h*k, lh=LH*k;
   editor.style.left=(view.x+R.x*k)+'px'; editor.style.top=(view.y+R.y*k)+'px';
   editor.style.width=Math.max(90,R.w*k)+'px'; editor.style.height=Math.max(H,lines*lh+8)+'px';
@@ -273,7 +301,7 @@ function holdEdit(e){ if(editing==null||!e.target.closest('button,.pg,.pmenu,#co
 for(const el of [propsEl,$('colorPop')]){ el.addEventListener('pointerdown',holdEdit,true); el.addEventListener('mousedown',holdEdit,true); }
 function backToEdit(){ if(editing==null) return; editor.focus({preventScroll:true}); if(edSel) editor.setSelectionRange(edSel[0],edSel[1]); }
 function editParas(){ const v=editor.value, [a,b]=edSel||[editor.selectionStart,editor.selectionEnd], cnt=p=>(v.slice(0,p).match(/\n/g)||[]).length; return [cnt(a),cnt(b>a?b-1:b)]; }
-editor.addEventListener('input',placeEditor);
+editor.addEventListener('input',()=>{ placeEditor(); const it=byId(editing); if(it&&(it.pf||it.list)) render(); });   /* Punkte und Kästchen wandern mit */
 editor.addEventListener('keydown',e=>{
   /* Enter = neuer Absatz; fertig mit Strg+Enter, Esc oder Tippen daneben. Mindmap-Knoten: Enter = fertig (Umschalt+Enter = neue Zeile) */
   if(e.key==='Enter'&&(e.ctrlKey||e.metaKey||(!e.shiftKey&&!editCell&&(byId(editing)||{}).mm))){ e.preventDefault(); finishEdit(); }
