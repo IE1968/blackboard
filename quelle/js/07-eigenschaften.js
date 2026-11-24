@@ -38,7 +38,12 @@ function updateProps_(){
     h+=`<div class="pg"><b>Pfeil</b><button class="pb" data-act="style" aria-pressed="${c.style==='straight'}">Gerade</button><button class="pb" data-act="dash" aria-pressed="${!!c.dash}" >Gestrichelt</button></div><div class="pg"><b>Spitze</b><button class="pb" data-act="head" title="Pfeilspitze wechseln">${HEADS.find(x=>x[0]===headOf(c))[1]}</button></div>`; }
   if(items.length===1&&items[0].kind==='table') h+=`<div class="pg"><b>Tabelle</b><button class="pb" data-act="addcol" title="Neue Spalte rechts neben der markierten Zelle">+ Spalte</button><button class="pb" data-act="delcol" title="Spalte der markierten Zelle löschen">− Spalte</button><button class="pb" data-act="addrow" title="Neue Zeile unter der markierten Zelle">+ Zeile</button><button class="pb" data-act="delrow" title="Zeile der markierten Zelle löschen">− Zeile</button></div>`;
   if(items.length===1&&items[0].kind==='frame'){ const fr=frames(), fi=fr.indexOf(items[0]);
-    h+=`<div class="pg"><b>Folie ${fi+1} von ${fr.length}</b><button class="pb" data-act="play" title="Präsentation mit dieser Folie beginnen">▶ Zeigen</button><button class="pb" data-act="frup" title="In der Reihenfolge nach vorn"${fi<=0?' disabled':''}>Früher</button><button class="pb" data-act="frdown" title="In der Reihenfolge nach hinten"${fi>=fr.length-1?' disabled':''}>Später</button></div>`; }
+    h+=`<div class="pg"><b>Folie ${fi+1} von ${fr.length}</b><button class="pb" data-act="play" title="Präsentation mit dieser Folie beginnen">▶ Zeigen</button><button class="pb" data-act="frup" title="In der Reihenfolge nach vorn"${fi<=0?' disabled':''}>Früher</button><button class="pb" data-act="frdown" title="In der Reihenfolge nach hinten"${fi>=fr.length-1?' disabled':''}>Später</button></div>`;
+    const inF=doc.items.filter(i=>i.fr===items[0].id&&i.kind!=='frame'); if(inF.length) h+=`<div class="pg"><b>Einblenden</b><button class="pb" data-act="apall" aria-pressed="${inF.every(i=>i.ap)}" title="Elemente dieser Folie in der Präsentation nacheinander zeigen, von oben nach unten">Alles nacheinander</button></div>`; }
+  const apIts=items.filter(i=>i.fr&&i.kind!=='frame');
+  if(apIts.length&&apIts.length===items.length){ const on=apIts.every(i=>i.ap);
+    let n=''; if(on){ const f=apIts[0].fr, st=[...new Set(doc.items.filter(i=>i.ap&&i.fr===f).map(i=>i.ap))].sort((a,b)=>a-b); n=`<button class="pb" data-act="apdn" title="Früher einblenden" aria-label="Früher einblenden">−</button><span class="apNo">Schritt ${st.indexOf(apIts[0].ap)+1}</span><button class="pb" data-act="apup" title="Später einblenden" aria-label="Später einblenden">+</button>`; }
+    h+=`<div class="pg"><b>Einblenden</b><button class="pb" data-act="apon" aria-pressed="${on}" title="In der Präsentation erst auf Klick zeigen">Nacheinander</button>${n}</div>`; }
   const nUnits=items.length>1?selUnits().length:0;
   if(nUnits>=2){ const AL=[['l','Links ausrichten','M3 2v16M6 5h10v3H6zM6 12h6v3H6z'],['c','Waagerecht zentrieren','M10 2v16M4 5h12v3H4zM6.5 12h7v3h-7z'],['r','Rechts ausrichten','M17 2v16M4 5h10v3H4zM8 12h6v3H8z'],['t','Oben ausrichten','M2 3h16M5 6h3v10H5zM12 6h3v6h-3z'],['m','Senkrecht zentrieren','M2 10h16M5 4h3v12H5zM12 6.5h3v7h-3z'],['b','Unten ausrichten','M2 17h16M5 4h3v10H5zM12 8h3v6h-3z']];
     const ab=([v,t,d])=>`<button class="pb" data-act="al" data-val="${v}" title="${t}" aria-label="${t}"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="${d}"/></svg></button>`;
@@ -87,6 +92,7 @@ function propsAct(b){
   if(act==='txal'){ items.forEach(i=>{ if(i.type==='shape'&&!i.lock&&i.kind!=='pool'&&i.kind!=='frame'){ i.al=val; if(i.kind==='table') delete i.align; } }); commit(); render(); if(editing) placeEditor(); return; }
   if(act==='play') return startPres(items[0]&&items[0].id);
   if(act==='qok'){ const on=!items.every(i=>i.ok); items.forEach(i=>{ if(on) i.ok=true; else delete i.ok; }); commit(); render(); return; }
+  if(act==='apon'||act==='apup'||act==='apdn'||act==='apall') return apAct(act,items);
   if(act==='frup'||act==='frdown'){ if(items[0]) moveFrame(items[0].id,act==='frup'?-1:1); return; }
   if(act==='lock'){ const on=!items.every(i=>i.lock); items.forEach(i=>{ if(on) i.lock=true; else delete i.lock; }); commit(); render(); return; }
   if(items.length&&items.every(i=>i.lock)&&act!=='edit'){ toast('Das Element ist gesperrt. Erst unter „Element“ entsperren.'); return; }
@@ -119,3 +125,26 @@ function propsAct(b){
   commit(); render();
 }
 
+
+/* Nacheinander einblenden: Schritt-Nummern (ap) je Folie verwalten */
+function apAct(act,items){
+  if(liveRO()) return;
+  if(act==='apall'){ const f=items[0]; if(!f) return; const its=doc.items.filter(i=>i.fr===f.id&&i.kind!=='frame');
+    if(its.every(i=>i.ap)) its.forEach(i=>delete i.ap);
+    else { const bx=new Map(its.map(i=>[i.id,bbox(i)])), key=i=>{ const b=bx.get(i.id); return [Math.round(b.y/40),b.x]; };
+      its.sort((a,b)=>{ const A=key(a),B=key(b); return A[0]-B[0]||A[1]-B[1]; });
+      let n=0; const grp=new Map(); for(const i of its){ if(i.g&&grp.has(i.g)){ i.ap=grp.get(i.g); continue; } i.ap=++n; if(i.g) grp.set(i.g,n); } }
+    commit(); render(); return; }
+  const its=items.filter(i=>i.fr&&i.kind!=='frame'); if(!its.length) return;
+  if(act==='apon'){
+    if(its.every(i=>i.ap)) its.forEach(i=>delete i.ap);
+    else { const byF=new Map(); for(const i of its){ if(!byF.has(i.fr)) byF.set(i.fr,1+Math.max(0,...doc.items.filter(x=>x.fr===i.fr&&x.ap&&!sel.has(x.id)).map(x=>x.ap))); i.ap=byF.get(i.fr); } }
+  } else {   /* Schritt früher/später: allein im Schritt → mit dem Nachbarn tauschen, sonst eigenen Schritt davor/danach */
+    const f=its[0].fr, cur=its[0].ap; if(!cur) return; const all=doc.items.filter(i=>i.ap&&i.fr===f), st=[...new Set(all.map(i=>i.ap))].sort((a,b)=>a-b), k=st.indexOf(cur), d=act==='apdn'?-1:1;
+    const mine=its.filter(i=>i.fr===f), others=all.filter(i=>i.ap===cur&&!sel.has(i.id));
+    if(others.length) mine.forEach(i=>i.ap=cur+d*0.5);
+    else { const nb=st[k+d]; if(nb==null) return; all.filter(i=>i.ap===nb).forEach(i=>i.ap=cur); mine.forEach(i=>i.ap=nb); }
+    const st2=[...new Set(all.map(i=>i.ap))].sort((a,b)=>a-b); all.forEach(i=>i.ap=st2.indexOf(i.ap)+1);
+  }
+  commit(); render();
+}

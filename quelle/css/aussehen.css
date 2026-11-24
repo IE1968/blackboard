@@ -579,3 +579,6 @@ body.floatbar #props .pg>b{font-size:10px;letter-spacing:.02em;text-transform:no
 
 #trRow button{text-align:center;padding:7px 0;border-radius:8px;border:1px solid var(--line)}
 #pres{overflow:hidden}
+#presBody .apIn{animation:apIn .32s ease-out both}
+@keyframes apIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.apNo{font-size:12px;font-weight:600;padding:0 4px;white-space:nowrap;color:var(--fg)}

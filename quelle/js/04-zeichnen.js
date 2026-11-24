@@ -72,6 +72,10 @@ function renderOverlay(){
     if(!editing&&items.some(i=>!i.lock&&canRot(i))) o+=rotHandle(x2+16*u,y1-16*u,u,x2,y1);
     if(!editing&&items.some(i=>!i.lock&&!(i.type==='conn'&&(i.from||i.to)))) [['nw',x1,y1],['ne',x2,y1],['se',x2,y2],['sw',x1,y2]].forEach(([d,x,y])=>{   /* Ecken: alles Ausgewählte gemeinsam vergrößern oder verkleinern */
       o+=`<rect data-h="gs:${d}" x="${r(x-hit/2)}" y="${r(y-hit/2)}" width="${hit}" height="${hit}" fill="transparent"/><rect data-h="gs:${d}" x="${r(x-hs/2)}" y="${r(y-hs/2)}" width="${hs}" height="${hs}" rx="${2*u}" fill="${SEL}" stroke="#fff" stroke-width="${1.5*u}" style="paint-order:stroke"/>`; }); }
+  { /* Einblendschritte der Folie(n), an denen gerade gearbeitet wird: kleine Nummern links oben */
+    const fs=new Set(items.map(i=>i.kind==='frame'?i.id:i.fr).filter(Boolean));
+    if(fs.size) for(const f of fs){ const its=doc.items.filter(i=>i.ap&&i.fr===f&&i.kind!=='frame'), st=[...new Set(its.map(i=>i.ap))].sort((a,b)=>a-b);
+      for(const it of its){ const b=bbox(it); o+=`<g class="apBadge" transform="translate(${r(b.x)} ${r(b.y)}) scale(${r(u)})" pointer-events="none"><circle r="10" fill="#7b66f0" stroke="#fff" stroke-width="1.5"/><text y="4.5" text-anchor="middle" font-family="${FONT}" font-size="12" font-weight="700" fill="#fff">${st.indexOf(it.ap)+1}</text></g>`; } } }
   const hv=hoverId&&byId(hoverId);
   if(hv) o+=`<rect x="${hv.x-5*u}" y="${hv.y-5*u}" width="${hv.w+10*u}" height="${hv.h+10*u}" rx="${6*u}" fill="rgba(23,99,207,.1)" stroke="${SEL}" stroke-width="${2.5*u}" pointer-events="none"/>`;
   if(action&&action.type==='connEnd'&&action.dock){ const d=action.dock;   /* Andockpunkte der Zielform; der aktive Punkt ist gefüllt */
