@@ -11,7 +11,7 @@ import os, re, base64, shutil
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '10'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '11'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -117,7 +117,7 @@ def start():
     hero = karte(f'''<h1>Ein Board für alles, was du im Kopf hast.</h1>
 <div class="zwei">
   <div class="text">
-    <ul class="hand-liste"><li>Ohne Installation</li><li>Daten in der EU</li><li>Gäste ohne Konto</li></ul>
+    <ul class="hand-liste"><li class="hs-schwarz">Ohne Installation</li><li class="hs-orange">Daten in der EU</li><li class="hs-blau">Gäste ohne Konto</li></ul>
     <p class="knoepfe">{knopf("Kostenlos ausprobieren","haupt","arrow",APP)}</p>
   </div>
   {board("hero")}
@@ -133,11 +133,11 @@ def start():
         return f'<section class="karte bereich{" links" if links else ""}" style="--c:{c}">{kopf}<div class="b-reihe">{tafel+text if links else text+tafel}</div></section>'
     haupt = hero
     breit = f'<h2 class="b-kopf">Wofür nutzt du Skizix?<span>Drei typische Einsätze – alles im selben Board.</span></h2>' \
-      + bereich('users',BLUE,'Unterricht &amp; Kurse','Tafelbild, Quiz und Gruppen – <span class="akz hand-a">alle machen per Handy mit.</span>','Teilnehmende treten per <b class="akz">QR-Code</b> bei, ohne Konto, nur mit Spitznamen.',
+      + bereich('users',BLUE,'Unterricht &amp; Kurse','Tafelbild, Quiz und Gruppen – <span class="hand-a hs-rot">alle machen per Handy mit.</span>','Teilnehmende treten per <b class="akz">QR-Code</b> bei, ohne Konto, nur mit Spitznamen.',
         ['Live-Quiz mit Ergebnis als Säulen und Rangliste','Gruppen arbeiten gleichzeitig auf eigenen Bereichen','Präsentieren mit Folien, Tafelbild als PDF'],'unterricht','Für den Unterricht','funktionen.html#unterricht',True) \
-      + bereich('flow',VIOLET,'Beruf &amp; Projekte','Prozesse zeichnen, Aufgaben verfolgen, <span class="akz hand-a">Workshops leiten.</span>','<b class="akz">BPMN, Kanban und Retro</b> auf einem Board – live mit dem ganzen Team.',
+      + bereich('flow',VIOLET,'Beruf &amp; Projekte','Prozesse zeichnen, Aufgaben verfolgen, <span class="hand-a hs-gruen">Workshops leiten.</span>','<b class="akz">BPMN, Kanban und Retro</b> auf einem Board – live mit dem ganzen Team.',
         ['Pfeile docken magnetisch an Formen an','BPMN 2.0 mit Bahnen und Gateways','Kanban und Scrum als fertige Bausteine'],'beruf','Für Teams','funktionen.html#formen',False) \
-      + bereich('heart',CORAL,'Alltag &amp; Familie','Einkauf, Wochenplan und To-dos – <span class="akz hand-a">gemeinsam auf allen Handys.</span>','Wer etwas <b class="akz">abhakt</b>, sieht jeder sofort. Vorlagen für Einkaufsliste, Wochenplaner und To-do-Liste sind schon dabei.',
+      + bereich('heart',CORAL,'Alltag &amp; Familie','Einkauf, Wochenplan und To-dos – <span class="hand-a hs-orange">gemeinsam auf allen Handys.</span>','Wer etwas <b class="akz">abhakt</b>, sieht jeder sofort. Vorlagen für Einkaufsliste, Wochenplaner und To-do-Liste sind schon dabei.',
         ['Einkaufsliste mit Häkchen und Namen','Wochenplaner für die ganze Familie','Notizen und Zeichnungen direkt daneben'],'alltag','Für zu Hause','vorlagen.html',True)
     kontext = ''
     seite('index.html','Das Whiteboard für Unterricht und Alltag','Start',haupt,kontext,'Skizix: digitales Whiteboard zum Zeichnen, Planen und gemeinsamen Arbeiten – im Unterricht, im Team und mit der Familie.',breit)

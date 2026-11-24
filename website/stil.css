@@ -306,6 +306,14 @@ main>.held{flex-direction:column;align-items:stretch;justify-content:center}
 .held .text{align-self:center}
 /* Handschrift für die Hervorhebung in den Überschriften der Bereiche */
 .hand-a{font-family:'Caveat',cursive;font-weight:700;font-size:1.3em;line-height:.9;letter-spacing:.005em}
+/* Handschrift in Stiftfarben wie auf dem Board: schwarz, orange, blau, rot, grün */
+:root{--hs-schwarz:#1D1D1F;--hs-orange:#C9601A;--hs-blau:#2F5FD0;--hs-rot:#C8321F;--hs-gruen:#1A7F45}
+:root[data-thema="dunkel"]{--hs-schwarz:#F2F2F0;--hs-orange:#F2994A;--hs-blau:#7FA6FF;--hs-rot:#FF7A66;--hs-gruen:#4CC98A}
+.hand-liste li.hs-schwarz,.hs-schwarz{color:var(--hs-schwarz)}
+.hand-liste li.hs-orange,.hs-orange{color:var(--hs-orange)}
+.hand-liste li.hs-blau,.hs-blau{color:var(--hs-blau)}
+.hs-rot{color:var(--hs-rot)}
+.hs-gruen{color:var(--hs-gruen)}
 
 /* Animationen der Beispiel-Boards */
 @keyframes hb1{0%,0%{opacity:0;transform:scale(.7)}4%{opacity:1;transform:scale(1.04)}7%,94%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
