@@ -11,7 +11,7 @@ import os, re, base64, shutil, json
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '21'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '22'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -133,7 +133,7 @@ def start():
         kopf = f'<div class="b-oben"><p class="b-name">{ichip(icon,c,"klein")}{name_b}</p><h2>{titel}</h2></div>'
         return f'<section class="karte bereich{" links" if links else ""}" style="--c:{c}">{kopf}<div class="b-reihe">{tafel+text if links else text+tafel}</div></section>'
     haupt = hero
-    breit = f'<h2 class="b-kopf">Wofür nutzt du Skizix?<span>Drei typische Einsätze – alles im selben Board.</span></h2>' \
+    breit = '' \
       + bereich('users',BLUE,'Unterricht &amp; Kurse','Tafelbild, Quiz und Gruppen – <span class="hand-a hs-rot">alle machen per Handy mit.</span>','Teilnehmende treten per <b class="akz">QR-Code</b> bei, ohne Konto, nur mit Spitznamen.',
         ['Live-Quiz mit Ergebnis als Säulen und Rangliste','Gruppen arbeiten gleichzeitig auf eigenen Bereichen','Präsentieren mit Folien, Tafelbild als PDF'],'unterricht','Für den Unterricht','funktionen.html#unterricht',True) \
       + bereich('flow',VIOLET,'Beruf &amp; Projekte','Prozesse zeichnen, Aufgaben verfolgen, <span class="hand-a hs-gruen">Workshops leiten.</span>','<b class="akz">BPMN, Kanban und Retro</b> auf einem Board – live mit dem ganzen Team.',
