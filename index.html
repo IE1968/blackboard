@@ -833,6 +833,24 @@ body.compact .brand .wm{height:.75em}
 main:not(.pal-closed) #palHandle{border-left:0;border-radius:0 10px 10px 0;box-shadow:4px 0 10px rgba(0,0,0,.18)}
 main:not(.props-closed) #propsToggle{border-right:0;border-radius:10px 0 0 10px;box-shadow:-4px 0 10px rgba(0,0,0,.18)}
 #menu > button{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Größe 125/150 %: Leisten bekommen eine feste (mitskalierte) Breite statt „Strecken“ – manche Browser rechnen das Strecken mit Zoom falsch */
+main:not(.pal-closed) #palette{width:188px;justify-self:start}
+main:not(.props-closed) #menu{width:188px;justify-self:end}
+body.compact main:not(.pal-closed) #palette,body.compact main:not(.props-closed) #menu{width:200px}
+/* Board- und Ordnernamen dürfen umbrechen (2 Zeilen), „⋯“ schmaler */
+#boardList [data-b] .bn{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere;line-height:1.25}
+.fhT span{white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere;line-height:1.25}
+#menu .bM{width:22px}
+body.touch #menu .bM{width:26px}
+#menu #boardList [data-b]{padding-right:4px}
+/* Schmale Ansicht (auch Tablet bei 125/150 %): Leisten liegen über der Tafel – Griff direkt an ihrem Rand */
+body.compact main:not(.pal-closed) #palHandle{left:calc(207px*var(--ui))}
+body.compact main:not(.props-closed) #propsToggle{right:calc(207px*var(--ui))}
+body.compact main.pal-closed #palHandle{left:0}
+body.compact main.props-closed #propsToggle{right:0}
+#boardList [data-b] .bn,.fhT span{hyphens:none;-webkit-hyphens:none;overflow-wrap:normal;word-break:normal}
+#boardList [data-b]{hyphens:none;-webkit-hyphens:none}
+body.phone main #palette,body.phone main #menu{justify-self:stretch!important}
 </style>
 </head>
 <body>
@@ -927,10 +945,9 @@ main:not(.props-closed) #propsToggle{border-right:0;border-radius:10px 0 0 10px;
     <div id="sr" role="status" aria-live="polite"></div>
   </section>
   <aside id="menu" aria-label="Datei">
-    <button data-m="manage" id="manageBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Boards verwalten …</button>
+    <button data-m="manage" id="manageBtn">Boards verwalten …</button>
     <button data-m="new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Neues Board</button>
-    <button data-m="tpl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Vorlagen …</button>
-    <button data-m="open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/></svg>Board laden …</button>
+        <button data-m="open">Board laden …</button>
     <hr>
     <div class="mh mhRow"><span>Boards</span><button type="button" id="newFolder" title="Neuen Ordner anlegen">+ Ordner</button></div>
     <div id="boardList"></div>

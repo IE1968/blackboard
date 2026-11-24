@@ -22,8 +22,8 @@ try:
   pg.click('#startArea .saTpl >> nth=0'); pg.wait_for_timeout(400)
   d=pg.evaluate(READ); check('Beliebte Vorlage antippen fügt sie ein',len(d['items'])>5 and pg.is_hidden('#startArea'))
   # Vorlagen im Menü, Filter, ✕
-  openFile(pg); pg.click('#menu [data-m="tpl"]'); pg.wait_for_timeout(300)
-  check('Menü „Vorlagen …“ öffnet die Galerie',pg.is_visible('#tplDlg') and pg.locator('#tplFilt .chip').count()==4)
+  pg.keyboard.press('Control+z'); pg.wait_for_timeout(300); pg.click('#startArea .saLink[data-sa="tpl"]'); pg.wait_for_timeout(300)
+  check('Vorlagen-Galerie mit Filtern',pg.is_visible('#tplDlg') and pg.locator('#tplFilt .chip').count()==4)
   pg.click('#tplFilt [data-k="Alltag"]'); n=pg.locator('#tplGrid .tc:visible').count()
   check('Filter „Alltag“ zeigt nur Alltag',n==3,str(n))
   pg.click('#tplFilt [data-k="*"]'); check('Filter „Alle“',pg.locator('#tplGrid .tc:visible').count()>20)
