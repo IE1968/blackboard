@@ -765,3 +765,45 @@ body.touch #menu .bM{opacity:1;width:36px}
 #livePop .liveH2{margin-top:8px;padding-top:12px;border-top:1px solid var(--line)}
 #livePop .liveSub{text-align:center!important;font-size:12.5px;color:var(--accent)!important}
 #menu .bAct .fDel{color:var(--c-coral)!important}
+
+/* ======== Handy: Werkzeuge unten, Blätter von unten ======== */
+#phoneBar,#moreSheet{display:none}
+body.phone{grid-template-rows:auto auto minmax(0,1fr) auto}
+body.phone #phoneBar{grid-row:4;display:flex;align-items:center;justify-content:space-around;gap:2px;padding:6px 8px calc(6px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line);z-index:40}
+#phoneBar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:50px;padding:6px 2px;border-radius:12px;color:var(--muted);font-size:11px;font-weight:600}
+#phoneBar svg,#moreSheet svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#phoneBar button[aria-pressed="true"],#phoneBar #pbMore.on{background:var(--acc-soft);color:var(--accent)}
+#phoneBar #pbPlus{flex:none;width:56px;height:52px;min-height:0;border-radius:16px;background:var(--accent-fill);color:var(--accent-ink);box-shadow:0 6px 16px rgba(59,111,232,.35);justify-content:center}
+#phoneBar #pbPlus svg{width:26px;height:26px;stroke-width:2.4;transition:transform .15s}
+#phoneBar #pbPlus[aria-expanded="true"] svg{transform:rotate(45deg)}
+#phoneBar [data-tool="pen"] svg{color:var(--c-coral)} #phoneBar [data-tool="text"] svg{color:var(--c-mint)}
+body.phone #moreSheet:not([hidden]){display:block;position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:45;max-height:70dvh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;padding:6px 12px 14px;box-shadow:0 -14px 40px rgba(0,0,0,.4)}
+.msGrip{width:40px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 6px}
+.msH{font:600 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 4px 8px}
+.msGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.msGrid button{display:flex;flex-direction:column;align-items:center;gap:5px;min-height:68px;padding:10px 4px;border:1px solid var(--line);border-radius:14px;font-size:12px;font-weight:500;color:var(--ink);text-align:center}
+.msGrid button[aria-pressed="true"]{border-color:var(--accent);background:var(--acc-soft);color:var(--accent)}
+/* Kopfleiste: nur Logo, Name, Zurück/Vor, Teilen */
+body.phone #tools,body.phone #expBtn,body.phone #playBtn,body.phone #viewBtn,body.phone #keysBtn,body.phone #ktBtn,body.phone .brand .wm{display:none!important}
+body.phone .bar{flex-wrap:nowrap}
+body.phone #boardName{flex:1 1 auto}
+body.phone .tb{min-width:44px;min-height:44px}
+/* Seitengriffe weg; Formenleiste und Datei-Leiste als Blatt von unten */
+body.phone #palHandle,body.phone #propsToggle{display:none!important}
+body.phone #palette,body.phone #menu{position:absolute!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;width:auto!important;height:62%!important;margin:0!important;z-index:30;border-radius:20px 20px 0 0!important;border-bottom:0!important;box-shadow:0 -14px 40px rgba(0,0,0,.4)!important}
+body.phone .palgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+body.phone .pal span{display:-webkit-box!important}
+body.phone .pal{min-height:64px}
+body.phone #menu{padding:10px 12px 16px!important}
+body.phone #menu button{font-size:15px;padding:11px 10px;min-height:44px}
+body.phone #boardList .bth{width:40px;height:28px}
+/* Optionsleiste: als Leiste über den Werkzeugen, volle Breite, waagerecht wischbar */
+body.phone.floatbar #props{left:8px!important;right:8px!important;top:auto!important;bottom:calc(72px + env(safe-area-inset-bottom))!important;width:auto!important;max-width:none!important;flex-wrap:nowrap!important;justify-content:flex-start;overflow-x:auto!important;scrollbar-width:none;border-radius:16px}
+body.phone.floatbar #props .pg{flex:none}
+/* Menüs und Fenster aus der Kopfleiste kommen auf dem Handy von unten */
+body.phone .hdrPop,body.phone #viewPop,body.phone #ktPop{left:0!important;right:0!important;top:auto!important;bottom:calc(64px + env(safe-area-inset-bottom))!important;width:auto!important;max-height:72dvh;border-radius:20px 20px 0 0;padding:10px 12px 14px}
+body.phone .hdrPop button,body.phone #viewPop button{min-height:44px;font-size:14.5px}
+body.phone #toast{bottom:12px}
+body.phone #props .pgQuick{order:-1}
+body.phone #colorPop{position:fixed!important;left:8px!important;right:8px!important;top:auto!important;bottom:calc(140px + env(safe-area-inset-bottom))!important;width:auto!important;max-width:none!important;max-height:50dvh;overflow-y:auto;border-radius:16px}
+body.phone #livePop .liveMain,body.phone #livePop button{align-self:stretch}

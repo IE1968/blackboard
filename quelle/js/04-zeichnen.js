@@ -132,11 +132,13 @@ function contentBox(pad,noFrames){
   if(x1===Infinity) return null;
   return {x:Math.floor(x1-pad),y:Math.floor(y1-pad),w:Math.ceil(x2-x1+2*pad),h:Math.ceil(y2-y1+2*pad)};
 }
-function fit(){
+function fit(full){
   const rc=svg.getBoundingClientRect(); if(!rc.width||!rc.height) return;
   const b=contentBox(40);
   if(!b){ view={x:0,y:0,k:1}; applyView(); return; }
-  const k=clamp(Math.min(rc.width/b.w,rc.height/b.h),0.15,1);
+  let k=clamp(Math.min(rc.width/b.w,rc.height/b.h),0.15,1);
+  if(!full&&document.body.classList.contains('phone')&&k<0.75){   /* Handy: beim Öffnen lesbar (Text mind. ca. 12 px), oben links beginnen */
+    k=0.75; view={k,x:b.w*k<=rc.width?(rc.width-b.w*k)/2-b.x*k:-b.x*k,y:b.h*k<=rc.height?(rc.height-b.h*k)/2-b.y*k:-b.y*k}; applyView(); return; }
   view={k,x:(rc.width-b.w*k)/2-b.x*k,y:(rc.height-b.h*k)/2-b.y*k}; applyView();
 }
 

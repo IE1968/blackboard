@@ -43,7 +43,7 @@ function isCompactNow(){ return innerWidth/uiCfg.scale<=1000||innerHeight/uiCfg.
 function applyLayout(){
   const w=innerWidth/uiCfg.scale, c=document.body.classList; c.toggle('touch',!isPC);
   document.documentElement.style.setProperty('--ui',uiCfg.scale); c.toggle('hc',uiCfg.hc);
-  c.toggle('compact',isCompactNow()); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
+  c.toggle('compact',isCompactNow()); c.toggle('phone',isCompactNow()&&w<640); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
   document.querySelectorAll('#uiRow button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
   applyAppTheme(); applyTheme(); fitBar(); if(typeof placeProps==='function'&&propsEl) placeProps();
@@ -62,7 +62,7 @@ addEventListener('load',fitBar);
 function setUi(ch){ Object.assign(uiCfg,ch); try{ localStorage.setItem('blackboard-ui',JSON.stringify(uiCfg)); }catch(e){} applyLayout(); applyView(); }
 applyLayout();
 try{ const ps=JSON.parse(localStorage.getItem('blackboard-pal')); if(ps&&ps.open) palState=ps; }catch(e){}
-{ const shut=!isPC||innerWidth/uiCfg.scale<=700; palState.closed=shut; palState.propsClosed=shut; palState.open={Allgemein:true}; }   /* beim Öffnen: am PC ausgeklappt, auf Smartphone und Tablet eingeklappt; nur „Allgemein“ aufgeklappt */
+{ const shut=!isPC||innerWidth/uiCfg.scale<=700||document.body.classList.contains('phone'); palState.closed=shut; palState.propsClosed=shut; palState.open={Allgemein:true}; }   /* beim Öffnen: am PC ausgeklappt, auf Smartphone und Tablet eingeklappt; nur „Allgemein“ aufgeklappt */
 window.addEventListener('resize',applyLayout);
 function savePal(){ try{ localStorage.setItem('blackboard-pal',JSON.stringify(palState)); }catch(e){} }
 function renderPal(){

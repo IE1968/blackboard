@@ -784,6 +784,48 @@ body.touch #menu .bM{opacity:1;width:36px}
 #livePop .liveH2{margin-top:8px;padding-top:12px;border-top:1px solid var(--line)}
 #livePop .liveSub{text-align:center!important;font-size:12.5px;color:var(--accent)!important}
 #menu .bAct .fDel{color:var(--c-coral)!important}
+
+/* ======== Handy: Werkzeuge unten, Blätter von unten ======== */
+#phoneBar,#moreSheet{display:none}
+body.phone{grid-template-rows:auto auto minmax(0,1fr) auto}
+body.phone #phoneBar{grid-row:4;display:flex;align-items:center;justify-content:space-around;gap:2px;padding:6px 8px calc(6px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line);z-index:40}
+#phoneBar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:50px;padding:6px 2px;border-radius:12px;color:var(--muted);font-size:11px;font-weight:600}
+#phoneBar svg,#moreSheet svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#phoneBar button[aria-pressed="true"],#phoneBar #pbMore.on{background:var(--acc-soft);color:var(--accent)}
+#phoneBar #pbPlus{flex:none;width:56px;height:52px;min-height:0;border-radius:16px;background:var(--accent-fill);color:var(--accent-ink);box-shadow:0 6px 16px rgba(59,111,232,.35);justify-content:center}
+#phoneBar #pbPlus svg{width:26px;height:26px;stroke-width:2.4;transition:transform .15s}
+#phoneBar #pbPlus[aria-expanded="true"] svg{transform:rotate(45deg)}
+#phoneBar [data-tool="pen"] svg{color:var(--c-coral)} #phoneBar [data-tool="text"] svg{color:var(--c-mint)}
+body.phone #moreSheet:not([hidden]){display:block;position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:45;max-height:70dvh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;padding:6px 12px 14px;box-shadow:0 -14px 40px rgba(0,0,0,.4)}
+.msGrip{width:40px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 6px}
+.msH{font:600 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 4px 8px}
+.msGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.msGrid button{display:flex;flex-direction:column;align-items:center;gap:5px;min-height:68px;padding:10px 4px;border:1px solid var(--line);border-radius:14px;font-size:12px;font-weight:500;color:var(--ink);text-align:center}
+.msGrid button[aria-pressed="true"]{border-color:var(--accent);background:var(--acc-soft);color:var(--accent)}
+/* Kopfleiste: nur Logo, Name, Zurück/Vor, Teilen */
+body.phone #tools,body.phone #expBtn,body.phone #playBtn,body.phone #viewBtn,body.phone #keysBtn,body.phone #ktBtn,body.phone .brand .wm{display:none!important}
+body.phone .bar{flex-wrap:nowrap}
+body.phone #boardName{flex:1 1 auto}
+body.phone .tb{min-width:44px;min-height:44px}
+/* Seitengriffe weg; Formenleiste und Datei-Leiste als Blatt von unten */
+body.phone #palHandle,body.phone #propsToggle{display:none!important}
+body.phone #palette,body.phone #menu{position:absolute!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;width:auto!important;height:62%!important;margin:0!important;z-index:30;border-radius:20px 20px 0 0!important;border-bottom:0!important;box-shadow:0 -14px 40px rgba(0,0,0,.4)!important}
+body.phone .palgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+body.phone .pal span{display:-webkit-box!important}
+body.phone .pal{min-height:64px}
+body.phone #menu{padding:10px 12px 16px!important}
+body.phone #menu button{font-size:15px;padding:11px 10px;min-height:44px}
+body.phone #boardList .bth{width:40px;height:28px}
+/* Optionsleiste: als Leiste über den Werkzeugen, volle Breite, waagerecht wischbar */
+body.phone.floatbar #props{left:8px!important;right:8px!important;top:auto!important;bottom:calc(72px + env(safe-area-inset-bottom))!important;width:auto!important;max-width:none!important;flex-wrap:nowrap!important;justify-content:flex-start;overflow-x:auto!important;scrollbar-width:none;border-radius:16px}
+body.phone.floatbar #props .pg{flex:none}
+/* Menüs und Fenster aus der Kopfleiste kommen auf dem Handy von unten */
+body.phone .hdrPop,body.phone #viewPop,body.phone #ktPop{left:0!important;right:0!important;top:auto!important;bottom:calc(64px + env(safe-area-inset-bottom))!important;width:auto!important;max-height:72dvh;border-radius:20px 20px 0 0;padding:10px 12px 14px}
+body.phone .hdrPop button,body.phone #viewPop button{min-height:44px;font-size:14.5px}
+body.phone #toast{bottom:12px}
+body.phone #props .pgQuick{order:-1}
+body.phone #colorPop{position:fixed!important;left:8px!important;right:8px!important;top:auto!important;bottom:calc(140px + env(safe-area-inset-bottom))!important;width:auto!important;max-width:none!important;max-height:50dvh;overflow-y:auto;border-radius:16px}
+body.phone #livePop .liveMain,body.phone #livePop button{align-self:stretch}
 </style>
 </head>
 <body>
@@ -889,6 +931,36 @@ body.touch #menu .bM{opacity:1;width:36px}
   <button id="propsToggle" aria-controls="menu"></button>
   <button id="optsToggle" aria-controls="props"><i></i></button>
 </main>
+<nav id="phoneBar" aria-label="Werkzeuge">
+  <button type="button" data-tool="select"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3l14 8-6 2-2 6z"/></svg><span>Auswahl</span></button>
+  <button type="button" data-tool="pen" id="pbDraw"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span>Stift</span></button>
+  <button type="button" id="pbPlus" aria-label="Formen und Vorlagen" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button type="button" data-tool="text"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M12 6v13M9 19h6"/></svg><span>Text</span></button>
+  <button type="button" id="pbMore" aria-expanded="false" aria-controls="moreSheet"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>Mehr</span></button>
+</nav>
+<div id="moreSheet" hidden role="dialog" aria-label="Mehr">
+  <div class="msGrip" aria-hidden="true"></div>
+  <div class="msH">Werkzeuge</div>
+  <div class="msGrid">
+    <button type="button" data-tool="pen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span>Stift</span></button>
+    <button type="button" data-tool="brush"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 4l1.5 1.5-8 9-2.5 1 1-2.5zM9.5 16.5c-2 0-3 1.2-3 2.3S5.5 20 4 20c2.5 1 6.5.5 6.5-2.5"/></svg><span>Pinsel</span></button>
+    <button type="button" data-tool="marker"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4l6 6-8 8H7v-5zM4 21h9"/></svg><span>Marker</span></button>
+    <button type="button" data-tool="erase"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19h11M4 14l9-9 6 6-8 8H8z"/></svg><span>Radierer</span></button>
+    <button type="button" data-tool="pan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg><span>Bewegen</span></button>
+    <button type="button" data-tool="shape"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="11" height="9" rx="1.5"/><circle cx="15.5" cy="15.5" r="4.5"/></svg><span>Form wählen</span></button>
+  </div>
+  <div class="msH">Board</div>
+  <div class="msGrid">
+    <button type="button" data-ms="files"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/></svg><span>Boards</span></button>
+    <button type="button" data-ms="tpl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Vorlagen</span></button>
+    <button type="button" data-ms="play"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M10 8v5l4.5-2.5z"/></svg><span>Präsentieren</span></button>
+    <button type="button" data-ms="slides"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="8" height="6" rx="1"/><rect x="13" y="5" width="8" height="6" rx="1"/><rect x="3" y="13" width="8" height="6" rx="1"/><rect x="13" y="13" width="8" height="6" rx="1"/></svg><span>Folien</span></button>
+    <button type="button" data-ms="exp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14"/></svg><span>Export</span></button>
+    <button type="button" data-ms="view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span>Ansicht</span></button>
+    <button type="button" data-ms="help"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 114 2c-1 .7-1.5 1.2-1.5 2.3M12 17h.01"/></svg><span>Hilfe</span></button>
+    <button type="button" data-ms="konto"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4.5 20c1.5-4 4.5-5.5 7.5-5.5s6 1.5 7.5 5.5"/></svg><span>Konto</span></button>
+  </div>
+</div>
 <div id="liveDlg" hidden role="dialog" aria-modal="true" aria-labelledby="lvTitle">
   <div id="liveBox">
     <h2 id="lvTitle">Live teilen</h2>
@@ -1682,11 +1754,13 @@ function contentBox(pad,noFrames){
   if(x1===Infinity) return null;
   return {x:Math.floor(x1-pad),y:Math.floor(y1-pad),w:Math.ceil(x2-x1+2*pad),h:Math.ceil(y2-y1+2*pad)};
 }
-function fit(){
+function fit(full){
   const rc=svg.getBoundingClientRect(); if(!rc.width||!rc.height) return;
   const b=contentBox(40);
   if(!b){ view={x:0,y:0,k:1}; applyView(); return; }
-  const k=clamp(Math.min(rc.width/b.w,rc.height/b.h),0.15,1);
+  let k=clamp(Math.min(rc.width/b.w,rc.height/b.h),0.15,1);
+  if(!full&&document.body.classList.contains('phone')&&k<0.75){   /* Handy: beim Öffnen lesbar (Text mind. ca. 12 px), oben links beginnen */
+    k=0.75; view={k,x:b.w*k<=rc.width?(rc.width-b.w*k)/2-b.x*k:-b.x*k,y:b.h*k<=rc.height?(rc.height-b.h*k)/2-b.y*k:-b.y*k}; applyView(); return; }
   view={k,x:(rc.width-b.w*k)/2-b.x*k,y:(rc.height-b.h*k)/2-b.y*k}; applyView();
 }
 
@@ -2420,7 +2494,7 @@ function newTextAt(w){
 function setTool(t){
   if(liveRO()&&t!=='pan') t='pan';
   tool=t; if(DRAW[t]) drawTool=t; svg.setAttribute('class','t-'+t);
-  document.querySelectorAll('#tools .tb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t));
+  document.querySelectorAll('#tools .tb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t)); if(typeof phoneSync==='function') try{ phoneSync(); }catch(e){}
   if(t!=='select'&&t!=='shape'&&sel.size){ sel.clear(); render(); }
   else if(t==='shape'&&sel.size){ for(const id of [...sel]){ const i=byId(id); if(!i||i.type!=='shape') sel.delete(id); } render(); } else updateProps();
 }
@@ -2912,7 +2986,7 @@ function isCompactNow(){ return innerWidth/uiCfg.scale<=1000||innerHeight/uiCfg.
 function applyLayout(){
   const w=innerWidth/uiCfg.scale, c=document.body.classList; c.toggle('touch',!isPC);
   document.documentElement.style.setProperty('--ui',uiCfg.scale); c.toggle('hc',uiCfg.hc);
-  c.toggle('compact',isCompactNow()); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
+  c.toggle('compact',isCompactNow()); c.toggle('phone',isCompactNow()&&w<640); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
   document.querySelectorAll('#uiRow button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
   applyAppTheme(); applyTheme(); fitBar(); if(typeof placeProps==='function'&&propsEl) placeProps();
@@ -2931,7 +3005,7 @@ addEventListener('load',fitBar);
 function setUi(ch){ Object.assign(uiCfg,ch); try{ localStorage.setItem('blackboard-ui',JSON.stringify(uiCfg)); }catch(e){} applyLayout(); applyView(); }
 applyLayout();
 try{ const ps=JSON.parse(localStorage.getItem('blackboard-pal')); if(ps&&ps.open) palState=ps; }catch(e){}
-{ const shut=!isPC||innerWidth/uiCfg.scale<=700; palState.closed=shut; palState.propsClosed=shut; palState.open={Allgemein:true}; }   /* beim Öffnen: am PC ausgeklappt, auf Smartphone und Tablet eingeklappt; nur „Allgemein“ aufgeklappt */
+{ const shut=!isPC||innerWidth/uiCfg.scale<=700||document.body.classList.contains('phone'); palState.closed=shut; palState.propsClosed=shut; palState.open={Allgemein:true}; }   /* beim Öffnen: am PC ausgeklappt, auf Smartphone und Tablet eingeklappt; nur „Allgemein“ aufgeklappt */
 window.addEventListener('resize',applyLayout);
 function savePal(){ try{ localStorage.setItem('blackboard-pal',JSON.stringify(palState)); }catch(e){} }
 function renderPal(){
@@ -3485,7 +3559,7 @@ function menuDo(m){
   finishEdit();
   switch(m){
     case 'new': newBoard(); break;
-    case 'fit': fit(); break;
+    case 'fit': fit(true); break;
     case 'keys': openKeys(); break;
     case 'tpl': openTpl(); break;
     case 'img': pickImage(); break;
@@ -3533,7 +3607,7 @@ document.addEventListener('keydown',e=>{
   if(e.key.startsWith('Arrow')&&sel.size){ e.preventDefault(); const st=e.shiftKey?1:GRID, dx=k==='arrowleft'?-st:k==='arrowright'?st:0, dy=k==='arrowup'?-st:k==='arrowdown'?st:0;
     for(const it of [...sel].map(byId)){ if(!it||it.lock) continue; if(it.type==='shape'){ it.x+=dx; it.y+=dy; } else if(it.type==='path') it.pts=it.pts.map(p=>[p[0]+dx,p[1]+dy]); }
     commit(); render(); return; }
-  if(e.shiftKey&&e.code==='Digit1'){ e.preventDefault(); fit(); return; }
+  if(e.shiftKey&&e.code==='Digit1'){ e.preventDefault(); fit(true); return; }
   if(e.key==='0'){ e.preventDefault(); zoomCenter(1/view.k); return; }
   if(e.key==='?'){ e.preventDefault(); openKeys('keys'); return; }
   /* Genau eine Form ausgewählt und einfach lostippen: der Buchstabe ersetzt ihren Text (wie in Präsentationsprogrammen) */
@@ -3978,6 +4052,45 @@ document.addEventListener('keydown',e=>{   /* Esc schließt das Menü, auch wenn
 /* Der frühere Abgleich über ein GitHub-Repository ist entfernt (ersetzt durch das Konto). Gespeicherte Zugangsdaten werden gelöscht. */
 try{ localStorage.removeItem('blackboard-sync'); }catch(e){}
 
+/* ---------- Handy: Werkzeuge unten in Daumennähe, Formen und „Mehr“ als Blatt von unten ---------- */
+function isPhone(){ return document.body.classList.contains('phone'); }
+function phoneSync(){
+  const t=tool, more=['brush','marker','erase','pan','shape'];
+  document.querySelectorAll('#phoneBar [data-tool],#moreSheet [data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t));
+  $('pbMore').classList.toggle('on',more.includes(t));
+  $('pbPlus').setAttribute('aria-expanded',isPhone()&&!palState.closed);
+}
+function closeMore(){ const m=$('moreSheet'); if(m.hidden) return; m.hidden=true; $('pbMore').setAttribute('aria-expanded','false'); }
+function openMore(){ closeHdrPops(); closeViewPop(); closeKtPop(); closeMenu(); if(!palState.closed){ palState.closed=true; renderPal(); } $('moreSheet').hidden=false; $('pbMore').setAttribute('aria-expanded','true'); phoneSync(); }
+function pickTool(t){ finishEdit(); if(palState.optsClosed){ palState.optsClosed=false; savePal(); } setTool(t); updateProps(); }
+$('phoneBar').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.tool){ closeMore(); if(!palState.closed){ palState.closed=true; renderPal(); } pickTool(b.dataset.tool); }
+  else if(b.id==='pbPlus'){ closeMore(); closeMenu(); palState.closed=!palState.closed; savePal(); renderPal(); }
+  else if(b.id==='pbMore'){ if($('moreSheet').hidden) openMore(); else closeMore(); }
+  phoneSync();
+});
+$('moreSheet').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.tool){ closeMore(); pickTool(b.dataset.tool); phoneSync(); return; }
+  closeMore();
+  switch(b.dataset.ms){
+    case 'files': palState.propsClosed=false; savePal(); applySides(); break;
+    case 'tpl': openTpl(); break;
+    case 'play': startPres(); break;
+    case 'slides': toggleSlides(true); break;
+    case 'exp': $('expBtn').click(); break;
+    case 'view': openViewPop(); break;
+    case 'help': openKeys('start'); break;
+    case 'konto': $('ktBtn').click(); break;
+  }
+});
+document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#moreSheet,#pbMore')) closeMore(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('moreSheet').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeMore(); $('pbMore').focus(); } },true);
+/* Form aus dem Blatt gewählt: Blatt schließen, damit man sie gleich sieht */
+palEl.addEventListener('pointerup',()=>{ if(isPhone()&&!palState.closed) setTimeout(()=>{ if(sel.size){ palState.closed=true; renderPal(); phoneSync(); } },60); });
+const _renderPalH=renderPal; renderPal=function(){ _renderPalH(); if(typeof phoneSync==='function') try{ phoneSync(); }catch(e){} };
+phoneSync();
 /* ---------- Live: dasselbe Board auf mehreren Geräten gleichzeitig (über Supabase) ----------
    Besitzer: kennt den geheimen Board-Schlüssel (b.live) und verwaltet die Freigabe-Links. Der Schlüssel wird nie als Link weitergegeben;
    eigene Geräte bekommen ihn über das Konto (18-konto.js).
@@ -4777,7 +4890,7 @@ function exampleDoc(){
   const d1=S('diamond',440,135,'Passt?',{fill:'#fff3b0'});
   const i3=S('round',640,140,'Mit anderen teilen',{fill:'#d3f0dc'});
   C(i1,i2); C(i2,d1); C(d1,i3,'Ja'); C(d1,i2,'Nein',{dash:true,fa:'s',ta:'s'});
-  S('note',40,320,'Tipps:\n• Formen links hineinziehen\n• '+(isPC?'Doppelklick':'Doppeltippen')+' ändert den Text\n• An den blauen Punkten einen Pfeil ziehen',{w:300,h:150,al:'left'});
+  S('note',40,320,'Tipps:\n• '+(document.body.classList.contains('phone')?'Formen über „+“ unten einfügen':'Formen links hineinziehen')+'\n• '+(isPC?'Doppelklick':'Doppeltippen')+' ändert den Text\n• An den blauen Punkten einen Pfeil ziehen',{w:300,h:150,al:'left'});
   S('text',380,330,'Einkauf\nMilch\nÄpfel\nBrot für Samstag',{w:260,h:110,list:true,pf:['b','l','l','l'],al:'left'});
   S('card',680,330,'Teilen (oben rechts): Board live mit anderen bearbeiten',{w:200,h:90,fill:'#ffd9c7'});
   return d;
