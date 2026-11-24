@@ -591,6 +591,7 @@ body.floatbar #props{position:fixed;z-index:30;display:flex!important;height:aut
 body.light.floatbar #props{box-shadow:0 12px 34px rgba(24,24,26,.14),0 1px 3px rgba(24,24,26,.08)}
 body.floatbar #props.fhide{opacity:0;pointer-events:none;visibility:hidden}
 body.floatbar #optsToggle{display:none}
+body.floatbar #props{flex-wrap:wrap;justify-content:center;row-gap:8px;overflow:visible}   /* passt die Leiste nicht in die Tafel, bricht sie in eine zweite Zeile um */
 body.floatbar #props .pg>b{font-size:10px;letter-spacing:.02em;text-transform:none;font-weight:600}
 #barRow button{flex:1;text-align:center;padding:7px 0;border:1px solid var(--line);font-size:12.5px}
 #barRow button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
@@ -2290,10 +2291,12 @@ function barFloat(){ return uiCfg.bar!=='top'&&!(location.hostname==='localhost'
 function placeProps(){ try{ placeProps_(); }catch(e){} }
 function placeProps_(){
   const fl=barFloat(); document.body.classList.toggle('floatbar',fl);
-  if(!fl){ propsEl.classList.remove('fhide'); propsEl.style.left=propsEl.style.top=''; return; }
+  if(!fl){ propsEl.classList.remove('fhide'); propsEl.style.left=propsEl.style.top=propsEl.style.maxWidth=''; return; }
   const items=[...sel].map(byId).filter(Boolean), show=items.length>0||!!DRAW[tool];
   propsEl.classList.toggle('fhide',!show); if(!show){ closeColorPop&&closeColorPop(); return; }
-  const z=uiCfg.scale||1, rc=$('stage').getBoundingClientRect(), bw=propsEl.offsetWidth*z, bh=propsEl.offsetHeight*z, m=10;
+  const z=uiCfg.scale||1, rc=$('stage').getBoundingClientRect(), m0=10;
+  propsEl.style.maxWidth=Math.max(160,(rc.width-2*m0)/z)+'px';   /* nie breiter als die Tafel */
+  const bw=propsEl.offsetWidth*z, bh=propsEl.offsetHeight*z, m=10;
   let left, top;
   if(items.length){
     let x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;

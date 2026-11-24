@@ -5,10 +5,12 @@ function barFloat(){ return uiCfg.bar!=='top'&&!(location.hostname==='localhost'
 function placeProps(){ try{ placeProps_(); }catch(e){} }
 function placeProps_(){
   const fl=barFloat(); document.body.classList.toggle('floatbar',fl);
-  if(!fl){ propsEl.classList.remove('fhide'); propsEl.style.left=propsEl.style.top=''; return; }
+  if(!fl){ propsEl.classList.remove('fhide'); propsEl.style.left=propsEl.style.top=propsEl.style.maxWidth=''; return; }
   const items=[...sel].map(byId).filter(Boolean), show=items.length>0||!!DRAW[tool];
   propsEl.classList.toggle('fhide',!show); if(!show){ closeColorPop&&closeColorPop(); return; }
-  const z=uiCfg.scale||1, rc=$('stage').getBoundingClientRect(), bw=propsEl.offsetWidth*z, bh=propsEl.offsetHeight*z, m=10;
+  const z=uiCfg.scale||1, rc=$('stage').getBoundingClientRect(), m0=10;
+  propsEl.style.maxWidth=Math.max(160,(rc.width-2*m0)/z)+'px';   /* nie breiter als die Tafel */
+  const bw=propsEl.offsetWidth*z, bh=propsEl.offsetHeight*z, m=10;
   let left, top;
   if(items.length){
     let x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;
