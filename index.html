@@ -3972,16 +3972,16 @@ function exampleDoc(){
   const d={items:[],n:0}, id=()=>'i'+(++d.n);
   const S=(kind,x,y,text,o)=>{ const k=KINDS[kind],s=Object.assign({id:id(),type:'shape',kind,x,y,w:k.w,h:k.h,text:text||'',fill:k.fill||'#ffffff',stroke:INK,sw:2},o||{}); d.items.push(s); return s.id; };
   const C=(from,to,text,o)=>d.items.push(Object.assign({id:id(),type:'conn',from,to,p1:{x:0,y:0},p2:{x:0,y:0},text:text||'',stroke:INK,sw:2,style:'ortho',arrow:true,dash:false},o||{}));
-  S('pool',40,40,'Urlaubsantrag',{w:900,h:320,fill:'#e3e8ea'});
-  const st=S('evstart',106,180,'Urlaub\ngeplant',{fill:'#d3f0dc'});
-  const a=S('round',190,160,'Antrag ausfüllen');
-  const b=S('round',380,160,'Antrag prüfen',{fill:'#cfe8ff'});
-  const g=S('gwx',570,175,'Genehmigt?');
-  const y=S('round',700,80,'Urlaub eintragen',{fill:'#d3f0dc'});
-  const n=S('round',700,240,'Absage begründen',{fill:'#ffd9c7'});
-  const e1=S('evend',880,100,''), e2=S('evend',880,260,'');
-  C(st,a); C(a,b); C(b,g); C(g,y,'Ja'); C(g,n,'Nein'); C(y,e1); C(n,e2);
-  S('note',40,390,'Beispiel: Formen anklicken und verschieben, Doppelklick ändert den Text.',{w:230,h:90});
+  S('text',40,20,'Willkommen bei Skizix',{w:420,h:44,fs:28,bold:true,al:'left'});
+  S('text',40,66,'Ein kleines Beispiel: alles lässt sich verschieben, ändern und löschen.',{w:760,h:28,fs:15,al:'left'});
+  const i1=S('round',40,140,'Idee sammeln',{fill:'#cfe8ff'});
+  const i2=S('round',240,140,'Skizzieren',{fill:'#e6dcff'});
+  const d1=S('diamond',440,135,'Passt?',{fill:'#fff3b0'});
+  const i3=S('round',640,140,'Mit anderen teilen',{fill:'#d3f0dc'});
+  C(i1,i2); C(i2,d1); C(d1,i3,'Ja'); C(d1,i2,'Nein',{dash:true,fa:'s',ta:'s'});
+  S('note',40,320,'Tipps:\n• Formen links hineinziehen\n• Doppelklick ändert den Text\n• An den blauen Punkten einen Pfeil ziehen',{w:300,h:150,al:'left'});
+  S('text',380,330,'Einkauf\nMilch\nÄpfel\nBrot für Samstag',{w:260,h:110,list:true,pf:['b','l','l','l'],al:'left'});
+  S('card',680,330,'Live: Board mit anderen teilen (oben rechts)',{w:200,h:90,fill:'#ffd9c7'});
   return d;
 }
 function start(data){
