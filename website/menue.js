@@ -27,10 +27,11 @@
   /* Kopf: Logo-Kästchen so breit wie das Menü links (rechts bündig), Slogan bündig mit der Überschrift darunter */
   function richte(){
     var m=kopf&&kopf.querySelector('.marke'), sl=kopf&&kopf.querySelector('.slogan'), h=document.querySelector('main h1');
-    if(!m) return; m.style.width=''; m.style.marginLeft=''; if(sl) sl.style.marginLeft='';
+    if(!m) return; m.style.width=''; m.style.marginLeft=''; var w0=m.querySelector('.wort'); if(w0){ w0.style.width=''; w0.style.height=''; } if(sl) sl.style.marginLeft='';
     if(!navi||getComputedStyle(navi).position==='fixed') return;
     var nr=navi.getBoundingClientRect(); if(!nr.width) return;
     var ml=nr.left-m.getBoundingClientRect().left; m.style.marginLeft=ml+'px'; m.style.width=nr.width+'px';
+    var w=m.querySelector('.wort'), l=m.querySelector('.logo'); if(w&&l){ var frei=nr.width-l.getBoundingClientRect().width-12; if(frei>60){ w.style.width=frei+'px'; w.style.height=(frei*690/3490)+'px'; } }
     if(sl&&h&&getComputedStyle(sl).display!=='none'){ var d=h.getBoundingClientRect().left-sl.getBoundingClientRect().left; if(d>0) sl.style.marginLeft=d+'px'; }
   }
   richte(); window.addEventListener('resize',richte); if(document.fonts) document.fonts.ready.then(richte);

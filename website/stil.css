@@ -189,8 +189,8 @@ details p{margin:6px 0 0}
 @media print{ .kopf .knopf,.rund,.navi,.kontext{display:none} body{padding:0} .rahmen{display:block} .karte{box-shadow:none} }
 
 /* Kopf- und Fußleiste durchgehend blau über die ganze Breite */
-:root{--leiste:#3B6FE8;--leiste-text:#FFFFFF}
-:root[data-thema="dunkel"]{--leiste:#2B55C4}
+:root{--leiste:#18181A;--leiste-text:#FFFFFF}
+:root[data-thema="dunkel"]{--leiste:#18181A}
 body{padding:0}
 .rahmen{margin:12px}
 .kopf{border:0;border-radius:0;box-shadow:none;background:var(--leiste);color:var(--leiste-text);padding:12px 24px;min-height:72px}
@@ -374,8 +374,22 @@ main>.held{flex-direction:column;align-items:stretch;justify-content:center}
 /* Kopf ohne Trenner; Logo-Kästchen über dem Menü, Slogan bündig mit der Überschrift (Breiten setzt menue.js) */
 .kopf .trenner{display:none}
 .kopf .marke{box-sizing:border-box}
-/* Logo-Kästchen dunkel wie die Kopfleiste der App (dunkel) */
-.kopf .marke,.fuss .marke{background:#222225;color:#F2F2F0;box-shadow:inset 0 0 0 1px #35353a}
+
+/* Kopf und Fuß schwarz wie die App (dunkel); Logo ohne Kästchen, so breit wie das Menü (Breite setzt menue.js) */
+.kopf{border-bottom:1px solid #2C2C30}
+.fuss{border-top:1px solid #2C2C30}
+.kopf .marke{background:none;box-shadow:none;padding:0;gap:12px;color:#F2F2F0}
+.kopf .marke .logo{height:40px;width:auto;aspect-ratio:34/30}
+.kopf .rund{background:rgba(255,255,255,.1)}
+.kopf .knopf.haupt{background:#3B6FE8;color:#fff}
+.kopf .knopf.haupt:hover{filter:brightness(1.08)}
+.kopf .slogan{font-size:18px;color:#F2F2F0}
+.kopf .slogan b,.kopf .slogan .hand-s{color:#6B95F5}
+/* Hintergrund hinter Menü und Inhalt wie die Seitenleisten der App (dunkel) */
+:root:not([data-thema="dunkel"]){--grund:#222225}
+:root:not([data-thema="dunkel"]) .b-kopf{color:#F2F2F0}
+:root:not([data-thema="dunkel"]) .b-kopf span{color:#A6A6AB}
+@media (max-width:820px){ .kopf .marke .logo{height:30px} .kopf .marke .wort{height:16px} .kopf .marke{gap:9px} }
 
 /* Animationen der Beispiel-Boards */
 @keyframes hb1{0%,0%{opacity:0;transform:scale(.7)}4%{opacity:1;transform:scale(1.04)}7%,94%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
