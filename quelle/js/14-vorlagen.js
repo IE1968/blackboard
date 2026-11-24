@@ -17,22 +17,22 @@ const CARD_INK='#1d2b2f';
 function tplCheck(K,x,y,w,lines,o){ return K.X(x,y,w,lines.map(l=>l.replace(/^\+/,'')).join('\n'),16,Object.assign({pf:lines.map(l=>l.startsWith('+')?'x':'c'),tc:CARD_INK},o||{})); }
 function tplCard(K,x,y,w,h,title,fill,lines){ K.B('rect',x,y,w,h,'',{fill}); K.X(x+16,y+14,w-32,title,18,{bold:true,tc:CARD_INK}); tplCheck(K,x+16,y+52,w-32,lines); }
 const TEMPLATES=[
- {name:'Einkaufsliste',info:'Zum Abhaken, nach Bereichen sortiert – mit Namen, wer was mitbringt',make(K){ const {H,X,B}=K; H(0,0,700,'Einkaufsliste',26);
-   X(0,40,860,'Kästchen antippen zum Abhaken · neue Zeile mit Enter · hinter den Strich schreiben, wer es besorgt',13,{tc:'#5b6870'});
+ {name:'Einkaufsliste',info:'Zum Abhaken, nach Bereichen sortiert – mit Namen, wer was mitbringt',make(K){ const {H,X,B}=K; H(0,0,880,'Einkaufsliste',26);
+   X(0,40,880,'Kästchen antippen zum Abhaken · neue Zeile mit Enter · hinter den Strich schreiben, wer es besorgt',13,{tc:'#5b6870'});
    tplCard(K,0,84,280,230,'Obst & Gemüse',TC.green,['Äpfel','+Bananen','Tomaten','Salat']);
    tplCard(K,300,84,280,230,'Kühlregal',TC.blue,['Milch – Sam','Joghurt','Käse','Butter']);
    tplCard(K,600,84,280,230,'Vorrat & Backwaren',TC.yellow,['Brot für Samstag','Nudeln','Kaffee – Alex','Reis']);
    tplCard(K,0,334,280,200,'Drogerie & Haushalt',TC.pink,['Zahnpasta','Spülmittel','Küchenrolle']);
    B('note',300,334,280,200,'Nicht vergessen:\nPfandflaschen mitnehmen',{fill:TC.yellow,al:'left'}); }},
- {name:'Wochenplaner',info:'Montag bis Sonntag für die ganze Familie, mit Aufgaben der Woche',make(K){ const {H,X,TB}=K; H(0,0,700,'Wochenplaner',26);
+ {name:'Wochenplaner',info:'Montag bis Sonntag für die ganze Familie, mit Aufgaben der Woche',make(K){ const {H,X,TB}=K; H(0,0,900,'Wochenplaner',26);
    const now=new Date(), mo=new Date(now.getFullYear(),now.getMonth(),now.getDate()-((now.getDay()+6)%7)), so=new Date(mo.getFullYear(),mo.getMonth(),mo.getDate()+6), dm=d=>d.getDate()+'.'+(d.getMonth()+1);
-   X(0,40,860,'Woche vom '+dm(mo)+' bis '+dm(so),16);   /* aktuelle Woche, Montag bis Sonntag */
+   X(0,40,900,'Woche vom '+dm(mo)+' bis '+dm(so),16);   /* aktuelle Woche, Montag bis Sonntag */
    const cw=[130,110,110,110,110,110,110,110], rh=[44,76,76,76,60];
    TB(0,80,cw,rh,[['','Mo','Di','Mi','Do','Fr','Sa','So'],['Morgens','','','','','','',''],['Nachmittags','','','','','','',''],['Abends','','','','','','',''],['Wichtig?','','','','','','','']],{al:'center'});
-   tplCard(K,0,442,420,200,'Diese Woche erledigen',TC.orange,['Müll rausbringen (Di)','Geschenk für Oma besorgen','+Arzttermin ausmachen']);
-   tplCard(K,440,442,440,200,'Einkauf fürs Wochenende',TC.green,['Grillgemüse','Brötchen','Getränke']); }},
- {name:'To-do-Liste',info:'Heute, diese Woche, irgendwann – zum Abhaken',make(K){ const {H,X}=K; H(0,0,700,'To-do-Liste',26);
-   X(0,40,860,'Kästchen antippen zum Abhaken · Erledigtes wird durchgestrichen',13,{tc:'#5b6870'});
+   tplCard(K,0,442,440,200,'Diese Woche erledigen',TC.orange,['Müll rausbringen (Di)','Geschenk für Oma besorgen','+Arzttermin ausmachen']);
+   tplCard(K,460,442,440,200,'Einkauf fürs Wochenende',TC.green,['Grillgemüse','Brötchen','Getränke']); }},
+ {name:'To-do-Liste',info:'Heute, diese Woche, irgendwann – zum Abhaken',make(K){ const {H,X}=K; H(0,0,880,'To-do-Liste',26);
+   X(0,40,880,'Kästchen antippen zum Abhaken · Erledigtes wird durchgestrichen',13,{tc:'#5b6870'});
    tplCard(K,0,84,280,250,'Heute',TC.orange,['Arzttermin vereinbaren','+Wäsche waschen','Einkauf erledigen']);
    tplCard(K,300,84,280,250,'Diese Woche',TC.blue,['Rechnung bezahlen','Auto zum TÜV','Bewerbung abschicken']);
    tplCard(K,600,84,280,250,'Irgendwann',TC.violet,['Keller aufräumen','Fotobuch gestalten','Fahrrad reparieren']); }},

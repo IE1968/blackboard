@@ -53,7 +53,12 @@ try:
   check('Vorlagen Alltag vorne',names[:3]==['Einkaufsliste','Wochenplaner','To-do-Liste'],str(names[:4]))
   for i,n in enumerate(['Einkaufsliste','Wochenplaner','To-do-Liste']):
       if i: pg.evaluate("()=>document.querySelector('[data-tpl]').click()"); pg.wait_for_timeout(300)
+      before={x['id'] for x in pg.evaluate(READ)['items']}
       pg.click(f'#tplGrid [data-t="{i}"]'); pg.wait_for_timeout(300)
+      new=[x for x in pg.evaluate(READ)['items'] if x['id'] not in before]
+      boxes=[x for x in new if x.get('kind') in ('rect','table')]; tops=sorted([x for x in new if x.get('kind')=='text'],key=lambda x:x['y'])[:2]
+      R=max(x['x']+x['w'] for x in boxes)
+      check(f'{n}: rechts bündig',all(abs(x['x']+x['w']-R)<1 for x in tops) and sum(1 for x in boxes if abs(x['x']+x['w']-R)<1)>=1 and max(x['x']+x['w'] for x in new)<=R+1,str([x['x']+x['w'] for x in tops+boxes]))
       if i==0: pg.screenshot(path=OUT+'/vorlage_einkauf.png')
   its=pg.evaluate(READ)['items']; pf=[v for i in its for v in i.get('pf',[])]
   check('Vorlagen bringen offene und abgehakte Zeilen mit',pf.count('x')>=3 and pf.count('c')>=20,f"{pf.count('x')} {pf.count('c')}")
