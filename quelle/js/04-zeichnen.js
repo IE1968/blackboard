@@ -21,7 +21,7 @@ function render(){
   const vis=visibleItems(); noText=drawn.lod&&!editing;
   itemsG.innerHTML=vis.map(itemSVG).join(''); noText=false;
   elById.clear(); for(const el of itemsG.children) if(el.dataset.id) elById.set(el.dataset.id,el);
-  renderOverlay(); updateProps(); scheduleSlides();
+  renderOverlay(); updateProps(); scheduleSlides(); updateStart();
   $('undo').disabled=hi<=0; $('redo').disabled=hi>=hist.length-1;
 }
 /* Beim Ziehen werden nur die betroffenen Elemente neu gezeichnet, nicht die ganze Tafel. */

@@ -119,6 +119,10 @@ const TEMPLATES=[
  {name:'Scrum-Board',info:'Backlog, Sprint, Review',kind:'scrum'},
  {name:'Mindmap',info:'Thema mit Zweigen, per „+ Zweig“ erweiterbar',kind:'mindmap'}
 ];
+const TKAT={'Einkaufsliste':'Alltag','Wochenplaner':'Alltag','To-do-Liste':'Alltag','Mindmap':'Unterricht','Zahlenstrahl 0–20':'Unterricht','Zahlenstrahl 0–100':'Unterricht','Zeitstrahl':'Unterricht','Zeitstrahl senkrecht':'Unterricht','PDCA-Zyklus':'Unterricht','5-Why-Analyse':'Unterricht','Ishikawa-Diagramm':'Unterricht'};
+const TKAT_FARBE={Alltag:'coral',Unterricht:'blue',Beruf:'violet'};
+let tplKat='*';
+function tplFilter(k){ tplKat=k; document.querySelectorAll('#tplFilt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k)); document.querySelectorAll('#tplGrid .tc').forEach(b=>b.hidden=k!=='*'&&b.dataset.kat!==k); }
 function tplItems(t){ const K=tplKit(); t.make(K); return tplInk(K.out); }
 /* Texte, die auf einer farbigen (hellen) Fläche liegen, behalten dunkle Schrift – auch auf dunkler Tafel */
 function tplInk(its){
@@ -136,7 +140,10 @@ function tplPreview(t){
 }
 function openTpl(){
   closeMenu(); const g=$('tplGrid');
-  if(!g.dataset.done){ g.innerHTML=TEMPLATES.map((t,i)=>`<button type="button" class="tc" data-t="${i}">${tplPreview(t)}<b>${esc(t.name)}</b><small>${esc(t.info)}</small></button>`).join(''); g.dataset.done='1'; }
+  if(!g.dataset.done){ const ord={Alltag:0,Unterricht:1,Beruf:2}, ks=i=>TKAT[TEMPLATES[i].name]||'Beruf';
+    g.innerHTML=TEMPLATES.map((t,i)=>i).sort((a,b)=>ord[ks(a)]-ord[ks(b)]||a-b).map(i=>{ const t=TEMPLATES[i], k=ks(i); return `<button type="button" class="tc" data-t="${i}" data-kat="${k}">${tplPreview(t)}<b>${esc(t.name)}</b><small><em style="color:var(--c-${TKAT_FARBE[k]})">${k}</em> · ${esc(t.info)}</small></button>`; }).join(''); g.dataset.done='1';
+    $('tplFilt').innerHTML=[['*','Alle'],['Alltag','Alltag'],['Unterricht','Unterricht'],['Beruf','Beruf']].map(([k,n])=>`<button type="button" class="chip" data-k="${k}" aria-pressed="${k===tplKat}">${n}</button>`).join(''); }
+  tplFilter(tplKat);
   $('tplDlg').hidden=false; const b=$('tplBox'); b.scrollTop=0; b.focus({preventScroll:true});
 }
 function closeTpl(){ if($('tplDlg').hidden) return; $('tplDlg').hidden=true; svg.focus(); }
@@ -151,7 +158,8 @@ function insertTpl(i){
   toast('Vorlage eingefügt. Alles ist ausgewählt und lässt sich gemeinsam verschieben.');
 }
 $('tplGrid').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(b) insertTpl(+b.dataset.t); });
-$('tplClose').onclick=closeTpl;
+$('tplClose').onclick=closeTpl; $('tplX').onclick=closeTpl;
+$('tplFilt').addEventListener('click',e=>{ const b=e.target.closest('[data-k]'); if(b) tplFilter(b.dataset.k); });
 $('tplDlg').addEventListener('pointerdown',e=>{ if(e.target===$('tplDlg')) closeTpl(); });
 $('tplDlg').addEventListener('keydown',e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); closeTpl(); } });
 

@@ -43,7 +43,7 @@ function isCompactNow(){ return innerWidth/uiCfg.scale<=1000||innerHeight/uiCfg.
 function applyLayout(){
   const w=innerWidth/uiCfg.scale, c=document.body.classList; c.toggle('touch',!isPC);
   document.documentElement.style.setProperty('--ui',uiCfg.scale); c.toggle('hc',uiCfg.hc);
-  c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1100); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
+  c.toggle('compact',isCompactNow()); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
   document.querySelectorAll('#uiRow button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
   applyAppTheme(); applyTheme(); fitBar(); if(typeof placeProps==='function'&&propsEl) placeProps();
@@ -52,10 +52,11 @@ function applyLayout(){
 /* Kopfleiste: Passt sie nicht in die Breite, stufenweise verdichten, damit Live und Konto immer sichtbar bleiben */
 function fitBar(){
   const c=document.body.classList, bar=document.querySelector('header .bar'); if(!bar) return;
-  for(let i=1;i<=5;i++) c.remove('eng'+i);
-  c.toggle('nolabels',innerWidth/uiCfg.scale<=1100);
-  if(bar.scrollWidth>bar.clientWidth+1) c.add('nolabels');   /* Beschriftungen nur, wenn sie hineinpassen */
-  for(let i=1;i<=5&&bar.scrollWidth>bar.clientWidth+1;i++) c.add('eng'+i);
+  const voll=()=>bar.scrollWidth>bar.clientWidth+1, frei=()=>{ for(let i=1;i<=5;i++) c.remove('eng'+i); };
+  /* Erst mit Beschriftung verdichten (Name schmaler, Zoomknöpfe, Schriftzug); reicht das nicht, Beschriftungen weg und noch einmal */
+  frei(); c.remove('nolabels');
+  for(let i=1;i<=4&&voll();i++) c.add('eng'+i);
+  if(voll()){ frei(); c.add('nolabels'); for(let i=1;i<=5&&voll();i++) c.add('eng'+i); }
 }
 addEventListener('load',fitBar);
 function setUi(ch){ Object.assign(uiCfg,ch); try{ localStorage.setItem('blackboard-ui',JSON.stringify(uiCfg)); }catch(e){} applyLayout(); applyView(); }

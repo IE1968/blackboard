@@ -429,10 +429,14 @@ body.touch #optsToggle::after{height:24px}
 /* Kopfleiste verdichten, wenn sie nicht passt (siehe fitBar) */
 body.eng1 .bar{gap:4px}
 body.eng1 #boardName{width:110px;min-width:80px}
-body.eng2 #zoomOut,body.eng2 #zoomIn{display:none}
-body.eng3 #keysBtn{display:none}
-body.eng4 .brand .wm{height:.62em}
-body.eng5 .brand .wm{display:none}
+body.eng2 .brand .wm{height:.62em}
+body.eng3 .brand .wm{display:none}
+body.eng4 #zoomOut,body.eng4 #zoomIn{display:none}
+body.eng5 #keysBtn{display:none}
+/* Kopfleiste mit Beschriftung: etwas schmalere Knöpfe, damit die Wörter Platz haben */
+body:not(.nolabels):not(.compact) .tb{flex:none;min-width:44px;padding:5px 5px 4px;font-size:10.5px}
+body:not(.nolabels):not(.compact) #zoomGrp .tb{min-width:30px;padding:5px 3px}
+body:not(.nolabels):not(.compact) .bar{gap:2px}
 
 /* ---- Neues Design (Zwischenweg B+): farbige Werkzeugsymbole, Farbstreifen, ruhige Flächen ---- */
 header{background:var(--panel);border-bottom:1px solid var(--line)}
@@ -684,6 +688,56 @@ body.touch .tb{min-width:44px;min-height:44px}
 body.touch #props .pb,body.touch #colorPop .pb{min-height:44px;min-width:44px}
 body.touch #palHandle,body.touch #propsToggle{width:32px}
 body.touch #presBar button{min-width:44px;min-height:44px}
+
+/* ---- Startbereich auf leerem Board ---- */
+#startArea{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;padding:24px;pointer-events:none;overflow:auto}
+#startArea[hidden]{display:none}
+.saBox{width:100%;max-width:780px;zoom:var(--ui);text-align:center;color:var(--ink)}
+.saBox h2{margin:0;font:700 26px/1.2 var(--body);letter-spacing:-.01em}
+.saSub{margin:8px 0 22px;color:var(--muted);font-size:14px}
+.saBox button{pointer-events:auto}
+.saCards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;text-align:left}
+.saCard{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);text-align:left;transition:border-color .12s,transform .12s}
+.saCard:hover,.saCard:focus-visible{border-color:var(--c);transform:translateY(-1px)}
+.saCard i{display:grid;place-items:center;width:42px;height:42px;border-radius:11px;background:color-mix(in srgb,var(--c) 18%,transparent);margin-bottom:6px}
+.saCard svg{width:22px;height:22px;fill:none;stroke:var(--c);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.saCard b{font-size:16px}
+.saCard span{font-size:13px;line-height:1.4;color:var(--muted)}
+.saRow{display:flex;align-items:baseline;justify-content:space-between;margin:24px 2px 10px}
+.saRow h3{margin:0;font:600 15px/1.2 var(--body)}
+.saLink{color:var(--accent);font-size:13px;font-weight:600;padding:4px 2px}
+.saLink:hover{text-decoration:underline}
+.saTpls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;text-align:left}
+.saTpl{display:flex;flex-direction:column;gap:3px;padding:8px 8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink)}
+.saTpl:hover,.saTpl:focus-visible{border-color:var(--accent)}
+.saTpl svg{width:100%;height:86px;background:var(--tpl-bg,#fbfbf8);border-radius:7px;margin-bottom:5px}
+.saTpl b{font-size:13.5px;padding:0 2px}
+.saTpl small{font-size:11.5px;color:var(--muted);padding:0 2px}
+.saTips{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin-top:20px}
+.saTips[hidden]{display:none}
+.saTips span{padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-size:12.5px;color:var(--muted)}
+body.compact .saBox h2{font-size:20px}
+body.compact .saCards{gap:10px}
+body.compact .saCard{padding:14px}
+body.narrow #startArea{align-items:flex-start;padding:14px 12px}
+body.narrow .saCards{grid-template-columns:1fr;gap:8px}
+body.narrow .saCard{flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:12px;padding:12px}
+body.narrow .saCard i{margin:0;width:36px;height:36px}
+body.narrow .saCard span{display:none}
+body.narrow .saTpls{grid-template-columns:repeat(2,minmax(0,1fr))}
+body.narrow .saTpl svg{height:64px}
+body.narrow .saTips{display:none}
+/* Vorlagen-Fenster: Kopf mit ✕ und Filter */
+.tplHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.tplHead h2{margin:0!important}
+.dlgX{width:36px;height:36px;border-radius:10px;font-size:16px;color:var(--muted)}
+.dlgX:hover{background:var(--hover);color:var(--ink)}
+#tplFilt{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+#tplFilt .chip{padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:12.5px;font-weight:600;color:var(--muted)}
+#tplFilt .chip[aria-pressed="true"]{background:var(--acc-soft);border-color:var(--accent);color:var(--accent)}
+.tc small em{font-style:normal;font-weight:700}
+.tc[hidden]{display:none}
+.slWarn{position:absolute;left:8px;top:8px;padding:2px 7px;border-radius:999px;background:#ffe3dd;color:#8a2414;font:700 10.5px/1.4 var(--body);font-style:normal;pointer-events:none}
 </style>
 </head>
 <body>
@@ -703,14 +757,14 @@ body.touch #presBar button{min-width:44px;min-height:44px}
     </div>
     <div class="sep"></div>
     <div class="grp">
-      <button class="tb" id="undo" title="Rückgängig (Strg+Z)"><svg viewBox="0 0 24 24"><path d="M8 7L4 11l4 4M4 11h10a5 5 0 010 10h-3"/></svg><span>Rückgängig</span></button>
-      <button class="tb" id="redo" title="Wiederholen (Strg+Y)"><svg viewBox="0 0 24 24"><path d="M16 7l4 4-4 4M20 11H10a5 5 0 000 10h3"/></svg><span>Wiederholen</span></button>
+      <button class="tb" id="undo" title="Rückgängig (Strg+Z)"><svg viewBox="0 0 24 24"><path d="M8 7L4 11l4 4M4 11h10a5 5 0 010 10h-3"/></svg><span>Zurück</span></button>
+      <button class="tb" id="redo" title="Wiederholen (Strg+Y)"><svg viewBox="0 0 24 24"><path d="M16 7l4 4-4 4M20 11H10a5 5 0 000 10h3"/></svg><span>Vor</span></button>
     </div>
     <div class="spacer"></div>
     <button class="tb" id="keysBtn" title="Tastenkürzel (?)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.500 9.500a2.500 2.500 0 114 2c-1 .7-1.500 1.200-1.500 2.300M12 17h.01"/></svg><span>Hilfe</span></button>
     <button class="tb" id="expBtn" aria-expanded="false" aria-haspopup="true" aria-controls="expPop" title="Exportieren: Bild, Vektor oder PDF"><svg viewBox="0 0 24 24"><path d="M12 4v11M7.500 10.500L12 15l4.500-4.500M5 19h14"/></svg><span>Export</span></button>
-    <button class="tb" id="playBtn" aria-expanded="false" aria-haspopup="true" aria-controls="presPop" title="Präsentation: starten oder Folienübersicht"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M10 8v5l4.500-2.500zM8 21h8M12 17v4"/></svg><span>Zeigen</span></button>
-    <button class="tb" id="viewBtn" aria-expanded="false" aria-haspopup="true" aria-controls="viewPop" title="Ansicht: Tafel, Muster, Farben und Größe"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 010 16z" fill="currentColor"/></svg><span>Ansicht</span></button>
+    <button class="tb" id="playBtn" aria-expanded="false" aria-haspopup="true" aria-controls="presPop" title="Präsentation: starten oder Folienübersicht"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M10 8v5l4.500-2.500zM8 21h8M12 17v4"/></svg><span>Präsentieren</span></button>
+    <button class="tb" id="viewBtn" aria-expanded="false" aria-haspopup="true" aria-controls="viewPop" title="Ansicht: Tafel, Muster, Farben und Größe"><svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span>Ansicht</span></button>
     <div class="grp" id="zoomGrp">
       <button class="tb" id="zoomOut" title="Verkleinern"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
       <button id="zoomLabel" title="Auf 100 % (Umschalt+1: alles einpassen)">100 %</button>
@@ -765,6 +819,7 @@ body.touch #presBar button{min-width:44px;min-height:44px}
       <rect id="gridRect" width="100%" height="100%" fill="url(#grid)"/>
       <g id="world"><g id="items"></g><g id="overlay"></g></g>
     </svg>
+    <div id="startArea" hidden></div>
     <textarea id="editor" hidden spellcheck="false" aria-label="Text der Form"></textarea>
     <div id="slides" hidden aria-label="Folienübersicht"><div class="sh"><b>Folien</b><button type="button" id="slAdd" title="Neue Folie rechts neben der letzten">+ Folie</button><button type="button" id="slPlay" title="Präsentation ab der markierten Folie">▶ Zeigen</button><button type="button" id="slClose" aria-label="Übersicht schließen" title="Schließen">✕</button></div><div id="slList" role="listbox" aria-label="Folien, zum Umsortieren ziehen"></div></div>
     <div id="toast" hidden role="status"></div>
@@ -773,6 +828,7 @@ body.touch #presBar button{min-width:44px;min-height:44px}
   <aside id="menu" aria-label="Datei">
     <button data-m="manage" id="manageBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Boards verwalten …</button>
     <button data-m="new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Neues Board</button>
+    <button data-m="tpl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Vorlagen …</button>
     <button data-m="open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/></svg>Board laden …</button>
     <button data-m="clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 20h12M5 15l9-9 5 5-8 8H8z"/></svg>Board leeren</button>
     <button data-m="delboard" id="delBoard"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span class="t">Board löschen</span></button>
@@ -821,7 +877,7 @@ body.touch #presBar button{min-width:44px;min-height:44px}
     <div class="dlgBtns"><button type="submit" class="pb" id="ktGo">Anmelden</button><button type="button" class="pb" id="ktClose">Abbrechen</button></div>
   </form>
 </div>
-<div id="tplDlg" hidden role="dialog" aria-modal="true" aria-labelledby="tplTitle"><div id="tplBox" tabindex="-1"><h2 id="tplTitle">Vorlage einfügen</h2><div id="tplGrid"></div><div class="dlgBtns"><button type="button" class="pb" id="tplClose">Schließen</button></div></div></div>
+<div id="tplDlg" hidden role="dialog" aria-modal="true" aria-labelledby="tplTitle"><div id="tplBox" tabindex="-1"><div class="tplHead"><h2 id="tplTitle">Vorlage einfügen</h2><button type="button" id="tplX" class="dlgX" aria-label="Schließen">✕</button></div><div id="tplFilt" role="group" aria-label="Vorlagen filtern"></div><div id="tplGrid"></div><div class="dlgBtns"><button type="button" class="pb" id="tplClose">Schließen</button></div></div></div>
 <div id="keysDlg" hidden role="dialog" aria-modal="true" aria-labelledby="keysTitle"><div id="keysBox" tabindex="-1"><h2 id="keysTitle">Tastenkürzel</h2><h3>Werkzeuge</h3><dl><dt><kbd>V</kbd></dt><dd>Auswählen</dd><dt><kbd>P</kbd></dt><dd>Stift</dd><dt><kbd>B</kbd></dt><dd>Pinsel</dd><dt><kbd>M</kbd></dt><dd>Marker</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>E</kbd></dt><dd>Radierer</dd><dt><kbd>H</kbd> oder <kbd>Leertaste</kbd> halten</dt><dd>Tafel verschieben</dd><dt><kbd>0</kbd></dt><dd>Zoom 100 %</dd><dt><kbd>Umschalt</kbd>+<kbd>1</kbd></dt><dd>Alles einpassen</dd></dl><h3>Bearbeiten</h3><dl><dt><kbd>Strg</kbd>+<kbd>Z</kbd> / <kbd>Strg</kbd>+<kbd>Y</kbd></dt><dd>Rückgängig / Wiederholen</dd><dt><kbd>Strg</kbd>+<kbd>C</kbd> <kbd>Strg</kbd>+<kbd>X</kbd> <kbd>Strg</kbd>+<kbd>V</kbd></dt><dd>Kopieren, Ausschneiden, Einfügen</dd><dt><kbd>Strg</kbd>+<kbd>D</kbd></dt><dd>Duplizieren</dd><dt><kbd>Strg</kbd>+<kbd>A</kbd></dt><dd>Alles auswählen</dd><dt><kbd>Strg</kbd>+<kbd>G</kbd> / <kbd>Strg</kbd>+<kbd>⇧</kbd>+<kbd>G</kbd></dt><dd>Gruppieren / Gruppe lösen</dd><dt><kbd>Entf</kbd></dt><dd>Löschen</dd><dt><kbd>Enter</kbd> oder <kbd>F2</kbd></dt><dd>Text der Auswahl bearbeiten</dd><dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Verschieben (mit <kbd>⇧</kbd> pixelgenau)</dd><dt><kbd>Esc</kbd></dt><dd>Auswahl aufheben, Aktion abbrechen</dd></dl><h3>Beim Ziehen</h3><dl><dt><kbd>⇧</kbd></dt><dd>Ecken: frei verformen · Pfeilende: in 45°-Schritten</dd><dt><kbd>Alt</kbd></dt><dd>Ohne Einrasten und Hilfslinien</dd><dt><kbd>Strg</kbd> + Mausrad</dt><dd>Zoomen</dd></dl><h3>Beim Schreiben</h3><dl><dt><kbd>Enter</kbd></dt><dd>Neuer Absatz</dd><dt><kbd>Strg</kbd>+<kbd>Enter</kbd> / <kbd>Esc</kbd></dt><dd>Fertig</dd><dt><kbd>Enter</kbd> in der Mindmap</dt><dd>Fertig (⇧+Enter: neue Zeile)</dd><dt><kbd>Tab</kbd></dt><dd>Tabelle: nächste Zelle · Mindmap: neuer Zweig</dd></dl><h3>Präsentation</h3><dl><dt><kbd>→</kbd> <kbd>Leertaste</kbd></dt><dd>Weiter</dd><dt><kbd>←</kbd></dt><dd>Zurück</dd><dt><kbd>L</kbd></dt><dd>Laserpointer</dd><dt><kbd>A</kbd></dt><dd>Quiz-Lösung zeigen</dd><dt><kbd>Esc</kbd></dt><dd>Beenden</dd></dl><h3>Hilfe</h3><dl><dt><kbd>?</kbd></dt><dd>Diese Übersicht</dd></dl><div class="dlgBtns"><button type="button" class="pb" id="keysClose">Schließen</button></div></div></div>
 <div id="pres" hidden tabindex="-1" role="dialog" aria-modal="true" aria-label="Präsentation">
   <svg id="presSvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
@@ -1465,7 +1521,7 @@ function render(){
   const vis=visibleItems(); noText=drawn.lod&&!editing;
   itemsG.innerHTML=vis.map(itemSVG).join(''); noText=false;
   elById.clear(); for(const el of itemsG.children) if(el.dataset.id) elById.set(el.dataset.id,el);
-  renderOverlay(); updateProps(); scheduleSlides();
+  renderOverlay(); updateProps(); scheduleSlides(); updateStart();
   $('undo').disabled=hi<=0; $('redo').disabled=hi>=hist.length-1;
 }
 /* Beim Ziehen werden nur die betroffenen Elemente neu gezeichnet, nicht die ganze Tafel. */
@@ -2768,7 +2824,7 @@ function isCompactNow(){ return innerWidth/uiCfg.scale<=1000||innerHeight/uiCfg.
 function applyLayout(){
   const w=innerWidth/uiCfg.scale, c=document.body.classList; c.toggle('touch',!isPC);
   document.documentElement.style.setProperty('--ui',uiCfg.scale); c.toggle('hc',uiCfg.hc);
-  c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1100); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
+  c.toggle('compact',isCompactNow()); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
   document.querySelectorAll('#uiRow button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
   applyAppTheme(); applyTheme(); fitBar(); if(typeof placeProps==='function'&&propsEl) placeProps();
@@ -2777,10 +2833,11 @@ function applyLayout(){
 /* Kopfleiste: Passt sie nicht in die Breite, stufenweise verdichten, damit Live und Konto immer sichtbar bleiben */
 function fitBar(){
   const c=document.body.classList, bar=document.querySelector('header .bar'); if(!bar) return;
-  for(let i=1;i<=5;i++) c.remove('eng'+i);
-  c.toggle('nolabels',innerWidth/uiCfg.scale<=1100);
-  if(bar.scrollWidth>bar.clientWidth+1) c.add('nolabels');   /* Beschriftungen nur, wenn sie hineinpassen */
-  for(let i=1;i<=5&&bar.scrollWidth>bar.clientWidth+1;i++) c.add('eng'+i);
+  const voll=()=>bar.scrollWidth>bar.clientWidth+1, frei=()=>{ for(let i=1;i<=5;i++) c.remove('eng'+i); };
+  /* Erst mit Beschriftung verdichten (Name schmaler, Zoomknöpfe, Schriftzug); reicht das nicht, Beschriftungen weg und noch einmal */
+  frei(); c.remove('nolabels');
+  for(let i=1;i<=4&&voll();i++) c.add('eng'+i);
+  if(voll()){ frei(); c.add('nolabels'); for(let i=1;i<=5&&voll();i++) c.add('eng'+i); }
 }
 addEventListener('load',fitBar);
 function setUi(ch){ Object.assign(uiCfg,ch); try{ localStorage.setItem('blackboard-ui',JSON.stringify(uiCfg)); }catch(e){} applyLayout(); applyView(); }
@@ -3414,7 +3471,7 @@ function renderSlides(){
   clearTimeout(slT); slT=0; if(slidesEl.hidden) return;
   const fr=frames(); if(slSel&&!fr.some(f=>f.id===slSel)) slSel=null;
   const one=[...sel].map(byId).find(i=>i&&i.kind==='frame'); if(one) slSel=one.id;
-  slList.innerHTML=fr.length?fr.map((f,i)=>`<div class="st" role="option" tabindex="0" data-f="${f.id}" aria-selected="${f.id===slSel}" title="Folie ${i+1}: anklicken springt hin, ziehen sortiert um">${slideThumb(f)}<span>${i+1}${f.text?' · '+esc(String(f.text).replace(/\s+/g,' ').slice(0,30)):''}</span></div>`).join('')
+  slList.innerHTML=fr.length?fr.map((f,i)=>`<div class="st" role="option" tabindex="0" data-f="${f.id}" aria-selected="${f.id===slSel}" title="Folie ${i+1}: anklicken springt hin, ziehen sortiert um">${slideThumb(f)}${(n=>n?`<em class="slWarn" title="Elemente ragen über den Rand dieser Folie hinaus">✂ schneidet ${n} ab</em>`:'')(cutCount(f))}<span>${i+1}${f.text?' · '+esc(String(f.text).replace(/\s+/g,' ').slice(0,30)):''}</span></div>`).join('')
     :'<div class="slEmpty">Noch keine Folien. „+ Folie“ legt eine an, oder ziehe „Folie“ aus der Formenleiste auf das Board.</div>';
 }
 function scheduleSlides(){ if(!slidesEl.hidden&&!slT) slT=setTimeout(renderSlides,350); }
@@ -3453,7 +3510,32 @@ slList.addEventListener('keydown',e=>{ const t=e.target.closest('.st'); if(!t) r
 });
 $('slClose').onclick=()=>toggleSlides(false);
 $('slPlay').onclick=()=>startPres(slSel);
-$('slAdd').onclick=()=>{ const rc=svg.getBoundingClientRect(); addShape('frame',toWorld(rc.left+rc.width/2,rc.top+rc.height/2)); const f=frames().pop(); if(f){ slSel=f.id; renderSlides(); gotoFrame(f.id); } };
+/* Neue Folie umschließt die ausgewählten Elemente – sonst alles, was gerade im Blick ist und noch auf keiner Folie liegt */
+function slideTarget(){
+  const pick=[...sel].map(byId).filter(i=>i&&i.type!=='conn'&&i.kind!=='frame');
+  if(pick.length) return pick;
+  const rc=svg.getBoundingClientRect(), a=toWorld(rc.left,rc.top), b=toWorld(rc.right,rc.bottom), fr=frames();
+  const inside=(x,f)=>x.x>=f.x-2&&x.y>=f.y-2&&x.x+x.w<=f.x+f.w+2&&x.y+x.h<=f.y+f.h+2;
+  return doc.items.filter(i=>{ if(i.type==='conn'||i.kind==='frame') return false; const x=bbox(i);
+    return x.x<b.x&&x.x+x.w>a.x&&x.y<b.y&&x.y+x.h>a.y&&!fr.some(f=>inside(x,f)); });
+}
+function frameAround(its){
+  const u=unionBox(its), pad=40; let w=u.w+2*pad, h=u.h+2*pad;
+  if(w/h>16/9) h=w*9/16; else w=h*16/9;
+  w=Math.max(w,320); h=Math.max(h,180);
+  return {x:snap(u.x+u.w/2-w/2),y:snap(u.y+u.h/2-h/2),w:Math.round(w),h:Math.round(h)};
+}
+function cutCount(f){
+  let n=0; for(const i of doc.items){ if(i.type==='conn'||i.kind==='frame') continue; const x=bbox(i);
+    const hit=x.x<f.x+f.w&&x.x+x.w>f.x&&x.y<f.y+f.h&&x.y+x.h>f.y, inn=x.x>=f.x-2&&x.y>=f.y-2&&x.x+x.w<=f.x+f.w+2&&x.y+x.h<=f.y+f.h+2;
+    if(hit&&!inn) n++; }
+  return n;
+}
+$('slAdd').onclick=()=>{
+  const its=slideTarget();
+  if(its.length){ finishEdit(); const f=mkShape('frame',0,0); Object.assign(f,frameAround(its)); doc.items.unshift(f); sel=new Set([f.id]); setTool('select'); commit(); render();
+    slSel=f.id; renderSlides(); gotoFrame(f.id); toast(its.length===1?'Neue Folie um das Element gelegt.':`Neue Folie um ${its.length} Elemente gelegt.`); return; }
+  const rc=svg.getBoundingClientRect(); addShape('frame',toWorld(rc.left+rc.width/2,rc.top+rc.height/2)); const f=frames().pop(); if(f){ slSel=f.id; renderSlides(); gotoFrame(f.id); } };
 
 /* ---------- Vorlagen-Galerie ---------- */
 const TC={blue:'#cfe8ff',green:'#d3f0dc',orange:'#ffd9c7',yellow:'#fff3b0',violet:'#e6dcff',pink:'#ffd6e7',grey:'#e3e8ea',white:'#ffffff'};
@@ -3576,6 +3658,10 @@ const TEMPLATES=[
  {name:'Scrum-Board',info:'Backlog, Sprint, Review',kind:'scrum'},
  {name:'Mindmap',info:'Thema mit Zweigen, per „+ Zweig“ erweiterbar',kind:'mindmap'}
 ];
+const TKAT={'Einkaufsliste':'Alltag','Wochenplaner':'Alltag','To-do-Liste':'Alltag','Mindmap':'Unterricht','Zahlenstrahl 0–20':'Unterricht','Zahlenstrahl 0–100':'Unterricht','Zeitstrahl':'Unterricht','Zeitstrahl senkrecht':'Unterricht','PDCA-Zyklus':'Unterricht','5-Why-Analyse':'Unterricht','Ishikawa-Diagramm':'Unterricht'};
+const TKAT_FARBE={Alltag:'coral',Unterricht:'blue',Beruf:'violet'};
+let tplKat='*';
+function tplFilter(k){ tplKat=k; document.querySelectorAll('#tplFilt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k)); document.querySelectorAll('#tplGrid .tc').forEach(b=>b.hidden=k!=='*'&&b.dataset.kat!==k); }
 function tplItems(t){ const K=tplKit(); t.make(K); return tplInk(K.out); }
 /* Texte, die auf einer farbigen (hellen) Fläche liegen, behalten dunkle Schrift – auch auf dunkler Tafel */
 function tplInk(its){
@@ -3593,7 +3679,10 @@ function tplPreview(t){
 }
 function openTpl(){
   closeMenu(); const g=$('tplGrid');
-  if(!g.dataset.done){ g.innerHTML=TEMPLATES.map((t,i)=>`<button type="button" class="tc" data-t="${i}">${tplPreview(t)}<b>${esc(t.name)}</b><small>${esc(t.info)}</small></button>`).join(''); g.dataset.done='1'; }
+  if(!g.dataset.done){ const ord={Alltag:0,Unterricht:1,Beruf:2}, ks=i=>TKAT[TEMPLATES[i].name]||'Beruf';
+    g.innerHTML=TEMPLATES.map((t,i)=>i).sort((a,b)=>ord[ks(a)]-ord[ks(b)]||a-b).map(i=>{ const t=TEMPLATES[i], k=ks(i); return `<button type="button" class="tc" data-t="${i}" data-kat="${k}">${tplPreview(t)}<b>${esc(t.name)}</b><small><em style="color:var(--c-${TKAT_FARBE[k]})">${k}</em> · ${esc(t.info)}</small></button>`; }).join(''); g.dataset.done='1';
+    $('tplFilt').innerHTML=[['*','Alle'],['Alltag','Alltag'],['Unterricht','Unterricht'],['Beruf','Beruf']].map(([k,n])=>`<button type="button" class="chip" data-k="${k}" aria-pressed="${k===tplKat}">${n}</button>`).join(''); }
+  tplFilter(tplKat);
   $('tplDlg').hidden=false; const b=$('tplBox'); b.scrollTop=0; b.focus({preventScroll:true});
 }
 function closeTpl(){ if($('tplDlg').hidden) return; $('tplDlg').hidden=true; svg.focus(); }
@@ -3608,10 +3697,48 @@ function insertTpl(i){
   toast('Vorlage eingefügt. Alles ist ausgewählt und lässt sich gemeinsam verschieben.');
 }
 $('tplGrid').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(b) insertTpl(+b.dataset.t); });
-$('tplClose').onclick=closeTpl;
+$('tplClose').onclick=closeTpl; $('tplX').onclick=closeTpl;
+$('tplFilt').addEventListener('click',e=>{ const b=e.target.closest('[data-k]'); if(b) tplFilter(b.dataset.k); });
 $('tplDlg').addEventListener('pointerdown',e=>{ if(e.target===$('tplDlg')) closeTpl(); });
 $('tplDlg').addEventListener('keydown',e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); closeTpl(); } });
 
+/* Leeres Board: zurückhaltender Startbereich mit drei Wegen, beliebten Vorlagen und Gesten-Tipps.
+   Er verschwindet, sobald etwas auf der Tafel liegt. */
+const START_TPL=['Einkaufsliste','Wochenplaner','To-do-Liste','Retrospektive'];
+const SA_IC={tpl:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  shape:'<rect x="4" y="5" width="11" height="9" rx="1.500"/><circle cx="15.500" cy="15.500" r="4.500"/>', pen:'<path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/>'};
+function saTipsOff(){ try{ return localStorage.getItem('skizix-starttipps')==='aus'; }catch(e){ return false; } }
+function buildStart(){
+  const a=$('startArea'), touch=!isPC;
+  const tips=touch?[['Doppeltippen: Text ändern'],['Zwei Finger: Tafel bewegen und zoomen'],['Kästchen antippen: abhaken']]
+                  :[['Doppelklick: Text ändern'],['Mausrad: bewegen · Strg + Mausrad: zoomen'],['Leertaste halten: Tafel verschieben']];
+  const card=(m,c,ic,t,d)=>`<button type="button" class="saCard" data-sa="${m}" style="--c:var(--c-${c})"><i><svg viewBox="0 0 24 24" aria-hidden="true">${SA_IC[ic]}</svg></i><b>${t}</b><span>${d}</span></button>`;
+  const tpls=START_TPL.map(n=>{ const i=TEMPLATES.findIndex(t=>t.name===n); return i<0?'':`<button type="button" class="saTpl" data-st="${i}">${tplPreview(TEMPLATES[i])}<b>${esc(n)}</b><small>${esc(TKAT[n]||'Beruf')}</small></button>`; }).join('');
+  a.innerHTML=`<div class="saBox" role="region" aria-label="Einstieg"><h2>Leeres Board – wie möchtest du anfangen?</h2><p class="saSub">Dieser Bereich verschwindet, sobald etwas auf der Tafel liegt.</p>
+    <div class="saCards">${card('tpl','gold','tpl','Mit Vorlage starten','Einkaufsliste, Wochenplaner, Retro und über 20 weitere')}${card('shape','violet','shape','Formen hinzufügen','Öffnet die Formenleiste – Form antippen oder auf die Tafel ziehen')}${card('pen','coral','pen','Frei zeichnen',touch?'Mit Stift oder Finger direkt loslegen – wie auf Papier':'Mit Maus oder Stift direkt loslegen – wie auf Papier')}</div>
+    <div class="saRow"><h3>Beliebte Vorlagen</h3><button type="button" class="saLink" data-sa="tpl">Alle Vorlagen ansehen →</button></div>
+    <div class="saTpls">${tpls}</div>
+    <div class="saTips"${saTipsOff()?' hidden':''}>${tips.map(t=>`<span>${t[0]}</span>`).join('')}<button type="button" class="saLink" data-sa="tipsoff">Tipps ausblenden</button></div></div>`;
+  a.dataset.done='1';
+}
+function updateStart(){
+  const a=$('startArea'); if(!a||!saReady) return;
+  const show=doc.items.length===0&&!document.body.classList.contains('liveview')&&!editing
+    &&!(location.hostname==='localhost'&&!localStorage.getItem('skizix-test-start'));   /* (Tests auf localhost: nur wenn ausdrücklich gewünscht) */
+  if(show&&!a.dataset.done) buildStart();
+  a.hidden=!show;
+}
+$('startArea').addEventListener('click',e=>{
+  const t=e.target.closest('[data-st]'); if(t){ insertTpl(+t.dataset.st); return; }
+  const b=e.target.closest('[data-sa]'); if(!b) return;
+  switch(b.dataset.sa){
+    case 'tpl': openTpl(); break;
+    case 'shape': palState.closed=false; savePal(); renderPal(); setTool('select'); { const q=$('palQ'); if(q&&isPC) q.focus(); } break;
+    case 'pen': setTool('pen'); $('startArea').hidden=true; svg.focus(); break;
+    case 'tipsoff': try{ localStorage.setItem('skizix-starttipps','aus'); }catch(_){} b.parentNode.hidden=true; break;
+  }
+});
+var saReady=true;
 /* ---------- Präsentation: Folie für Folie im Vollbild, mit Laserpointer ---------- */
 const presEl=$('pres'), presSvg=$('presSvg'), laserEl=$('laser'), trailEl=$('laserTrail');
 let pres=null;

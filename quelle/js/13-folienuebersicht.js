@@ -11,7 +11,7 @@ function renderSlides(){
   clearTimeout(slT); slT=0; if(slidesEl.hidden) return;
   const fr=frames(); if(slSel&&!fr.some(f=>f.id===slSel)) slSel=null;
   const one=[...sel].map(byId).find(i=>i&&i.kind==='frame'); if(one) slSel=one.id;
-  slList.innerHTML=fr.length?fr.map((f,i)=>`<div class="st" role="option" tabindex="0" data-f="${f.id}" aria-selected="${f.id===slSel}" title="Folie ${i+1}: anklicken springt hin, ziehen sortiert um">${slideThumb(f)}<span>${i+1}${f.text?' · '+esc(String(f.text).replace(/\s+/g,' ').slice(0,30)):''}</span></div>`).join('')
+  slList.innerHTML=fr.length?fr.map((f,i)=>`<div class="st" role="option" tabindex="0" data-f="${f.id}" aria-selected="${f.id===slSel}" title="Folie ${i+1}: anklicken springt hin, ziehen sortiert um">${slideThumb(f)}${(n=>n?`<em class="slWarn" title="Elemente ragen über den Rand dieser Folie hinaus">✂ schneidet ${n} ab</em>`:'')(cutCount(f))}<span>${i+1}${f.text?' · '+esc(String(f.text).replace(/\s+/g,' ').slice(0,30)):''}</span></div>`).join('')
     :'<div class="slEmpty">Noch keine Folien. „+ Folie“ legt eine an, oder ziehe „Folie“ aus der Formenleiste auf das Board.</div>';
 }
 function scheduleSlides(){ if(!slidesEl.hidden&&!slT) slT=setTimeout(renderSlides,350); }
@@ -50,5 +50,30 @@ slList.addEventListener('keydown',e=>{ const t=e.target.closest('.st'); if(!t) r
 });
 $('slClose').onclick=()=>toggleSlides(false);
 $('slPlay').onclick=()=>startPres(slSel);
-$('slAdd').onclick=()=>{ const rc=svg.getBoundingClientRect(); addShape('frame',toWorld(rc.left+rc.width/2,rc.top+rc.height/2)); const f=frames().pop(); if(f){ slSel=f.id; renderSlides(); gotoFrame(f.id); } };
+/* Neue Folie umschließt die ausgewählten Elemente – sonst alles, was gerade im Blick ist und noch auf keiner Folie liegt */
+function slideTarget(){
+  const pick=[...sel].map(byId).filter(i=>i&&i.type!=='conn'&&i.kind!=='frame');
+  if(pick.length) return pick;
+  const rc=svg.getBoundingClientRect(), a=toWorld(rc.left,rc.top), b=toWorld(rc.right,rc.bottom), fr=frames();
+  const inside=(x,f)=>x.x>=f.x-2&&x.y>=f.y-2&&x.x+x.w<=f.x+f.w+2&&x.y+x.h<=f.y+f.h+2;
+  return doc.items.filter(i=>{ if(i.type==='conn'||i.kind==='frame') return false; const x=bbox(i);
+    return x.x<b.x&&x.x+x.w>a.x&&x.y<b.y&&x.y+x.h>a.y&&!fr.some(f=>inside(x,f)); });
+}
+function frameAround(its){
+  const u=unionBox(its), pad=40; let w=u.w+2*pad, h=u.h+2*pad;
+  if(w/h>16/9) h=w*9/16; else w=h*16/9;
+  w=Math.max(w,320); h=Math.max(h,180);
+  return {x:snap(u.x+u.w/2-w/2),y:snap(u.y+u.h/2-h/2),w:Math.round(w),h:Math.round(h)};
+}
+function cutCount(f){
+  let n=0; for(const i of doc.items){ if(i.type==='conn'||i.kind==='frame') continue; const x=bbox(i);
+    const hit=x.x<f.x+f.w&&x.x+x.w>f.x&&x.y<f.y+f.h&&x.y+x.h>f.y, inn=x.x>=f.x-2&&x.y>=f.y-2&&x.x+x.w<=f.x+f.w+2&&x.y+x.h<=f.y+f.h+2;
+    if(hit&&!inn) n++; }
+  return n;
+}
+$('slAdd').onclick=()=>{
+  const its=slideTarget();
+  if(its.length){ finishEdit(); const f=mkShape('frame',0,0); Object.assign(f,frameAround(its)); doc.items.unshift(f); sel=new Set([f.id]); setTool('select'); commit(); render();
+    slSel=f.id; renderSlides(); gotoFrame(f.id); toast(its.length===1?'Neue Folie um das Element gelegt.':`Neue Folie um ${its.length} Elemente gelegt.`); return; }
+  const rc=svg.getBoundingClientRect(); addShape('frame',toWorld(rc.left+rc.width/2,rc.top+rc.height/2)); const f=frames().pop(); if(f){ slSel=f.id; renderSlides(); gotoFrame(f.id); } };
 

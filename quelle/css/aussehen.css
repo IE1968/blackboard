@@ -410,10 +410,14 @@ body.touch #optsToggle::after{height:24px}
 /* Kopfleiste verdichten, wenn sie nicht passt (siehe fitBar) */
 body.eng1 .bar{gap:4px}
 body.eng1 #boardName{width:110px;min-width:80px}
-body.eng2 #zoomOut,body.eng2 #zoomIn{display:none}
-body.eng3 #keysBtn{display:none}
-body.eng4 .brand .wm{height:.62em}
-body.eng5 .brand .wm{display:none}
+body.eng2 .brand .wm{height:.62em}
+body.eng3 .brand .wm{display:none}
+body.eng4 #zoomOut,body.eng4 #zoomIn{display:none}
+body.eng5 #keysBtn{display:none}
+/* Kopfleiste mit Beschriftung: etwas schmalere Knöpfe, damit die Wörter Platz haben */
+body:not(.nolabels):not(.compact) .tb{flex:none;min-width:44px;padding:5px 5px 4px;font-size:10.5px}
+body:not(.nolabels):not(.compact) #zoomGrp .tb{min-width:30px;padding:5px 3px}
+body:not(.nolabels):not(.compact) .bar{gap:2px}
 
 /* ---- Neues Design (Zwischenweg B+): farbige Werkzeugsymbole, Farbstreifen, ruhige Flächen ---- */
 header{background:var(--panel);border-bottom:1px solid var(--line)}
@@ -665,3 +669,53 @@ body.touch .tb{min-width:44px;min-height:44px}
 body.touch #props .pb,body.touch #colorPop .pb{min-height:44px;min-width:44px}
 body.touch #palHandle,body.touch #propsToggle{width:32px}
 body.touch #presBar button{min-width:44px;min-height:44px}
+
+/* ---- Startbereich auf leerem Board ---- */
+#startArea{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;padding:24px;pointer-events:none;overflow:auto}
+#startArea[hidden]{display:none}
+.saBox{width:100%;max-width:780px;zoom:var(--ui);text-align:center;color:var(--ink)}
+.saBox h2{margin:0;font:700 26px/1.2 var(--body);letter-spacing:-.01em}
+.saSub{margin:8px 0 22px;color:var(--muted);font-size:14px}
+.saBox button{pointer-events:auto}
+.saCards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;text-align:left}
+.saCard{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);text-align:left;transition:border-color .12s,transform .12s}
+.saCard:hover,.saCard:focus-visible{border-color:var(--c);transform:translateY(-1px)}
+.saCard i{display:grid;place-items:center;width:42px;height:42px;border-radius:11px;background:color-mix(in srgb,var(--c) 18%,transparent);margin-bottom:6px}
+.saCard svg{width:22px;height:22px;fill:none;stroke:var(--c);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.saCard b{font-size:16px}
+.saCard span{font-size:13px;line-height:1.4;color:var(--muted)}
+.saRow{display:flex;align-items:baseline;justify-content:space-between;margin:24px 2px 10px}
+.saRow h3{margin:0;font:600 15px/1.2 var(--body)}
+.saLink{color:var(--accent);font-size:13px;font-weight:600;padding:4px 2px}
+.saLink:hover{text-decoration:underline}
+.saTpls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;text-align:left}
+.saTpl{display:flex;flex-direction:column;gap:3px;padding:8px 8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink)}
+.saTpl:hover,.saTpl:focus-visible{border-color:var(--accent)}
+.saTpl svg{width:100%;height:86px;background:var(--tpl-bg,#fbfbf8);border-radius:7px;margin-bottom:5px}
+.saTpl b{font-size:13.5px;padding:0 2px}
+.saTpl small{font-size:11.5px;color:var(--muted);padding:0 2px}
+.saTips{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin-top:20px}
+.saTips[hidden]{display:none}
+.saTips span{padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-size:12.5px;color:var(--muted)}
+body.compact .saBox h2{font-size:20px}
+body.compact .saCards{gap:10px}
+body.compact .saCard{padding:14px}
+body.narrow #startArea{align-items:flex-start;padding:14px 12px}
+body.narrow .saCards{grid-template-columns:1fr;gap:8px}
+body.narrow .saCard{flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:12px;padding:12px}
+body.narrow .saCard i{margin:0;width:36px;height:36px}
+body.narrow .saCard span{display:none}
+body.narrow .saTpls{grid-template-columns:repeat(2,minmax(0,1fr))}
+body.narrow .saTpl svg{height:64px}
+body.narrow .saTips{display:none}
+/* Vorlagen-Fenster: Kopf mit ✕ und Filter */
+.tplHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.tplHead h2{margin:0!important}
+.dlgX{width:36px;height:36px;border-radius:10px;font-size:16px;color:var(--muted)}
+.dlgX:hover{background:var(--hover);color:var(--ink)}
+#tplFilt{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+#tplFilt .chip{padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:12.5px;font-weight:600;color:var(--muted)}
+#tplFilt .chip[aria-pressed="true"]{background:var(--acc-soft);border-color:var(--accent);color:var(--accent)}
+.tc small em{font-style:normal;font-weight:700}
+.tc[hidden]{display:none}
+.slWarn{position:absolute;left:8px;top:8px;padding:2px 7px;border-radius:999px;background:#ffe3dd;color:#8a2414;font:700 10.5px/1.4 var(--body);font-style:normal;pointer-events:none}
