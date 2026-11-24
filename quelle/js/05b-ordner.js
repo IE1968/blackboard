@@ -25,7 +25,7 @@ function moveBoards(ids,f){
   for(const b of boards.list) if(s.has(b.id)&&fClean(b.f)!==f){ b.f=f; n++; }
   saveIdx(); ktSoon(300); return n;
 }
-function boardBtn(b){ return `<button data-b="${b.id}" aria-current="${b.id===boards.cur}" title="${esc(b.name)}"><span class="bn">${b.id===boards.cur?'✓ ':''}${esc(b.name)}</span></button>`; }
+function boardBtn(b){ return `<button data-b="${b.id}" aria-current="${b.id===boards.cur}" title="${esc(b.name)}">${thHTML(b)}<span class="bn">${b.id===boards.cur?'✓ ':''}${esc(b.name)}</span></button>`; }
 function folderListHTML(){
   const F=folderList(), open=fOpenSet(); let h='';
   if(!F.length&&!fUi.adding) return boards.list.map(boardBtn).join('');

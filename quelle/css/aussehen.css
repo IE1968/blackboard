@@ -556,3 +556,13 @@ body.compact .pal{min-height:42px}
 #menu .fhM{width:24px}
 .fhT::after{margin:0 0 0 1px}
 #menu .fhT{gap:6px;padding:8px 6px}
+
+/* ---- Mini-Vorschau der Boards ---- */
+.bth{flex:none;display:block;width:40px;height:27px;border-radius:6px;overflow:hidden;background:var(--hover);border:1px solid var(--fg-line)}
+.bth svg{display:block;width:100%;height:100%}
+#boardList [data-b]::before{content:none!important;display:none!important}
+#boardList [data-b]{gap:9px!important;padding-top:6px!important;padding-bottom:6px!important}
+#boardList [data-b][aria-current="true"] .bth{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.fIn [data-b] .bth{border-color:color-mix(in srgb,var(--fc) 55%,transparent)}
+.bmRow .bth{width:58px;height:39px;border-radius:7px}
+body.compact .bth{width:32px;height:22px}

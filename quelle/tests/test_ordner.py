@@ -39,6 +39,9 @@ try:
   A_ctx,A=geraet()
   menu(A,'new'); menu(A,'new'); pg=A
   check('Drei Boards, ohne Ordner flache Liste',len(boards(A))==3 and A.locator('#boardList .fh').count()==0 and A.locator('#boardList .fRest').count()==0)
+  openFile(A)
+  check('Mini-Vorschau für jedes Board',warte(lambda: A.locator('#boardList [data-b] .bth svg').count()==3),str(A.locator('#boardList [data-b] .bth svg').count()))
+  check('Vorschau zwischengespeichert',warte(lambda: len(A.evaluate("()=>Object.keys(JSON.parse(localStorage.getItem('skizix-vorschau')||'{}'))"))==3))
   neuerOrdner(A,'Kurs Netzwerk')
   check('Ordner angelegt und gespeichert',idx(A).get('folders')==['Kurs Netzwerk'] and A.locator('#boardList .fh').count()==1)
   check('Leerer Ordner zeigt Hinweis',A.locator('#boardList .fEmpty').count()==1)

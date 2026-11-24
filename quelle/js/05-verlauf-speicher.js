@@ -159,7 +159,7 @@ function removeBoards(ids){
   return gone.length;
 }
 function renderBoardList(){
-  $('boardList').innerHTML=folderListHTML();
+  $('boardList').innerHTML=folderListHTML(); thFill();
   const d=$('delBoard'); (d.querySelector('.t')||d).textContent='Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
 }
 function fileBase(){ return (curBoard().name||'').trim().replace(/[^\wäöüÄÖÜß -]+/g,'').replace(/\s+/g,'-')||'skizix'; }
@@ -208,8 +208,8 @@ function bmInfo(b){
 function bmRender(){
   const L=boards.list.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),'de',{numeric:true})||((b.updated||0)-(a.updated||0)));
   const cnt=new Map(); for(const b of L){ const k=String(b.name).trim().toLowerCase(); cnt.set(k,(cnt.get(k)||0)+1); }
-  $('bmList').innerHTML=L.map(b=>`<label class="bmRow${cnt.get(String(b.name).trim().toLowerCase())>1?' dup':''}"><input type="checkbox" data-id="${b.id}"><span><b>${esc(b.name)}</b><small>${esc(bmInfo(b))}</small></span></label>`).join('');
-  $('bmAll').checked=false; bmFolderOpts(); bmUpd();
+  $('bmList').innerHTML=L.map(b=>`<label class="bmRow${cnt.get(String(b.name).trim().toLowerCase())>1?' dup':''}"><input type="checkbox" data-id="${b.id}">${thHTML(b)}<span><b>${esc(b.name)}</b><small>${esc(bmInfo(b))}</small></span></label>`).join('');
+  $('bmAll').checked=false; bmFolderOpts(); bmUpd(); thFill();
 }
 function bmSel(){ return [...$('bmList').querySelectorAll('input:checked')].map(i=>i.dataset.id); }
 function bmUpd(){
