@@ -11,7 +11,7 @@ import os, re, base64, shutil
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '5'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '6'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -59,7 +59,7 @@ NAV = [('index.html','Start','home',BLUE),('funktionen.html','Funktionen','spark
 NAV2 = [('datenschutz.html','Datenschutz','shield',MINT),('impressum.html','Impressum','info',BLUE)]
 APP = '../'
 
-def seite(datei, titel, aktiv, haupt, kontext, beschreibung):
+def seite(datei, titel, aktiv, haupt, kontext, beschreibung, breit=''):
     def nv(f, l, n, c): return f'<a href="{f}"{" aria-current=\"page\"" if l==aktiv else ""}>{ichip(n,c)}<span>{l}</span></a>'
     html = f'''<!DOCTYPE html>
 <html lang="de">
@@ -100,6 +100,7 @@ def seite(datei, titel, aktiv, haupt, kontext, beschreibung):
   <aside class="kontext" aria-label="Passend zur Seite">
 {kontext}
   </aside>
+{('  <div class="breit">'+breit+'</div>') if breit else ''}
 </div>
 <footer class="fuss karte">
   <a class="marke klein" href="index.html">{LOGO}<span class="wort">skizix</span></a><span>© 2026 Skizix · Testphase</span>
@@ -127,27 +128,28 @@ def start():
   </div>
   {board("hero")}
 </div>''', 'held')
-    def bereich(icon, c, titel, lead, punkte, tags, name, link, href):
-        return karte(f'''<div class="zwei">
-  <div class="text">
-    <h2 class="bt">{ichip(icon,c)}{titel}</h2>
-    <p>{lead}</p>
+    def bereich(icon, c, name_b, titel, lead, punkte, board_name, link, href, links):
+        tafel = f'<div class="b-tafel">{board(board_name)}</div>'
+        text = f'''<div class="b-text">
+    <p class="b-name">{ichip(icon,c,"klein")}{name_b}</p>
+    <h2>{titel}</h2>
+    <p class="lead">{lead}</p>
     {haken(punkte, c)}
-    {chips(tags)}
-    <a class="weiter" style="--c:{c}" href="{href}">{link} {ic("arrow")}</a>
-  </div>
-  {board(name)}
-</div>''')
-    haupt = hero + bereich('users',BLUE,'Unterricht &amp; Kurse','Tafelbild, Gruppenarbeit und Quiz auf einem Board. Teilnehmende machen per Handy mit – ohne Konto, nur mit Spitznamen.',
-        ['Live-Quiz mit Ergebnis als Säulen','Gruppen arbeiten gleichzeitig auf eigenen Bereichen','Tafel-Modus für Beamer, Tafelbild als PDF'],['Live-Quiz','Gruppen','Tafel-Modus','PDF'],'unterricht','Für den Unterricht','funktionen.html#unterricht') \
-      + bereich('flow',VIOLET,'Beruf &amp; Projekte','Prozesse sauber in BPMN zeichnen, Aufgaben im Kanban verfolgen und Workshops live mit dem Team gestalten.',
-        ['Pfeile docken magnetisch an Formen an','BPMN 2.0 mit Bahnen und Gateways','Kanban und Scrum als fertige Bausteine'],['BPMN','Kanban','Workshops','Retro'],'beruf','Für Teams','funktionen.html#formen') \
-      + bereich('heart',CORAL,'Alltag &amp; Familie','Einkaufsliste, Wochenplan und To-dos gemeinsam auf allen Handys – wer etwas abhakt, sieht jeder sofort.',
-        ['Einkaufsliste mit Häkchen und Namen','Wochenplaner für die ganze Familie','Notizen und Zeichnungen direkt daneben'],['Einkauf','Planer','To-do','Teilen'],'alltag','Für zu Hause','vorlagen.html')
+    <p class="b-aktion">{knopf("In der App ausprobieren","weich",None,APP)}<a class="weiter" href="{href}">{link} {ic("arrow")}</a></p>
+  </div>'''
+        return f'<section class="karte bereich{" links" if links else ""}" style="--c:{c}">{tafel+text if links else text+tafel}</section>'
+    haupt = hero
+    breit = f'<h2 class="b-kopf">Wofür nutzt du Skizix?<span>Drei typische Einsätze – alles im selben Board.</span></h2>' \
+      + bereich('users',BLUE,'Unterricht &amp; Kurse','Tafelbild, Quiz und Gruppen – alle machen per Handy mit.','Teilnehmende treten per QR-Code bei, ohne Konto, nur mit Spitznamen.',
+        ['Live-Quiz mit Ergebnis als Säulen und Rangliste','Gruppen arbeiten gleichzeitig auf eigenen Bereichen','Präsentieren mit Folien, Tafelbild als PDF'],'unterricht','Für den Unterricht','funktionen.html#unterricht',True) \
+      + bereich('flow',VIOLET,'Beruf &amp; Projekte','Prozesse zeichnen, Aufgaben verfolgen, Workshops leiten.','BPMN, Kanban und Retro auf einem Board – live mit dem ganzen Team.',
+        ['Pfeile docken magnetisch an Formen an','BPMN 2.0 mit Bahnen und Gateways','Kanban und Scrum als fertige Bausteine'],'beruf','Für Teams','funktionen.html#formen',False) \
+      + bereich('heart',CORAL,'Alltag &amp; Familie','Einkauf, Wochenplan und To-dos – gemeinsam auf allen Handys.','Wer etwas abhakt, sieht jeder sofort. Vorlagen für Einkaufsliste, Wochenplaner und To-do-Liste sind schon dabei.',
+        ['Einkaufsliste mit Häkchen und Namen','Wochenplaner für die ganze Familie','Notizen und Zeichnungen direkt daneben'],'alltag','Für zu Hause','vorlagen.html',True)
     kontext = box('Testgruppe', f'<p>Ausprobieren geht sofort und ohne Anmeldung. Wer im Alltag testet und Rückmeldung gibt, hilft uns besonders.</p>{knopf("Testgruppe beitreten","rand",None,"testphase.html")}', 'flask', CORAL) \
       + box('Neu in Skizix', '<ul class="neu"><li style="--c:var(--blau)"><b>Live-Quiz per Handy mit QR-Code</b><span>24.11.2026</span></li><li style="--c:var(--koralle)"><b>Checklisten zum Abhaken, Wochenplaner</b><span>24.11.2026</span></li><li style="--c:var(--violett)"><b>Ordner für Boards</b><span>23.11.2026</span></li></ul>', 'spark', VIOLET) \
-      + box('Alle Funktionen', f'<p>Live zusammen, Stift wie auf Papier, Formen, Quiz, Präsentieren – alles auf einen Blick.</p>{knopf("Ansehen","rand","arrow","funktionen.html")}', 'grid', BLUE)
-    seite('index.html','Das Whiteboard für Unterricht und Alltag','Start',haupt,kontext,'Skizix: digitales Whiteboard zum Zeichnen, Planen und gemeinsamen Arbeiten – im Unterricht, im Team und mit der Familie.')
+
+    seite('index.html','Das Whiteboard für Unterricht und Alltag','Start',haupt,kontext,'Skizix: digitales Whiteboard zum Zeichnen, Planen und gemeinsamen Arbeiten – im Unterricht, im Team und mit der Familie.',breit)
 
 # ---------------------------------------------------------------- Funktionen
 GRUPPEN = [('zeichnen','Zeichnen &amp; Schreiben',CORAL,'pen',['Stift, Pinsel, Marker und Radierer','Druckstufen und Apple Pencil','Text auf dem Board, Absätze einzeln formatierbar','Stifte gleichen sich zwischen deinen Geräten ab']),
