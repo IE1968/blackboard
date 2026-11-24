@@ -27,21 +27,32 @@ function iconFor(kind,W,H){
 /* PC = Maus als Hauptzeiger; Smartphones und Tablets werden mit dem Finger bedient */
 const isPC=!!(window.matchMedia&&matchMedia('(pointer:fine)').matches&&matchMedia('(hover:hover)').matches);
 const pcScale=()=>isPC&&innerWidth/1.25>1000&&innerHeight/1.25>500?1.25:1;   /* am PC 125 %, sofern der Bildschirm groß genug ist */
-let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true,theme:'blue',press:'normal',finger:true,fingerSet:false};
-try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false,theme:'blue',press:['off','soft','normal','strong'].includes(u.press)?u.press:'normal',finger:u.finger!==false,fingerSet:!!u.fingerSet}; }catch(e){}
+let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true,theme:'blue',app:'dark',press:'normal',finger:true,fingerSet:false};
+try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false,theme:'blue',app:['dark','light','auto'].includes(u.app)?u.app:'dark',press:['off','soft','normal','strong'].includes(u.press)?u.press:'normal',finger:u.finger!==false,fingerSet:!!u.fingerSet}; }catch(e){}
+/* Oberfläche hell oder dunkel (pro Gerät); „auto“ folgt der Einstellung des Betriebssystems */
+const mqLight=window.matchMedia?matchMedia('(prefers-color-scheme: light)'):null;
+function appLight(){ return uiCfg.app==='light'||(uiCfg.app==='auto'&&!!(mqLight&&mqLight.matches)); }
+function applyAppTheme(){
+  const l=appLight(); document.body.classList.toggle('light',l);
+  const m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content',l?'#ffffff':'#18181a');
+  document.querySelectorAll('#appRow button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.app===uiCfg.app));
+}
+if(mqLight){ const f=()=>{ if(uiCfg.app==='auto') applyAppTheme(); }; if(mqLight.addEventListener) mqLight.addEventListener('change',f); else if(mqLight.addListener) mqLight.addListener(f); }
 function isCompactNow(){ return innerWidth/uiCfg.scale<=1000||innerHeight/uiCfg.scale<=500; }
 function applyLayout(){
   const w=innerWidth/uiCfg.scale, c=document.body.classList; c.toggle('touch',!isPC);
   document.documentElement.style.setProperty('--ui',uiCfg.scale); c.toggle('hc',uiCfg.hc);
-  c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1280); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
+  c.toggle('compact',isCompactNow()); c.toggle('nolabels',w<=1100); c.toggle('narrow',w<=480); c.toggle('tiny',w<=400); c.toggle('midwide',w>=640);
   document.querySelectorAll('#uiRow button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===uiCfg.scale));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
-  applyTheme(); fitBar();
+  applyAppTheme(); applyTheme(); fitBar();
 }
 /* Kopfleiste: Passt sie nicht in die Breite, stufenweise verdichten, damit Live und Konto immer sichtbar bleiben */
 function fitBar(){
   const c=document.body.classList, bar=document.querySelector('header .bar'); if(!bar) return;
   for(let i=1;i<=5;i++) c.remove('eng'+i);
+  c.toggle('nolabels',innerWidth/uiCfg.scale<=1100);
+  if(bar.scrollWidth>bar.clientWidth+1) c.add('nolabels');   /* Beschriftungen nur, wenn sie hineinpassen */
   for(let i=1;i<=5&&bar.scrollWidth>bar.clientWidth+1;i++) c.add('eng'+i);
 }
 addEventListener('load',fitBar);

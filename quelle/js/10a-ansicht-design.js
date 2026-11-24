@@ -1,26 +1,28 @@
 /* ---------- Ansicht: Fläche und Muster der Tafel (pro Board), Farbthema der Oberfläche und Anzeige (pro Gerät) ---------- */
 /* Flächen: bg = Farbe der Tafel, dot = Farbe von Punkten und Linien, dark = helle Schrift und Linien auf dunkler Fläche */
 const SURF={
-  white:{n:'Weiß',bg:'#fbfbf8',dot:'#c4cdcf',dark:false},
-  black:{n:'Schwarz',bg:'#0d1011',dot:'#333d40',dark:true},
-  slate:{n:'Schiefer',bg:'#2f3a3d',dot:'#4d5c60',dark:true},
-  chalk:{n:'Tafelgrün',bg:'#26392e',dot:'#3f5848',dark:true},
-  grey:{n:'Hellgrau',bg:'#dcdfe2',dot:'#aab1b7',dark:false},
-  paper:{n:'Leinenpapier',bg:'#f3f2ee',dot:'#cfccc3',dark:false},
-  blue:{n:'Blaupause',bg:'#163a66',dot:'#2f5f96',dark:true},
-  heft:{n:'Schulheft',bg:'#fffef6',dot:'#b9d3ec',dark:false},
-  used:{n:'Vintage hell',bg:'#e4e0d6',dot:'#b9b2a3',dark:false},
-  usedd:{n:'Vintage dunkel',bg:'#1f2122',dot:'#3d4243',dark:true},
-  stone:{n:'Stein',bg:'#d2d1cc',dot:'#a7a59e',dark:false},
-  cloth:{n:'Textil',bg:'#dcd8cf',dot:'#b2ac9f',dark:false},
-  grunge:{n:'Grunge grau',bg:'#9c9d98',dot:'#7f807b',dark:false}
+  white:{n:'Weiß',bg:'#ffffff',dot:'#d4d4d2',dark:false,g:1},
+  grey:{n:'Hellgrau',bg:'#ececea',dot:'#c3c3c0',dark:false,g:1},
+  heft:{n:'Schulheft',bg:'#fffef6',dot:'#b9d3ec',dark:false,g:1},
+  night:{n:'Nacht',bg:'#18181a',dot:'#3a3a40',dark:true,g:1},
+  anthra:{n:'Anthrazit',bg:'#2b2d30',dot:'#4a4d53',dark:true,g:1},
+  black:{n:'Schwarz',bg:'#0b0b0c',dot:'#2e2e33',dark:true,g:1},
+  chalk:{n:'Tafelgrün',bg:'#26392e',dot:'#3f5848',dark:true,g:1},
+  blue:{n:'Blaupause',bg:'#163a66',dot:'#2f5f96',dark:true,g:1},
+  paper:{n:'Leinen',bg:'#f3f2ee',dot:'#cfccc3',dark:false,g:2},
+  used:{n:'Vintage hell',bg:'#e4e0d6',dot:'#b9b2a3',dark:false,g:2},
+  stone:{n:'Stein',bg:'#d2d1cc',dot:'#a7a59e',dark:false,g:2},
+  cloth:{n:'Textil',bg:'#dcd8cf',dot:'#b2ac9f',dark:false,g:2},
+  grunge:{n:'Grunge',bg:'#9c9d98',dot:'#7f807b',dark:false,g:2},
+  slate:{n:'Schiefer',bg:'#2f3a3d',dot:'#4d5c60',dark:true,g:2},
+  usedd:{n:'Vintage dunkel',bg:'#1f2122',dot:'#3d4243',dark:true,g:2}
 };
 const PATS={dots:'Punkte',grid:'Kariert',lines:'Liniert',mm:'Millimeter',none:'Leer'};
-const THEMES={blue:{n:'Blau',sel:['#4d9fff','#1763cf']}};   /* Auswahlfarbe auf dunkler bzw. heller Tafel */
+const THEMES={blue:{n:'Blau',sel:['#5b8cf5','#3b6fe8']}};   /* Auswahlfarbe auf dunkler bzw. heller Tafel */
 function bgDefault(){
   let s=null; try{ s=JSON.parse(lsGet('skizix-flaeche')); }catch(e){}
   if(s&&SURF[s.s]&&PATS[s.p]) return s;
-  return {s:lsGet('blackboard-bg')==='light'?'white':'black',p:uiCfg.grid===false?'none':'dots'};
+  return {s:lsGet('blackboard-bg')==='light'?'white':'night',p:uiCfg.grid===false?'none':'dots'};
 }
 function bgCur(){ const b=doc&&doc.bg; return b&&SURF[b.s]&&PATS[b.p]?b:bgDefault(); }
 function cleanBg(b){ return b&&typeof b==='object'&&SURF[b.s]&&PATS[b.p]?{s:b.s,p:b.p}:null; }
@@ -32,7 +34,7 @@ function applyBg(){
   darkBoard=S.dark; SEL=(THEMES[uiCfg.theme]||THEMES.blue).sel[S.dark?0:1];
   st.classList.toggle('dark',S.dark); st.dataset.surf=b.s;
   st.style.setProperty('--paper',S.bg); st.style.setProperty('--dot',uiCfg.hc?(S.dark?'#6f8086':'#8d999b'):S.dot);
-  st.style.setProperty('--hint-bg',S.dark?'rgba(13,16,17,.85)':'rgba(251,251,248,.85)');
+  st.style.setProperty('--hint-bg',S.dark?'rgba(24,24,26,.85)':'rgba(255,255,255,.85)');
   document.body.style.setProperty('--sel',SEL); editor.style.borderColor=SEL;
   gridP.dataset.p=b.p; patShape();
   if(!$('viewPop').hidden) renderViewPop();
@@ -60,17 +62,20 @@ function setBoardSurface(ch){
   commit(); render();
 }
 function setBoardBg(d,keep){   /* schneller Wechsel hell/dunkel */
-  if(keep) return; setBoardSurface({s:d?'black':'white'});
+  if(keep) return; setBoardSurface({s:d?'night':'white'});
 }
 var BG_OK;
 function applyTheme(){ bgShown=''; if(BG_OK) applyBg(); }
 /* ---- Fenster „Ansicht“ ---- */
 function renderViewPop(){
   const b=bgCur(), ro=liveRO();
-  $('vpSurf').innerHTML=Object.entries(SURF).map(([k,s])=>`<button type="button" class="vpSw" data-s="${k}" aria-pressed="${b.s===k}" title="${s.n}"${ro?' disabled':''}><span style="background:${s.bg}" class="vpChip s-${k}"></span><small>${s.n}</small></button>`).join('');
+  const sw=([k,s])=>`<button type="button" class="vpSw" data-s="${k}" aria-pressed="${b.s===k}" title="${s.n}"${ro?' disabled':''}><span style="background-color:${s.bg}" class="vpChip s-${k}${['white','grey','night','anthra','black'].includes(k)?' p-'+b.p:''}"></span><small>${s.n}</small></button>`, all=Object.entries(SURF);
+  $('vpSurf').innerHTML='<div class="vpSub">Einfarbig</div>'+all.filter(e=>e[1].g===1).map(sw).join('')+'<div class="vpSub">Mit Struktur</div>'+all.filter(e=>e[1].g===2).map(sw).join('');
+  $('vpSurf').querySelectorAll('.vpChip').forEach((c,i)=>{ const k=c.parentNode.dataset.s; c.style.setProperty('--dot',SURF[k].dot); });
   const S=SURF[b.s];
   $('vpPat').innerHTML=Object.entries(PATS).map(([k,n])=>`<button type="button" class="vpSw" data-p="${k}" aria-pressed="${b.p===k}" title="${n}"${ro?' disabled':''}><span class="vpChip p-${k}" style="background-color:${S.bg};--dot:${S.dot}"></span><small>${n}</small></button>`).join('');
   document.querySelectorAll('#uiRow button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.v===uiCfg.scale));
+  document.querySelectorAll('#appRow button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.app===uiCfg.app));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
   document.querySelectorAll('#pressRow button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.press===uiCfg.press)); $('fingerBtn').setAttribute('aria-pressed',uiCfg.finger);
 }
@@ -87,6 +92,7 @@ $('viewPop').addEventListener('click',e=>{
   e.stopPropagation(); const t=e.target.closest('button'); if(!t||t.disabled) return;
   if(t.dataset.s) setBoardSurface({s:t.dataset.s});
   else if(t.dataset.p) setBoardSurface({p:t.dataset.p});
+  else if(t.dataset.app) setUi({app:t.dataset.app});
   else if(t.dataset.m==='ui') setUi({scale:+t.dataset.v,scaleSet:true});
   else if(t.dataset.m==='hc') setUi({hc:!uiCfg.hc});
   else if(t.dataset.m==='snap') setUi({snap:!uiCfg.snap});

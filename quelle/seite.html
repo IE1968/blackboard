@@ -5,16 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Skizix</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#101617">
+<meta name="theme-color" content="#18181A">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Skizix">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<!-- Schriften sind eingebettet (keine externen Abrufe). Roboto Mono: Copyright 2015 The Roboto Mono Project Authors (https://github.com/googlefonts/robotomono). Doto: Copyright 2024 The Doto Project Authors (https://github.com/oliverlalan/Doto). Beide lizenziert unter der SIL Open Font License 1.1, https://openfontlicense.org -->
+<!-- Schriften sind eingebettet (keine externen Abrufe). Roboto Mono: Copyright 2015 The Roboto Mono Project Authors (https://github.com/googlefonts/robotomono). Doto: Copyright 2024 The Doto Project Authors (https://github.com/oliverlalan/Doto). Plus Jakarta Sans: Copyright 2020 The Plus Jakarta Sans Project Authors (https://github.com/tokotype/PlusJakartaSans). Alle lizenziert unter der SIL Open Font License 1.1, https://openfontlicense.org -->
 <style id="fontBoard">{{css/schrift-tafel.css}}</style>
 <style>{{css/schrift-logo.css}}</style>
+<style>{{css/schrift-oberflaeche.css}}</style>
 <style>
 {{css/aussehen.css}}</style>
 </head>
@@ -31,12 +32,12 @@
       <button class="tb" data-tool="marker" title="Marker: breit und durchscheinend (M)"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-8 8H7v-5zM4 21h9"/></svg><span>Marker</span></button>
       <button class="tb" data-tool="text" title="Text setzen (T)"><svg viewBox="0 0 24 24"><path d="M5 6h14M12 6v13M9 19h6"/></svg><span>Text</span></button>
       <button class="tb" data-tool="erase" title="Radieren (E)"><svg viewBox="0 0 24 24"><path d="M9 19h11M4 14l9-9 6 6-8 8H8z"/></svg><span>Radierer</span></button>
-      <button class="tb" data-tool="pan" title="Tafel verschieben (H oder Leertaste halten)"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg><span>Hand</span></button>
+      <button class="tb" data-tool="pan" title="Tafel verschieben (H oder Leertaste halten)"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg><span>Bewegen</span></button>
     </div>
     <div class="sep"></div>
     <div class="grp">
-      <button class="tb" id="undo" title="Rückgängig (Strg+Z)"><svg viewBox="0 0 24 24"><path d="M8 7L4 11l4 4M4 11h10a5 5 0 010 10h-3"/></svg><span>Zurück</span></button>
-      <button class="tb" id="redo" title="Wiederholen (Strg+Y)"><svg viewBox="0 0 24 24"><path d="M16 7l4 4-4 4M20 11H10a5 5 0 000 10h3"/></svg><span>Vor</span></button>
+      <button class="tb" id="undo" title="Rückgängig (Strg+Z)"><svg viewBox="0 0 24 24"><path d="M8 7L4 11l4 4M4 11h10a5 5 0 010 10h-3"/></svg><span>Rückgängig</span></button>
+      <button class="tb" id="redo" title="Wiederholen (Strg+Y)"><svg viewBox="0 0 24 24"><path d="M16 7l4 4-4 4M20 11H10a5 5 0 000 10h3"/></svg><span>Wiederholen</span></button>
     </div>
     <div class="spacer"></div>
     <button class="tb" id="keysBtn" title="Tastenkürzel (?)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.500 9.500a2.500 2.500 0 114 2c-1 .7-1.500 1.200-1.500 2.300M12 17h.01"/></svg><span>Hilfe</span></button>
@@ -67,6 +68,8 @@
   <div id="viewPop" hidden role="dialog" aria-label="Ansicht">
     <div class="mh">Tafel <small>für dieses Board</small></div><div class="vpGrid" id="vpSurf"></div>
     <div class="mh">Muster</div><div class="vpGrid" id="vpPat"></div>
+    <div class="mh">Oberfläche <small>dieses Gerät</small></div>
+    <div class="mrow" id="appRow"><button data-app="dark">Dunkel</button><button data-app="light">Hell</button><button data-app="auto">Automatisch</button></div>
     <div class="mh">Größe</div>
     <div class="mrow" id="uiRow"><button data-m="ui" data-v="1">100 %</button><button data-m="ui" data-v="1.25">125 %</button><button data-m="ui" data-v="1.5">150 %</button></div>
     <button data-m="hc" id="hcBtn" class="vpTog">Hoher Kontrast</button>
