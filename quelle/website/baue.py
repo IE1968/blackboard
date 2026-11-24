@@ -100,7 +100,7 @@ def seite(datei, titel, aktiv, haupt, kontext, beschreibung, breit=''):
 {('  <div class="breit">'+breit+'</div>') if breit else ''}
 </div>
 <footer class="fuss karte">
-  <a class="marke klein" href="index.html">{LOGO}{WORT}</a><span>© 2026 Skizix</span>
+  <span>© 2026 Skizix</span>
   <span class="platz"></span>
   <a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a>
 </footer>
