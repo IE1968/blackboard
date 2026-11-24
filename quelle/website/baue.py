@@ -114,9 +114,9 @@ def chips(liste): return '<p class="chips">' + ''.join(f'<span>{x}</span>' for x
 
 # ---------------------------------------------------------------- Startseite
 def start():
-    hero = karte(f'''<div class="zwei">
+    hero = karte(f'''<h1>Ein Board für alles, was du im Kopf hast.</h1>
+<div class="zwei">
   <div class="text">
-    <h1>Ein Board für alles,<br>was du im Kopf hast.</h1>
     <p class="lead">Zeichnen, Abläufe skizzieren, Listen führen und live mit anderen arbeiten – im Kurs, im Team oder mit der Familie.</p>
     <p class="knoepfe">{knopf("Kostenlos ausprobieren","haupt","arrow",APP)}{knopf("So funktioniert's","weich","play","anleitung.html")}</p>
     <ul class="vertrauen"><li>{ic("check")}Ohne Installation</li><li>{ic("check")}Board-Daten in der EU</li><li>{ic("check")}Gäste ohne Konto</li></ul>

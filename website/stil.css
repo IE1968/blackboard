@@ -279,6 +279,11 @@ main>.held>.zwei{width:100%}
 .held .lead{font-size:16px}
 @media (max-width:1000px){ .held .zwei{grid-template-columns:1fr} }
 .held .buehne{border-radius:18px;overflow:hidden}
+/* Hero: Überschrift über die ganze Breite, darunter Text (ein Drittel) und Board (zwei Drittel) */
+main>.held{flex-direction:column;align-items:stretch;justify-content:center}
+.held h1{font-size:clamp(30px,3.3vw,50px);line-height:1.08;margin:0 0 26px;letter-spacing:-.02em}
+.held .zwei{align-items:start}
+.held .text .lead{margin-top:0}
 
 /* Animationen der Beispiel-Boards */
 @keyframes hb1{0%,0%{opacity:0;transform:scale(.7)}4%{opacity:1;transform:scale(1.04)}7%,94%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}

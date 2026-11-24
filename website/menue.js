@@ -15,7 +15,7 @@
   var bu=[].slice.call(document.querySelectorAll('.buehne'));
   /* Das Board im Hero darf größer werden: so breit wie seine Spalte, höchstens so hoch wie der Platz bis zum Bildschirmrand */
   function passe(){ bu.forEach(function(w){ var s=w.clientWidth/440||1, i=w.firstElementChild, h=w.closest('.held');
-      if(h){ var frei=window.innerHeight-h.getBoundingClientRect().top-window.scrollY-110; if(window.innerWidth>1000&&frei>200) s=Math.min(s,frei/320); }
+      if(h){ var z=w.parentNode.getBoundingClientRect().top, frei=window.innerHeight-z-48; if(window.innerWidth>1000&&frei>200) s=Math.min(s,frei/320); }
       else s=Math.min(1,s);
       i.style.transform=s!==1?'scale('+s+')':''; w.style.height=(320*s)+'px'; w.style.width=h&&window.innerWidth>1000?(440*s)+'px':''; }); }
   if(bu.length){ passe(); window.addEventListener('resize',passe); }
