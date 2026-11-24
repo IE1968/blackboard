@@ -135,6 +135,7 @@ function cleanDoc(d){
   const fmt=num(d.fmt,1,1,1e6), r={items:out,n:Math.max(n,num(d.n,0,0,1e9)),fmt:Math.max(fmt,DOC_FMT)};
   if(extra.length) r.extra=extra;
   const bg=cleanBg(d.bg); if(bg) r.bg=bg;   /* Fläche und Muster der Tafel */
+  if(d.tr==='glide'||d.tr==='none') r.tr=d.tr;   /* Folienübergang */
   return r;
 }
 const isNewer=d=>!!d&&d.fmt>DOC_FMT;

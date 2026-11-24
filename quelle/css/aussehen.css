@@ -436,8 +436,8 @@ body.light #bmDlg,body.light #ktDlg,body.light #liveDlg,body.light #tplDlg,body.
 body.light #pressTest{background:#f1f1f0}
 body.light .sw.none,body.light .cdot.none{border-color:rgba(24,24,26,.3)}
 /* Oberfläche wählen */
-#appRow button{flex:1;text-align:center;padding:7px 0;border:1px solid var(--line)}
-#appRow button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#appRow button,#trRow button{flex:1;text-align:center;padding:7px 0;border:1px solid var(--line)}
+#appRow button[aria-pressed="true"],#trRow button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .vpSub{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:2px 10px 2px;grid-column:1/-1}
 
 /* Farbige Symbole in der Formenleiste: jede Gruppe in ihrer Farbe, Formen zart gefüllt */
@@ -576,3 +576,6 @@ body.floatbar #props .pg>b{font-size:10px;letter-spacing:.02em;text-transform:no
 #barRow button{flex:1;text-align:center;padding:7px 0;border:1px solid var(--line);font-size:12.5px}
 #barRow button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 @media (prefers-reduced-motion: reduce){ body.floatbar #props{transition:none} }
+
+#trRow button{text-align:center;padding:7px 0;border-radius:8px;border:1px solid var(--line)}
+#pres{overflow:hidden}

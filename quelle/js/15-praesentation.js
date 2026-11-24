@@ -8,14 +8,40 @@ function presBar(){ const n=pres.slides.length;
   $('presSolve').hidden=!pres.quiz; $('presSolve').setAttribute('aria-pressed',pres.shown.has(pres.whole?'*':pres.ids[pres.i]));
   $('presLaser').setAttribute('aria-pressed',pres.laser); presEl.classList.toggle('laser',pres.laser); if(!pres.laser){ laserEl.hidden=true; pres.trail=[]; trailEl.setAttribute('points',''); } }
 function presWake(){ if(!pres) return; presEl.classList.remove('idle'); clearTimeout(pres.idleT); pres.idleT=setTimeout(()=>{ if(pres) presEl.classList.add('idle'); },2600); }
+/* Folienübergänge: Zoom (Kamerafahrt über das Board), Gleiten (seitlich schieben), Keiner. Höchstens 400 ms. */
+const TRANS=[['zoom','Zoom'],['glide','Gleiten'],['none','Keiner']];
+function presTr(){ try{ if(matchMedia('(prefers-reduced-motion: reduce)').matches) return 'none'; }catch(e){} return TRANS.some(t=>t[0]===doc.tr)?doc.tr:'zoom'; }
+function presOldClear(){ const o=$('presOld'); if(o) o.remove(); presSvg.style.transition=presSvg.style.transform=''; }
 function presGo(i){
   if(!pres) return; i=clamp(i,0,pres.slides.length-1); if(i===pres.i) return;
-  pres.i=i; presBar(); const from=pres.box, to=pres.slides[i], t0=performance.now(), D=480; cancelAnimationFrame(pres.raf);
+  const dir=i>pres.i?1:-1; pres.i=i; presBar(); const from=pres.box, to=pres.slides[i], tr=presTr();
+  cancelAnimationFrame(pres.raf); clearTimeout(pres.trT); presOldClear(); pres.tr=tr;
+  if(tr==='none'){ presBox(to); return; }
+  if(tr==='glide'){
+    /* Kopie der alten Folie schiebt hinaus, die neue schiebt hinein */
+    const old=presSvg.cloneNode(true); old.id='presOld'; old.removeAttribute('tabindex');
+    old.innerHTML=old.innerHTML.replace(/presClipR/g,'presOClipR').replace(/presClip/g,'presOClip').replace(/presGrid/g,'presOGrid').replace(/presBody/g,'presOBody');
+    old.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transition:none;transform:translateX(0)';
+    presSvg.parentNode.insertBefore(old,presSvg.nextSibling);
+    presBox(to); presSvg.style.transition='none'; presSvg.style.transform='translateX('+(dir*100)+'%)';
+    void presSvg.getBoundingClientRect();
+    const ease='transform 380ms cubic-bezier(.4,0,.2,1)';
+    old.style.transition=presSvg.style.transition=ease; old.style.transform='translateX('+(-dir*100)+'%)'; presSvg.style.transform='translateX(0)';
+    pres.trT=setTimeout(presOldClear,420); return;
+  }
+  const t0=performance.now(), D=400;
   const step=now=>{ if(!pres) return; let t=Math.min(1,(now-t0)/D); t=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
     presBox({x:from.x+(to.x-from.x)*t,y:from.y+(to.y-from.y)*t,w:from.w+(to.w-from.w)*t,h:from.h+(to.h-from.h)*t});
     if(t<1) pres.raf=requestAnimationFrame(step); };
   pres.raf=requestAnimationFrame(step);
 }
+function presTrUI(){ document.querySelectorAll('#trRow button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tr===(TRANS.some(t=>t[0]===doc.tr)?doc.tr:'zoom'))); }
+function setPresTr(v){
+  if(!TRANS.some(t=>t[0]===v)) return; if(liveRO()){ toast('Nur der Besitzer und Mitzeichnende können das Board ändern.'); return; }
+  finishEdit(); if(v==='zoom') delete doc.tr; else doc.tr=v; commit(); presTrUI();
+}
+$('trRow').addEventListener('click',e=>{ const b=e.target.closest('[data-tr]'); if(b){ e.stopPropagation(); setPresTr(b.dataset.tr); } });
+$('playBtn').addEventListener('click',presTrUI);
 function presRender(){ $('presBody').innerHTML=doc.items.filter(i=>i.kind!=='frame').map(itemSVG).join(''); }
 function presSolve(){ if(!pres||!pres.quiz) return; const k=pres.whole?'*':pres.ids[pres.i]; if(pres.shown.has(k)) pres.shown.delete(k); else pres.shown.add(k); presRender(); presBar(); }
 function startPres(fromId){
@@ -35,7 +61,7 @@ function startPres(fromId){
   try{ const q=presEl.requestFullscreen&&presEl.requestFullscreen(); if(q&&q.then) q.then(()=>{ if(pres) pres.fs=true; },()=>{}); }catch(e){}
 }
 function stopPres(){
-  if(!pres) return; const p=pres; pres=presLive=null; cancelAnimationFrame(p.raf); clearTimeout(p.idleT);
+  if(!pres) return; const p=pres; pres=presLive=null; cancelAnimationFrame(p.raf); clearTimeout(p.idleT); clearTimeout(p.trT); presOldClear();
   presEl.hidden=true; presSvg.innerHTML=''; laserEl.hidden=true; trailEl.setAttribute('points','');
   try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){}
   svg.focus(); if(p.whole) toast('Tipp: Ziehe unter „Präsentation“ Folien auf das Board. Dann blätterst du von Folie zu Folie.');
