@@ -314,6 +314,31 @@ main>.held{flex-direction:column;align-items:stretch;justify-content:center}
 .hand-liste li.hs-blau,.hs-blau{color:var(--hs-blau)}
 .hs-rot{color:var(--hs-rot)}
 .hs-gruen{color:var(--hs-gruen)}
+/* Vorlagen-Wortwolke auf der Tafel */
+.wolke-tafel{width:100%;border-radius:16px;overflow:hidden;background:#18181A;background-image:radial-gradient(#323237 1.1px,transparent 1.1px);background-size:16px 16px;border:1px solid #35353A;box-shadow:0 14px 34px rgba(0,0,0,.18);color:#F2F2F0}
+.wt-kopf{display:flex;align-items:center;gap:10px;margin:10px;padding:8px 12px;background:#222225;border:1px solid #35353A;border-radius:10px;font-weight:700;font-size:13px}
+.wt-kopf .logo{width:22px;height:20px;color:#F2F2F0}
+.wt-kopf em{margin-left:auto;font-style:normal;font-size:11px;padding:2px 8px;border-radius:6px;background:#3A3326;color:#F2C94C}
+.wt-worte{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 18px;padding:26px 30px 34px}
+.wt-worte .w{font-weight:800;line-height:1.1;display:inline-block;letter-spacing:-.01em}
+.wt-worte .w.hand{font-family:'Caveat',cursive;font-weight:700;font-size:1.2em;letter-spacing:0}
+/* Funktionen als Haftnotizen mit Knick */
+.notiz-flaeche{margin:14px 24px 24px;border-radius:16px;padding:34px 30px 22px;background-color:color-mix(in srgb,var(--c) 6%,var(--flaeche));background-image:radial-gradient(color-mix(in srgb,var(--c) 20%,transparent) 1.2px,transparent 1.2px);background-size:22px 22px}
+.notizen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px 26px}
+.pi{filter:drop-shadow(0 9px 10px rgba(0,0,0,.18));transition:transform .2s}
+.pi:nth-child(6n+1){transform:rotate(-1.6deg)}.pi:nth-child(6n+2){transform:rotate(1.1deg)}.pi:nth-child(6n+3){transform:rotate(-.7deg)}
+.pi:nth-child(6n+4){transform:rotate(1.4deg)}.pi:nth-child(6n+5){transform:rotate(-1.1deg)}.pi:nth-child(6n+6){transform:rotate(.8deg)}
+.pi:hover{transform:rotate(0) scale(1.03)}
+.notiz{--n:#F6D879;--k:#D9BC5C;position:relative;min-height:180px;padding:20px 22px 30px;background:var(--n);color:#1D1D1F;clip-path:polygon(0 0,100% 0,100% calc(100% - 32px),calc(100% - 32px) 100%,0 100%)}
+.notiz::after{content:'';position:absolute;right:0;bottom:0;width:32px;height:32px;background:linear-gradient(135deg,var(--k) 0 49%,transparent 51%)}
+.pi:nth-child(6n+2) .notiz{--n:#D6E3FF;--k:#A9BFEF}.pi:nth-child(6n+3) .notiz{--n:#CDEFE3;--k:#9FD3BF}
+.pi:nth-child(6n+4) .notiz{--n:#E2DCFF;--k:#BFB2F0}.pi:nth-child(6n+5) .notiz{--n:#FFD3C9;--k:#EDAA9B}.pi:nth-child(6n+6) .notiz{--n:#FBE7B0;--k:#E3C77D}
+.notiz .ic{width:42px;height:42px;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin-bottom:2px}
+.notiz h3{font:700 30px/1.05 'Caveat',cursive;margin:2px 0 6px}
+.notiz p{font:500 21px/1.18 'Caveat',cursive;margin:0;color:#2B2B2E}
+.b-aktion.mitte{justify-content:center;margin-top:22px}
+@media (max-width:1000px){ .notizen{grid-template-columns:repeat(2,minmax(0,1fr))} .notiz-flaeche{margin:0 16px 16px;padding:24px 18px} }
+@media (max-width:600px){ .notizen{grid-template-columns:1fr} .wt-worte{padding:18px 16px 24px;gap:4px 12px} .wt-worte .w{font-size:.72em!important} }
 
 /* Animationen der Beispiel-Boards */
 @keyframes hb1{0%,0%{opacity:0;transform:scale(.7)}4%{opacity:1;transform:scale(1.04)}7%,94%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}

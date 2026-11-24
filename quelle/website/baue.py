@@ -11,7 +11,7 @@ import os, re, base64, shutil
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '11'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '12'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -139,6 +139,30 @@ def start():
         ['Pfeile docken magnetisch an Formen an','BPMN 2.0 mit Bahnen und Gateways','Kanban und Scrum als fertige Bausteine'],'beruf','Für Teams','funktionen.html#formen',False) \
       + bereich('heart',CORAL,'Alltag &amp; Familie','Einkauf, Wochenplan und To-dos – <span class="hand-a hs-orange">gemeinsam auf allen Handys.</span>','Wer etwas <b class="akz">abhakt</b>, sieht jeder sofort. Vorlagen für Einkaufsliste, Wochenplaner und To-do-Liste sind schon dabei.',
         ['Einkaufsliste mit Häkchen und Namen','Wochenplaner für die ganze Familie','Notizen und Zeichnungen direkt daneben'],'alltag','Für zu Hause','vorlagen.html',True)
+    # Vorlagen als Wortwolke auf der Tafel (Text links, Tafel rechts – setzt das Abwechseln fort)
+    WOLKE=[('Einkaufsliste',34,'#FF8E7A',-3,1),('Kanban',44,'#7FA6FF',0,0),('Mindmap',30,'#4CC98A',4,1),('Wochenplaner',26,'#F2C94C',0,0),('Scrum',30,'#A898FF',0,0),
+           ('SWOT',38,'#F2C94C',-4,1),('BPMN',28,'#7FA6FF',0,0),('To-do-Liste',30,'#4CC98A',0,1),('Retrospektive',22,'#D5DDE2',0,0),('Gantt',32,'#FF8E7A',3,0),
+           ('Zeitstrahl',26,'#A898FF',0,1),('Eisenhower',24,'#7FA6FF',-2,0),('Quiz',40,'#4CC98A',0,1),('Roadmap',24,'#F2C94C',0,0),('Ishikawa',20,'#D5DDE2',0,0),
+           ('Organigramm',22,'#FF8E7A',0,0),('PDCA',26,'#A898FF',3,0),('RACI',22,'#7FA6FF',0,0),('Empathy Map',20,'#4CC98A',0,0),('5-Why',24,'#F2C94C',-3,1),
+           ('Business Model Canvas',18,'#D5DDE2',0,0),('Zahlenstrahl',22,'#FF8E7A',0,0),('Flussdiagramm',24,'#7FA6FF',2,0),('Projektsteckbrief',18,'#A898FF',0,0),('Stakeholder',20,'#4CC98A',0,0)]
+    worte=''.join(f'<span class="w{" hand" if h else ""}" style="font-size:{z}px;color:{c};transform:rotate({r}deg)">{t}</span>' for t,z,c,r,h in WOLKE)
+    wolke = f'<div class="b-tafel"><div class="wolke-tafel" role="img" aria-label="Wortwolke mit Vorlagen: Einkaufsliste, Kanban, Mindmap, Wochenplaner, Scrum, SWOT, BPMN, To-do-Liste, Retrospektive, Gantt und viele mehr"><div class="wt-kopf">{LOGO}<span>Vorlagen</span><em>über 20</em></div><div class="wt-worte" aria-hidden="true">{worte}</div></div></div>'
+    vtext = f'''<div class="b-text">
+    <p class="lead">Fertige Boards für typische Methoden – vom <b class="akz">Wochenplaner</b> bis zum Business Model Canvas. Alles lässt sich frei anpassen.</p>
+    {haken(['Alltag: Einkaufsliste, Wochenplaner, To-do-Liste','Unterricht: Quiz, Mindmap, Zahlenstrahl','Beruf: Kanban, SWOT, Gantt, BPMN, Retro'], GOLD)}
+    <p class="b-aktion">{knopf("Alle Vorlagen","weich",None,"vorlagen.html")}<a class="weiter" href="anleitung.html#vorlagen">So findest du sie {ic("arrow")}</a></p>
+  </div>'''
+    vorl = f'<section class="karte bereich" style="--c:{GOLD}"><div class="b-oben"><p class="b-name">{ichip("grid",GOLD,"klein")}Vorlagen</p><h2>Über 20 Vorlagen – <span class="hand-a hs-blau">ein Klick, und los.</span></h2></div><div class="b-reihe">{vtext}{wolke}</div></section>'
+    # Funktionen als Haftnotizen
+    NOTIZ=[('pen','#C8321F','Stift, Pinsel, Marker','Freihand zeichnen – mit Druck für Apple Pencil und Grafiktablett.'),
+           ('flow','#2F5FD0','Formen und Pfeile','Über 100 Formen. Pfeile docken an und laufen beim Verschieben mit.'),
+           ('check','#1A7F45','Checklisten','Zum Abhaken – alle sehen das Häkchen sofort.'),
+           ('play','#7B3FC4','Präsentieren','Folien aufs Board legen, Übergänge, Laserpointer.'),
+           ('quiz','#C9601A','Live-Quiz','QR-Code scannen, am Handy antworten, Rangliste.'),
+           ('live','#1D1D1F','Live zusammen','Board per Link teilen – Gäste ohne Konto.')]
+    notizen=''.join(f'<div class="pi"><div class="notiz"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="stroke:{c}">{P[n]}</svg><h3 style="color:{c}">{t}</h3><p>{d}</p></div></div>' for n,c,t,d in NOTIZ)
+    funk = f'<section class="karte bereich" style="--c:{VIOLET}"><div class="b-oben"><p class="b-name">{ichip("spark",VIOLET,"klein")}Funktionen</p><h2>Alles, was ein gutes Whiteboard braucht – <span class="hand-a hs-schwarz">schnell verstanden.</span></h2></div><div class="notiz-flaeche"><div class="notizen">{notizen}</div><p class="b-aktion mitte"><a class="weiter" href="funktionen.html">Alle Funktionen {ic("arrow")}</a></p></div></section>'
+    breit = breit + vorl + funk
     kontext = ''
     seite('index.html','Das Whiteboard für Unterricht und Alltag','Start',haupt,kontext,'Skizix: digitales Whiteboard zum Zeichnen, Planen und gemeinsamen Arbeiten – im Unterricht, im Team und mit der Familie.',breit)
 
