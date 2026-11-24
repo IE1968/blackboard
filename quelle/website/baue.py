@@ -11,7 +11,7 @@ import os, re, base64, shutil, json
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '15'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '16'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -101,7 +101,7 @@ def seite(datei, titel, aktiv, haupt, kontext, beschreibung, breit=''):
 <footer class="fuss karte">
   <a class="marke klein" href="index.html">{LOGO}<span class="wort">skizix</span></a><span>© 2026 Skizix</span>
   <span class="platz"></span>
-  <a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><span>Board-Daten in der EU · keine Werbung</span>
+  <a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a>
 </footer>
 <script src="menue.js?v={V}"></script>
 </body>
@@ -127,7 +127,7 @@ def start():
         text = f'''<div class="b-text">
     <p class="lead">{lead}</p>
     {haken(punkte, c)}
-    <p class="b-aktion">{knopf("In der App ausprobieren","weich",None,APP)}<a class="weiter" href="{href}">{link} {ic("arrow")}</a></p>
+    <p class="b-aktion">{knopf("In der App ausprobieren","weich",None,APP)}</p>
   </div>'''
         kopf = f'<div class="b-oben"><p class="b-name">{ichip(icon,c,"klein")}{name_b}</p><h2>{titel}</h2></div>'
         return f'<section class="karte bereich{" links" if links else ""}" style="--c:{c}">{kopf}<div class="b-reihe">{tafel+text if links else text+tafel}</div></section>'
@@ -143,7 +143,7 @@ def start():
   <div class="cta-text">
     <h2>Bereit für dein erstes Board? <span class="hand-a hs-blau">Leg einfach los.</span></h2>
     <p class="lead">Im Browser, auf dem iPad, am PC und am Handy – ohne Installation und ohne Anmeldung. Deine Boards bleiben bei dir.</p>
-    <p class="b-aktion">{knopf("Kostenlos ausprobieren","haupt","arrow",APP)}{knopf("Funktionen ansehen","weich",None,"funktionen.html")}{knopf("Vorlagen ansehen","weich",None,"vorlagen.html")}</p>
+    <p class="b-aktion">{knopf("Kostenlos ausprobieren","haupt","arrow",APP)}</p>
   </div>
   <ul class="cta-punkte">
     <li style="--c:{CORAL}">{ichip("pen",CORAL)}<b>Zeichnen &amp; Formen</b><span>Stift, Pinsel, über 100 Formen, Pfeile, die andocken</span></li>

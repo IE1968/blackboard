@@ -367,3 +367,6 @@ main>.held{flex-direction:column;align-items:stretch;justify-content:center}
 .cta-punkte li span{grid-column:2;font-size:14px;color:var(--leise);line-height:1.4}
 @media (max-width:900px){ .cta-band{grid-template-columns:1fr;padding:28px 22px} }
 @media (max-width:520px){ .cta-punkte{grid-template-columns:1fr} }
+.cta-band{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+.cta-band .cta-punkte{order:-1}
+@media (max-width:900px){ .cta-band{grid-template-columns:1fr} .cta-band .cta-punkte{order:0} }
