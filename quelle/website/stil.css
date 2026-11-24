@@ -284,3 +284,13 @@ main>.held{flex-direction:column;align-items:stretch;justify-content:center}
 .held h1{font-size:clamp(30px,3.3vw,50px);line-height:1.08;margin:0 0 26px;letter-spacing:-.02em}
 .held .zwei{align-items:start}
 .held .text .lead{margin-top:0}
+/* Einsatzbereiche wie der Hero: Überschrift über die ganze Breite, darunter Text (ein Drittel) und Board (zwei Drittel), abwechselnd */
+.bereich{display:block}
+.b-oben{padding:30px 40px 6px}
+.b-oben h2{font-size:clamp(24px,2.4vw,36px);line-height:1.12;margin:8px 0 0;letter-spacing:-.01em}
+.b-reihe{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);align-items:stretch}
+.bereich.links .b-reihe{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.b-text{padding:20px 40px 34px;justify-content:flex-start}
+.b-tafel{margin:14px 24px 24px;border-radius:16px;padding:28px}
+.b-tafel .buehne{width:100%;max-width:none;border-radius:16px;overflow:hidden}
+@media (max-width:1000px){ .b-reihe,.bereich.links .b-reihe{grid-template-columns:1fr} .bereich.links .b-tafel{order:2} .b-oben{padding:24px 24px 0} .b-text{padding:16px 24px 24px} .b-tafel{margin:0 16px 16px;padding:16px} }

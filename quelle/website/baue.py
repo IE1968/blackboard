@@ -11,7 +11,7 @@ import os, re, base64, shutil
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '7'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '8'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -126,13 +126,12 @@ def start():
     def bereich(icon, c, name_b, titel, lead, punkte, board_name, link, href, links):
         tafel = f'<div class="b-tafel">{board(board_name)}</div>'
         text = f'''<div class="b-text">
-    <p class="b-name">{ichip(icon,c,"klein")}{name_b}</p>
-    <h2>{titel}</h2>
     <p class="lead">{lead}</p>
     {haken(punkte, c)}
     <p class="b-aktion">{knopf("In der App ausprobieren","weich",None,APP)}<a class="weiter" href="{href}">{link} {ic("arrow")}</a></p>
   </div>'''
-        return f'<section class="karte bereich{" links" if links else ""}" style="--c:{c}">{tafel+text if links else text+tafel}</section>'
+        kopf = f'<div class="b-oben"><p class="b-name">{ichip(icon,c,"klein")}{name_b}</p><h2>{titel}</h2></div>'
+        return f'<section class="karte bereich{" links" if links else ""}" style="--c:{c}">{kopf}<div class="b-reihe">{tafel+text if links else text+tafel}</div></section>'
     haupt = hero
     breit = f'<h2 class="b-kopf">Wofür nutzt du Skizix?<span>Drei typische Einsätze – alles im selben Board.</span></h2>' \
       + bereich('users',BLUE,'Unterricht &amp; Kurse','Tafelbild, Quiz und Gruppen – alle machen per Handy mit.','Teilnehmende treten per QR-Code bei, ohne Konto, nur mit Spitznamen.',
