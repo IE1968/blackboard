@@ -1,0 +1,158 @@
+[
+ {
+  "name": "Einkaufsliste",
+  "datei": "einkaufsliste.webp",
+  "w": 900,
+  "h": 569
+ },
+ {
+  "name": "Wochenplaner",
+  "datei": "wochenplaner.webp",
+  "w": 900,
+  "h": 658
+ },
+ {
+  "name": "To-do-Liste",
+  "datei": "to-do-liste.webp",
+  "w": 900,
+  "h": 377
+ },
+ {
+  "name": "SWOT-Analyse",
+  "datei": "swot-analyse.webp",
+  "w": 900,
+  "h": 643
+ },
+ {
+  "name": "Eisenhower-Matrix",
+  "datei": "eisenhower-matrix.webp",
+  "w": 900,
+  "h": 616
+ },
+ {
+  "name": "Retrospektive",
+  "datei": "retrospektive.webp",
+  "w": 900,
+  "h": 698
+ },
+ {
+  "name": "Prozesslandkarte",
+  "datei": "prozesslandkarte.webp",
+  "w": 900,
+  "h": 465
+ },
+ {
+  "name": "Zeitstrahl",
+  "datei": "zeitstrahl.webp",
+  "w": 900,
+  "h": 397
+ },
+ {
+  "name": "Business Model Canvas",
+  "datei": "business-model-canvas.webp",
+  "w": 900,
+  "h": 551
+ },
+ {
+  "name": "Ishikawa-Diagramm",
+  "datei": "ishikawa-diagramm.webp",
+  "w": 900,
+  "h": 520
+ },
+ {
+  "name": "Organigramm",
+  "datei": "organigramm.webp",
+  "w": 900,
+  "h": 385
+ },
+ {
+  "name": "PDCA-Zyklus",
+  "datei": "pdca-zyklus.webp",
+  "w": 900,
+  "h": 580
+ },
+ {
+  "name": "Stakeholder-Matrix",
+  "datei": "stakeholder-matrix.webp",
+  "w": 900,
+  "h": 684
+ },
+ {
+  "name": "RACI-Matrix",
+  "datei": "raci-matrix.webp",
+  "w": 900,
+  "h": 430
+ },
+ {
+  "name": "Projektsteckbrief",
+  "datei": "projektsteckbrief.webp",
+  "w": 900,
+  "h": 673
+ },
+ {
+  "name": "Empathy Map",
+  "datei": "empathy-map.webp",
+  "w": 900,
+  "h": 759
+ },
+ {
+  "name": "5-Why-Analyse",
+  "datei": "5-why-analyse.webp",
+  "w": 900,
+  "h": 788
+ },
+ {
+  "name": "Gantt-Diagramm",
+  "datei": "gantt-diagramm.webp",
+  "w": 900,
+  "h": 495
+ },
+ {
+  "name": "Zeitstrahl senkrecht",
+  "datei": "zeitstrahl-senkrecht.webp",
+  "w": 900,
+  "h": 900
+ },
+ {
+  "name": "Roadmap",
+  "datei": "roadmap.webp",
+  "w": 900,
+  "h": 429
+ },
+ {
+  "name": "Zahlenstrahl 0–20",
+  "datei": "zahlenstrahl-0-20.webp",
+  "w": 900,
+  "h": 227
+ },
+ {
+  "name": "Zahlenstrahl 0–100",
+  "datei": "zahlenstrahl-0-100.webp",
+  "w": 900,
+  "h": 229
+ },
+ {
+  "name": "Kanban-Board",
+  "datei": "kanban-board.webp",
+  "w": 900,
+  "h": 627
+ },
+ {
+  "name": "Scrum-Board",
+  "datei": "scrum-board.webp",
+  "w": 900,
+  "h": 475
+ },
+ {
+  "name": "Mindmap",
+  "datei": "mindmap.webp",
+  "w": 900,
+  "h": 535
+ },
+ {
+  "name": "Quiz",
+  "datei": "quiz.webp",
+  "w": 900,
+  "h": 494
+ }
+]

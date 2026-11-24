@@ -339,3 +339,11 @@ main>.held{flex-direction:column;align-items:stretch;justify-content:center}
 .b-aktion.mitte{justify-content:center;margin-top:22px}
 @media (max-width:1000px){ .notizen{grid-template-columns:repeat(2,minmax(0,1fr))} .notiz-flaeche{margin:0 16px 16px;padding:24px 18px} }
 @media (max-width:600px){ .notizen{grid-template-columns:1fr} .wt-worte{padding:18px 16px 24px;gap:4px 12px} .wt-worte .w{font-size:.72em!important} }
+/* Vorlagen-Seite: echte Bilder aus der App */
+.vbild{height:auto;aspect-ratio:16/10;padding:14px;background:#18181A;background-image:radial-gradient(#323237 1.1px,transparent 1.1px);background-size:14px 14px}
+.vbild img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:6px}
+.vbild em{z-index:1;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.vinfo{display:block;padding:0 16px 16px;margin-top:-6px;font-size:13.5px;line-height:1.4;color:var(--leise)}
+#vorlagen{gap:16px}
+.vbild{overflow:hidden;min-height:0}
+.vbild img{width:100%;height:100%;max-height:none;object-fit:contain}

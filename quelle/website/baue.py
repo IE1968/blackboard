@@ -7,11 +7,11 @@ rechts passende Hinweise zur Seite. Hell als Standard, dunkel umschaltbar. Beisp
 Texte von Anleitung, Datenschutz und Impressum stehen in inhalt/*.html und werden hier nur eingesetzt.
 Aufruf:  python3 quelle/website/baue.py
 """
-import os, re, base64, shutil
+import os, re, base64, shutil, json
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '12'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '13'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -193,16 +193,28 @@ def anleitung():
     seite('anleitung.html','Anleitung','Anleitung',haupt,kontext,'Anleitung zu Skizix: installieren, zeichnen, Formen, Text, Präsentieren, Live teilen, Konto und Ordner.')
 
 # ---------------------------------------------------------------- Vorlagen
-VORL = [('Einkaufsliste','Alltag',MINT,'cart'),('Wochenplaner','Alltag',CORAL,'cal'),('To-do-Liste','Alltag',GOLD,'list'),('Quiz','Unterricht',BLUE,'quiz'),
-        ('Gruppenarbeit','Unterricht',VIOLET,'users'),('Mindmap','Unterricht',CORAL,'mind'),('BPMN-Prozess','Beruf',BLUE,'flow'),('Kanban','Beruf',GOLD,'kanban'),
-        ('Retro','Beruf',MINT,'chat'),('Lernplan','Unterricht',VIOLET,'book'),('SWOT-Analyse','Beruf',CORAL,'grid'),('Präsentation','Beruf',BLUE,'play')]
+# Vorlagen der App: Vorschaubilder erzeugt quelle/website/vorlagen_bilder.py (website/bilder/vorlagen/)
+VKAT = {'Einkaufsliste':'Alltag','Wochenplaner':'Alltag','To-do-Liste':'Alltag',
+        'Quiz':'Unterricht','Mindmap':'Unterricht','Zahlenstrahl 0–20':'Unterricht','Zahlenstrahl 0–100':'Unterricht','Zeitstrahl':'Unterricht','Zeitstrahl senkrecht':'Unterricht','PDCA-Zyklus':'Unterricht','5-Why-Analyse':'Unterricht','Ishikawa-Diagramm':'Unterricht'}
+VINFO_EXTRA = {'Quiz':'Frage mit Antworten – live per Handy oder mit „Lösung“ in der Präsentation','Kanban-Board':'To Do, In Arbeit, Erledigt','Scrum-Board':'Backlog, Sprint, Review','Mindmap':'Thema mit Zweigen, per „+ Zweig“ erweiterbar'}
+def vorlagen_infos():
+    js = open(os.path.join(HIER,'..','js','14-vorlagen.js'),encoding='utf-8').read()
+    return dict(re.findall(r"\{name:'([^']+)',info:'([^']+)'", js))
 def vorlagen():
     KAT={'Alltag':CORAL,'Unterricht':BLUE,'Beruf':VIOLET}
-    kacheln = ''.join(f'<a class="vk karte" href="{APP}" data-kat="{k}" style="--c:{KAT[k]}"><span class="vbild">{ic(n,"ic gross")}<em>{k}</em></span><span class="vname">{t}{ic("arrow")}</span></a>' for t,k,c,n in VORL)
+    liste = json.load(open(os.path.join(ZIEL,'bilder','vorlagen','liste.json'),encoding='utf-8'))
+    infos = vorlagen_infos(); infos.update(VINFO_EXTRA)
+    reihen = {'Alltag':0,'Unterricht':1,'Beruf':2}
+    liste.sort(key=lambda v: reihen[VKAT.get(v['name'],'Beruf')])
+    def kachel(v):
+        k = VKAT.get(v['name'],'Beruf')
+        return (f'<a class="vk karte" href="{APP}" data-kat="{k}" style="--c:{KAT[k]}"><span class="vbild"><img src="bilder/vorlagen/{v["datei"]}" width="{v["w"]}" height="{v["h"]}" loading="lazy" alt="Vorlage {v["name"]} in der App"><em>{k}</em></span>'
+                f'<span class="vname">{v["name"]}{ic("arrow")}</span><span class="vinfo">{infos.get(v["name"],"")}</span></a>')
+    kacheln = ''.join(kachel(v) for v in liste)
     filt = ''.join(f'<button type="button" class="filter" data-kat="{k}" aria-pressed="{str(i==0).lower()}" style="--c:{c}">{k if k!="*" else "Alle"}</button>' for i,(k,c) in enumerate([('*',BLUE),('Alltag',CORAL),('Unterricht',BLUE),('Beruf',VIOLET)]))
-    haupt = karte(f'<p class="marker" style="--c:var(--gold)">{ic("grid")}Vorlagen</p><h1>Vorlagen</h1><p class="lead">Fertige Boards zum Anpassen – in der App unter <b>Vorlagen</b>.</p><p class="filterzeile" role="group" aria-label="Vorlagen filtern">{filt}</p>') + f'<div class="raster3" id="vorlagen">{kacheln}</div>'
+    haupt = karte(f'<p class="marker" style="--c:var(--gold)">{ic("grid")}Vorlagen</p><h1>Vorlagen</h1><p class="lead">So sehen die {len(liste)} Vorlagen in der App aus. Du findest sie links in der Formenleiste unter <b>Vorlagen → Alle Vorlagen</b> – alles lässt sich frei anpassen.</p><p class="filterzeile" role="group" aria-label="Vorlagen filtern">{filt}</p>') + f'<div class="raster3" id="vorlagen">{kacheln}</div>'
     kontext = ''
-    seite('vorlagen.html','Vorlagen','Vorlagen',haupt,kontext,'Vorlagen für Skizix: Einkaufsliste, Wochenplaner, Kanban, BPMN, Mindmap, Retro und mehr.')
+    seite('vorlagen.html','Vorlagen','Vorlagen',haupt,kontext,'Vorlagen für Skizix: Einkaufsliste, Wochenplaner, Kanban, SWOT, Mindmap, Gantt, Retro und mehr – so sehen sie in der App aus.')
 
 def recht(datei, titel, aktiv, icon, c, kontext, besch):
     s = lies(datei)

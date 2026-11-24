@@ -58,7 +58,7 @@ const TEMPLATES=[
    L(0,260,1000,260,{sw:4});
    [['Januar','Projektstart'],['März','Konzept fertig'],['Mai','Umsetzung'],['August','Test'],['Oktober','Abschluss']].forEach(([d,t],i)=>{ const x=80+i*200, up=i%2===0;
      B('ellipse',x-14,246,28,28,'',{fill:TC.blue,sw:3}); L(x,up?246:274,x,up?190:330,{head:'none',dash:true});
-     B('round',x-85,up?110:330,170,80,'',{fill:i===4?TC.green:TC.white}); X(x-75,(up?118:338),150,d,15,{bold:true,al:'center'}); X(x-75,(up?146:366),150,t,13,{al:'center'}); }); }},
+     B('round',x-85,up?110:330,170,80,'',{fill:i===4?TC.green:TC.white}); const tk=i===4?{tc:CARD_INK}:{}; X(x-75,(up?118:338),150,d,15,{bold:true,al:'center',...tk}); X(x-75,(up?146:366),150,t,13,{al:'center',...tk}); }); }},
  {name:'Business Model Canvas',info:'Geschäftsmodell auf neun Feldern',make(K){ const {H,B,X}=K; H(0,0,700,'Business Model Canvas',26);
    const F=(x,y,w,h,t,c)=>{ B('rect',x,y,w,h,'',{fill:c}); X(x+12,y+10,w-24,t,14,{bold:true}); };
    F(0,60,220,420,'Schlüssel-\npartner',TC.white); F(220,60,220,210,'Schlüssel-\naktivitäten',TC.white); F(220,270,220,210,'Schlüssel-\nressourcen',TC.white);
@@ -119,7 +119,15 @@ const TEMPLATES=[
  {name:'Scrum-Board',info:'Backlog, Sprint, Review',kind:'scrum'},
  {name:'Mindmap',info:'Thema mit Zweigen, per „+ Zweig“ erweiterbar',kind:'mindmap'}
 ];
-function tplItems(t){ const K=tplKit(); t.make(K); return K.out; }
+function tplItems(t){ const K=tplKit(); t.make(K); return tplInk(K.out); }
+/* Texte, die auf einer farbigen (hellen) Fläche liegen, behalten dunkle Schrift – auch auf dunkler Tafel */
+function tplInk(its){
+  const light=new Set(Object.values(TC).filter(c=>c!==TC.white));
+  const boxes=its.filter(i=>i.type==='shape'&&i.kind!=='text'&&light.has(i.fill));
+  for(const t of its){ if(t.type!=='shape'||t.kind!=='text'||t.tc) continue; const cx=t.x+t.w/2, cy=t.y+t.h/2;
+    if(boxes.some(b=>cx>=b.x&&cx<=b.x+b.w&&cy>=b.y&&cy<=b.y+b.h)) t.tc=CARD_INK; }
+  return its;
+}
 function tplPreview(t){
   if(t.kind) return iconFor(t.kind,44,28).replace('<svg ','<svg style="padding:22px 50px;color:#5b6870" ');
   const n0=doc.n, its=tplItems(t), b=unionBox(its), dk=darkBoard, ed=editing; doc.n=n0; darkBoard=false; editing=null;
