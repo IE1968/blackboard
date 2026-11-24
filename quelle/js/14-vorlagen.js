@@ -25,9 +25,10 @@ const TEMPLATES=[
    tplCard(K,0,334,280,200,'Drogerie & Haushalt',TC.pink,['Zahnpasta','Spülmittel','Küchenrolle']);
    B('note',300,334,280,200,'Nicht vergessen:\nPfandflaschen mitnehmen',{fill:TC.yellow,al:'left'}); }},
  {name:'Wochenplaner',info:'Montag bis Sonntag für die ganze Familie, mit Aufgaben der Woche',make(K){ const {H,X,TB}=K; H(0,0,700,'Wochenplaner',26);
-   X(0,40,860,'Woche vom … bis …',14,{tc:'#5b6870'});
+   const now=new Date(), mo=new Date(now.getFullYear(),now.getMonth(),now.getDate()-((now.getDay()+6)%7)), so=new Date(mo.getFullYear(),mo.getMonth(),mo.getDate()+6), dm=d=>d.getDate()+'.'+(d.getMonth()+1);
+   X(0,40,860,'Woche vom '+dm(mo)+' bis '+dm(so),16);   /* aktuelle Woche, Montag bis Sonntag */
    const cw=[130,110,110,110,110,110,110,110], rh=[44,76,76,76,60];
-   TB(0,80,cw,rh,[['','Mo','Di','Mi','Do','Fr','Sa','So'],['Morgens','','','','','','',''],['Nachmittags','','Sport – Mia','','','','Ausflug',''],['Abends','','','','Elternabend 19 Uhr','','',''],['Wer kocht?','','','','','','','']],{al:'center'});
+   TB(0,80,cw,rh,[['','Mo','Di','Mi','Do','Fr','Sa','So'],['Morgens','','','','','','',''],['Nachmittags','','','','','','',''],['Abends','','','','','','',''],['Wichtig?','','','','','','','']],{al:'center'});
    tplCard(K,0,442,420,200,'Diese Woche erledigen',TC.orange,['Müll rausbringen (Di)','Geschenk für Oma besorgen','+Arzttermin ausmachen']);
    tplCard(K,440,442,440,200,'Einkauf fürs Wochenende',TC.green,['Grillgemüse','Brötchen','Getränke']); }},
  {name:'To-do-Liste',info:'Heute, diese Woche, irgendwann – zum Abhaken',make(K){ const {H,X}=K; H(0,0,700,'To-do-Liste',26);
