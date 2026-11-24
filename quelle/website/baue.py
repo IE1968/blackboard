@@ -11,7 +11,7 @@ import os, re, base64, shutil, json
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '13'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '14'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -55,7 +55,7 @@ def board(name):   # Beispiel-Board in App-Optik (fest 440 × 320, wird per JS a
             f'<button type="button" class="anhalten" aria-pressed="false">{ic("pause")}<span>Anhalten</span></button></div>')
 
 LOGO = '<svg class="logo" viewBox="0 0 34 30" aria-hidden="true"><rect x="3" y="3" width="28" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M21 8c-2.5-2.5-8-1.5-7 1.5s7.5 1 6 4.5-6 2.5-8 0" fill="none" stroke="#4D9FFF" stroke-width="2.6" stroke-linecap="round"/><path d="M3 27h28" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>'
-NAV = [('index.html','Start','home',BLUE),('funktionen.html','Funktionen','spark',VIOLET),('anleitung.html','Anleitung','book',MINT),('vorlagen.html','Vorlagen','grid',GOLD)]
+NAV = [('index.html','Start','home',BLUE),('funktionen.html','Funktionen','spark',VIOLET),('vorlagen.html','Vorlagen','grid',GOLD),('anleitung.html','Anleitung','book',MINT)]
 NAV2 = [('datenschutz.html','Datenschutz','shield',MINT),('impressum.html','Impressum','info',BLUE)]
 APP = '../'
 
@@ -162,7 +162,7 @@ def start():
            ('live','#1D1D1F','Live zusammen','Board per Link teilen – Gäste ohne Konto.')]
     notizen=''.join(f'<div class="pi"><div class="notiz"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="stroke:{c}">{P[n]}</svg><h3 style="color:{c}">{t}</h3><p>{d}</p></div></div>' for n,c,t,d in NOTIZ)
     funk = f'<section class="karte bereich" style="--c:{VIOLET}"><div class="b-oben"><p class="b-name">{ichip("spark",VIOLET,"klein")}Funktionen</p><h2>Alles, was ein gutes Whiteboard braucht – <span class="hand-a hs-schwarz">schnell verstanden.</span></h2></div><div class="notiz-flaeche"><div class="notizen">{notizen}</div><p class="b-aktion mitte"><a class="weiter" href="funktionen.html">Alle Funktionen {ic("arrow")}</a></p></div></section>'
-    breit = breit + vorl + funk
+    breit = breit + funk + vorl
     kontext = ''
     seite('index.html','Das Whiteboard für Unterricht und Alltag','Start',haupt,kontext,'Skizix: digitales Whiteboard zum Zeichnen, Planen und gemeinsamen Arbeiten – im Unterricht, im Team und mit der Familie.',breit)
 
