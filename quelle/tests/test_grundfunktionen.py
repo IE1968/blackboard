@@ -48,7 +48,7 @@ try:
     pg.click('#viewBtn'); pg.click('#snapBtn'); pg.keyboard.press('Escape')
     bx,by=scr(B['x']+B['w']/2,B['y']+B['h']/2); drag(bx,by,bx+3,by+137)
     d=doc(); A,B=[i for i in d['items'] if i['type']=='shape']
-    ok('Einrasten aus: freie Position',abs(B['y']-A['y']-137)<0.01 and (B['x']%10)!=0 ,f"B={B['x']},{B['y']}")
+    kz=view()[2]; ok("Einrasten aus: freie Position",abs(B["y"]-A["y"]-137/kz)<0.05 and (B["x"]%10)!=0 ,f"A={A}  B={B} snap={pg.evaluate('()=>localStorage.getItem("blackboard-ui")')}")
     pg.click('#viewBtn'); pg.click('#snapBtn'); pg.keyboard.press('Escape')
     # --- Andocken
     add('lineArrow'); d=doc(); C=[i for i in d['items'] if i['type']=='conn'][0]

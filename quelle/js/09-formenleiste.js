@@ -65,10 +65,23 @@ function savePal(){ try{ localStorage.setItem('blackboard-pal',JSON.stringify(pa
 function renderPal(){
   document.querySelector('main').classList.toggle('pal-closed',!!palState.closed);
   const ph=$('palHandle'); ph.textContent=palState.closed?'›':'‹'; ph.setAttribute('aria-expanded',!palState.closed); ph.title=palState.closed?'Formenleiste ausklappen':'Formenleiste einklappen';
-  palEl.innerHTML=GROUPS.map(([name,kinds])=>`<button class="gh" data-g="${esc(name)}" aria-expanded="${!!palState.open[name]}"><span>${esc(name)}</span></button><div class="palgrid"${palState.open[name]?'':' hidden'}>`+
+  palEl.innerHTML=`<div class="palSearch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="palQ" type="search" placeholder="Form suchen" aria-label="Form suchen" autocomplete="off" spellcheck="false"></div><div class="palgrid" id="palFind" hidden></div><div class="palEmpty" id="palNone" hidden>Nichts gefunden</div>`+GROUPS.map(([name,kinds])=>`<button class="gh" data-g="${esc(name)}" aria-expanded="${!!palState.open[name]}"><span>${esc(name)}</span></button><div class="palgrid"${palState.open[name]?'':' hidden'}>`+
     (name==='Vorlagen'?`<button class="pal palbtn" data-tpl="1" title="Alle Vorlagen: SWOT, Eisenhower, Retro, Zeitstrahl und mehr" aria-label="Alle Vorlagen"><svg viewBox="0 0 44 28"><rect x="6" y="3" width="14" height="10" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/><rect x="24" y="3" width="14" height="10" rx="1.500" fill="currentColor" opacity=".55"/><rect x="6" y="15" width="14" height="10" rx="1.500" fill="currentColor" opacity=".55"/><rect x="24" y="15" width="14" height="10" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/></svg></button>`:'')+
     kinds.map(k=>`<button class="pal" data-kind="${k}" title="${KINDS[k].label.replace('-','')}" aria-label="${KINDS[k].label.replace('-','')}">${iconFor(k,44,28)}<span>${KINDS[k].label}</span></button>`).join('')+(name==='Präsentation'?`<button class="pal palbtn" data-slides="1" title="Folienübersicht: Vorschau aller Folien, Reihenfolge per Ziehen" aria-label="Folienübersicht"><svg viewBox="0 0 44 28"><rect x="3" y="7" width="11" height="14" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/><rect x="17" y="7" width="11" height="14" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/><rect x="31" y="7" width="11" height="14" rx="1.500" fill="none" stroke="currentColor" stroke-width="1.600"/></svg></button>`:'')+(name==='Präsentation'?`<button class="pal palbtn" data-play="1" title="Präsentation starten" aria-label="Präsentation starten"><svg viewBox="0 0 44 28"><path d="M16 5v18l15-9z" fill="currentColor"/></svg></button>`:'')+`</div>`).join('');
 }
+/* Suche über alle Formen: zeigt Treffer aus allen Gruppen, die Gruppen werden solange ausgeblendet */
+let palQuery='';
+function palFind(){
+  const q=palQuery.trim().toLowerCase(), f=$('palFind'); palEl.classList.toggle('finding',!!q);
+  if(!q){ f.hidden=true; f.innerHTML=''; $('palNone').hidden=true; return; }
+  const norm=t=>t.replace(/-/g,'').toLowerCase(), seen=new Set(), hit=[];
+  for(const [g,kinds] of GROUPS) for(const k of kinds){ if(seen.has(k)) continue; const l=norm(KINDS[k].label); if(l.includes(q)||norm(g).includes(q)){ seen.add(k); hit.push([g,k]); } }
+  f.innerHTML=hit.map(([g,k])=>`<button class="pal" data-kind="${k}" data-grp="${esc(g)}" title="${KINDS[k].label.replace('-','')}" aria-label="${KINDS[k].label.replace('-','')}">${iconFor(k,44,28)}<span>${KINDS[k].label}</span></button>`).join('');
+  f.querySelectorAll('.pal span').forEach(x=>{ x.textContent=x.textContent.replace(/-/g,'\u00ad'); });
+  f.hidden=!hit.length; $('palNone').hidden=!!hit.length;
+}
+const _renderPal=renderPal;
+renderPal=function(){ _renderPal(); palEl.querySelectorAll('.pal span').forEach(x=>{ x.textContent=x.textContent.replace(/-/g,'\u00ad'); }); const i=$('palQ'); if(i){ i.value=palQuery; i.oninput=()=>{ palQuery=i.value; palFind(); }; i.onkeydown=e=>{ if(e.key==='Escape'&&i.value){ e.preventDefault(); e.stopPropagation(); i.value=palQuery=''; palFind(); } }; } palFind(); };
 renderPal();
 palEl.addEventListener('click',e=>{
   if(e.target.closest('[data-play]')){ startPres(); return; }

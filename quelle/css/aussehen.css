@@ -480,3 +480,48 @@ body.light .sw.none,body.light .cdot.none{border-color:rgba(24,24,26,.3)}
 #boardList button:nth-child(5n+4)::before{background:var(--c-coral)}
 #boardList button:nth-child(5n+5)::before{background:var(--c-violet)}
 #boardList button[aria-current="true"]{background:var(--acc-soft);color:var(--accent)}
+
+/* ---- Schritt 3: schwebende Seitenfelder, breitere Formenleiste mit Namen und Suche, breitere Board-Leiste ---- */
+main{--palw:calc(184px*var(--ui));--propw:calc(184px*var(--ui));background:var(--chrome)}
+#palette,#menu{margin:10px;border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+body.light #palette,body.light #menu{box-shadow:0 10px 30px rgba(24,24,26,.08),0 1px 2px rgba(24,24,26,.06)}
+#palette{margin-right:6px;padding:12px 10px 20px}
+#menu{margin-left:6px;padding:12px 8px 20px}
+main.pal-closed #palette,main.props-closed #menu{margin:0;box-shadow:none}
+#stage{border-radius:0}
+#palHandle{border-radius:0 10px 10px 0}
+#propsToggle{border-radius:10px 0 0 10px}
+/* Suche */
+.palSearch{display:flex;align-items:center;gap:7px;height:36px;padding:0 10px;margin:0 0 8px;border-radius:10px;background:var(--hover);color:var(--muted)}
+.palSearch svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.palSearch input{flex:1;min-width:0;border:0;background:transparent;outline:none;font:500 13px/1 var(--body);color:var(--ink)}
+.palSearch input::placeholder{color:var(--muted)}
+.palSearch:focus-within{box-shadow:0 0 0 2px var(--accent)}
+#palette.finding .gh,#palette.finding .palgrid:not(#palFind){display:none!important}
+.palEmpty{font-size:12px;color:var(--muted);text-align:center;padding:14px 4px}
+/* Gruppen als ruhige Zeilen: Punkt, Name, Pfeil rechts */
+.gh{flex-direction:row;justify-content:space-between;padding:8px 8px;margin-top:2px;border-radius:9px;text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:700;color:var(--ink)}
+.gh::after{transform:translateY(-2px) rotate(45deg)}
+.gh[aria-expanded="false"]::after{transform:rotate(-45deg)}
+.gh[aria-expanded="true"]::after{transform:translateY(-2px) rotate(45deg)}
+.gh[aria-expanded="false"]{color:var(--muted)}
+/* Formen mit Namen, drei nebeneinander */
+.palgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;margin-bottom:6px}
+.pal{border-color:transparent!important;padding:7px 2px 5px;gap:3px;min-height:58px;border-radius:10px}
+.pal:hover,.pal:focus-visible{background:color-mix(in srgb,var(--pc,var(--accent)) 12%,transparent)!important;border-color:transparent!important}
+.pal span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:10.5px;line-height:1.15;font-weight:500;color:var(--muted);max-width:100%;overflow:hidden;white-space:normal;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+.pal svg{max-width:34px;height:24px}
+/* Rechte Leiste: Befehle und Boards in voller Breite */
+#menu button{font-size:13px;padding:8px 10px;border-radius:9px}
+#menu>button:not(#delBoard){white-space:nowrap;hyphens:none;-webkit-hyphens:none}
+#menu .mh{text-align:left;padding:12px 10px 6px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#menu [data-m="new"]{background:var(--accent);color:var(--accent-ink);justify-content:center;font-weight:700;margin:2px 0 6px}
+#menu [data-m="new"] svg{color:var(--accent-ink)!important}
+#menu [data-m="new"]:hover{background:var(--accent);filter:brightness(1.08)}
+#menu [data-m="delboard"]{color:var(--c-coral)}
+#boardList button{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Smartphone: schmale Überlagerung wie bisher, ohne Namen */
+body.compact #palette,body.compact #menu{margin:8px;width:150px;bottom:0;top:0;height:auto}
+body.compact .palgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+body.compact .pal span{display:none}
+body.compact .pal{min-height:42px}
