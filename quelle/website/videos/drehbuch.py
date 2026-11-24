@@ -166,15 +166,16 @@ def praesentieren():
 def live():
     def s(pg):
         pg.evaluate("u=>localStorage.setItem('skizix-test-sb',u)",'http://127.0.0.1:8767'); pg.reload(); pg.wait_for_timeout(800)
-        lade([S('a','checklist',0,0,240,160,'Milch\nBrot\nÄpfel',fill='#d6f5e3')])(pg)
+        leer(6)(pg); pg.click('.pal[data-kind="checklist"]'); pg.wait_for_timeout(300); pg.keyboard.press('Escape'); pg.mouse.click(1380,860); pg.wait_for_timeout(300)
     with Film('live',s) as f:
         f.cap('Oben auf <b>Teilen</b> tippen'); f.klick('#liveBtn',danach=700)
         f.cap('<b>„Board teilen …“</b> wählen'); f.klick('#liveStartBtn',danach=900)
         f.cap('Festlegen, wie lange der Link gilt …'); f.gehe('#lvExp',500); f.pause(200); f.pg.select_option('#lvExp','7d'); f.pause(900); f.bild()
-        f.cap('… und einen Link zum <b>Mitzeichnen</b> oder zum <b>Ansehen</b> erstellen'); f.gehe('#lvView',500); f.pause(600); f.klick('#lvEdit',danach=1500)
+        f.cap('… und einen Link zum <b>Mitzeichnen</b> erstellen …'); f.zeige('#lvEdit',1700)
+        f.cap('… oder einen Link nur zum <b>Ansehen</b>'); f.zeige('#lvView',1600)
         f.cap('Den Link verschicken – wer ihn öffnet, ist ohne Anmeldung dabei'); f.pause(1800)
         f.klick('#lvClose',danach=500)
-        f.cap('<b>Mitmachen:</b> Link oder 6-stelligen Quiz-Code eingeben und Beitreten'); f.klick('#liveBtn',danach=500); f.klick('#liveJoinIn',danach=300); f.tippe('K7XP3M',120); f.pause(500); f.gehe('#liveJoinForm button',500); f.pause(1200)
+        f.cap('<b>Mitmachen:</b> Link oder 6-stelligen Quiz-Code eingeben und Beitreten'); f.klick('#liveBtn',danach=500); f.klick('#liveJoinIn',danach=300); f.tippe('K7XP3M',120); f.pause(500); f.zeige('#liveJoinForm button',1500)
         f.pg.keyboard.press('Escape'); f.pause(300)
 
 @film
@@ -198,11 +199,11 @@ def export():
     its=[S('a','rect',0,0,180,90,'Planen'),S('b','rect',260,0,180,90,'Umsetzen',fill='#d6f5e3'),S('c','rect',520,0,180,90,'Prüfen',fill='#fde2d6')]
     with Film('export',lade(its,zoomstufen=4)) as f:
         f.cap('Über <b>Export</b> (Pfeil nach unten) speicherst du das Board'); f.klick('#expBtn',danach=900); f.bild()
-        f.cap('<b>Bild (PNG)</b> – zum Einfügen in Dokumente und Chats'); f.gehe('#expPop [data-m="png"]',500); f.pause(1200)
-        f.cap('<b>Vektor (SVG)</b> – gestochen scharf in jeder Größe'); f.gehe('#expPop [data-m="svg"]',400); f.pause(1200)
-        f.cap('<b>PDF (A4)</b> – zum Drucken, Folien als einzelne Seiten'); f.gehe('#expPop [data-m="pdf"]',400); f.pause(1200)
-        f.cap('<b>Sicherung (.json)</b> – die komplette Datei'); f.gehe('#expPop [data-m="json"]',400); f.pause(900); f.klick('#expPop [data-m="json"]',100,1400)
-        f.cap('Wieder öffnen: rechts <b>„Board laden …“</b>'); f.klick('#propsToggle',danach=600); f.gehe('#menu [data-m="open"]',500); f.pause(1800)
+        f.cap('<b>Bild (PNG)</b> – zum Einfügen in Dokumente und Chats'); f.zeige('#expPop [data-m="png"]',1400)
+        f.cap('<b>Vektor (SVG)</b> – gestochen scharf in jeder Größe'); f.zeige('#expPop [data-m="svg"]',1400)
+        f.cap('<b>PDF (A4)</b> – zum Drucken, Folien als einzelne Seiten'); f.zeige('#expPop [data-m="pdf"]',1400)
+        f.cap('<b>Sicherung (.json)</b> – die komplette Datei'); f.zeige('#expPop [data-m="json"]',1800); f.pg.keyboard.press('Escape'); f.pause(300)
+        f.cap('Wieder öffnen: rechts <b>„Board laden …“</b>'); f.klick('#propsToggle',danach=600); f.zeige('#menu [data-m="open"]',1800)
 
 if __name__=='__main__':
     import subprocess,os,time

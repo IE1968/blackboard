@@ -18,6 +18,8 @@ OVERLAY=r"""
  #fCap{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(12px);opacity:0;z-index:2147483645;pointer-events:none;background:rgba(16,16,18,.92);color:#fff;font:600 26px/1.3 'Plus Jakarta Sans',system-ui,sans-serif;padding:14px 26px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12);max-width:80vw;text-align:center;transition:opacity .25s,transform .25s}
  #fCap.on{opacity:1;transform:translateX(-50%)}
  #fCap b{color:#8FB0FF}
+ .fZeig{position:fixed;z-index:2147483644;pointer-events:none;border:3px solid #FFD54A;border-radius:12px;box-shadow:0 0 0 4px rgba(255,213,74,.25),0 0 24px rgba(255,213,74,.45);animation:fZeig 1s ease-in-out infinite}
+ @keyframes fZeig{50%{box-shadow:0 0 0 8px rgba(255,213,74,.12),0 0 30px rgba(255,213,74,.6)}}
  #fKey{position:fixed;right:28px;bottom:28px;z-index:2147483645;pointer-events:none;display:flex;gap:6px;opacity:0;transition:opacity .2s}
  #fKey.on{opacity:1}
  #fKey span{background:#F2F2F0;color:#18181A;font:700 22px/1 'Plus Jakarta Sans',system-ui,sans-serif;padding:9px 13px;border-radius:9px;box-shadow:0 3px 0 #9a9aa0,0 8px 20px rgba(0,0,0,.4)}
@@ -30,6 +32,7 @@ OVERLAY=r"""
  window.addEventListener('pointerdown',e=>{ mv(e); const r=document.createElement('div'); r.className='fRing'; r.style.left=e.clientX+'px'; r.style.top=e.clientY+'px'; document.body.appendChild(r); setTimeout(()=>r.remove(),600); },true);
  window.__cap=t=>{ if(!t){ cap.classList.remove('on'); return; } cap.innerHTML=t; cap.classList.add('on'); };
  window.__key=t=>{ if(!t){ key.classList.remove('on'); return; } key.innerHTML=t.split('+').map(x=>'<span>'+x.trim()+'</span>').join(''); key.classList.add('on'); };
+ window.__zeig=(r)=>{ document.querySelectorAll('.fZeig').forEach(e=>e.remove()); if(!r) return; const d=document.createElement('div'); d.className='fZeig'; d.style.left=(r.x-6)+'px'; d.style.top=(r.y-6)+'px'; d.style.width=(r.width+12)+'px'; d.style.height=(r.height+12)+'px'; document.body.appendChild(d); };
  window.__curPos=(x,y)=>{ c.style.left=x+'px'; c.style.top=y+'px'; };
 })()"""
 
@@ -81,6 +84,10 @@ class Film:
             for i in range(1,per+1):
                 t=i/per; self.pg.mouse.move(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t); self.pg.wait_for_timeout(14)
         self.x,self.y=pts[-1]; self.pg.mouse.up(); self.pause(danach)
+    def zeige(self,sel,ms=1600):
+        """Zeigt, wo geklickt wird – ohne zu klicken (leuchtender Rahmen um das Ziel)."""
+        self.gehe(sel,600); b=self.pg.locator(sel).first.bounding_box()
+        self.pg.evaluate('r=>window.__zeig(r)',b); self.pause(ms); self.pg.evaluate('()=>window.__zeig(null)')
     def tippe(self,text,ms=55): self.pg.keyboard.type(text,delay=ms)
     def taste(self,taste,anzeige=None,ms=700):
         self.pg.evaluate('t=>window.__key(t)',anzeige or taste); self.pause(250); self.pg.keyboard.press(taste); self.pause(ms); self.pg.evaluate('()=>window.__key(null)')

@@ -421,6 +421,7 @@ html{scroll-padding-top:calc(var(--kopfh) + 16px)}
 /* Anleitungs-Videos: Vorschaubild, Abspielen erst auf Klick */
 .vid{margin:6px 0 18px}
 .vid video{display:block;width:100%;aspect-ratio:1440/900;height:auto;border-radius:14px;background:#18181A;box-shadow:var(--schatten)}
+.vid{max-width:820px}
 
 /* Animationen der Beispiel-Boards */
 @keyframes hb1{0%,0%{opacity:0;transform:scale(.7)}4%{opacity:1;transform:scale(1.04)}7%,94%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
