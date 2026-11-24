@@ -1,7 +1,7 @@
 /* ---------- Handy: Werkzeuge unten in Daumennähe, Formen und „Mehr“ als Blatt von unten ---------- */
 function isPhone(){ return document.body.classList.contains('phone'); }
 function phoneSync(){
-  const t=tool, more=['brush','marker','erase','pan','shape'];
+  const t=tool, more=['brush','marker','smart','erase','pan','shape'];
   document.querySelectorAll('#phoneBar [data-tool],#moreSheet [data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t));
   $('pbMore').classList.toggle('on',more.includes(t));
   $('pbPlus').setAttribute('aria-expanded',isPhone()&&!palState.closed);

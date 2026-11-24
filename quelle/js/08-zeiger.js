@@ -209,7 +209,8 @@ function onUp(e){
   if(e.type==='pointercancel'){ action=a; cancelAction(); return; }
   switch(a.type){
     case 'pen': if(liveEl){ liveEl.remove(); liveEl=null; }
-      { const ps=penStyles[a.tool], it={id:nid(),type:'path',pts:a.pts,stroke:ps.stroke,sw:ps.sw,tool:a.tool,tip:ps.tip};
+      if(a.tool==='smart'&&formstift(a.pts)) break;   /* Formstift: Linie oder Form erkannt */
+      { const ps=penStyles[a.tool], it={id:nid(),type:'path',pts:a.pts,stroke:ps.stroke,sw:ps.sw,tool:a.tool==='smart'?'pen':a.tool,tip:ps.tip};
         if(a.tool==='brush'&&!a.pr){ const n=a.ws.length; [0.45,0.7,0.88].forEach((q,k)=>{ if(n-1-k>0) a.ws[n-1-k]=r2(a.ws[n-1-k]*q); }); }
         if((a.pr||a.tool==='brush')&&a.ws.length===a.pts.length) it.ws=a.ws;
         doc.items.push(it); commit(); }

@@ -150,7 +150,7 @@ function tableText(s){
     if(!t||(editing===s.id&&editCell&&editCell.r===rr&&editCell.c===cc)) return;
     const R=cellRect(s,rr,cc), ls=wrap(t,R.w-14), y0=R.y+R.h/2-(ls.length-1)*LH/2+FS*0.35;
     const a=rr>0||s.al?alOf(s):'center', tx=a==='left'?R.x+8:a==='right'?R.x+R.w-8:R.x+R.w/2;
-    o+=`<text text-anchor="${a==='left'?'start':a==='right'?'end':'middle'}" font-family="${FONT}" font-size="${FS}"${rr===0||BOLD?' font-weight="600"':''} fill="${fill}" pointer-events="none">`+
+    o+=`<text text-anchor="${a==='left'?'start':a==='right'?'end':'middle'}" font-family="${FAM}" font-size="${FS}"${rr===0||BOLD?' font-weight="600"':''} fill="${fill}" pointer-events="none">`+
       ls.map((l,i)=>`<tspan x="${r(tx)}" y="${r(y0+i*LH)}">${esc(l)}</tspan>`).join('')+`</text>`; }));
   return o;
 }
@@ -243,14 +243,14 @@ function shapeText(s){
         return o.x?`<rect class="ckBox" x="${r(x0)}" y="${r(by)}" width="${bx}" height="${bx}" rx="${r(bx*0.22)}" fill="#22a88c"/><path d="M${r(x0+bx*0.24)} ${r(by+bx*0.52)}l${r(bx*0.18)} ${r(bx*0.18)}l${r(bx*0.36)} -${r(bx*0.4)}" fill="none" stroke="#fff" stroke-width="${r(Math.max(1.6,bx*0.14))}" stroke-linecap="round" stroke-linejoin="round"/>`
           :`<rect class="ckBox" x="${r(x0+0.75)}" y="${r(by+0.75)}" width="${bx-1.5}" height="${bx-1.5}" rx="${r(bx*0.22)}" fill="none" stroke="${fill}" stroke-width="1.5"/>`; }).join('');
       const dec=o=>o.x?' text-decoration="line-through" opacity=".55"':'';
-      return `<g pointer-events="none">${box}<text font-family="${FONT}" font-size="${FS}" fill="${fill}">`+
+      return `<g pointer-events="none">${box}<text font-family="${FAM}" font-size="${FS}" fill="${fill}">`+
         Q.out.map((o,i)=>(o.bul&&!o.c?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}"${fw(o)}>${BUL}</tspan>`:'')+(o.t&&!edMarks?`<tspan x="${r(x0+(o.l?Q.ind:0))}" y="${r(y0+i*LH)}"${fw(o)}${dec(o)}>${esc(o.t)}</tspan>`:'')).join('')+`</text></g>`; }
-    return `<text${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
+    return `<text${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FAM}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
       Q.out.map((o,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}"${fw(o)}>${esc(o.t)}</tspan>`).join('')+`</text>`; }
   if(L){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
-    return `<text${BOLD?' font-weight="600"':''} font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
+    return `<text${BOLD?' font-weight="600"':''} font-family="${FAM}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
       L.out.map((o,i)=>(o.b?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}">${BUL}</tspan>`:'')+(o.t&&!edMarks?`<tspan x="${r(x0+L.ind)}" y="${r(y0+i*LH)}">${esc(o.t)}</tspan>`:'')).join('')+`</text>`; }
-  return `<text${extra}${BOLD?' font-weight="600"':''}${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
+  return `<text${extra}${BOLD?' font-weight="600"':''}${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FAM}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
     lines.map((l,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}">${esc(l)}</tspan>`).join('')+`</text>`;
 }
 function fitTexts(){   /* nach dem Laden: Formen, aus denen Text herausragt, so weit vergrößern, dass er passt */

@@ -76,7 +76,7 @@ function connSVG(c){
   if(head==='msg') o+=`<circle cx="${r(pts[0].x)}" cy="${r(pts[0].y)}" r="${4+c.sw*0.5}" fill="${paper()}" stroke="${cs}" stroke-width="${c.sw}"/>`;
   if(c.text&&editing!==c.id&&!noText){ const m=connMid(pts),ls=wrap(c.text,170),tw=Math.max(...ls.map(measure))+10,th=ls.length*LH+4;
     o+=`<rect x="${r(m.x-tw/2)}" y="${r(m.y-th/2)}" width="${r(tw)}" height="${th}" rx="3" fill="${paper()}"/>`+
-      `<text text-anchor="middle" font-family="${FONT}" font-size="${FS}"${BOLD?' font-weight="600"':''} fill="${c.tc?mapC(c.tc):tink()}" pointer-events="none">`+
+      `<text text-anchor="middle" font-family="${FAM}" font-size="${FS}"${BOLD?' font-weight="600"':''} fill="${c.tc?mapC(c.tc):tink()}" pointer-events="none">`+
       ls.map((l,i)=>`<tspan x="${r(m.x)}" y="${r(m.y-(ls.length-1)*LH/2+FS*0.35+i*LH)}">${esc(l)}</tspan>`).join('')+`</text>`; }
   return o+'</g>';
 }

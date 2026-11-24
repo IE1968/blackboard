@@ -94,6 +94,11 @@ def zeichnen():
         f.pfad([(440,520),(760,520)],1000,600); f.bild()
         f.cap('Der <b>Radierer</b> löscht alles, worüber du wischst'); f.klick('#tools [data-tool="erase"]',danach=400)
         f.pfad([(500,420),(540,380),(600,430),(660,380)],1200,800)
+        f.cap('<b>Formstift:</b> Linien und Formen werden automatisch sauber'); f.klick('#tools [data-tool="smart"]',danach=400)
+        import math
+        f.pfad([(860,470),(1180,478)],900,700)
+        f.pfad([(960+90*math.cos(t/36*2*math.pi)+(3 if t%2 else -3),620+55*math.sin(t/36*2*math.pi)) for t in range(38)],1300,800)
+        f.pfad([(1150,560),(1152,700),(1290,702),(1288,562),(1152,558)],1400,900)
         f.cap('Druck und Zeichnen mit dem Finger: <b>Ansicht → Einstellungen → Stift</b>')
         f.klick('#viewBtn',danach=400); f.klick('#viewPop [data-vt="geraet"]',danach=400); f.gehe('#pressRow',500); f.pause(1600)
         f.pg.keyboard.press('Escape'); f.klick('#tools [data-tool="select"]',danach=300)

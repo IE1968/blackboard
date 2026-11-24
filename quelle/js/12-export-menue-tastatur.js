@@ -80,7 +80,7 @@ document.addEventListener('keydown',e=>{
   /* Genau eine Form ausgewählt und einfach lostippen: der Buchstabe ersetzt ihren Text (wie in Präsentationsprogrammen) */
   if(sel.size===1&&e.key.length===1&&e.key!==' '&&!e.altKey&&!liveRO()&&!(t&&t.tagName==='BUTTON')){ const it=byId([...sel][0]);
     if(it&&it.type==='shape'&&it.kind!=='frame'&&!it.lock){ e.preventDefault(); startEdit(it.id); editor.value=e.key; editor.setSelectionRange(1,1); placeEditor(); if(it.pf||it.list) render(); return; } }
-  const map={v:'select',f:'shape',p:'pen',b:'brush',m:'marker',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
+  const map={v:'select',f:'shape',p:'pen',b:'brush',m:'marker',s:'smart',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
 });
 document.addEventListener('keyup',e=>{ if(e.key===' ') spaceDown=false; });
 let keysTab=null;
