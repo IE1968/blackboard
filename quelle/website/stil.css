@@ -405,3 +405,11 @@ html{scroll-padding-top:calc(var(--kopfh) + 16px)}
   main>.held{display:flex;flex-direction:column;justify-content:center}
 }
 @media (min-width:1001px){ .rahmen>main:has(.held){align-self:start} main>.held{flex:none} }
+
+/* Fuß nur unter dem Inhalt, ohne eigene Fläche; das Menü links bleibt bis ganz unten stehen */
+.rahmen>.fuss{grid-column:2/-1;background:none;border:0;box-shadow:none;border-radius:0;padding:8px 6px 0;color:#A6A6AB}
+.rahmen>.fuss a{color:#A6A6AB}
+.rahmen>.fuss a:hover{color:#F2F2F0}
+:root[data-thema="dunkel"] .rahmen>.fuss,:root[data-thema="dunkel"] .rahmen>.fuss a{color:var(--leise)}
+@media (min-width:821px){ .rahmen>.navi{grid-row:1 / span 4} }
+@media (max-width:820px){ .rahmen>.fuss{grid-column:auto;order:9;padding:8px 4px} }

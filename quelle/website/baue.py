@@ -11,7 +11,7 @@ import os, re, base64, shutil, json
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '24'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '25'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -98,12 +98,12 @@ def seite(datei, titel, aktiv, haupt, kontext, beschreibung, breit=''):
 {haupt}
   </main>
 {('  <div class="breit">'+breit+'</div>') if breit else ''}
+  <footer class="fuss">
+    <span>© 2026 Skizix</span>
+    <span class="platz"></span>
+    <a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a>
+  </footer>
 </div>
-<footer class="fuss karte">
-  <span>© 2026 Skizix</span>
-  <span class="platz"></span>
-  <a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a>
-</footer>
 <script src="menue.js?v={V}"></script>
 </body>
 </html>
