@@ -397,3 +397,11 @@ html{scroll-padding-top:calc(var(--kopfh) + 16px)}
 @media (min-width:821px){
   .rahmen>.navi{grid-row:1 / span 3;align-self:start;position:sticky;top:calc(var(--kopfh) + 12px)}
 }
+
+@media (min-width:1001px){
+  main>.held{min-height:0}
+  .breit .bereich{display:flex;flex-direction:column}
+  .breit .bereich .b-reihe{flex:1;align-items:center}
+  main>.held{display:flex;flex-direction:column;justify-content:center}
+}
+@media (min-width:1001px){ .rahmen>main:has(.held){align-self:start} main>.held{flex:none} }

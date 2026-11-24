@@ -398,6 +398,14 @@ html{scroll-padding-top:calc(var(--kopfh) + 16px)}
   .rahmen>.navi{grid-row:1 / span 3;align-self:start;position:sticky;top:calc(var(--kopfh) + 12px)}
 }
 
+@media (min-width:1001px){
+  main>.held{min-height:0}
+  .breit .bereich{display:flex;flex-direction:column}
+  .breit .bereich .b-reihe{flex:1;align-items:center}
+  main>.held{display:flex;flex-direction:column;justify-content:center}
+}
+@media (min-width:1001px){ .rahmen>main:has(.held){align-self:start} main>.held{flex:none} }
+
 /* Animationen der Beispiel-Boards */
 @keyframes hb1{0%,0%{opacity:0;transform:scale(.7)}4%{opacity:1;transform:scale(1.04)}7%,94%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
 @keyframes hb2{0%,14%{stroke-dashoffset:var(--len)}22%,94%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
