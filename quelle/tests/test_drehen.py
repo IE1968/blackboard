@@ -6,7 +6,7 @@ srv=server(); errs=[]
 S=lambda id,kind,x,y,w,h,text='': dict(id=id,type='shape',kind=kind,x=x,y=y,w=w,h=h,text=text,fill='#cfe8ff',stroke='#1c2a2e',sw=2)
 try:
  with sync_playwright() as p:
-  br=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox']); pg=br.new_page(viewport={'width':1400,'height':900})
+  br=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox']); pg=br.new_page(viewport={'width':1400,'height':900}); pg.add_init_script("localStorage.setItem('skizix-test-bartop','1')")  # diese Tests prüfen die feste Optionsleiste oben
   pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.goto(URL); pg.wait_for_timeout(600)
   pg.evaluate(LOAD,{'items':[S('a','rect',0,0,160,80,'Drehen'),S('b','ellipse',400,0,120,80,'Ziel'),

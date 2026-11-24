@@ -76,6 +76,7 @@ function renderViewPop(){
   $('vpPat').innerHTML=Object.entries(PATS).map(([k,n])=>`<button type="button" class="vpSw" data-p="${k}" aria-pressed="${b.p===k}" title="${n}"${ro?' disabled':''}><span class="vpChip p-${k}" style="background-color:${S.bg};--dot:${S.dot}"></span><small>${n}</small></button>`).join('');
   document.querySelectorAll('#uiRow button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.v===uiCfg.scale));
   document.querySelectorAll('#appRow button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.app===uiCfg.app));
+  document.querySelectorAll('#barRow button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.bar===uiCfg.bar));
   $('hcBtn').setAttribute('aria-pressed',uiCfg.hc); $('snapBtn').setAttribute('aria-pressed',uiCfg.snap);
   document.querySelectorAll('#pressRow button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.press===uiCfg.press)); $('fingerBtn').setAttribute('aria-pressed',uiCfg.finger);
 }
@@ -93,6 +94,7 @@ $('viewPop').addEventListener('click',e=>{
   if(t.dataset.s) setBoardSurface({s:t.dataset.s});
   else if(t.dataset.p) setBoardSurface({p:t.dataset.p});
   else if(t.dataset.app) setUi({app:t.dataset.app});
+  else if(t.dataset.bar){ setUi({bar:t.dataset.bar,barSet:true}); updateProps(); placeProps(); }
   else if(t.dataset.m==='ui') setUi({scale:+t.dataset.v,scaleSet:true});
   else if(t.dataset.m==='hc') setUi({hc:!uiCfg.hc});
   else if(t.dataset.m==='snap') setUi({snap:!uiCfg.snap});

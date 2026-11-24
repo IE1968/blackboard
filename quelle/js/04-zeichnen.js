@@ -113,7 +113,7 @@ function applyView(){
   gridP.setAttribute('width',g); gridP.setAttribute('height',g);
   gridP.setAttribute('x',r(view.x%g-1.5)); gridP.setAttribute('y',r(view.y%g-1.5)); patShape();
   $('zoomLabel').textContent=Math.round(view.k*100)+' %';
-  renderOverlay(); if(editing) placeEditor();
+  renderOverlay(); if(editing) placeEditor(); placeProps();
   if(viewNeedsRender()&&!viewRaf) viewRaf=requestAnimationFrame(()=>{ viewRaf=0; if(viewNeedsRender()) render(); });
 }
 function toWorld(cx,cy){ const rc=svg.getBoundingClientRect(); return {x:(cx-rc.left-view.x)/view.k,y:(cy-rc.top-view.y)/view.k}; }

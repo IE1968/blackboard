@@ -15,7 +15,7 @@ READ="async()=>{await new Promise(r=>setTimeout(r,400));const b=JSON.parse(local
 try:
  with sync_playwright() as p:
   b=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox'])
-  pg=b.new_page(viewport={'width':1400,'height':900})
+  pg=b.new_page(viewport={'width':1400,'height':900}); pg.add_init_script("localStorage.setItem('skizix-test-bartop','1')")  # diese Tests prüfen die feste Optionsleiste oben
   pg.on('console',lambda m: errs.append(m.text) if m.type=='error' else None); pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.goto(URL); pg.wait_for_timeout(700)
   def menu(m):
