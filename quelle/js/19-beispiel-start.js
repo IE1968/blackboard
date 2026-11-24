@@ -10,9 +10,9 @@ function exampleDoc(){
   const d1=S('diamond',440,135,'Passt?',{fill:'#fff3b0'});
   const i3=S('round',640,140,'Mit anderen teilen',{fill:'#d3f0dc'});
   C(i1,i2); C(i2,d1); C(d1,i3,'Ja'); C(d1,i2,'Nein',{dash:true,fa:'s',ta:'s'});
-  S('note',40,320,'Tipps:\n• Formen links hineinziehen\n• Doppelklick ändert den Text\n• An den blauen Punkten einen Pfeil ziehen',{w:300,h:150,al:'left'});
+  S('note',40,320,'Tipps:\n• Formen links hineinziehen\n• '+(isPC?'Doppelklick':'Doppeltippen')+' ändert den Text\n• An den blauen Punkten einen Pfeil ziehen',{w:300,h:150,al:'left'});
   S('text',380,330,'Einkauf\nMilch\nÄpfel\nBrot für Samstag',{w:260,h:110,list:true,pf:['b','l','l','l'],al:'left'});
-  S('card',680,330,'Live: Board mit anderen teilen (oben rechts)',{w:200,h:90,fill:'#ffd9c7'});
+  S('card',680,330,'Teilen (oben rechts): Board live mit anderen bearbeiten',{w:200,h:90,fill:'#ffd9c7'});
   return d;
 }
 function start(data){

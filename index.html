@@ -783,6 +783,7 @@ body.touch #menu .bM{opacity:1;width:36px}
 #livePop .liveMain:hover{filter:brightness(1.08);background:var(--accent-fill)}
 #livePop .liveH2{margin-top:8px;padding-top:12px;border-top:1px solid var(--line)}
 #livePop .liveSub{text-align:center!important;font-size:12.5px;color:var(--accent)!important}
+#menu .bAct .fDel{color:var(--c-coral)!important}
 </style>
 </head>
 <body>
@@ -3552,7 +3553,7 @@ function helpStartHTML(){
     [I('gold','<path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/>'),'Tafel bewegen und zoomen',t?'Mit zwei Fingern ziehen; zum Zoomen zwei Finger auseinander- oder zusammenschieben.':'Mausrad oder Touchpad verschiebt, Strg + Mausrad zoomt. Leertaste halten und ziehen geht auch.'],
     [I('blue','<path d="M5 3l14 8-6 2-2 6z"/>'),'Auswählen',(t?'Antippen':'Anklicken')+' wählt aus. Mit „Auswahl“ einen Rahmen um mehrere Elemente ziehen. Die Leiste über der Auswahl ändert Farbe, Text und mehr.'],
     [I('coral','<path d="M8 7L4 11l4 4M4 11h10a5 5 0 010 10h-3"/>'),'Rückgängig','Oben „Zurück“'+(t?'.':' oder Strg + Z.')+' Nichts geht verloren: Boards werden auf dem Gerät gespeichert.'],
-    [I('mint','<circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7"/>'),'Teilen und präsentieren','„Live“ teilt das Board per Link, auch als Quiz per QR-Code. „Präsentieren“ zeigt deine Folien.']];
+    [I('mint','<circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7"/>'),'Teilen und präsentieren','„Teilen“ bringt das Board per Link auf andere Geräte, auch als Quiz per QR-Code. „Präsentieren“ zeigt deine Folien.']];
   return '<div class="hsList">'+R.map(([i,h,d])=>`<div class="hs">${i}<div><b>${h}</b><span>${d}</span></div></div>`).join('')+'</div>';
 }
 function setKeysTab(t){ keysTab=t; document.querySelectorAll('#keysBox [data-kt]').forEach(b=>b.setAttribute('aria-selected',b.dataset.kt===t)); document.querySelectorAll('#keysBox [data-kp]').forEach(p=>p.hidden=p.dataset.kp!==t); }
@@ -4776,9 +4777,9 @@ function exampleDoc(){
   const d1=S('diamond',440,135,'Passt?',{fill:'#fff3b0'});
   const i3=S('round',640,140,'Mit anderen teilen',{fill:'#d3f0dc'});
   C(i1,i2); C(i2,d1); C(d1,i3,'Ja'); C(d1,i2,'Nein',{dash:true,fa:'s',ta:'s'});
-  S('note',40,320,'Tipps:\n• Formen links hineinziehen\n• Doppelklick ändert den Text\n• An den blauen Punkten einen Pfeil ziehen',{w:300,h:150,al:'left'});
+  S('note',40,320,'Tipps:\n• Formen links hineinziehen\n• '+(isPC?'Doppelklick':'Doppeltippen')+' ändert den Text\n• An den blauen Punkten einen Pfeil ziehen',{w:300,h:150,al:'left'});
   S('text',380,330,'Einkauf\nMilch\nÄpfel\nBrot für Samstag',{w:260,h:110,list:true,pf:['b','l','l','l'],al:'left'});
-  S('card',680,330,'Live: Board mit anderen teilen (oben rechts)',{w:200,h:90,fill:'#ffd9c7'});
+  S('card',680,330,'Teilen (oben rechts): Board live mit anderen bearbeiten',{w:200,h:90,fill:'#ffd9c7'});
   return d;
 }
 function start(data){

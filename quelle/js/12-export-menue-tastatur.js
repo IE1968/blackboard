@@ -94,7 +94,7 @@ function helpStartHTML(){
     [I('gold','<path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/>'),'Tafel bewegen und zoomen',t?'Mit zwei Fingern ziehen; zum Zoomen zwei Finger auseinander- oder zusammenschieben.':'Mausrad oder Touchpad verschiebt, Strg + Mausrad zoomt. Leertaste halten und ziehen geht auch.'],
     [I('blue','<path d="M5 3l14 8-6 2-2 6z"/>'),'Auswählen',(t?'Antippen':'Anklicken')+' wählt aus. Mit „Auswahl“ einen Rahmen um mehrere Elemente ziehen. Die Leiste über der Auswahl ändert Farbe, Text und mehr.'],
     [I('coral','<path d="M8 7L4 11l4 4M4 11h10a5 5 0 010 10h-3"/>'),'Rückgängig','Oben „Zurück“'+(t?'.':' oder Strg + Z.')+' Nichts geht verloren: Boards werden auf dem Gerät gespeichert.'],
-    [I('mint','<circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7"/>'),'Teilen und präsentieren','„Live“ teilt das Board per Link, auch als Quiz per QR-Code. „Präsentieren“ zeigt deine Folien.']];
+    [I('mint','<circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7"/>'),'Teilen und präsentieren','„Teilen“ bringt das Board per Link auf andere Geräte, auch als Quiz per QR-Code. „Präsentieren“ zeigt deine Folien.']];
   return '<div class="hsList">'+R.map(([i,h,d])=>`<div class="hs">${i}<div><b>${h}</b><span>${d}</span></div></div>`).join('')+'</div>';
 }
 function setKeysTab(t){ keysTab=t; document.querySelectorAll('#keysBox [data-kt]').forEach(b=>b.setAttribute('aria-selected',b.dataset.kt===t)); document.querySelectorAll('#keysBox [data-kp]').forEach(p=>p.hidden=p.dataset.kp!==t); }
