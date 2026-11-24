@@ -19,7 +19,7 @@ menu.addEventListener('click',e=>{
   if(b.dataset.m==='hc'){ setUi({hc:!uiCfg.hc}); return; }
   if(b.dataset.m==='snap'){ setUi({snap:!uiCfg.snap}); return; }
   if(b.dataset.m==='gridv'){ setUi({grid:!uiCfg.grid}); return; }
-  if(b.dataset.m==='delboard'&&!b.dataset.sure){ b.dataset.sure='1'; b.textContent='Wirklich löschen? Das lässt sich nicht zurückholen.'; e.stopPropagation(); return; }
+  if(b.dataset.m==='delboard'&&!b.dataset.sure){ b.dataset.sure='1'; (b.querySelector('.t')||b).textContent='Wirklich löschen? Das lässt sich nicht zurückholen.'; e.stopPropagation(); return; }
   closeMenu(); menuDo(b.dataset.m);
 });
 function menuDo(m){

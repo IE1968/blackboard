@@ -359,8 +359,8 @@ body.compact #keysBtn{display:none}
 /* Formen und Knöpfe in den Seitenleisten: weiß; beim Zeigen, Antippen und wenn gewählt in der Themenfarbe */
 :root{--fg:#f2f2f0;--fg-line:rgba(242,242,240,.24)}
 body.light{--fg:#18181a;--fg-line:rgba(24,24,26,.2)}
-.pal,.pal.palbtn{color:var(--fg);border-color:var(--fg-line)}
-.pal:hover,.pal:active,.pal:focus-visible,.pal.palbtn:hover,.pal.palbtn:active{color:var(--accent);border-color:var(--accent);background:var(--hover)}
+.pal,.pal.palbtn{color:var(--pc,var(--fg));border-color:var(--fg-line)}
+.pal:hover,.pal:active,.pal:focus-visible,.pal.palbtn:hover,.pal.palbtn:active{color:var(--pc,var(--accent));border-color:var(--pc,var(--accent));background:var(--hover)}
 #props .pb{color:var(--fg);border-color:var(--fg-line)}
 #props .pb:hover,#props .pb:active{color:var(--accent);border-color:var(--accent)}
 #props .pb[aria-pressed="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
@@ -458,6 +458,47 @@ body.light .sw.none,body.light .cdot.none{border-color:rgba(24,24,26,.3)}
 #appRow button{flex:1;text-align:center;padding:7px 0;border:1px solid var(--line)}
 #appRow button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .vpSub{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:2px 10px 2px;grid-column:1/-1}
+
+/* Farbige Symbole in der Formenleiste: jede Gruppe in ihrer Farbe, Formen zart gefüllt */
+.pal[data-kind="lineArrow"],.pal[data-kind="linePlain"],.pal[data-kind="rect"],.pal[data-kind="gSquare"],.pal[data-kind="gRound"],.pal[data-kind="cloud"],.pal[data-kind="table"]{--pc:var(--c-blue)}
+.pal[data-kind="ellipse"],.pal[data-kind="gCircle"],.pal[data-kind="cross"],.pal[data-kind="image"]{--pc:var(--c-coral)}
+.pal[data-kind="tri"],.pal[data-kind="trap"],.pal[data-kind="para"]{--pc:var(--c-mint)}
+.pal[data-kind="gDia"],.pal[data-kind="hex"],.pal[data-kind="star"]{--pc:var(--c-gold)}
+.pal[data-kind="arrowr"],.pal[data-kind="arrowlr"],.pal[data-kind="bubble"],.pal[data-kind="bullets"],.pal[data-kind="card"]{--pc:var(--c-violet)}
+.gh[data-g="Vorlagen"]+.palgrid .pal{--pc:var(--c-gold)}
+.gh[data-g="Präsentation"]+.palgrid .pal{--pc:var(--c-coral)}
+.gh[data-g="Flussdiagramm"]+.palgrid .pal{--pc:var(--c-mint)}
+.gh[data-g="Netzwerk"]+.palgrid .pal{--pc:var(--c-blue)}
+.gh[data-g="BPMN"]+.palgrid .pal{--pc:var(--c-violet)}
+.gh[data-g="ER-Diagramm"]+.palgrid .pal{--pc:var(--c-gold)}
+.gh[data-g="UML"]+.palgrid .pal{--pc:var(--c-mint)}
+.gh[data-g="Struktogramm"]+.palgrid .pal{--pc:var(--c-coral)}
+.pal svg :is(rect,circle,ellipse,polygon)[fill="none"]{fill:color-mix(in srgb,currentColor 14%,transparent)}
+.gh>span{display:inline-flex;align-items:center;gap:6px}
+.gh>span::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--gc,var(--c-blue));flex:none}
+.gh[data-g="Vorlagen"]{--gc:var(--c-gold)}
+.gh[data-g="Präsentation"]{--gc:var(--c-coral)}
+.gh[data-g="Flussdiagramm"]{--gc:var(--c-mint)}
+.gh[data-g="Netzwerk"]{--gc:var(--c-blue)}
+.gh[data-g="BPMN"]{--gc:var(--c-violet)}
+.gh[data-g="ER-Diagramm"]{--gc:var(--c-gold)}
+.gh[data-g="UML"]{--gc:var(--c-mint)}
+.gh[data-g="Struktogramm"]{--gc:var(--c-coral)}
+/* Rechte Leiste: farbige Symbole vor den Befehlen, farbiger Punkt vor jedem Board */
+#menu>button{display:flex;align-items:center;gap:7px}
+#menu>button svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#menu [data-m="manage"] svg{color:var(--c-blue)}
+#menu [data-m="new"] svg{color:var(--c-mint)}
+#menu [data-m="open"] svg{color:var(--c-gold)}
+#menu [data-m="clear"] svg{color:var(--c-violet)}
+#menu [data-m="delboard"] svg{color:var(--c-coral)}
+#boardList button{display:flex;align-items:center;gap:7px}
+#boardList button::before{content:'';width:8px;height:8px;border-radius:3px;flex:none;background:var(--c-blue)}
+#boardList button:nth-child(5n+2)::before{background:var(--c-mint)}
+#boardList button:nth-child(5n+3)::before{background:var(--c-gold)}
+#boardList button:nth-child(5n+4)::before{background:var(--c-coral)}
+#boardList button:nth-child(5n+5)::before{background:var(--c-violet)}
+#boardList button[aria-current="true"]{background:var(--acc-soft);color:var(--accent)}
 </style>
 </head>
 <body>
@@ -542,11 +583,11 @@ body.light .sw.none,body.light .cdot.none{border-color:rgba(24,24,26,.3)}
     <div id="sr" role="status" aria-live="polite"></div>
   </section>
   <aside id="menu" aria-label="Datei">
-    <button data-m="manage" id="manageBtn">Boards verwalten …</button>
-    <button data-m="new">+ Neues Board</button>
-    <button data-m="open">Board laden …</button>
-    <button data-m="clear">Board leeren</button>
-    <button data-m="delboard" id="delBoard">Board löschen</button>
+    <button data-m="manage" id="manageBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Boards verwalten …</button>
+    <button data-m="new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Neues Board</button>
+    <button data-m="open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/></svg>Board laden …</button>
+    <button data-m="clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 20h12M5 15l9-9 5 5-8 8H8z"/></svg>Board leeren</button>
+    <button data-m="delboard" id="delBoard"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span class="t">Board löschen</span></button>
     <hr>
     <div class="mh">Boards</div>
     <div id="boardList"></div>
@@ -1479,7 +1520,7 @@ function removeBoards(ids){
 }
 function renderBoardList(){
   $('boardList').innerHTML=boards.list.map(b=>`<button data-b="${b.id}" aria-current="${b.id===boards.cur}">${b.id===boards.cur?'✓ ':''}${esc(b.name)}</button>`).join('');
-  const d=$('delBoard'); d.textContent='Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
+  const d=$('delBoard'); (d.querySelector('.t')||d).textContent='Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
 }
 function fileBase(){ return (curBoard().name||'').trim().replace(/[^\wäöüÄÖÜß -]+/g,'').replace(/\s+/g,'-')||'skizix'; }
 function assignFrames(){
@@ -2817,7 +2858,7 @@ menu.addEventListener('click',e=>{
   if(b.dataset.m==='hc'){ setUi({hc:!uiCfg.hc}); return; }
   if(b.dataset.m==='snap'){ setUi({snap:!uiCfg.snap}); return; }
   if(b.dataset.m==='gridv'){ setUi({grid:!uiCfg.grid}); return; }
-  if(b.dataset.m==='delboard'&&!b.dataset.sure){ b.dataset.sure='1'; b.textContent='Wirklich löschen? Das lässt sich nicht zurückholen.'; e.stopPropagation(); return; }
+  if(b.dataset.m==='delboard'&&!b.dataset.sure){ b.dataset.sure='1'; (b.querySelector('.t')||b).textContent='Wirklich löschen? Das lässt sich nicht zurückholen.'; e.stopPropagation(); return; }
   closeMenu(); menuDo(b.dataset.m);
 });
 function menuDo(m){
