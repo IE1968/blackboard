@@ -28,6 +28,7 @@ const KINDS={
   text:{label:'Text',w:160,h:30,fill:'none',text:'Text'},
   note:{label:'Notiz',w:150,h:110,fill:'#fff3b0'},
   bullets:{label:'Aufzählung',as:'text',w:320,h:90,fill:'none',text:'Erster Punkt\nZweiter Punkt\nDritter Punkt',list:1},
+  checklist:{label:'Checkliste',as:'text',w:320,h:90,fill:'none',text:'Erste Aufgabe\nZweite Aufgabe\nDritte Aufgabe',chk:1},
   lineArrow:{label:'Pfeil',line:'arrow',w:140,h:40},
   linePlain:{label:'Linie',line:'none',w:140,h:40},
   gSquare:{label:'Quadrat',as:'rect',w:100,h:100},
@@ -119,7 +120,7 @@ const KINDS={
   netcloud:{label:'Internet',as:'cloud',w:150,h:95,text:'Internet'},
   netdb:{label:'Speicher',as:'db',w:80,h:80}
 };
-const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','trap','para','star','arrowr','arrowlr','bubble','cloud','cross','note','bullets','image','table','card']],
+const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','trap','para','star','arrowr','arrowlr','bubble','cloud','cross','note','bullets','checklist','image','table','card']],
   ['Vorlagen',['kanban','scrum','mindmap']],
   ['Präsentation',['frame','quiz','check']],
   ['Flussdiagramm',['term','diamond','io','doc','db']],

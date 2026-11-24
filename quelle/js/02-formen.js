@@ -162,13 +162,16 @@ function listLines(text,maxW){   /* jeder Absatz bekommt ein Aufzählungszeichen
     wrap(para.replace(/^\s*[•\-–]\s+/,''),Math.max(20,maxW-ind)).forEach((t,i)=>out.push({t,b:i===0})); }
   return {ind,out};
 }
-/* Absatzformate: s.pf = je Absatz 'b' (fett) und/oder 'l' (Aufzählung). Ohne pf gelten bold/list für den ganzen Text. */
-function pfOf(s,i){ if(s.pf){ const v=s.pf[i]||''; return {b:v.includes('b'),l:v.includes('l')&&canList(s)}; } return {b:!!s.bold,l:!!s.list&&canList(s)}; }
+/* Absatzformate: s.pf = je Absatz 'b' (fett) und eins von 'l' (Aufzählung), 'c' (Kästchen zum Abhaken), 'x' (abgehakt).
+   Ohne pf gelten bold/list für den ganzen Text. l = eingerückt (Punkt oder Kästchen), u = Aufzählungspunkt. */
+function pfOf(s,i){ if(s.pf){ const v=s.pf[i]||'', ok=canList(s), c=ok&&/[cx]/.test(v), u=ok&&v.includes('l'); return {b:v.includes('b'),l:u||c,u,c,x:c&&v.includes('x')}; }
+  const u=!!s.list&&canList(s); return {b:!!s.bold,l:u,u,c:false,x:false}; }
+function pfStr(f){ return (f.b?'b':'')+(f.x?'x':f.c?'c':f.u?'l':''); }
 function paraLines(s,text,maxW){
   const ind=Math.round(FS*1.25), out=[], B0=BOLD; let anyL=false;
   String(text).split('\n').forEach((para,pi)=>{ const f=pfOf(s,pi); BOLD=f.b; if(f.l) anyL=true;
-    if(f.l&&para.trim()) wrap(para.replace(/^\s*[•\-–]\s+/,''),Math.max(20,maxW-ind)).forEach((t,i)=>out.push({t,bul:i===0,l:true,w:f.b}));
-    else wrap(para,maxW).forEach(t=>out.push({t,bul:false,l:f.l,w:f.b})); });
+    if(f.l&&para.trim()) wrap(para.replace(/^\s*[•\-–]\s+/,''),Math.max(20,maxW-ind)).forEach((t,i)=>out.push({t,bul:i===0,l:true,w:f.b,c:f.c,x:f.x,pi}));
+    else wrap(para,maxW).forEach(t=>out.push({t,bul:false,l:f.l,w:f.b,c:f.c,x:f.x,pi})); });
   BOLD=B0; return {ind,out,anyL};
 }
 function lineCount(s,T,W){ return s.pf?paraLines(s,T,W).out.length:(s.list?listLines(T,W).out:wrap(T,W)).length; }
@@ -176,18 +179,36 @@ function remapPf(oldT,newT,pf){   /* Absatzformate beim Bearbeiten mitführen: n
   const O=String(oldT).split('\n'), N=String(newT).split('\n'); let k=0; while(k<O.length&&k<N.length&&O[k]===N[k]) k++;
   let m=0; while(m<O.length-k&&m<N.length-k&&O[O.length-1-m]===N[N.length-1-m]) m++;
   const res=pf.slice(0,k).map(v=>v||''), oldMid=O.length-m-k;
-  for(let j=0;j<N.length-m-k;j++) res.push(j<oldMid?(pf[k+j]||''):(k>0?pf[k-1]||'':pf[k]||''));
+  for(let j=0;j<N.length-m-k;j++) res.push(j<oldMid?(pf[k+j]||''):(k>0?pf[k-1]||'':pf[k]||'').replace('x','c'));   /* neue Zeile in der Checkliste: noch nicht abgehakt */
   for(let i=O.length-m;i<O.length;i++) res.push(pf[i]||'');
   return res;
 }
-function setParaFmt(it,text,i0,i1,flag){   /* flag 'b' oder 'l' für die Absätze i0..i1 umschalten */
+function setParaFmt(it,text,i0,i1,flag){   /* flag 'b' (fett), 'l' (Aufzählung) oder 'c' (Checkliste) für die Absätze i0..i1 umschalten */
   const P=String(text).split('\n'); i1=Math.min(i1,P.length-1);
-  const pf=P.map((_,i)=>{ const f=pfOf(it,i); return (f.b?'b':'')+(f.l?'l':''); });
-  const on=!pf.slice(i0,i1+1).every(v=>v.includes(flag));
-  for(let i=i0;i<=i1;i++){ let v=pf[i].replace(flag,''); if(on) v+=flag; pf[i]=(v.includes('b')?'b':'')+(v.includes('l')?'l':''); }
+  const F=P.map((_,i)=>pfOf(it,i)), key=flag==='l'?'u':flag;
+  const on=!F.slice(i0,i1+1).every(f=>f[key]);
+  for(let i=i0;i<=i1;i++){ const f=F[i];
+    if(flag==='b') f.b=on;
+    else if(flag==='l'){ f.u=on; if(on){ f.c=f.x=false; } }
+    else { f.c=on; f.x=on&&f.x; if(on) f.u=false; } }
+  const pf=F.map(pfStr);
   delete it.bold; delete it.list;
   if(pf.some(v=>v)) it.pf=pf; else delete it.pf;
-  if(flag==='l'&&on) it.text=P.map((l,i)=>i>=i0&&i<=i1?l.replace(/^\s*[•\-–]\s+/,''):l).join('\n');
+  if(flag!=='b'&&on) it.text=P.map((l,i)=>i>=i0&&i<=i1?l.replace(/^\s*(?:[•\-–]|\[[ xX]?\])\s+/,''):l).join('\n');
+}
+/* Kästchen einer Checkliste antippen: Absatz pi umschalten (abgehakt ↔ offen) */
+function toggleCheckPara(it,pi){ const pf=String(it.text||'').split('\n').map((_,i)=>pfStr(pfOf(it,i))), f=pfOf(it,pi); if(!f.c) return false;
+  pf[pi]=pfStr(Object.assign(f,{x:!f.x})); delete it.bold; delete it.list; it.pf=pf; return true; }
+/* Welcher Absatz hat an der Stelle w (Weltkoordinaten) sein Kästchen? -1 = keins. Getroffen wird das Kästchen samt etwas Rand. */
+function checkHit(s,w){
+  if(!s||s.type!=='shape'||!s.pf||!s.pf.some(v=>/[cx]/.test(v))||!canList(s)) return -1;
+  const tb=textBox(s); if(tb.mode==='pool'||tb.mode==='below') return -1;
+  let p=w; if(s.rot) p=rotP(w,{x:s.x+s.w/2,y:s.y+s.h/2},-s.rot);
+  const lx=p.x-s.x, ly=p.y-s.y; useFont(s);
+  const Q=paraLines(s,s.text,tb.maxW), n=Q.out.length, y0=s.h/2+(tb.dy||0)-(n-1)*LH/2, x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
+  for(let i=0;i<n;i++){ const o=Q.out[i]; if(!o.bul||!o.c) continue; const cy=y0+i*LH;
+    if(Math.abs(ly-cy)<=Math.max(LH/2,11)&&lx>=x0-8&&lx<=x0+Q.ind+2) return o.pi; }
+  return -1;
 }
 function alOf(s){ if(s.al) return s.al; if(s.kind==='table') return s.align==='left'?'left':'center'; const m=textBox(s).mode; return m==='left'?'left':'center'; }
 function shapeText(s){
@@ -210,9 +231,13 @@ function shapeText(s){
   if(s.pf&&tb.mode!=='pool'&&tb.mode!=='below'){   /* einzelne Absätze fett oder als Aufzählung */
     const Q=paraLines(s,s.text,tb.maxW), n2=Q.out.length; y0=s.h/2+(tb.dy||0)-(n2-1)*LH/2+FS*0.35;
     const fw=o=>o.w?' font-weight="600"':'';
-    if(Q.anyL){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
-      return `<text font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
-        Q.out.map((o,i)=>(o.bul?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}"${fw(o)}>${BUL}</tspan>`:'')+(o.t?`<tspan x="${r(x0+(o.l?Q.ind:0))}" y="${r(y0+i*LH)}"${fw(o)}>${esc(o.t)}</tspan>`:'')).join('')+`</text>`; }
+    if(Q.anyL){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2), bx=Math.round(FS*0.9);
+      const box=Q.out.map((o,i)=>{ if(!o.bul||!o.c) return ''; const by=y0+i*LH-FS*0.35-bx/2+FS*0.02;
+        return o.x?`<rect class="ckBox" x="${r(x0)}" y="${r(by)}" width="${bx}" height="${bx}" rx="${r(bx*0.22)}" fill="#22a88c"/><path d="M${r(x0+bx*0.24)} ${r(by+bx*0.52)}l${r(bx*0.18)} ${r(bx*0.18)}l${r(bx*0.36)} -${r(bx*0.4)}" fill="none" stroke="#fff" stroke-width="${r(Math.max(1.6,bx*0.14))}" stroke-linecap="round" stroke-linejoin="round"/>`
+          :`<rect class="ckBox" x="${r(x0+0.75)}" y="${r(by+0.75)}" width="${bx-1.5}" height="${bx-1.5}" rx="${r(bx*0.22)}" fill="none" stroke="${fill}" stroke-width="1.5"/>`; }).join('');
+      const dec=o=>o.x?' text-decoration="line-through" opacity=".55"':'';
+      return `<g pointer-events="none">${box}<text font-family="${FONT}" font-size="${FS}" fill="${fill}">`+
+        Q.out.map((o,i)=>(o.bul&&!o.c?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}"${fw(o)}>${BUL}</tspan>`:'')+(o.t?`<tspan x="${r(x0+(o.l?Q.ind:0))}" y="${r(y0+i*LH)}"${fw(o)}${dec(o)}>${esc(o.t)}</tspan>`:'')).join('')+`</text></g>`; }
     return `<text${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
       Q.out.map((o,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}"${fw(o)}>${esc(o.t)}</tspan>`).join('')+`</text>`; }
   if(L){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);

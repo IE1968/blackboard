@@ -855,6 +855,7 @@ const KINDS={
   text:{label:'Text',w:160,h:30,fill:'none',text:'Text'},
   note:{label:'Notiz',w:150,h:110,fill:'#fff3b0'},
   bullets:{label:'Aufzählung',as:'text',w:320,h:90,fill:'none',text:'Erster Punkt\nZweiter Punkt\nDritter Punkt',list:1},
+  checklist:{label:'Checkliste',as:'text',w:320,h:90,fill:'none',text:'Erste Aufgabe\nZweite Aufgabe\nDritte Aufgabe',chk:1},
   lineArrow:{label:'Pfeil',line:'arrow',w:140,h:40},
   linePlain:{label:'Linie',line:'none',w:140,h:40},
   gSquare:{label:'Quadrat',as:'rect',w:100,h:100},
@@ -946,7 +947,7 @@ const KINDS={
   netcloud:{label:'Internet',as:'cloud',w:150,h:95,text:'Internet'},
   netdb:{label:'Speicher',as:'db',w:80,h:80}
 };
-const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','trap','para','star','arrowr','arrowlr','bubble','cloud','cross','note','bullets','image','table','card']],
+const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','trap','para','star','arrowr','arrowlr','bubble','cloud','cross','note','bullets','checklist','image','table','card']],
   ['Vorlagen',['kanban','scrum','mindmap']],
   ['Präsentation',['frame','quiz','check']],
   ['Flussdiagramm',['term','diamond','io','doc','db']],
@@ -1171,13 +1172,16 @@ function listLines(text,maxW){   /* jeder Absatz bekommt ein Aufzählungszeichen
     wrap(para.replace(/^\s*[•\-–]\s+/,''),Math.max(20,maxW-ind)).forEach((t,i)=>out.push({t,b:i===0})); }
   return {ind,out};
 }
-/* Absatzformate: s.pf = je Absatz 'b' (fett) und/oder 'l' (Aufzählung). Ohne pf gelten bold/list für den ganzen Text. */
-function pfOf(s,i){ if(s.pf){ const v=s.pf[i]||''; return {b:v.includes('b'),l:v.includes('l')&&canList(s)}; } return {b:!!s.bold,l:!!s.list&&canList(s)}; }
+/* Absatzformate: s.pf = je Absatz 'b' (fett) und eins von 'l' (Aufzählung), 'c' (Kästchen zum Abhaken), 'x' (abgehakt).
+   Ohne pf gelten bold/list für den ganzen Text. l = eingerückt (Punkt oder Kästchen), u = Aufzählungspunkt. */
+function pfOf(s,i){ if(s.pf){ const v=s.pf[i]||'', ok=canList(s), c=ok&&/[cx]/.test(v), u=ok&&v.includes('l'); return {b:v.includes('b'),l:u||c,u,c,x:c&&v.includes('x')}; }
+  const u=!!s.list&&canList(s); return {b:!!s.bold,l:u,u,c:false,x:false}; }
+function pfStr(f){ return (f.b?'b':'')+(f.x?'x':f.c?'c':f.u?'l':''); }
 function paraLines(s,text,maxW){
   const ind=Math.round(FS*1.25), out=[], B0=BOLD; let anyL=false;
   String(text).split('\n').forEach((para,pi)=>{ const f=pfOf(s,pi); BOLD=f.b; if(f.l) anyL=true;
-    if(f.l&&para.trim()) wrap(para.replace(/^\s*[•\-–]\s+/,''),Math.max(20,maxW-ind)).forEach((t,i)=>out.push({t,bul:i===0,l:true,w:f.b}));
-    else wrap(para,maxW).forEach(t=>out.push({t,bul:false,l:f.l,w:f.b})); });
+    if(f.l&&para.trim()) wrap(para.replace(/^\s*[•\-–]\s+/,''),Math.max(20,maxW-ind)).forEach((t,i)=>out.push({t,bul:i===0,l:true,w:f.b,c:f.c,x:f.x,pi}));
+    else wrap(para,maxW).forEach(t=>out.push({t,bul:false,l:f.l,w:f.b,c:f.c,x:f.x,pi})); });
   BOLD=B0; return {ind,out,anyL};
 }
 function lineCount(s,T,W){ return s.pf?paraLines(s,T,W).out.length:(s.list?listLines(T,W).out:wrap(T,W)).length; }
@@ -1185,18 +1189,36 @@ function remapPf(oldT,newT,pf){   /* Absatzformate beim Bearbeiten mitführen: n
   const O=String(oldT).split('\n'), N=String(newT).split('\n'); let k=0; while(k<O.length&&k<N.length&&O[k]===N[k]) k++;
   let m=0; while(m<O.length-k&&m<N.length-k&&O[O.length-1-m]===N[N.length-1-m]) m++;
   const res=pf.slice(0,k).map(v=>v||''), oldMid=O.length-m-k;
-  for(let j=0;j<N.length-m-k;j++) res.push(j<oldMid?(pf[k+j]||''):(k>0?pf[k-1]||'':pf[k]||''));
+  for(let j=0;j<N.length-m-k;j++) res.push(j<oldMid?(pf[k+j]||''):(k>0?pf[k-1]||'':pf[k]||'').replace('x','c'));   /* neue Zeile in der Checkliste: noch nicht abgehakt */
   for(let i=O.length-m;i<O.length;i++) res.push(pf[i]||'');
   return res;
 }
-function setParaFmt(it,text,i0,i1,flag){   /* flag 'b' oder 'l' für die Absätze i0..i1 umschalten */
+function setParaFmt(it,text,i0,i1,flag){   /* flag 'b' (fett), 'l' (Aufzählung) oder 'c' (Checkliste) für die Absätze i0..i1 umschalten */
   const P=String(text).split('\n'); i1=Math.min(i1,P.length-1);
-  const pf=P.map((_,i)=>{ const f=pfOf(it,i); return (f.b?'b':'')+(f.l?'l':''); });
-  const on=!pf.slice(i0,i1+1).every(v=>v.includes(flag));
-  for(let i=i0;i<=i1;i++){ let v=pf[i].replace(flag,''); if(on) v+=flag; pf[i]=(v.includes('b')?'b':'')+(v.includes('l')?'l':''); }
+  const F=P.map((_,i)=>pfOf(it,i)), key=flag==='l'?'u':flag;
+  const on=!F.slice(i0,i1+1).every(f=>f[key]);
+  for(let i=i0;i<=i1;i++){ const f=F[i];
+    if(flag==='b') f.b=on;
+    else if(flag==='l'){ f.u=on; if(on){ f.c=f.x=false; } }
+    else { f.c=on; f.x=on&&f.x; if(on) f.u=false; } }
+  const pf=F.map(pfStr);
   delete it.bold; delete it.list;
   if(pf.some(v=>v)) it.pf=pf; else delete it.pf;
-  if(flag==='l'&&on) it.text=P.map((l,i)=>i>=i0&&i<=i1?l.replace(/^\s*[•\-–]\s+/,''):l).join('\n');
+  if(flag!=='b'&&on) it.text=P.map((l,i)=>i>=i0&&i<=i1?l.replace(/^\s*(?:[•\-–]|\[[ xX]?\])\s+/,''):l).join('\n');
+}
+/* Kästchen einer Checkliste antippen: Absatz pi umschalten (abgehakt ↔ offen) */
+function toggleCheckPara(it,pi){ const pf=String(it.text||'').split('\n').map((_,i)=>pfStr(pfOf(it,i))), f=pfOf(it,pi); if(!f.c) return false;
+  pf[pi]=pfStr(Object.assign(f,{x:!f.x})); delete it.bold; delete it.list; it.pf=pf; return true; }
+/* Welcher Absatz hat an der Stelle w (Weltkoordinaten) sein Kästchen? -1 = keins. Getroffen wird das Kästchen samt etwas Rand. */
+function checkHit(s,w){
+  if(!s||s.type!=='shape'||!s.pf||!s.pf.some(v=>/[cx]/.test(v))||!canList(s)) return -1;
+  const tb=textBox(s); if(tb.mode==='pool'||tb.mode==='below') return -1;
+  let p=w; if(s.rot) p=rotP(w,{x:s.x+s.w/2,y:s.y+s.h/2},-s.rot);
+  const lx=p.x-s.x, ly=p.y-s.y; useFont(s);
+  const Q=paraLines(s,s.text,tb.maxW), n=Q.out.length, y0=s.h/2+(tb.dy||0)-(n-1)*LH/2, x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
+  for(let i=0;i<n;i++){ const o=Q.out[i]; if(!o.bul||!o.c) continue; const cy=y0+i*LH;
+    if(Math.abs(ly-cy)<=Math.max(LH/2,11)&&lx>=x0-8&&lx<=x0+Q.ind+2) return o.pi; }
+  return -1;
 }
 function alOf(s){ if(s.al) return s.al; if(s.kind==='table') return s.align==='left'?'left':'center'; const m=textBox(s).mode; return m==='left'?'left':'center'; }
 function shapeText(s){
@@ -1219,9 +1241,13 @@ function shapeText(s){
   if(s.pf&&tb.mode!=='pool'&&tb.mode!=='below'){   /* einzelne Absätze fett oder als Aufzählung */
     const Q=paraLines(s,s.text,tb.maxW), n2=Q.out.length; y0=s.h/2+(tb.dy||0)-(n2-1)*LH/2+FS*0.35;
     const fw=o=>o.w?' font-weight="600"':'';
-    if(Q.anyL){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
-      return `<text font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
-        Q.out.map((o,i)=>(o.bul?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}"${fw(o)}>${BUL}</tspan>`:'')+(o.t?`<tspan x="${r(x0+(o.l?Q.ind:0))}" y="${r(y0+i*LH)}"${fw(o)}>${esc(o.t)}</tspan>`:'')).join('')+`</text>`; }
+    if(Q.anyL){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2), bx=Math.round(FS*0.9);
+      const box=Q.out.map((o,i)=>{ if(!o.bul||!o.c) return ''; const by=y0+i*LH-FS*0.35-bx/2+FS*0.02;
+        return o.x?`<rect class="ckBox" x="${r(x0)}" y="${r(by)}" width="${bx}" height="${bx}" rx="${r(bx*0.22)}" fill="#22a88c"/><path d="M${r(x0+bx*0.24)} ${r(by+bx*0.52)}l${r(bx*0.18)} ${r(bx*0.18)}l${r(bx*0.36)} -${r(bx*0.4)}" fill="none" stroke="#fff" stroke-width="${r(Math.max(1.6,bx*0.14))}" stroke-linecap="round" stroke-linejoin="round"/>`
+          :`<rect class="ckBox" x="${r(x0+0.75)}" y="${r(by+0.75)}" width="${bx-1.5}" height="${bx-1.5}" rx="${r(bx*0.22)}" fill="none" stroke="${fill}" stroke-width="1.5"/>`; }).join('');
+      const dec=o=>o.x?' text-decoration="line-through" opacity=".55"':'';
+      return `<g pointer-events="none">${box}<text font-family="${FONT}" font-size="${FS}" fill="${fill}">`+
+        Q.out.map((o,i)=>(o.bul&&!o.c?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}"${fw(o)}>${BUL}</tspan>`:'')+(o.t?`<tspan x="${r(x0+(o.l?Q.ind:0))}" y="${r(y0+i*LH)}"${fw(o)}${dec(o)}>${esc(o.t)}</tspan>`:'')).join('')+`</text></g>`; }
     return `<text${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FONT}" font-size="${FS}" fill="${fill}" pointer-events="none">`+
       Q.out.map((o,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}"${fw(o)}>${esc(o.t)}</tspan>`).join('')+`</text>`; }
   if(L){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
@@ -1663,7 +1689,7 @@ function cleanDoc(d){
     }
     if(!o){ if(s.type&&!['shape','path','conn'].includes(s.type)&&extra.length<2000){ try{ const j=JSON.stringify(s); if(j.length<=20000) extra.push(JSON.parse(j)); }catch(e){} } continue; }
     keepExtra(s,o);
-    if(o.type!=='path'){ if(s.fs) o.fs=num(s.fs,14,6,200); if(s.bold) o.bold=true; if(s.list) o.list=true; if(Array.isArray(s.pf)&&s.pf.length<=5000&&s.pf.some(v=>/[bl]/.test(v))) o.pf=s.pf.map(v=>(/b/.test(v)?'b':'')+(/l/.test(v)?'l':'')); if(['left','center','right'].includes(s.al)) o.al=s.al; if(s.mm==='root'||s.mm==='node') o.mm=s.mm; if(Number.isInteger(s.mc)&&s.mc>=0&&s.mc<6) o.mc=s.mc; const tc=col(s.tc,null); if(tc&&tc!=='none') o.tc=tc; }
+    if(o.type!=='path'){ if(s.fs) o.fs=num(s.fs,14,6,200); if(s.bold) o.bold=true; if(s.list) o.list=true; if(Array.isArray(s.pf)&&s.pf.length<=5000&&s.pf.some(v=>/[blcx]/.test(v))) o.pf=s.pf.map(v=>(/b/.test(v)?'b':'')+(/x/.test(v)?'x':/c/.test(v)?'c':/l/.test(v)?'l':'')); if(['left','center','right'].includes(s.al)) o.al=s.al; if(s.mm==='root'||s.mm==='node') o.mm=s.mm; if(Number.isInteger(s.mc)&&s.mc>=0&&s.mc<6) o.mc=s.mc; const tc=col(s.tc,null); if(tc&&tc!=='none') o.tc=tc; }
     if(o.type==='shape'&&Number.isFinite(+s.rot)){ const a=((Math.round(+s.rot*100)/100)%360+360)%360; if(a) o.rot=a; }   /* Drehwinkel in Grad */
     const g=sid(s.g); if(g) o.g=g; if(s.lock) o.lock=true; if(Number.isInteger(s.ap)&&s.ap>0&&s.ap<1000&&o.kind!=='frame') o.ap=s.ap;   /* Einblendschritt in der Präsentation */
      const fr=sid(s.fr); if(fr) o.fr=fr;
@@ -1916,7 +1942,7 @@ function thStep(){
 function mkShape(kind,cx,cy){
   const d=KINDS[kind];
   if(kind==='frame') return {id:nid(),type:'shape',kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:'',fill:'none',stroke:INK,sw:2,ord:frames().reduce((m,f)=>Math.max(m,f.ord||0),0)+1};
-  return {id:nid(),type:'shape',kind:d.as||kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:d.text||'',fill:d.fill||'#ffffff',stroke:INK,sw:2,...(d.list?{list:true,fs:16}:{})};
+  return {id:nid(),type:'shape',kind:d.as||kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:d.text||'',fill:d.fill||'#ffffff',stroke:INK,sw:2,...(d.list?{list:true,fs:16}:{}),...(d.chk?{pf:String(d.text).split('\n').map(()=>'c'),fs:16}:{})};
 }
 function mkTable(colW,rowH,heads){
   return {id:nid(),type:'shape',kind:'table',x:0,y:0,w:sum(colW),h:sum(rowH),colW,rowH,
@@ -2232,7 +2258,7 @@ function updateProps_(){
   if(items.length&&items.every(i=>i.kind==='check')) h+=`<div class="pg"><b>Quiz</b><button class="pb" data-act="qok" aria-pressed="${items.every(i=>i.ok)}" title="Als richtige Antwort markieren. In der Präsentation zeigt „Lösung“ die richtigen Antworten.">Richtig</button></div>`;
   const texty=items.filter(i=>i.type!=='path');
   let tm='';   /* Text: Knöpfe kommen in ein Aufklappfeld */
-  if(texty.length) tm=(items.length===1?`<button class="pb wide" data-act="edit">Text ändern</button>`:'')+`<div class="sws two"><button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><button class="pb" data-act="fsup" title="Schrift größer">A+</button></div><div class="sws two"><button class="pb" data-act="bold" aria-pressed="${allF(texty[0],'b')}" title="Fett">Fett</button><button class="pb" data-act="list" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>allF(i,'l'))}" title="Aufzählung: jeder Absatz beginnt mit einem Punkt" aria-label="Aufzählung"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.600" fill="currentColor" stroke="none"/><path d="M10 7h10M10 12h10M10 17h10" stroke-linecap="round"/></svg></button></div></div>`;
+  if(texty.length) tm=(items.length===1?`<button class="pb wide" data-act="edit">Text ändern</button>`:'')+`<div class="sws two"><button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><button class="pb" data-act="fsup" title="Schrift größer">A+</button></div><div class="sws three"><button class="pb" data-act="bold" aria-pressed="${allF(texty[0],'b')}" title="Fett">Fett</button><button class="pb" data-act="list" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>allF(i,'u'))}" title="Aufzählung: jeder Absatz beginnt mit einem Punkt" aria-label="Aufzählung"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.600" fill="currentColor" stroke="none"/><path d="M10 7h10M10 12h10M10 17h10" stroke-linecap="round"/></svg></button><button class="pb" data-act="chk" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>allF(i,'c'))}" title="Checkliste: jede Zeile mit Kästchen zum Abhaken" aria-label="Checkliste"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="5" height="5" rx="1.2"/><path d="M3.8 15.8l1.4 1.4 2.6-3"/><path d="M11 7h10M11 16h10"/></svg></button></div></div>`;
   const alable=texty.filter(i=>i.type==='shape'&&i.kind!=='pool'&&i.kind!=='frame');
   if(alable.length){ const A=alOf(alable[0]); tm=tm.replace(/<\/div><\/div>$/,`</div><div class="sws three"><button class="pb" data-act="txal" data-val="left" aria-pressed="${A==='left'}" title="Linksbündig" aria-label="Linksbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M3 9h9M3 13h14M3 17h9"/></svg></button><button class="pb" data-act="txal" data-val="center" aria-pressed="${A==='center'}" title="Zentriert" aria-label="Zentriert"><svg viewBox="0 0 20 20"><path d="M3 5h14M5.500 9h9M3 13h14M5.500 17h9"/></svg></button><button class="pb" data-act="txal" data-val="right" aria-pressed="${A==='right'}" title="Rechtsbündig" aria-label="Rechtsbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M8 9h9M3 13h14M8 17h9"/></svg></button></div></div>`); }
   if(tm) h+=`<div class="pg"><b>Text</b>${md('text','Text',tm.replace('<div class="pg"><b>Text</b>','').replace(/<\/div>$/,''),'Aa')}</div>`;
@@ -2264,7 +2290,7 @@ function updateProps_(){
   propsEl.innerHTML=h; refreshPop();
 }
 const CDROP={}; let paraSel=null;   /* zuletzt markierte Absätze (Fett/Aufzählung) */
-function allF(i,f){ if(paraSel&&paraSel.id===i.id){ const R=[]; for(let k=paraSel.i0;k<=paraSel.i1;k++) R.push(pfOf(i,k)[f]); return R.every(Boolean); } if(!i.pf) return f==='b'?!!i.bold:!!i.list; return String(i.text||'').split('\n').every((_,k)=>pfOf(i,k)[f]); }
+function allF(i,f){ if(paraSel&&paraSel.id===i.id){ const R=[]; for(let k=paraSel.i0;k<=paraSel.i1;k++) R.push(pfOf(i,k)[f]); return R.every(Boolean); } if(!i.pf) return f==='b'?!!i.bold:f==='c'?false:!!i.list; return String(i.text||'').split('\n').every((_,k)=>pfOf(i,k)[f]); }
 function refreshPop(){ const p=$('colorPop'); if(!p||p.hidden) return; const info=CDROP[p.dataset.for]; if(!info||!$('props').querySelector(`[data-drop="${p.dataset.for}"]`)){ closeColorPop(); return; } p.classList.toggle('menu',!!info.menu); p.innerHTML=`<div class="mh">${esc(info.lab)}</div>`+info.html; }
 function closeColorPop(){ paraSel=null; const p=$('colorPop'); if(p&&!p.hidden){ p.hidden=true; p.innerHTML=''; } }
 propsEl.addEventListener('click',e=>{
@@ -2285,9 +2311,9 @@ function propsAct(b){
   /* Fett/Aufzählung beim Schreiben: nur für die markierten Absätze. Danach ist das Ergebnis sichtbar,
      und weitere Klicks im offenen Textfeld gelten weiter für dieselben Absätze. */
   const pt=editing!=null?byId(editing):(paraSel&&sel.size===1&&sel.has(paraSel.id)&&!$('colorPop').hidden?byId(paraSel.id):null);
-  if(pt&&(act==='bold'||act==='list')&&pt.kind!=='table'&&!pt.lock&&(act==='bold'||canList(pt))){
+  if(pt&&(act==='bold'||act==='list'||act==='chk')&&pt.kind!=='table'&&!pt.lock&&(act==='bold'||canList(pt))){
     let i0,i1; if(editing!=null){ [i0,i1]=editParas(); pt.text=editor.value; finishEdit(); sel=new Set([pt.id]); } else ({i0,i1}=paraSel);
-    setParaFmt(pt,pt.text||'',i0,i1,act==='bold'?'b':'l'); paraSel={id:pt.id,i0,i1};
+    setParaFmt(pt,pt.text||'',i0,i1,act==='bold'?'b':act==='chk'?'c':'l'); paraSel={id:pt.id,i0,i1};
     if(pt.kind==='text') pt.fresh=true; autosize(pt); commit(); render(); return; }
   if(editing!=null&&!['edit','del','dup','copy','paste'].includes(act)) setTimeout(backToEdit,0);
   if(act==='front') return reorder(true);
@@ -2319,9 +2345,11 @@ function propsAct(b){
     if(act==='delrow'&&tb.rowH.length>1){ tb.rowH.splice(ri,1); tb.cells.splice(ri,1); }
     tb.w=sum(tb.colW); tb.h=sum(tb.rowH);
   }
-  const listOn=act==='list'&&!items.filter(canList).every(i=>i.pf?i.pf.length&&String(i.text).split('\n').every((_,k)=>pfOf(i,k).l):i.list);
+  const listOn=act==='list'&&!items.filter(canList).every(i=>i.pf?i.pf.length&&String(i.text).split('\n').every((_,k)=>pfOf(i,k).u):i.list);
+  const allC=i=>!!i.pf&&String(i.text||'').split('\n').every((_,k)=>pfOf(i,k).c), chkOn=act==='chk'&&!items.filter(canList).every(allC);
   for(const it of items){ if(it.lock) continue;
-    if(act==='list'&&canList(it)&&it.pf){ const n=String(it.text||'').split('\n').length-1; if(listOn!==String(it.text||'').split('\n').every((_,k)=>pfOf(it,k).l)) setParaFmt(it,it.text||'',0,n,'l'); autosize(it); }
+    if(act==='chk'&&canList(it)){ if(chkOn!==allC(it)) setParaFmt(it,it.text||'',0,String(it.text||'').split('\n').length-1,'c'); if(it.kind==='text') it.fresh=true; autosize(it); }
+    if(act==='list'&&canList(it)&&it.pf){ const n=String(it.text||'').split('\n').length-1; if(listOn!==String(it.text||'').split('\n').every((_,k)=>pfOf(it,k).u)) setParaFmt(it,it.text||'',0,n,'l'); autosize(it); }
     else if(act==='list'&&canList(it)){ if(listOn){ it.list=true; if(it.kind==='text') it.fresh=true;   /* Breite neu: Platz für die Aufzählungspunkte */ if(it.text) it.text=it.text.split('\n').map(l=>l.replace(/^\s*[•\-–]\s+/,'')).join('\n'); } else delete it.list; autosize(it); }
     if(it.type!=='path'&&(act==='fsup'||act==='fsdown'||act==='bold')){
       if(act==='bold'){ if(it.pf){ const n=String(it.text||'').split('\n').length-1; setParaFmt(it,it.text||'',0,n,'b'); } else it.bold=!it.bold; } else it.fs=clamp((it.fs||14)+(act==='fsup'?2:-2),10,40);
@@ -2448,6 +2476,9 @@ svg.addEventListener('pointerdown',e=>{
   if(tool==='erase'){ action={...base,type:'erase',dirty:false}; eraseAt(e); return; }
   if(tool==='text'){ action={...base,type:'textclick'}; return; }
   if(tool==='conn'){ startConn(base,item&&item.type==='shape'&&!noDock(item.kind)?item:null,w); return; }
+  if(tool==='select'&&!hEl&&item&&item.type==='shape'&&item.pf){   /* Checkliste: Kästchen antippen hakt ab */
+    const pi=checkHit(item,w);
+    if(pi>=0&&!liveRO()&&toggleCheckPara(item,pi)){ commit(); render(); action=null; return; } }
   if(hEl){
     const [t,v]=hEl.dataset.h.split(':'), one=byId([...sel][0]);
     if(t==='rot'){ const its=[...sel].map(byId).filter(i=>i&&!i.lock&&canRot(i)); if(its.length){
@@ -2646,6 +2677,7 @@ function iconFor(kind,W,H){
   if(kind==='quiz') return `<svg viewBox="0 0 ${W} ${H}"><rect x="3" y="2" width="${W-6}" height="${H-4}" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="4 3"/><path d="M9 8h${W-18}" stroke="currentColor" stroke-width="2.2" fill="none"/>${[13,18,23].map(y=>`<rect x="9" y="${y-2}" width="4" height="4" fill="none" stroke="currentColor" stroke-width="1"/><path d="M16 ${y}h${W-30}" stroke="currentColor" stroke-width="1.2" fill="none"/>`).join('')}</svg>`;
   if(kind==='check') return `<svg viewBox="0 0 ${W} ${H}"><rect x="5" y="${H/2-6}" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 ${H/2}l3 3 5-7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M22 ${H/2}h${W-28}" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>`;
   if(kind==='poollanes') return `<svg viewBox="0 0 ${W} ${H}"><rect x="2" y="3" width="${W-4}" height="${H-6}" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 3v${H-6}M14 3v${H-6}M14 ${H/2}H${W-2}" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>`;
+  if(kind==='checklist') return `<svg viewBox="0 0 ${W} ${H}">${[7,14,21].map((y,i)=>`<rect x="4" y="${y-2.6}" width="5.2" height="5.2" rx="1.2" fill="${i===0?'currentColor':'none'}" stroke="currentColor" stroke-width="1.4"/><path d="M13 ${y}h${W-20}" stroke="currentColor" stroke-width="1.800" fill="none"${i===0?' opacity=".45"':''}/>`).join('')}</svg>`;
   if(kind==='bullets') return `<svg viewBox="0 0 ${W} ${H}">${[7,14,21].map(y=>`<circle cx="7" cy="${y}" r="1.900" fill="currentColor"/><path d="M13 ${y}h${W-20}" stroke="currentColor" stroke-width="1.800" fill="none"/>`).join('')}</svg>`;
   if(kind==='image') return `<svg viewBox="0 0 ${W} ${H}"><rect x="6" y="3" width="${W-12}" height="${H-6}" rx="2" fill="none" stroke="currentColor" stroke-width="1.600"/><circle cx="${W*0.36}" cy="${H*0.36}" r="2.600" fill="currentColor"/><path d="M8 ${H-5}l${W*0.22} -${H*0.38} ${W*0.14} ${H*0.2} ${W*0.12} -${H*0.12} ${W*0.2} ${H*0.3}" fill="none" stroke="currentColor" stroke-width="1.600" stroke-linejoin="round"/></svg>`;
   if(kind==='text') return `<svg viewBox="0 0 ${W} ${H}"><text x="${W/2}" y="${H*0.75}" text-anchor="middle" font-size="${H*0.7}" font-weight="600" fill="currentColor">Aa</text></svg>`;
@@ -3374,11 +3406,34 @@ function tplKit(){
   const H=(x,y,w,text,fs)=>X(x,y,w,text,fs||18,{bold:true});
   const L=(x1,y1,x2,y2,o)=>{ const c=Object.assign({id:nid(),type:'conn',from:null,to:null,p1:{x:x1,y:y1},p2:{x:x2,y:y2},text:'',stroke:INK,sw:2,style:'straight',dash:false,head:'arrow'},o||{}); out.push(c); return c; };
   const A=(a,b,fa,ta,o)=>{ const c=Object.assign({id:nid(),type:'conn',from:a.id,to:b.id,p1:{x:0,y:0},p2:{x:0,y:0},text:'',stroke:INK,sw:2,style:'ortho',dash:false,head:'arrow'},o||{}); if(fa) c.fa=fa; if(ta) c.ta=ta; out.push(c); return c; };
-  const Q=(x,y,w,h,title,sub,fill)=>{ B('rect',x,y,w,h,'',{fill}); H(x+16,y+14,w-32,title); if(sub) X(x+16,y+44,w-32,sub,13,{tc:'#5b6870'}); };
+  const Q=(x,y,w,h,title,sub,fill)=>{ B('rect',x,y,w,h,'',{fill}); X(x+16,y+14,w-32,title,18,{bold:true,tc:CARD_INK}); if(sub) X(x+16,y+44,w-32,sub,13,{tc:'#5b6870'}); };
   const TB=(x,y,colW,rowH,cells,o)=>B('table',x,y,sum(colW),sum(rowH),'',Object.assign({colW,rowH,cells},o||{}));
   return {out,B,X,H,L,A,Q,TB};
 }
+/* Schrift auf farbigen Karten: bleibt dunkel, auch auf dunkler Tafel (INK selbst würde dort hell) */
+const CARD_INK='#1d2b2f';
+/* Checkliste: Zeilen mit „+“ am Anfang sind schon abgehakt */
+function tplCheck(K,x,y,w,lines,o){ return K.X(x,y,w,lines.map(l=>l.replace(/^\+/,'')).join('\n'),16,Object.assign({pf:lines.map(l=>l.startsWith('+')?'x':'c'),tc:CARD_INK},o||{})); }
+function tplCard(K,x,y,w,h,title,fill,lines){ K.B('rect',x,y,w,h,'',{fill}); K.X(x+16,y+14,w-32,title,18,{bold:true,tc:CARD_INK}); tplCheck(K,x+16,y+52,w-32,lines); }
 const TEMPLATES=[
+ {name:'Einkaufsliste',info:'Zum Abhaken, nach Bereichen sortiert – mit Namen, wer was mitbringt',make(K){ const {H,X,B}=K; H(0,0,700,'Einkaufsliste',26);
+   X(0,40,860,'Kästchen antippen zum Abhaken · neue Zeile mit Enter · hinter den Strich schreiben, wer es besorgt',13,{tc:'#5b6870'});
+   tplCard(K,0,84,280,230,'Obst & Gemüse',TC.green,['Äpfel','+Bananen','Tomaten','Salat']);
+   tplCard(K,300,84,280,230,'Kühlregal',TC.blue,['Milch – Sam','Joghurt','Käse','Butter']);
+   tplCard(K,600,84,280,230,'Vorrat & Backwaren',TC.yellow,['Brot für Samstag','Nudeln','Kaffee – Alex','Reis']);
+   tplCard(K,0,334,280,200,'Drogerie & Haushalt',TC.pink,['Zahnpasta','Spülmittel','Küchenrolle']);
+   B('note',300,334,280,200,'Nicht vergessen:\nPfandflaschen mitnehmen',{fill:TC.yellow,al:'left'}); }},
+ {name:'Wochenplaner',info:'Montag bis Sonntag für die ganze Familie, mit Aufgaben der Woche',make(K){ const {H,X,TB}=K; H(0,0,700,'Wochenplaner',26);
+   X(0,40,860,'Woche vom … bis …',14,{tc:'#5b6870'});
+   const cw=[130,110,110,110,110,110,110,110], rh=[44,76,76,76,60];
+   TB(0,80,cw,rh,[['','Mo','Di','Mi','Do','Fr','Sa','So'],['Morgens','','','','','','',''],['Nachmittags','','Sport – Mia','','','','Ausflug',''],['Abends','','','','Elternabend 19 Uhr','','',''],['Wer kocht?','','','','','','','']],{al:'center'});
+   tplCard(K,0,442,420,200,'Diese Woche erledigen',TC.orange,['Müll rausbringen (Di)','Geschenk für Oma besorgen','+Arzttermin ausmachen']);
+   tplCard(K,440,442,440,200,'Einkauf fürs Wochenende',TC.green,['Grillgemüse','Brötchen','Getränke']); }},
+ {name:'To-do-Liste',info:'Heute, diese Woche, irgendwann – zum Abhaken',make(K){ const {H,X}=K; H(0,0,700,'To-do-Liste',26);
+   X(0,40,860,'Kästchen antippen zum Abhaken · Erledigtes wird durchgestrichen',13,{tc:'#5b6870'});
+   tplCard(K,0,84,280,250,'Heute',TC.orange,['Arzttermin vereinbaren','+Wäsche waschen','Einkauf erledigen']);
+   tplCard(K,300,84,280,250,'Diese Woche',TC.blue,['Rechnung bezahlen','Auto zum TÜV','Bewerbung abschicken']);
+   tplCard(K,600,84,280,250,'Irgendwann',TC.violet,['Keller aufräumen','Fotobuch gestalten','Fahrrad reparieren']); }},
  {name:'SWOT-Analyse',info:'Stärken, Schwächen, Chancen und Risiken auf einen Blick',make(K){ const {H,X,Q}=K; H(0,0,700,'SWOT-Analyse',26);
    X(90,56,380,'hilfreich',14,{al:'center',tc:'#5b6870'}); X(490,56,380,'schädlich',14,{al:'center',tc:'#5b6870'}); X(0,170,80,'intern',14,{tc:'#5b6870'}); X(0,440,80,'extern',14,{tc:'#5b6870'});
    Q(90,84,380,250,'Stärken','Was können wir besonders gut?',TC.green); Q(490,84,380,250,'Schwächen','Wo haben wir Nachholbedarf?',TC.orange);

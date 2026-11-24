@@ -62,6 +62,9 @@ svg.addEventListener('pointerdown',e=>{
   if(tool==='erase'){ action={...base,type:'erase',dirty:false}; eraseAt(e); return; }
   if(tool==='text'){ action={...base,type:'textclick'}; return; }
   if(tool==='conn'){ startConn(base,item&&item.type==='shape'&&!noDock(item.kind)?item:null,w); return; }
+  if(tool==='select'&&!hEl&&item&&item.type==='shape'&&item.pf){   /* Checkliste: Kästchen antippen hakt ab */
+    const pi=checkHit(item,w);
+    if(pi>=0&&!liveRO()&&toggleCheckPara(item,pi)){ commit(); render(); action=null; return; } }
   if(hEl){
     const [t,v]=hEl.dataset.h.split(':'), one=byId([...sel][0]);
     if(t==='rot'){ const its=[...sel].map(byId).filter(i=>i&&!i.lock&&canRot(i)); if(its.length){

@@ -2,7 +2,7 @@
 function mkShape(kind,cx,cy){
   const d=KINDS[kind];
   if(kind==='frame') return {id:nid(),type:'shape',kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:'',fill:'none',stroke:INK,sw:2,ord:frames().reduce((m,f)=>Math.max(m,f.ord||0),0)+1};
-  return {id:nid(),type:'shape',kind:d.as||kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:d.text||'',fill:d.fill||'#ffffff',stroke:INK,sw:2,...(d.list?{list:true,fs:16}:{})};
+  return {id:nid(),type:'shape',kind:d.as||kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:d.text||'',fill:d.fill||'#ffffff',stroke:INK,sw:2,...(d.list?{list:true,fs:16}:{}),...(d.chk?{pf:String(d.text).split('\n').map(()=>'c'),fs:16}:{})};
 }
 function mkTable(colW,rowH,heads){
   return {id:nid(),type:'shape',kind:'table',x:0,y:0,w:sum(colW),h:sum(rowH),colW,rowH,
