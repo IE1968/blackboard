@@ -34,6 +34,11 @@
     var w=m.querySelector('.wort'), l=m.querySelector('.logo'); if(w&&l){ var frei=nr.width-l.getBoundingClientRect().width-12; if(frei>60){ w.style.width=frei+'px'; w.style.height=(frei*690/3490)+'px'; } }
     if(sl&&h&&getComputedStyle(sl).display!=='none'){ var d=h.getBoundingClientRect().left-sl.getBoundingClientRect().left; if(d>0) sl.style.marginLeft=d+'px'; }
   }
+  /* Startseite: Menü links genau so hoch wie die erste Box rechts („Ein Board für alles …“) */
+  function hoehe(){ var hd=document.querySelector('main>.held'); if(!navi||!hd) return; navi.style.height='';
+    if(getComputedStyle(navi).position!=='sticky') return; navi.style.height=hd.getBoundingClientRect().height+'px'; }
+  hoehe(); window.addEventListener('resize',hoehe); window.addEventListener('load',hoehe); if(document.fonts) document.fonts.ready.then(hoehe);
+  if(window.ResizeObserver){ var ho=document.querySelector('main>.held'); if(ho) new ResizeObserver(hoehe).observe(ho); }
   richte(); window.addEventListener('resize',richte); if(document.fonts) document.fonts.ready.then(richte);
   /* Beispiel-Boards anhalten und weiterlaufen lassen */
   [].slice.call(document.querySelectorAll('.anhalten')).forEach(function(k){ k.addEventListener('click',function(){
