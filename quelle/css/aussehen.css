@@ -31,8 +31,8 @@ header{position:relative;min-width:0;zoom:var(--ui);border-bottom:1px solid var(
 .bar{display:flex;align-items:center;gap:8px;padding:6px 12px;overflow-x:auto;scrollbar-width:none}
 .bar::-webkit-scrollbar{display:none}
 .brand{display:flex;align-items:center;gap:8px;color:var(--fg);font:900 30px/1 var(--display);letter-spacing:0;white-space:nowrap;padding:2px 6px 2px 0}
-.brand .logo{width:32px;height:32px;flex:none}
-.brand .wm{height:.82em;width:auto;aspect-ratio:3490/690;flex:none}
+.brand .logo{height:30px;width:auto;aspect-ratio:34/30;flex:none}
+.brand .wm{height:.6em;width:auto;aspect-ratio:3490/690;flex:none}
 .grp{display:flex;align-items:center;gap:2px}
 .sep{width:1px;align-self:stretch;background:var(--line);margin:4px 0}
 .tb{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:50px;padding:6px 5px 5px;font-size:11px;font-weight:500;color:var(--muted);white-space:nowrap;border-radius:10px}
@@ -240,7 +240,7 @@ body.hc :focus-visible{outline-width:3px}
 body.compact .bar{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;padding:5px 8px;overflow:visible}
 body.compact #boardName{flex:1 1 60px}
 body.compact .brand{font-size:18px;gap:6px;padding:0}
-body.compact .brand .logo{width:24px;height:24px}
+body.compact .brand .logo{height:23px;width:auto}
 body.compact #boardName{width:100%;min-width:0;padding:6px 8px;font-size:16px}
 body.compact .tb{min-width:38px;padding:8px 6px}
 body.compact .tb span,body.compact .sep,body.compact .spacer,body.compact #zoomGrp{display:none}
@@ -261,7 +261,7 @@ body.touch #palHandle::after,body.touch #propsToggle::after{width:24px}
 body.compact #editor:not(.inl){font-size:16px}
 body.compact.narrow .bar{gap:4px;padding:5px 6px}
 body.compact.narrow .brand{font-size:15px;gap:4px}
-body.compact.narrow .brand .logo{width:20px;height:20px}
+body.compact.narrow .brand .logo{height:20px;width:auto}
 body.compact.narrow .tb{min-width:34px;padding:8px 4px}
 body.compact.narrow #boardName{padding:6px}
 body.compact.narrow .grp{gap:0}
@@ -410,7 +410,7 @@ body.touch #optsToggle::after{height:24px}
 /* Kopfleiste verdichten, wenn sie nicht passt (siehe fitBar) */
 body.eng1 .bar{gap:4px}
 body.eng1 #boardName{width:110px;min-width:80px}
-body.eng2 .brand .wm{height:.62em}
+body.eng2 .brand .wm{height:.5em}
 body.eng3 .brand .wm{display:none}
 body.eng4 #zoomOut,body.eng4 #zoomIn{display:none}
 body.eng5 #keysBtn{display:none}
@@ -807,3 +807,4 @@ body.phone #toast{bottom:12px}
 body.phone #props .pgQuick{order:-1}
 body.phone #colorPop{position:fixed!important;left:8px!important;right:8px!important;top:auto!important;bottom:calc(140px + env(safe-area-inset-bottom))!important;width:auto!important;max-width:none!important;max-height:50dvh;overflow-y:auto;border-radius:16px}
 body.phone #livePop .liveMain,body.phone #livePop button{align-self:stretch}
+body.compact .brand .wm{height:.75em}
