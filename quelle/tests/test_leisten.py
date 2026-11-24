@@ -13,7 +13,7 @@ try:
   w=pg.evaluate("()=>[document.getElementById('palette').getBoundingClientRect().width,document.getElementById('menu').getBoundingClientRect().width]")
   check('Rechte Leiste so breit wie die linke',abs(w[0]-w[1])<1.5,str(w))
   check('Rechts: Datei-Inhalte ohne Export',pg.locator('main #menu #boardList').count()==1 and pg.locator('main #menu [data-m="pdf"]').count()==0)
-  check('Oben nur Neues Board und Board laden (ohne Symbole) – Leeren und Löschen im „⋯“ der Boards',pg.evaluate("()=>{const k=[...document.querySelectorAll('#menu > *')]; const i=k.findIndex(e=>e.id==='manageBtn'); return k[i+1].dataset.m==='new'&&k[i+2].dataset.m==='open'&&k[i+3].tagName==='HR'&&!k[i].querySelector('svg')&&!k[i+2].querySelector('svg')&&!document.getElementById('delBoard')&&document.querySelectorAll('#boardList .bM').length>0}"))
+  check('Oben Neues Board, Boards verwalten, Board laden (ohne Symbole) – Leeren und Löschen im „⋯“ der Boards',pg.evaluate("()=>{const k=[...document.querySelectorAll('#menu > *')]; const i=k.findIndex(e=>e.dataset.m==='new'); return k[i+1].id==='manageBtn'&&k[i+2].dataset.m==='open'&&k[i+3].tagName==='HR'&&!k[i+1].querySelector('svg')&&!k[i+2].querySelector('svg')&&!document.getElementById('delBoard')&&document.querySelectorAll('#boardList .bM').length>0}"))
   check('Kein Hinweistext auf der Tafel',pg.locator('#hint').count()==0)
   # Optionsleiste je Werkzeug
   pg.click('#tools [data-tool="pen"]'); pg.wait_for_timeout(150)
@@ -75,7 +75,7 @@ try:
   # Export oben
   pg.click('#expBtn'); pg.wait_for_timeout(120)
   check('Export-Knopf zeigt Auswahl',pg.is_visible('#expPop') and pg.locator('#expPop [data-m]').count()==4 and pg.locator('#expPop [data-m="json"]').count()==1)
-  check('Abschnitt Sicherung weg, Board laden unter Neues Board',pg.locator('#menu [data-m="json"]').count()==0 and pg.evaluate("()=>{const k=[...document.querySelectorAll('#menu > *')]; const i=k.findIndex(e=>e.dataset.m==='new'); return k[i+1].dataset.m==='open'}"))
+  check('Abschnitt Sicherung weg, Board laden unter Boards verwalten',pg.locator('#menu [data-m="json"]').count()==0 and pg.evaluate("()=>{const k=[...document.querySelectorAll('#menu > *')]; const i=k.findIndex(e=>e.dataset.m==='new'); return k[i+2].dataset.m==='open'}"))
   pg.keyboard.press('Escape'); pg.wait_for_timeout(100); check('Esc schließt die Export-Auswahl',not pg.is_visible('#expPop'))
   check('Datei-Leiste aufgeräumt',all(pg.locator(f'#menu [data-m="{m}"]').count()==0 for m in ['tpl','img','example','keys','slides','livestart']) and pg.locator('#menu #liveSec').count()==0)
   pg.click('#playBtn'); pg.wait_for_timeout(120); check('Zeigen klappt auf: Starten und Folienübersicht',pg.is_visible('#presPop [data-m="play"]') and pg.is_visible('#presPop [data-m="slides"]'))

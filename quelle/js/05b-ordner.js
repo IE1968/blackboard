@@ -48,7 +48,7 @@ function folderListHTML(){
   for(const f of F){
     const bs=boards.list.filter(b=>fClean(b.f)===f), isOpen=open[f]!==false, a=esc(f);
     if(fUi.edit===f) h+=`<form class="fNew" data-ren="${a}"><input value="${a}" maxlength="40" aria-label="Ordner umbenennen" enterkeyhint="done"></form>`;
-    else h+=`<div class="fh" style="--fc:${fColor(f)}"><button type="button" class="fhT" data-fo="${a}" aria-expanded="${isOpen}"><i></i><span>${a}</span><small>${bs.length}</small></button><button type="button" class="fhM" data-fm="${a}" title="Ordner umbenennen oder auflösen" aria-label="Ordner ${a}: weitere Befehle">⋯</button></div>`;
+    else h+=`<div class="fh" style="--fc:${fColor(f)}"><button type="button" class="fhT" data-fo="${a}" aria-expanded="${isOpen}">${isOpen?'<svg class="fIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 014.5 5h4.6l2 2h8.4A1.5 1.5 0 0121 8.5V10H7.2a1.5 1.5 0 00-1.4 1L3 18z"/><path d="M5.8 11a1.5 1.5 0 011.4-1h14.3l-2.8 8a1.5 1.5 0 01-1.4 1H3z"/></svg>':'<svg class="fIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 014.5 5h4.6l2 2h8.4A1.5 1.5 0 0121 8.5v9a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 17.5z"/></svg>'}<span>${a}</span><small>${bs.length}</small></button><button type="button" class="fhM" data-fm="${a}" title="Ordner umbenennen oder auflösen" aria-label="Ordner ${a}: weitere Befehle">⋯</button></div>`;
     if(fUi.menu===f) h+=`<div class="fAct"><button type="button" data-fren="${a}">Umbenennen</button><button type="button" data-fdel="${a}" class="fDel">Auflösen</button></div>`;
     if(isOpen) h+=`<div class="fIn" style="--fc:${fColor(f)}">${bs.map(boardBtn).join('')||'<div class="fEmpty">Noch leer. Boards legst du über „Boards verwalten“ hinein.</div>'}</div>`;
   }

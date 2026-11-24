@@ -832,3 +832,6 @@ body.compact main.props-closed #propsToggle{right:0}
 #boardList [data-b] .bn,.fhT span{hyphens:none;-webkit-hyphens:none;overflow-wrap:normal;word-break:normal}
 #boardList [data-b]{hyphens:none;-webkit-hyphens:none}
 body.phone main #palette,body.phone main #menu{justify-self:stretch!important}
+/* Ordner mit Ordner-Symbol in Ordnerfarbe */
+.fhT .fIc{width:18px;height:18px;flex:none;fill:color-mix(in srgb,var(--fc) 30%,transparent);stroke:var(--fc);stroke-width:1.7;stroke-linejoin:round}
+#menu [data-m="new"]{margin:0 0 8px}
