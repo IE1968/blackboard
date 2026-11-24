@@ -417,3 +417,7 @@ html{scroll-padding-top:calc(var(--kopfh) + 16px)}
 :root[data-thema="dunkel"]{--grund:#222225;--flaeche:#18181A}
 .kopf{border-bottom:0}
 :root[data-thema="dunkel"] .karte{border-color:transparent}
+
+/* Anleitungs-Videos: Vorschaubild, Abspielen erst auf Klick */
+.vid{margin:6px 0 18px}
+.vid video{display:block;width:100%;aspect-ratio:1440/900;height:auto;border-radius:14px;background:#18181A;box-shadow:var(--schatten)}

@@ -106,7 +106,7 @@
     </svg>
     <div id="startArea" hidden></div>
     <textarea id="editor" hidden spellcheck="false" aria-label="Text der Form"></textarea>
-    <div id="slides" hidden aria-label="Folienübersicht"><div class="sh"><b>Folien</b><button type="button" id="slAdd" title="Neue Folie rechts neben der letzten">+ Folie</button><button type="button" id="slPlay" title="Präsentation ab der markierten Folie">▶ Zeigen</button><button type="button" id="slClose" aria-label="Übersicht schließen" title="Schließen">✕</button></div><div id="slList" role="listbox" aria-label="Folien, zum Umsortieren ziehen"></div></div>
+    <div id="slides" hidden aria-label="Folienübersicht"><div class="sh"><b>Folien</b><button type="button" id="slAdd" title="Neue Folie um die Auswahl – oder um alles, was gerade zu sehen ist">+ Folie</button><button type="button" id="slPlay" title="Präsentation ab der markierten Folie">▶ Präsentieren</button><button type="button" id="slClose" aria-label="Übersicht schließen" title="Schließen">✕</button></div><div id="slList" role="listbox" aria-label="Folien, zum Umsortieren ziehen"></div></div>
     <div id="toast" hidden role="status"></div>
     <div id="sr" role="status" aria-live="polite"></div>
   </section>
@@ -153,7 +153,7 @@
 </div>
 <div id="liveDlg" hidden role="dialog" aria-modal="true" aria-labelledby="lvTitle">
   <div id="liveBox">
-    <h2 id="lvTitle">Live teilen</h2>
+    <h2 id="lvTitle">Board teilen</h2>
     <p>Wer einen Link bekommt, kommt ohne Anmeldung ins Board. Du kannst jeden Link jederzeit wieder beenden.</p>
     <label for="lvExp">Gültig</label>
     <select id="lvExp"><option value="">ohne Ablauf</option><option value="1h">1 Stunde</option><option value="today" selected>bis heute 23:59 Uhr</option><option value="7d">7 Tage</option></select>
@@ -163,7 +163,7 @@
     <h3>Aktive Links</h3>
     <div id="lvList"></div>
     <h3>Deine eigenen Geräte</h3>
-    <p>Melde dich auf deinen Geräten mit deinem Konto an (Menü → Konto). Dann sind alle deine Boards dort automatisch da, ohne Link.</p>
+    <p>Melde dich auf deinen Geräten mit deinem Konto an (oben rechts: Konto). Dann sind alle deine Boards dort automatisch da, ohne Link.</p>
     <div class="lvBtns"><button type="button" id="lvClose">Fertig</button></div>
   </div>
 </div>

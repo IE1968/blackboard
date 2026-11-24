@@ -943,7 +943,7 @@ body.phone main #palette,body.phone main #menu{justify-self:stretch!important}
     </svg>
     <div id="startArea" hidden></div>
     <textarea id="editor" hidden spellcheck="false" aria-label="Text der Form"></textarea>
-    <div id="slides" hidden aria-label="Folienübersicht"><div class="sh"><b>Folien</b><button type="button" id="slAdd" title="Neue Folie rechts neben der letzten">+ Folie</button><button type="button" id="slPlay" title="Präsentation ab der markierten Folie">▶ Zeigen</button><button type="button" id="slClose" aria-label="Übersicht schließen" title="Schließen">✕</button></div><div id="slList" role="listbox" aria-label="Folien, zum Umsortieren ziehen"></div></div>
+    <div id="slides" hidden aria-label="Folienübersicht"><div class="sh"><b>Folien</b><button type="button" id="slAdd" title="Neue Folie um die Auswahl – oder um alles, was gerade zu sehen ist">+ Folie</button><button type="button" id="slPlay" title="Präsentation ab der markierten Folie">▶ Präsentieren</button><button type="button" id="slClose" aria-label="Übersicht schließen" title="Schließen">✕</button></div><div id="slList" role="listbox" aria-label="Folien, zum Umsortieren ziehen"></div></div>
     <div id="toast" hidden role="status"></div>
     <div id="sr" role="status" aria-live="polite"></div>
   </section>
@@ -990,7 +990,7 @@ body.phone main #palette,body.phone main #menu{justify-self:stretch!important}
 </div>
 <div id="liveDlg" hidden role="dialog" aria-modal="true" aria-labelledby="lvTitle">
   <div id="liveBox">
-    <h2 id="lvTitle">Live teilen</h2>
+    <h2 id="lvTitle">Board teilen</h2>
     <p>Wer einen Link bekommt, kommt ohne Anmeldung ins Board. Du kannst jeden Link jederzeit wieder beenden.</p>
     <label for="lvExp">Gültig</label>
     <select id="lvExp"><option value="">ohne Ablauf</option><option value="1h">1 Stunde</option><option value="today" selected>bis heute 23:59 Uhr</option><option value="7d">7 Tage</option></select>
@@ -1000,7 +1000,7 @@ body.phone main #palette,body.phone main #menu{justify-self:stretch!important}
     <h3>Aktive Links</h3>
     <div id="lvList"></div>
     <h3>Deine eigenen Geräte</h3>
-    <p>Melde dich auf deinen Geräten mit deinem Konto an (Menü → Konto). Dann sind alle deine Boards dort automatisch da, ohne Link.</p>
+    <p>Melde dich auf deinen Geräten mit deinem Konto an (oben rechts: Konto). Dann sind alle deine Boards dort automatisch da, ohne Link.</p>
     <div class="lvBtns"><button type="button" id="lvClose">Fertig</button></div>
   </div>
 </div>
@@ -2566,7 +2566,7 @@ function updateProps_(){
     h+=`<div class="pg"><b>Pfeil</b><button class="pb" data-act="style" aria-pressed="${c.style==='straight'}">Gerade</button><button class="pb" data-act="dash" aria-pressed="${!!c.dash}" >Gestrichelt</button></div><div class="pg"><b>Spitze</b><button class="pb" data-act="head" title="Pfeilspitze wechseln">${HEADS.find(x=>x[0]===headOf(c))[1]}</button></div>`; }
   if(items.length===1&&items[0].kind==='table') h+=`<div class="pg"><b>Tabelle</b><button class="pb" data-act="addcol" title="Neue Spalte rechts neben der markierten Zelle">+ Spalte</button><button class="pb" data-act="delcol" title="Spalte der markierten Zelle löschen">− Spalte</button><button class="pb" data-act="addrow" title="Neue Zeile unter der markierten Zelle">+ Zeile</button><button class="pb" data-act="delrow" title="Zeile der markierten Zelle löschen">− Zeile</button></div>`;
   if(items.length===1&&items[0].kind==='frame'){ const fr=frames(), fi=fr.indexOf(items[0]);
-    h+=`<div class="pg"><b>Folie ${fi+1} von ${fr.length}</b><button class="pb" data-act="play" title="Präsentation mit dieser Folie beginnen">▶ Zeigen</button><button class="pb" data-act="frup" title="In der Reihenfolge nach vorn"${fi<=0?' disabled':''}>Früher</button><button class="pb" data-act="frdown" title="In der Reihenfolge nach hinten"${fi>=fr.length-1?' disabled':''}>Später</button></div>`;
+    h+=`<div class="pg"><b>Folie ${fi+1} von ${fr.length}</b><button class="pb" data-act="play" title="Präsentation mit dieser Folie beginnen">▶ Ab hier</button><button class="pb" data-act="frup" title="In der Reihenfolge nach vorn"${fi<=0?' disabled':''}>Früher</button><button class="pb" data-act="frdown" title="In der Reihenfolge nach hinten"${fi>=fr.length-1?' disabled':''}>Später</button></div>`;
     const inF=doc.items.filter(i=>i.fr===items[0].id&&i.kind!=='frame'); if(inF.length) h+=`<div class="pg"><b>Einblenden</b><button class="pb" data-act="apall" aria-pressed="${inF.every(i=>i.ap)}" title="Elemente dieser Folie in der Präsentation nacheinander zeigen, von oben nach unten">Alles nacheinander</button></div>`; }
   const apIts=items.filter(i=>i.fr&&i.kind!=='frame');
   if(apIts.length&&apIts.length===items.length){ const on=apIts.every(i=>i.ap);
