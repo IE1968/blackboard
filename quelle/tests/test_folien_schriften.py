@@ -5,7 +5,7 @@ srv=subprocess.Popen([sys.executable,'-m','http.server','8765','--directory',DIS
 try:
   with sync_playwright() as p:
     b=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox'])
-    pg=b.new_page(viewport={'width':1500,'height':900}); errs=[]; pg.on('pageerror',lambda e: errs.append(str(e)))
+    pg=b.new_page(viewport={'width':1500,'height':900}); pg.add_init_script("localStorage.setItem('skizix-test-bartop','1')"); errs=[]; pg.on('pageerror',lambda e: errs.append(str(e)))
     pg.goto(URL); pg.wait_for_timeout(600)
     doc=lambda: pg.evaluate("async()=>{await new Promise(r=>setTimeout(r,400));const b=JSON.parse(localStorage.getItem('blackboard-boards'));const db=await new Promise(r=>{const q=indexedDB.open('blackboard',1);q.onsuccess=()=>r(q.result)});const v=await new Promise(r=>{const q=db.transaction('docs').objectStore('docs').get(b.cur);q.onsuccess=()=>r(q.result)});db.close();return JSON.parse(v)}")
     openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
