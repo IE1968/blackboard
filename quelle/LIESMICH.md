@@ -21,6 +21,12 @@ sondern immer die Dateien hier und danach neu bauen.
 Die App-Dateien `sw.js`, `manifest.webmanifest` und die Symbole liegen direkt im Hauptordner.
 Bei größeren Änderungen in `sw.js` die Versionsnummer `CACHE` erhöhen.
 
+## Website
+
+Die Website liegt fertig im Ordner `website/` (öffentlich unter …/website/, für Suchmaschinen gesperrt).
+Sie wird aus `quelle/website/` gebaut: `python3 quelle/website/baue.py`. Texte von Anleitung, Datenschutz
+und Impressum stehen in `quelle/website/inhalt/`, Aussehen in `stil.css`, Menü und Hell/Dunkel in `menue.js`.
+
 ## Bauen
 
 ```
