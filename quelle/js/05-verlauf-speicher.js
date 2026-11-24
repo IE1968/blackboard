@@ -193,7 +193,7 @@ function commit(){
   hist=hist.slice(0,hi+1); hist.push(sn); if(hist.length>300) hist.shift();
   let tot=0; for(const h of hist) tot+=h.bytes; while(tot>24e6&&hist.length>3){ tot-=hist.shift().bytes; }   /* Speicher für „Rückgängig“ begrenzen */
   hi=hist.length-1; persist(snapJSON(sn));
-  if(!first) markDirty();
+  if(!first){ markDirty(); const cb=curBoard(); if(cb&&cb.starter){ delete cb.starter; saveIdx(); } }
   liveTick();
 }
 function restore(i){ if(liveRO()) return; hi=i; doc=snapDoc(hist[hi]); sel.clear(); persist(); markDirty(); render(); liveTick(); }
@@ -229,13 +229,19 @@ $('bmDel').onclick=()=>{
   finishEdit(); const n=removeBoards(ids); bmRender(); $('bmMsg').textContent=(n===1?'1 Board':n+' Boards')+' gelöscht.'; toast((n===1?'1 Board':n+' Boards')+' gelöscht.');
 };
 /* Boards mit gleichem Namen und gleichem Inhalt: alle bis auf eins ankreuzen (behalten wird das geöffnete, sonst das zuletzt geänderte) */
+/* Inhalt für den Vergleich: nur Art und Texte der Elemente, ohne Kennungen, Position und Größe
+   (dasselbe Board von zwei Geräten unterscheidet sich oft nur in Textbreiten oder Kennungen) */
+function bmSig(d){ return JSON.stringify((d?d.items:[]).map(i=>[i.type,i.kind||i.tool||'',i.type==='path'?i.pts.length:String(i.text||'').trim(),i.kind==='table'?i.cells:0,i.kind==='image'?(i.src||'').length:0])); }
 $('bmSame').onclick=()=>{
-  const groups=new Map();
-  for(const b of boards.list){ const d=b.id===boards.cur?doc:storedDoc(b.id); const k=String(b.name).trim().toLowerCase()+'\u0000'+JSON.stringify(d?d.items:[]); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(b); }
-  const pick=new Set();
-  for(const g of groups.values()){ if(g.length<2) continue; g.sort((a,b)=>(b.id===boards.cur)-(a.id===boards.cur)||(b.updated||0)-(a.updated||0)); g.slice(1).forEach(b=>pick.add(b.id)); }
+  const groups=new Map(), names=new Map();
+  for(const b of boards.list){ const d=b.id===boards.cur?doc:storedDoc(b.id), nm=String(b.name).trim().toLowerCase(), k=nm+'\u0000'+bmSig(d);
+    if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(b); names.set(nm,(names.get(nm)||0)+1); }
+  const pick=new Set(); let same=0;
+  for(const g of groups.values()){ if(g.length<2) continue; same+=g.length; g.sort((a,b)=>(b.id===boards.cur)-(a.id===boards.cur)||(b.updated||0)-(a.updated||0)); g.slice(1).forEach(b=>pick.add(b.id)); }
+  let other=0; for(const n of names.values()) if(n>1) other+=n; other-=same;
   $('bmList').querySelectorAll('input').forEach(i=>i.checked=pick.has(i.dataset.id)); bmUpd();
-  $('bmMsg').textContent=pick.size?(pick.size===1?'1 Board':pick.size+' Boards')+' mit gleichem Namen und Inhalt angekreuzt. Je eins bleibt.':'Keine Boards mit gleichem Namen und gleichem Inhalt gefunden.';
+  $('bmMsg').textContent=(pick.size?(pick.size===1?'1 Board':pick.size+' Boards')+' mit gleichem Namen und Inhalt angekreuzt. Je eins bleibt, das zuletzt geänderte.':'Keine Boards mit gleichem Namen und gleichem Inhalt gefunden.')+
+    (other>0?' '+(other===1?'1 weiteres Board heißt':other+' weitere Boards heißen')+' gleich, hat aber anderen Inhalt: bitte selbst ankreuzen.':'');
 };
 $('bmClose').onclick=closeBmDlg;
 $('bmDlg').addEventListener('pointerdown',e=>{ if(e.target===$('bmDlg')) closeBmDlg(); });

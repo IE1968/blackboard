@@ -18,7 +18,9 @@ function exampleDoc(){
 function start(data){
   loadBoards();
   const hot=data&&data.doc?cleanDoc(data.doc):null;
-  doc=hot||storedDoc(boards.cur)||exampleDoc(); fitTexts(); hist=[]; hi=-1; commit(); setTool('select'); render(); if(isNewer(doc)) setTimeout(newerWarn,600);
+  const st=hot?null:storedDoc(boards.cur);
+  doc=hot||st||exampleDoc(); fitTexts(); hist=[]; hi=-1; commit();
+  if(!hot&&!st&&boards.list.length===1&&!curBoard().live){ curBoard().starter=1; saveIdx(); }   /* Startboard dieses Geräts: noch unverändert */ setTool('select'); render(); if(isNewer(doc)) setTimeout(newerWarn,600);
   $('boardName').value=curBoard().name;
   if(data&&data.view){ view=data.view; applyView(); } else fit();
   liveFromHash(); liveBadge(); liveViewMode(); ktStart(); applySides();

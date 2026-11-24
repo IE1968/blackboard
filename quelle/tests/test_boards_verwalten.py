@@ -33,6 +33,18 @@ try:
   pg.check('#bmAll'); pg.click('#bmDel'); pg.click('#bmDel'); pg.wait_for_timeout(300)
   b=boards(); check('Alle gelöscht: ein leeres Board bleibt',len(b)==1 and b[0]['name']=='Board 1',str(b))
   pg.click('#bmClose'); check('Dialog schließt',not pg.is_visible('#bmDlg'))
+  # Dasselbe Board von zwei Geräten: gleiche Texte, aber andere Kennungen und leicht andere Größen → gilt als doppelt
+  pg.evaluate("""()=>{ const x=JSON.parse(localStorage.getItem('blackboard-boards'));
+    const mk=(id,dx)=>({items:[{id:'a'+dx,type:'shape',kind:'text',x:10+dx,y:10,w:200+dx,h:40,text:'Willkommen',fill:'none',stroke:'#1c2a2e',sw:2},{id:'b'+dx,type:'shape',kind:'rect',x:0,y:80,w:100,h:50,text:'Idee',fill:'#ffffff',stroke:'#1c2a2e',sw:2}],n:3});
+    x.list.push({id:'g1',name:'Board 1',updated:1},{id:'g2',name:'Board 1',updated:5},{id:'g3',name:'Board 1',updated:3});
+    localStorage.setItem('blackboard-b-g1',JSON.stringify(mk('g1',0))); localStorage.setItem('blackboard-b-g2',JSON.stringify(mk('g2',4)));
+    const o=mk('g3',0); o.items[1].text='Anders'; localStorage.setItem('blackboard-b-g3',JSON.stringify(o));
+    localStorage.setItem('blackboard-boards',JSON.stringify(x)); }""")
+  pg.reload(); pg.wait_for_timeout(800); menu('manage'); pg.click('#bmSame')
+  sel=[x.get_attribute('data-id') for x in pg.locator('#bmList .bmRow input:checked').all()]
+  check('Doppelte von zwei Geräten werden erkannt (älteres angekreuzt)',sel==['g1'],str(sel)+' '+pg.inner_text('#bmMsg'))
+  check('Gleicher Name, anderer Inhalt wird gemeldet','anderen Inhalt' in pg.inner_text('#bmMsg'),pg.inner_text('#bmMsg'))
+  pg.click('#bmClose')
   check('keine Fehler',not errs,str(errs[:3]))
   br.close()
 finally: srv.terminate()

@@ -48,6 +48,8 @@ async function ktRest(method,query,body,prefer){
 function ktGoneList(){ try{ const v=JSON.parse(lsGet(KT_GONE)||'[]'); return Array.isArray(v)?v.filter(k=>RE_KEY.test(k)):[]; }catch(e){ return []; } }
 /* Abgleich der Board-Liste: eigene Boards ins Konto, fehlende vom Konto holen, anderswo gelöschte hier entfernen */
 async function ktSync(){
+  /* nur ein Fenster gleichzeitig gleicht ab: sonst holen zwei Fenster dasselbe Board und es ist doppelt da */
+  if(!KT.inLock&&navigator.locks&&navigator.locks.request){ try{ return await navigator.locks.request('skizix-konto-abgleich',async()=>{ KT.inLock=true; try{ await ktSync(); } finally{ KT.inLock=false; } }); }catch(e){} }
   if(!KT.s||!liveOk()) return; if(KT.busy){ KT.again=true; return; } KT.busy=true; KT.again=false;
   try{
     const gone=ktGoneList();
@@ -57,9 +59,12 @@ async function ktSync(){
     catch(e){ if(KT.noF||!e||e.status!==400) throw e; KT.noF=true; rows=await ktRest('GET','?select=key,name,del',null)||[];   /* Spalte „folder“ fehlt noch: Ordner nur auf diesem Gerät */
       if(folderList().length&&!KT.noFWarn){ KT.noFWarn=true; toast('Ordner bleiben vorerst nur auf diesem Gerät: Bitte in Supabase das Skript 02-ordner.sql ausführen.'); } }
     const srv=new Map(rows.map(r=>[r.key,r])), row=b=>Object.assign({key:b.live,name:String(b.name||'Board').slice(0,120),del:false},KT.noF?{}:{folder:fClean(b.f)});
-    const up=[], fresh=[], drop=[]; let idx=ktDedupe();
+    const up=[], fresh=[], drop=[], starters=[]; let idx=ktDedupe();
+    const acct=rows.some(r=>!r.del);
     for(const b of boards.list){
       if(b.tok) continue;   /* Gast-Board */
+      /* unverändertes Startboard dieses Geräts: nicht ins Konto, wenn dort schon Boards liegen (sonst gibt es es auf jedem Gerät noch einmal) */
+      if(b.starter&&acct&&!(b.live&&srv.has(b.live))){ starters.push(b); continue; }
       if(!b.live){ b.live=liveNewKey(); b.kNew=true; b.liveDirty=true; idx=true; }
       const r=srv.get(b.live);
       if(r&&r.del){ drop.push(b); continue; }
@@ -89,8 +94,15 @@ async function ktSync(){
       if(r.del||boards.list.some(b=>b.live===r.key)) continue;
       let f=null; try{ f=await liveFetch({k:r.key,own:true}); }catch(e){ continue; }
       if(!f) continue;   /* Inhalt noch nicht hochgeladen: beim nächsten Abgleich */
+      if(boards.list.some(b=>b.live===r.key)) continue;   /* inzwischen schon da (z. B. aus einem anderen Fenster) */
       const nb={id:genId(),name:String(r.name||f.name||'Board').slice(0,40),live:r.key}; nb.kName=r.name; if(!KT.noF){ nb.f=fClean(r.folder); nb.kFolder=nb.f; }
       boards.list.push(nb); docSet(nb.id,JSON.stringify(f.doc)); added++; idx=true;
+    }
+    /* unveränderte Startboards wegräumen, sobald Boards aus dem Konto da sind */
+    for(const b of starters){
+      if(!boards.list.includes(b)||!b.starter||boards.list.filter(x=>x!==b&&!x.tok).length<1) continue;
+      boards.list=boards.list.filter(x=>x!==b); docDel(b.id); idx=true;
+      if(b.id===boards.cur) openBoard(boards.list[0].id);
     }
     /* auf einem anderen Gerät gelöscht */
     for(const b of drop){

@@ -64,6 +64,8 @@ try:
   if bid:
       openFile(B); B.click(f'#boardList [data-b="{bid}"]'); B.wait_for_timeout(500)
       check('Inhalt auf Gerät B',B.evaluate("()=>[...document.querySelectorAll('#items text')].some(t=>t.textContent.includes('Vom PC'))"))
+  check('Unverändertes Startboard von Gerät B kommt nicht ins Konto',warte(lambda: len(boards(B))==1 and len(state()['konto'])==1),f"{[b['name'] for b in boards(B)]} {len(state()['konto'])}")
+  check('Gerät B zeigt das Board aus dem Konto',B.evaluate("()=>[...document.querySelectorAll('#items text')].some(t=>t.textContent.includes('Vom PC'))"))
   # Das eigene Board von B landet auch bei A
   nB=len(boards(B)); sync(A)
   check('Boards von Gerät B kommen zu Gerät A',warte(lambda: len(boards(A))==nB),f'{len(boards(A))} / {nB}')

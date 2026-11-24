@@ -47,7 +47,7 @@ function menuDo(m){
     case 'clear': doc={items:[],n:doc.n}; sel.clear(); commit(); render(); toast('Board geleert. Mit „Zurück“ holst du alles wieder.'); break;
   }
 }
-$('boardName').addEventListener('input',e=>{ curBoard().name=e.target.value.trim()||'Board'; markDirty(); ktSoon(3000); });
+$('boardName').addEventListener('input',e=>{ const b=curBoard(); b.name=e.target.value.trim()||'Board'; delete b.starter; markDirty(); ktSoon(3000); });
 $('boardName').addEventListener('keydown',e=>{ if(e.key==='Enter') e.target.blur(); });
 $('file').addEventListener('change',async e=>{
   const f=e.target.files[0]; if(!f) return;
