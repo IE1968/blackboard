@@ -294,6 +294,12 @@ main>.held{flex-direction:column;align-items:stretch;justify-content:center}
 .b-tafel{margin:14px 24px 24px;border-radius:16px;padding:28px}
 .b-tafel .buehne{width:100%;max-width:none;border-radius:16px;overflow:hidden}
 @media (max-width:1000px){ .b-reihe,.bereich.links .b-reihe{grid-template-columns:1fr} .bereich.links .b-tafel{order:2} .b-oben{padding:24px 24px 0} .b-text{padding:16px 24px 24px} .b-tafel{margin:0 16px 16px;padding:16px} }
+/* Handschrift im Slogan */
+.kopf .slogan .hand-s{font-family:'Caveat',cursive;font-weight:700;font-size:1.55em;line-height:1;letter-spacing:.01em;margin-left:2px;vertical-align:-1px}
+/* Farbige Hervorhebung in den Bereichen: sparsam, in der Textvariante der Bereichsfarbe */
+.bereich .akz{color:color-mix(in srgb,var(--c) 72%,var(--mix))}
+.bereich b.akz{font-weight:700}
+.held .buehne{justify-self:center}
 
 /* Animationen der Beispiel-Boards */
 @keyframes hb1{0%,0%{opacity:0;transform:scale(.7)}4%{opacity:1;transform:scale(1.04)}7%,94%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}

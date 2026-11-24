@@ -14,10 +14,15 @@
   /* Beispiel-Boards sind 440 × 320 Pixel groß und werden auf die verfügbare Breite gebracht */
   var bu=[].slice.call(document.querySelectorAll('.buehne'));
   /* Das Board im Hero darf größer werden: so breit wie seine Spalte, höchstens so hoch wie der Platz bis zum Bildschirmrand */
-  function passe(){ bu.forEach(function(w){ var s=w.clientWidth/440||1, i=w.firstElementChild, h=w.closest('.held');
-      if(h){ var z=w.parentNode.getBoundingClientRect().top, frei=window.innerHeight-z-48; if(window.innerWidth>1000&&frei>200) s=Math.min(s,frei/320); }
-      else if(!w.closest('.b-tafel')) s=Math.min(1,s);
-      i.style.transform=s!==1?'scale('+s+')':''; w.style.height=(320*s)+'px'; w.style.width=h&&window.innerWidth>1000?(440*s)+'px':''; }); }
+  /* Board im Hero so groß wie die Boards der Bereiche darunter; dort füllen sie ihre Spalte (zwei Drittel) */
+  function passe(){
+    var ref=document.querySelector('.b-tafel .buehne'), rw=0;
+    bu.forEach(function(w){ if(w.closest('.held')) w.style.width=''; });
+    if(ref&&window.innerWidth>1000) rw=ref.clientWidth;
+    bu.forEach(function(w){ var h=w.closest('.held'), i=w.firstElementChild;
+      if(h&&rw) w.style.width=Math.min(rw,w.parentNode.clientWidth)+'px';
+      var s=w.clientWidth/440||1; if(!h&&!w.closest('.b-tafel')) s=Math.min(1,s);
+      i.style.transform=s!==1?'scale('+s+')':''; w.style.height=(320*s)+'px'; }); }
   if(bu.length){ passe(); window.addEventListener('resize',passe); }
   /* Beispiel-Boards anhalten und weiterlaufen lassen */
   [].slice.call(document.querySelectorAll('.anhalten')).forEach(function(k){ k.addEventListener('click',function(){
