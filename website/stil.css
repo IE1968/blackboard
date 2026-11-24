@@ -413,6 +413,10 @@ html{scroll-padding-top:calc(var(--kopfh) + 16px)}
 :root[data-thema="dunkel"] .rahmen>.fuss,:root[data-thema="dunkel"] .rahmen>.fuss a{color:var(--leise)}
 @media (min-width:821px){ .rahmen>.navi{grid-row:1 / span 4} }
 @media (max-width:820px){ .rahmen>.fuss{grid-column:auto;order:9;padding:8px 4px} }
+/* Hintergrund in hell und dunkel #222225; im dunklen Modus Menü und Boxen schwarz wie Kopf, ohne Trennlinien */
+:root[data-thema="dunkel"]{--grund:#222225;--flaeche:#18181A}
+.kopf{border-bottom:0}
+:root[data-thema="dunkel"] .karte{border-color:transparent}
 
 /* Animationen der Beispiel-Boards */
 @keyframes hb1{0%,0%{opacity:0;transform:scale(.7)}4%{opacity:1;transform:scale(1.04)}7%,94%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
