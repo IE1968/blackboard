@@ -11,7 +11,7 @@ import os, re, base64, shutil
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '6'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '7'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -55,7 +55,7 @@ def board(name):   # Beispiel-Board in App-Optik (fest 440 × 320, wird per JS a
             f'<button type="button" class="anhalten" aria-pressed="false">{ic("pause")}<span>Anhalten</span></button></div>')
 
 LOGO = '<svg class="logo" viewBox="0 0 34 30" aria-hidden="true"><rect x="3" y="3" width="28" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M21 8c-2.5-2.5-8-1.5-7 1.5s7.5 1 6 4.5-6 2.5-8 0" fill="none" stroke="#4D9FFF" stroke-width="2.6" stroke-linecap="round"/><path d="M3 27h28" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>'
-NAV = [('index.html','Start','home',BLUE),('funktionen.html','Funktionen','spark',VIOLET),('anleitung.html','Anleitung','book',MINT),('vorlagen.html','Vorlagen','grid',GOLD),('testphase.html','Testphase','flask',CORAL)]
+NAV = [('index.html','Start','home',BLUE),('funktionen.html','Funktionen','spark',VIOLET),('anleitung.html','Anleitung','book',MINT),('vorlagen.html','Vorlagen','grid',GOLD)]
 NAV2 = [('datenschutz.html','Datenschutz','shield',MINT),('impressum.html','Impressum','info',BLUE)]
 APP = '../'
 
@@ -92,18 +92,14 @@ def seite(datei, titel, aktiv, haupt, kontext, beschreibung, breit=''):
     <hr>
     <p class="nk">Rechtliches</p>
     {"".join(nv(*x) for x in NAV2)}
-    <div class="beta"><b>Beta · kostenlos bis März 2027</b><span>Skizix ist in der Testphase. Alles kostenlos, kein Gewerbe, keine Werbung.</span></div>
   </nav>
   <main id="inhalt">
 {haupt}
   </main>
-  <aside class="kontext" aria-label="Passend zur Seite">
-{kontext}
-  </aside>
 {('  <div class="breit">'+breit+'</div>') if breit else ''}
 </div>
 <footer class="fuss karte">
-  <a class="marke klein" href="index.html">{LOGO}<span class="wort">skizix</span></a><span>© 2026 Skizix · Testphase</span>
+  <a class="marke klein" href="index.html">{LOGO}<span class="wort">skizix</span></a><span>© 2026 Skizix</span>
   <span class="platz"></span>
   <a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><span>Board-Daten in der EU · keine Werbung</span>
 </footer>
@@ -120,7 +116,6 @@ def chips(liste): return '<p class="chips">' + ''.join(f'<span>{x}</span>' for x
 def start():
     hero = karte(f'''<div class="zwei">
   <div class="text">
-    <p class="marker" style="--c:{CORAL}">{ic("flask")}Jetzt in der Testphase</p>
     <h1>Ein Board für alles,<br>was du im Kopf hast.</h1>
     <p class="lead">Zeichnen, Abläufe skizzieren, Listen führen und live mit anderen arbeiten – im Kurs, im Team oder mit der Familie.</p>
     <p class="knoepfe">{knopf("Kostenlos ausprobieren","haupt","arrow",APP)}{knopf("So funktioniert's","weich","play","anleitung.html")}</p>
@@ -146,9 +141,7 @@ def start():
         ['Pfeile docken magnetisch an Formen an','BPMN 2.0 mit Bahnen und Gateways','Kanban und Scrum als fertige Bausteine'],'beruf','Für Teams','funktionen.html#formen',False) \
       + bereich('heart',CORAL,'Alltag &amp; Familie','Einkauf, Wochenplan und To-dos – gemeinsam auf allen Handys.','Wer etwas abhakt, sieht jeder sofort. Vorlagen für Einkaufsliste, Wochenplaner und To-do-Liste sind schon dabei.',
         ['Einkaufsliste mit Häkchen und Namen','Wochenplaner für die ganze Familie','Notizen und Zeichnungen direkt daneben'],'alltag','Für zu Hause','vorlagen.html',True)
-    kontext = box('Testgruppe', f'<p>Ausprobieren geht sofort und ohne Anmeldung. Wer im Alltag testet und Rückmeldung gibt, hilft uns besonders.</p>{knopf("Testgruppe beitreten","rand",None,"testphase.html")}', 'flask', CORAL) \
-      + box('Neu in Skizix', '<ul class="neu"><li style="--c:var(--blau)"><b>Live-Quiz per Handy mit QR-Code</b><span>24.11.2026</span></li><li style="--c:var(--koralle)"><b>Checklisten zum Abhaken, Wochenplaner</b><span>24.11.2026</span></li><li style="--c:var(--violett)"><b>Ordner für Boards</b><span>23.11.2026</span></li></ul>', 'spark', VIOLET) \
-
+    kontext = ''
     seite('index.html','Das Whiteboard für Unterricht und Alltag','Start',haupt,kontext,'Skizix: digitales Whiteboard zum Zeichnen, Planen und gemeinsamen Arbeiten – im Unterricht, im Team und mit der Familie.',breit)
 
 # ---------------------------------------------------------------- Funktionen
@@ -161,8 +154,7 @@ GRUPPEN = [('zeichnen','Zeichnen &amp; Schreiben',CORAL,'pen',['Stift, Pinsel, M
 def funktionen():
     karten = ''.join(f'<section class="karte fk" id="{i}"><h2 class="bt">{ichip(n,c)}{h}</h2>{haken(p,c)}</section>' for i,h,c,n,p in GRUPPEN)
     haupt = karte('<p class="marker" style="--c:var(--violett)">' + ic('spark') + 'Funktionen</p><h1>Alles, was ein Whiteboard braucht</h1><p class="lead">– und ein paar Dinge, die andere nicht haben.</p>') + f'<div class="raster2">{karten}</div>'
-    kontext = box('Auf dieser Seite', '<nav class="toc">' + ''.join(f'<a href="#{i}">{h}</a>' for i,h,c,n,p in GRUPPEN) + '</nav>', 'list', BLUE) \
-      + box('Selbst ausprobieren', f'<p>Die App startet mit einem Beispiel-Board. Einfach öffnen und loslegen – ohne Anmeldung.</p>{knopf("App öffnen","haupt","arrow",APP)}', 'spark', VIOLET)
+    kontext = ''
     seite('funktionen.html','Funktionen','Funktionen',haupt,kontext,'Alle Funktionen von Skizix: Zeichnen, Formen, BPMN, Kanban, Live-Zusammenarbeit, Präsentieren und mehr.')
 
 # ---------------------------------------------------------------- Anleitung
@@ -172,9 +164,10 @@ def anleitung():
     inhalt = re.sub(r'<nav class="toc"[^>]*>.*?</nav>', '', s, flags=re.S)
     inhalt = re.sub(r'^\s*<div class="wrap layout">\s*', '', inhalt); inhalt = re.sub(r'</div>\s*</div>\s*$', '</div>', inhalt.strip())
     inhalt = inhalt.replace('<div>\n    <h1>Anleitung</h1>', f'<div><p class="marker" style="--c:var(--mint)">{ic("book")}Anleitung</p>\n    <h1>Anleitung</h1>', 1)
+    toc2 = toc.replace('class="toc"', 'class="toc oben" aria-label="Inhalt der Anleitung"')
+    inhalt = re.sub(r'(<p class="meta">.*?</p>)', lambda m: m.group(1) + '\n    ' + toc2, inhalt, count=1)
     haupt = karte(inhalt, 'text-seite')
-    kontext = box('Auf dieser Seite', toc.replace('class="toc"', 'class="toc" aria-label="Inhalt der Anleitung"'), 'list', BLUE) \
-      + box('Noch Fragen?', f'<p>Schreib uns – in der Testphase antworten wir meist am selben Tag.</p>{knopf("Frage stellen","rand","mail","impressum.html")}', 'chat', MINT)
+    kontext = ''
     seite('anleitung.html','Anleitung','Anleitung',haupt,kontext,'Anleitung zu Skizix: installieren, zeichnen, Formen, Text, Präsentieren, Live teilen, Konto und Ordner.')
 
 # ---------------------------------------------------------------- Vorlagen
@@ -186,21 +179,8 @@ def vorlagen():
     kacheln = ''.join(f'<a class="vk karte" href="{APP}" data-kat="{k}" style="--c:{KAT[k]}"><span class="vbild">{ic(n,"ic gross")}<em>{k}</em></span><span class="vname">{t}{ic("arrow")}</span></a>' for t,k,c,n in VORL)
     filt = ''.join(f'<button type="button" class="filter" data-kat="{k}" aria-pressed="{str(i==0).lower()}" style="--c:{c}">{k if k!="*" else "Alle"}</button>' for i,(k,c) in enumerate([('*',BLUE),('Alltag',CORAL),('Unterricht',BLUE),('Beruf',VIOLET)]))
     haupt = karte(f'<p class="marker" style="--c:var(--gold)">{ic("grid")}Vorlagen</p><h1>Vorlagen</h1><p class="lead">Fertige Boards zum Anpassen – in der App unter <b>Vorlagen</b>.</p><p class="filterzeile" role="group" aria-label="Vorlagen filtern">{filt}</p>') + f'<div class="raster3" id="vorlagen">{kacheln}</div>'
-    kontext = box('So findest du sie', '<p>In der App liegen die Vorlagen links in der Formenleiste unter <b>Vorlagen</b>. „Alle Vorlagen“ öffnet die Übersicht.</p>', 'grid', GOLD) \
-      + box('Vorlage wünschen', f'<p>Dir fehlt etwas? Die meistgewünschten Vorlagen bauen wir als Nächstes.</p>{knopf("Wunsch senden","rand","mail","impressum.html")}', 'spark', VIOLET)
+    kontext = ''
     seite('vorlagen.html','Vorlagen','Vorlagen',haupt,kontext,'Vorlagen für Skizix: Einkaufsliste, Wochenplaner, Kanban, BPMN, Mindmap, Retro und mehr.')
-
-# ---------------------------------------------------------------- Testphase
-def testphase():
-    wer = ''.join(f'<div class="wer" style="--c:{c}">{ic(n)}<b>{h}</b><span>{d}</span></div>' for n,c,h,d in [('users',BLUE,'Lehrkräfte &amp; Dozierende','Im eigenen Kurs mit Gruppenarbeit und Quiz – mit Erlaubnis der Einrichtung.'),('heart',CORAL,'Familien &amp; Freunde','Einkauf, Wochenplan, Planung – gemeinsam auf allen Handys.'),('flow',VIOLET,'Teams','Prozesse und Kanban im kleinen Team ausprobieren.')])
-    schritte = ''.join(f'<li style="--c:{c}"><b>{h}</b><span>{d}</span></li>' for c,h,d in [(BLUE,'Ausprobieren','App öffnen und loslegen – sofort, ohne Anmeldung.'),(MINT,'Testgruppe beitreten','Kurze E-Mail, wofür du Skizix nutzt. Dann bekommst du Neuigkeiten und später den Fragebogen.'),(GOLD,'Im Alltag nutzen','Ein paar Wochen im Kurs, im Team oder zu Hause.'),(CORAL,'Rückmeldung geben','Kurzer Fragebogen, gern auch ein Gespräch.')])
-    haupt = karte(f'<p class="marker" style="--c:var(--koralle)">{ic("flask")}Testphase · bis März 2027</p><h1>Hilf mit, Skizix besser zu machen</h1><p class="lead">Skizix ist noch jung. In der Testphase ist alles kostenlos – im Gegenzug wünschen wir uns ehrliche Rückmeldung.</p>') \
-      + karte(f'<h2>Für wen?</h2><div class="raster3 wer-raster">{wer}</div>') \
-      + karte(f'<h2>So läuft es ab</h2><ol class="schritte">{schritte}</ol>') \
-      + karte(f'<div class="zeile">{ichip("shield",MINT)}<div><h2>Datenschutz in Kursen</h2><p>Teilnehmende brauchen kein Konto und nutzen nur Spitznamen. Quiz-Antworten werden nicht gespeichert, Links zum Mitmachen laufen auf Wunsch automatisch ab. Für den Einsatz im Unterricht braucht es die Erlaubnis der Einrichtung.</p></div></div>')
-    kontext = box('Testgruppe beitreten', f'<p>Ausprobieren geht ohne Anmeldung. Für die Testgruppe schreib uns eine kurze E-Mail – die Adresse steht im Impressum.</p>{knopf("Kontaktdaten im Impressum","rand","mail","impressum.html")}', 'flask', CORAL) \
-      + box('Häufige Fragen', '<details><summary>Kostet das etwas?</summary><p>Nein. In der Testphase ist alles kostenlos.</p></details><details><summary>Brauche ich ein Konto?</summary><p>Nein. Ein Konto brauchst du nur, wenn deine Boards auf mehreren Geräten erscheinen sollen.</p></details><details><summary>Was passiert nach der Testphase?</summary><p>Die Grundfunktionen bleiben kostenlos. Deine Boards bleiben erhalten.</p></details><details><summary>Darf ich es im Kurs nutzen?</summary><p>Ja, mit Erlaubnis der Einrichtung. Teilnehmende brauchen kein Konto.</p></details>', 'info', BLUE)
-    seite('testphase.html','Testphase','Testphase',haupt,kontext,'Skizix-Testphase bis März 2027: kostenlos mitmachen und Rückmeldung geben.')
 
 def recht(datei, titel, aktiv, icon, c, kontext, besch):
     s = lies(datei)
@@ -214,12 +194,12 @@ def css():
 
 if __name__ == '__main__':
     os.makedirs(ZIEL, exist_ok=True)
-    start(); funktionen(); anleitung(); vorlagen(); testphase()
-    recht('datenschutz.html','Datenschutz','Datenschutz','shield',MINT, box('Das Wichtigste', haken(['Board-Daten bei Supabase in der EU','Keine Werbung, keine Analyse-Dienste','Gäste ohne Konto','Boards jederzeit löschbar']), 'shield', MINT), 'Datenschutzerklärung von Skizix.')
-    recht('impressum.html','Impressum','Impressum','info',BLUE, box('Schreib uns', '<p>Fragen, Ideen oder einen Fehler gefunden? Wir freuen uns über jede Nachricht.</p>', 'mail', BLUE), 'Impressum von Skizix.')
+    start(); funktionen(); anleitung(); vorlagen()
+    recht('datenschutz.html','Datenschutz','Datenschutz','shield',MINT, '', 'Datenschutzerklärung von Skizix.')
+    recht('impressum.html','Impressum','Impressum','info',BLUE, '', 'Impressum von Skizix.')
     css()
     shutil.copy(os.path.join(HIER,'menue.js'), os.path.join(ZIEL,'menue.js'))
-    for alt in ['stil-hell.css']:
+    for alt in ['stil-hell.css','testphase.html']:
         p = os.path.join(ZIEL, alt)
         if os.path.exists(p): os.remove(p)
     print('Website gebaut:', ', '.join(sorted(f for f in os.listdir(ZIEL) if f.endswith('.html'))))

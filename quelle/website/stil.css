@@ -259,3 +259,15 @@ main>.karte{min-width:0;overflow:hidden}
 .rahmen>main:has(.held){align-self:stretch}
 main>.held{flex:1;display:flex;align-items:center}
 main>.held>.zwei{width:100%}
+
+/* Ohne rechte Spalte: zwei Spalten (Navigation, Inhalt) */
+.rahmen{grid-template-columns:250px minmax(0,1fr)}
+.breit{grid-column:2}
+@media (max-width:1100px){ .rahmen{grid-template-columns:230px minmax(0,1fr)} .breit{grid-row:auto} }
+.toc.oben{display:flex;flex-direction:row;flex-wrap:wrap;gap:6px;margin:6px 0 22px;padding:0;border:0}
+.toc.oben a{display:inline-block;width:auto}
+.toc.oben a{border:1px solid var(--linie);border-left:1px solid var(--linie);border-radius:999px;padding:5px 12px;font-size:13px;text-decoration:none;color:var(--tinte)}
+.toc.oben a:hover{border-color:var(--blau);color:var(--blau)}
+.held .zwei{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.held .buehne{width:100%;max-width:440px;justify-self:end}
+@media (max-width:1000px){ .held .zwei{grid-template-columns:1fr} .held .buehne{justify-self:start} }
