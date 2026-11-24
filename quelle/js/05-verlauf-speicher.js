@@ -199,7 +199,12 @@ function commit(){
 function restore(i){ if(liveRO()) return; hi=i; doc=snapDoc(hist[hi]); sel.clear(); persist(); markDirty(); render(); liveTick(); }
 function undo(){ finishEdit(); if(hi>0) restore(hi-1); }
 function redo(){ finishEdit(); if(hi<hist.length-1) restore(hi+1); }
-function toast(msg){ toastEl.textContent=msg; toastEl.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>toastEl.hidden=true,3200); }
+/* Meldung unten in der Mitte; bleibt je nach Länge 3,5–9 s, optional mit Knopf „Rückgängig“ */
+function toast(msg,o){ o=o||{}; toastEl.innerHTML=`<span class="tMsg"></span>${o.undo?'<button type="button" class="tAct" data-t="undo">Rückgängig</button>':''}<button type="button" class="tX" data-t="x" aria-label="Meldung schließen">✕</button>`;
+  toastEl.querySelector('.tMsg').textContent=msg; toastEl.hidden=false; clearTimeout(toast.t);
+  toast.t=setTimeout(()=>toastEl.hidden=true,Math.min(9000,Math.max(3500,1500+String(msg).length*55))); }
+toastEl.addEventListener('pointerdown',e=>e.stopPropagation());
+toastEl.addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; if(b.dataset.t==='undo') undo(); toastEl.hidden=true; clearTimeout(toast.t); });
 
 /* ---- Dialog „Boards verwalten“: mehrere Boards ankreuzen und auf einmal löschen ---- */
 function bmInfo(b){

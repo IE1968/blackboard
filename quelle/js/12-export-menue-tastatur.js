@@ -44,7 +44,7 @@ function menuDo(m){
     case 'json': saveJSON(); break;
     case 'open': $('file').value=''; $('file').click(); break;
     case 'example': doc=exampleDoc(); doc.fmt=DOC_FMT; sel.clear(); commit(); render(); fit(); break;
-    case 'clear': doc={items:[],n:doc.n}; sel.clear(); commit(); render(); toast('Board geleert. Mit „Zurück“ holst du alles wieder.'); break;
+    case 'clear': doc={items:[],n:doc.n}; sel.clear(); commit(); render(); toast('Board geleert.',{undo:true}); break;
   }
 }
 $('boardName').addEventListener('input',e=>{ const b=curBoard(); b.name=e.target.value.trim()||'Board'; delete b.starter; markDirty(); ktSoon(3000); });
@@ -77,6 +77,9 @@ document.addEventListener('keydown',e=>{
   if(e.shiftKey&&e.code==='Digit1'){ e.preventDefault(); fit(); return; }
   if(e.key==='0'){ e.preventDefault(); zoomCenter(1/view.k); return; }
   if(e.key==='?'){ e.preventDefault(); openKeys(); return; }
+  /* Genau eine Form ausgewählt und einfach lostippen: der Buchstabe ersetzt ihren Text (wie in Präsentationsprogrammen) */
+  if(sel.size===1&&e.key.length===1&&e.key!==' '&&!e.altKey&&!liveRO()&&!(t&&t.tagName==='BUTTON')){ const it=byId([...sel][0]);
+    if(it&&it.type==='shape'&&it.kind!=='frame'&&!it.lock){ e.preventDefault(); startEdit(it.id); editor.value=e.key; editor.setSelectionRange(1,1); placeEditor(); if(it.pf||it.list) render(); return; } }
   const map={v:'select',f:'shape',p:'pen',b:'brush',m:'marker',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
 });
 document.addEventListener('keyup',e=>{ if(e.key===' ') spaceDown=false; });

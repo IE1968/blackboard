@@ -39,7 +39,7 @@ function addQuiz(c){   /* Folie mit Frage und drei Antworten zum Ankreuzen */
   const t=mkShape('text',0,0); Object.assign(t,{x:f.x+r(40*q),y:f.y+r(36*q),w:r(560*q),h:r(70*q),text:'Wie lautet die Frage?',fs:Math.round(26*q),bold:true}); add.push(t);
   ['Antwort A','Antwort B','Antwort C'].forEach((tx,i)=>{ const a=mkShape('check',0,0); Object.assign(a,{x:f.x+r(40*q),y:f.y+r((140+i*64)*q),w:r(560*q),h:r(48*q),text:tx,fs:Math.round(20*q)}); add.push(a); });
   doc.items.unshift(f); doc.items.push(...add); sel=new Set([f.id]); setTool('select'); commit(); render();
-  toast('Antwort anklicken und rechts „Richtig“ wählen, um die Lösung festzulegen.');
+  toast('Antwort antippen und in der Optionsleiste „Richtig“ wählen, um die Lösung festzulegen. Ohne Lösung läuft die Frage im Live-Quiz als Umfrage.');
 }
 function addLanes(c){   /* Pool mit zwei Lanes */
   const p=mkShape('pool',c.x,c.y); p.w=700; p.h=240; p.x=snap(c.x-350); p.y=snap(c.y-120);
@@ -55,7 +55,7 @@ function addMindmap(c){
   ['Idee 1','Idee 2','Idee 3','Idee 4','Idee 5','Idee 6'].forEach((t,i)=>{ const a=-Math.PI/2+i*Math.PI/3, [f,st]=MMC[i%MMC.length];
     const n=mmNode(c.x+Math.cos(a)*R*1.15,c.y+Math.sin(a)*R*0.62,t,f,st); n.mc=i%MMC.length; add.push(n,mmLink(root,n,st)); });
   doc.items.push(...add); sel=new Set([root.id]); setTool('select'); commit(); render();
-  toast('Knoten auswählen und rechts „+ Zweig“ tippen, um weiterzuverzweigen.');
+  toast('Knoten auswählen und in der Optionsleiste „+ Zweig“ tippen, um weiterzuverzweigen.');
 }
 function addBranch(id){
   const p=byId(id); if(!p) return; const pc={x:p.x+p.w/2,y:p.y+p.h/2};
@@ -127,7 +127,7 @@ function addShape(kind,c,ptype){
 function removeIds(ids){ doc.items=doc.items.filter(i=>!ids.has(i.id)&&!(i.type==='conn'&&(ids.has(i.from)||ids.has(i.to)))); }
 function deleteSel(){ if(!sel.size) return;
   const ids=new Set([...sel].filter(id=>{ const i=byId(id); return i&&!i.lock; }));
-  if(!ids.size){ toast('Gesperrte Elemente lassen sich nicht löschen. Erst rechts unter „Element“ entsperren.'); return; }
+  if(!ids.size){ toast('Gesperrte Elemente lassen sich nicht löschen. Erst in der Optionsleiste unter „Element“ entsperren.'); return; }
   removeIds(ids); sel.clear(); commit(); render(); }
 function frames(){ return doc.items.map((f,i)=>({f,i})).filter(o=>o.f.type==='shape'&&o.f.kind==='frame').sort((a,b)=>((a.f.ord||0)-(b.f.ord||0))||(a.i-b.i)).map(o=>o.f); }
 function frameNo(id){ return frames().findIndex(f=>f.id===id)+1; }

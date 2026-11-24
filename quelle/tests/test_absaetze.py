@@ -18,7 +18,7 @@ try:
   t=[i for i in pg.evaluate(READ)['items'] if i['id']=='a'][0]['text']
   check('Strg+Enter beendet',not pg.is_visible('#editor') and t=='Erster\nZweiter!',repr(t))
   # freier Text mit dem Text-Werkzeug
-  pg.keyboard.press('t'); pg.mouse.click(700,550); pg.wait_for_timeout(200)
+  pg.keyboard.press('Escape'); pg.keyboard.press('t'); pg.mouse.click(700,550); pg.wait_for_timeout(200)
   pg.keyboard.type('Zeile 1'); pg.keyboard.press('Enter'); pg.keyboard.type('Zeile 2'); pg.mouse.click(150,700); pg.wait_for_timeout(300)
   check('Freier Text mit Absatz',any(i.get('text')=='Zeile 1\nZeile 2' for i in pg.evaluate(READ)['items']))
   check('keine Fehler',not errs,str(errs[:3]))

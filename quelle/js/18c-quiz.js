@@ -3,7 +3,7 @@
    Handy: öffnet den Link (#quiz=CODE), gibt einen Spitznamen ein und tippt die Antwort.
    Alles läuft über einen Echtzeit-Kanal (Supabase Broadcast). Es wird nichts in einer Datenbank gespeichert. */
 const QZ_ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', QZ_RE=/^[A-HJ-NP-Z2-9]{6}$/;
-const QZ_COL=['#ee6a57','#3b6fe8','#e9b52f','#22a88c','#7b66f0','#e0628f'];
+const QZ_COL=['#ee6a57','#3b6fe8','#e9b52f','#22a88c','#6a55e0','#e0628f'], QZ_INK=['#18181a','#ffffff','#18181a','#18181a','#ffffff','#18181a'];   /* Schrift je Farbe: Kontrast mind. 4,5 : 1 */
 function qzCode(){ const u=new Uint8Array(6); crypto.getRandomValues(u); return [...u].map(x=>QZ_ABC[x%QZ_ABC.length]).join(''); }
 function qzLink(code){ return liveBase()+'#quiz='+code; }
 function qzPlain(t){ return String(t||'').replace(/\s+/g,' ').trim().slice(0,300); }
@@ -41,6 +41,7 @@ function qzQuestion(){
 function qzSolved(q){ return !!(pres&&q&&pres.shown.has(q.id)); }
 function qzScore(q){   /* einmal je Frage: richtige Antwort 500–1000 Punkte, je schneller, desto mehr */
   if(QH.pts.has(q.id)) return; const P=new Map(), A=QH.ans.get(q.id)||new Map(), t0=QH.t0.get(q.id)||Date.now();
+  if(!q.ok.length){ QH.pts.set(q.id,P); return; }   /* keine richtige Antwort markiert: Umfrage, keine Punkte */
   for(const [pid,x] of A){ if(!q.ok.includes(x.a)) { P.set(pid,0); continue; } const p=500+Math.round(500*Math.max(0,1-(x.t-t0)/20000)); P.set(pid,p); const pl=QH.players.get(pid); if(pl) pl.score+=p; }
   QH.pts.set(q.id,P);
 }
@@ -51,7 +52,7 @@ function qzHostState(){
   if(q&&sol) qzScore(q);
   const A=q?QH.ans.get(q.id):null, sc={}; for(const [pid,p] of QH.players) sc[pid]=p.score;
   const s={t:'s',n:QH.players.size,sc,end:false};
-  if(q){ s.q={id:q.id,text:q.text,a:q.a}; s.open=!sol&&!QH.pts.has(q.id); s.cnt=A?A.size:0;
+  if(q){ s.q={id:q.id,text:q.text,a:q.a}; s.poll=!q.ok.length; s.open=!sol&&!QH.pts.has(q.id); s.cnt=A?A.size:0;
     if(sol){ s.sol=q.ok; const P=QH.pts.get(q.id); if(P){ s.pts={}; for(const [pid,v] of P) s.pts[pid]=v; } s.votes=q.a.map((_,k)=>{ let n=0; if(A) for(const x of A.values()) if(x.a===k) n++; return n; }); } }
   if(QH.rank) s.rank=qzRanking().slice(0,10).map(r=>[r.name,r.score]);
   return s;
@@ -88,7 +89,7 @@ function qzHostUI(){
       if(a==='mini'){ QH.mini=!QH.mini; qzHostUI(); } else if(a==='rank'){ QH.rank=!QH.rank; qzSend(); qzHostUI(); } else if(a==='end'){ qzStop(); } }); }
   const q=qzQuestion(), A=q?QH.ans.get(q.id):null, n=QH.players.size, cnt=A?A.size:0, sol=qzSolved(q);
   if(sol&&q&&QH.autoMini!==q.id){ QH.autoMini=q.id; QH.mini=true; }   /* bei der Lösung Platz für die Folie machen */
-  const stat=`<b>${n}</b> dabei`+(q?` · <b>${cnt}</b> ${cnt===1?'Antwort':'Antworten'}${sol?' · Lösung':''}`:'');
+  const stat=`<b>${n}</b> dabei`+(q?` · <b>${cnt}</b> ${cnt===1?'Antwort':'Antworten'}${!q.ok.length?' · Umfrage':''}${sol?' · Ergebnis':''}`:'');
   el.className=QH.mini?'mini':'';
   if(QH.mini) el.innerHTML=`<button data-qz="mini" class="qzPill" title="Mitmach-Infos zeigen"><span class="qzCode">${QH.code}</span><span>${stat}</span>${QH.on?'':'<i class="qzOff">verbinde …</i>'}</button><button data-qz="rank" class="qzPill" aria-pressed="${QH.rank}">Rangliste</button>`;
   else el.innerHTML=`<div class="qzHead"><span>Live-Quiz</span><button data-qz="mini" title="Verkleinern" aria-label="Verkleinern">–</button></div>
@@ -106,9 +107,11 @@ function qzHostUI(){
 /* Balken auf der Folie: nach „Lösung“ zeigt jede Antwort, wie viele sie gewählt haben */
 function qzBars(){
   if(!QH||!pres) return; const q=qzQuestion(); if(!q||!qzSolved(q)) return; const A=QH.ans.get(q.id); const tot=A?A.size:0;
-  let h=''; q.items.forEach((it,k)=>{ let n=0; if(A) for(const x of A.values()) if(x.a===k) n++; const sh=tot?n/tot:0, ok=q.ok.includes(k), bh=Math.max(4,it.h*0.14), bw=n?Math.max(bh,it.w*0.8*sh):0, c=ok?'#22a88c':'#ee6a57', fs=Math.max(12,it.h*0.34), y=it.y+it.h-bh*1.3;
-    if(bw) h+=`<rect x="${r(it.x)}" y="${r(y-bh/2)}" width="${r(bw)}" height="${r(bh)}" rx="${r(bh/2)}" fill="${c}" opacity=".9"/>`;
-    h+=`<text x="${r(it.x+bw+(bw?fs*0.4:0))}" y="${r(y+fs*0.35)}" font-family="${FONT}" font-size="${r(fs)}" font-weight="700" fill="${c}">${n}</text>`; });
+  const poll=!q.ok.length;
+  let h=''; q.items.forEach((it,k)=>{ let n=0; if(A) for(const x of A.values()) if(x.a===k) n++; const sh=tot?n/tot:0, ok=q.ok.includes(k), bh=Math.max(4,it.h*0.14), x0=it.x+(textBox(it).pad||0),
+    bw=n?Math.max(bh,(it.x+it.w-x0)*0.8*sh):0, c=poll?'#5b8cf5':ok?'#22a88c':'#8d8d93', fs=Math.max(12,it.h*0.34), y=it.y+it.h-bh*1.3;
+    if(bw) h+=`<rect x="${r(x0)}" y="${r(y-bh/2)}" width="${r(bw)}" height="${r(bh)}" rx="${r(bh/2)}" fill="${c}" opacity=".9"/>`;
+    h+=`<text x="${r(x0+bw+(bw?fs*0.4:0))}" y="${r(y+fs*0.35)}" font-family="${FONT}" font-size="${r(fs)}" font-weight="700" fill="${c}">${n}</text>`; });
   const g=document.createElementNS('http://www.w3.org/2000/svg','g'); g.id='qzBars'; g.innerHTML=h; const b=$('presBody'); if(b) b.appendChild(g);
 }
 { const _pr=presRender; presRender=function(f){ _pr(f); qzBars(); }; }
@@ -166,11 +169,13 @@ function qzPlayUI(err){
   } else if(s.q){
     const mine=QP.my.has(s.q.id)?QP.my.get(s.q.id):null, sol=Array.isArray(s.sol);
     let info='';
-    if(sol){ const p=s.pts&&s.pts[QP.pid]; info=mine==null?`<p class="qpRes">Keine Antwort abgegeben</p>`:(p>0?`<p class="qpRes ok">Richtig! +${p}</p>`:`<p class="qpRes no">Leider falsch</p>`); }
+    if(sol&&s.poll) info=mine==null?`<p class="qpRes">Keine Antwort abgegeben</p>`:`<p class="qpRes ok">Danke für deine Stimme!</p><p class="qpRes">Das Ergebnis siehst du vorne.</p>`;
+    else if(sol){ const p=s.pts&&s.pts[QP.pid]; info=mine==null?`<p class="qpRes">Keine Antwort abgegeben</p>`:(p>0?`<p class="qpRes ok">Richtig! +${p}</p>`:`<p class="qpRes no">Leider falsch</p>`); }
     else if(mine!=null) info=`<p class="qpRes">Antwort gesendet – warte auf die Lösung</p>`;
     else if(!s.open) info=`<p class="qpRes">Abstimmung geschlossen</p>`;
     body=`<div class="qpQ">${s.q.text?`<h1>${esc(s.q.text)}</h1>`:''}<div class="qpAns">`+s.q.a.map((t,k)=>{ const on=mine===k, ok=sol&&s.sol.includes(k);
-      return `<button data-qa="${k}" style="--c:${QZ_COL[k%QZ_COL.length]}" class="${on?'on ':''}${ok?'ok ':''}${sol&&!ok?'dim ':''}"${!s.open||mine!=null?' disabled':''}><span class="qpK">${String.fromCharCode(65+k)}</span><span>${esc(t)}</span>${ok?'<i>✓</i>':''}</button>`; }).join('')+`</div>${info}</div>`;
+      if(sol&&s.poll) return `<button data-qa="${k}" style="--c:${QZ_COL[k%QZ_COL.length]};--t:${QZ_INK[k%QZ_INK.length]}" class="${on?'on':''}" disabled><span class="qpK">${String.fromCharCode(65+k)}</span><span>${esc(t)}</span>${s.votes?`<i>${s.votes[k]}</i>`:''}</button>`;
+      return `<button data-qa="${k}" style="--c:${QZ_COL[k%QZ_COL.length]};--t:${QZ_INK[k%QZ_INK.length]}" class="${on?'on ':''}${ok?'ok ':''}${sol&&!ok?'dim ':''}"${!s.open||mine!=null?' disabled':''}><span class="qpK">${String.fromCharCode(65+k)}</span><span>${esc(t)}</span>${ok?'<i>✓</i>':''}</button>`; }).join('')+`</div>${info}</div>`;
   } else body=`<div class="qpWait"><p class="qpBig">Du bist dabei!</p><p>Warte auf die nächste Frage …</p><button data-qp="name" class="qpLink">Namen ändern</button></div>`;
   const off=QP.joined&&!QP.on?`<div class="qpOff">Verbindung unterbrochen – verbinde neu …</div>`:'';
   const f=document.activeElement&&document.activeElement.id, val=f&&el.querySelector('#'+f)?el.querySelector('#'+f).value:null;
