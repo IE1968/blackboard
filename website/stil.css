@@ -371,6 +371,10 @@ main>.held{flex-direction:column;align-items:stretch;justify-content:center}
 .cta-band .cta-punkte{order:-1}
 @media (max-width:900px){ .cta-band{grid-template-columns:1fr} .cta-band .cta-punkte{order:0} }
 
+/* Kopf ohne Trenner; Logo-Kästchen über dem Menü, Slogan bündig mit der Überschrift (Breiten setzt menue.js) */
+.kopf .trenner{display:none}
+.kopf .marke{box-sizing:border-box}
+
 /* Animationen der Beispiel-Boards */
 @keyframes hb1{0%,0%{opacity:0;transform:scale(.7)}4%{opacity:1;transform:scale(1.04)}7%,94%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
 @keyframes hb2{0%,14%{stroke-dashoffset:var(--len)}22%,94%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}

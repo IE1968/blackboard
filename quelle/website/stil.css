@@ -370,3 +370,7 @@ main>.held{flex-direction:column;align-items:stretch;justify-content:center}
 .cta-band{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
 .cta-band .cta-punkte{order:-1}
 @media (max-width:900px){ .cta-band{grid-template-columns:1fr} .cta-band .cta-punkte{order:0} }
+
+/* Kopf ohne Trenner; Logo-Kästchen über dem Menü, Slogan bündig mit der Überschrift (Breiten setzt menue.js) */
+.kopf .trenner{display:none}
+.kopf .marke{box-sizing:border-box}

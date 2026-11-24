@@ -24,6 +24,16 @@
       var s=w.clientWidth/440||1; if(!h&&!w.closest('.b-tafel')) s=Math.min(1,s);
       i.style.transform=s!==1?'scale('+s+')':''; w.style.height=(320*s)+'px'; }); }
   if(bu.length){ passe(); window.addEventListener('resize',passe); }
+  /* Kopf: Logo-Kästchen so breit wie das Menü links (rechts bündig), Slogan bündig mit der Überschrift darunter */
+  function richte(){
+    var m=kopf&&kopf.querySelector('.marke'), sl=kopf&&kopf.querySelector('.slogan'), h=document.querySelector('main h1');
+    if(!m) return; m.style.width=''; m.style.marginLeft=''; if(sl) sl.style.marginLeft='';
+    if(!navi||getComputedStyle(navi).position==='fixed') return;
+    var nr=navi.getBoundingClientRect(); if(!nr.width) return;
+    var ml=nr.left-m.getBoundingClientRect().left; m.style.marginLeft=ml+'px'; m.style.width=nr.width+'px';
+    if(sl&&h&&getComputedStyle(sl).display!=='none'){ var d=h.getBoundingClientRect().left-sl.getBoundingClientRect().left; if(d>0) sl.style.marginLeft=d+'px'; }
+  }
+  richte(); window.addEventListener('resize',richte); if(document.fonts) document.fonts.ready.then(richte);
   /* Beispiel-Boards anhalten und weiterlaufen lassen */
   [].slice.call(document.querySelectorAll('.anhalten')).forEach(function(k){ k.addEventListener('click',function(){
     var w=k.parentNode, p=w.classList.toggle('pause'); k.setAttribute('aria-pressed',p);
