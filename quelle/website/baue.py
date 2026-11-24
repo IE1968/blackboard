@@ -11,7 +11,7 @@ import os, re, base64, shutil
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '4'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '5'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -37,6 +37,7 @@ P = {
  'cart':'<path d="M3 4h2l2 12h11l2-8H6"/><circle cx="9" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/>',
  'kanban':'<rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="13" rx="1"/>',
  'mind':'<circle cx="12" cy="12" r="3"/><circle cx="4" cy="5" r="2"/><circle cx="20" cy="5" r="2"/><circle cx="4" cy="19" r="2"/><circle cx="20" cy="19" r="2"/><path d="M6 6l4 4M18 6l-4 4M6 18l4-4M18 18l-4-4"/>',
+ 'pause':'<path d="M9 5v14M15 5v14"/>', 'playi':'<path d="M7 5l12 7-12 7z"/>',
  'heart':'<path d="M12 20s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.5-7 10-7 10z"/>', 'folder':'<path d="M3 6h7l2 2h9v11H3z"/>',
 }
 def ic(n, cls='ic'): return f'<svg class="{cls}" viewBox="0 0 24 24" aria-hidden="true">{P[n]}</svg>'
@@ -44,8 +45,14 @@ def ichip(n, c, cls=''): return f'<span class="ichip {cls}" style="--c:{c}">{ic(
 def knopf(t, art='haupt', icon=None, href='#'): return f'<a class="knopf {art}" href="{href}">{ic(icon) if icon else ""}<span>{t}</span></a>'
 def karte(inner, cls=''): return f'<section class="karte {cls}">{inner}</section>'
 def box(titel, inner, icon=None, c=BLUE): return f'<section class="karte kbox"><h2 class="kt">{ichip(icon,c,"klein") if icon else ""}{titel}</h2>{inner}</section>'
-def board(name):   # Beispiel-Board in App-Optik (fest 440 × 320, wird per JS auf die Breite skaliert)
-    return f'<div class="buehne" role="img" aria-label="Animiertes Beispiel-Board"><div class="buehne-in">{lies("board-"+name+".html")}</div></div>'
+BESCHR = {'hero':'Beispiel-Board: Ablauf von „Idee sammeln“ zu „Passt?“, daneben eine Notiz und eine Checkliste',
+          'unterricht':'Beispiel-Board: Quiz „Welches Gerät verbindet Netze?“ mit Ergebnis als Säulen, Antwort B liegt vorn',
+          'beruf':'Beispiel-Board: BPMN-Prozess mit zwei Bahnen von „Störung melden“ bis „Lösung prüfen“',
+          'alltag':'Beispiel-Board: Wochenplan und Einkaufsliste mit Häkchen und Namen'}
+def board(name):   # Beispiel-Board in App-Optik (fest 440 × 320, wird per JS auf die Breite skaliert); Animation per Knopf anhaltbar
+    inn = re.sub(r'<div class="row" style="position:absolute;left:10px;right:10px;bottom:10px;.*?0:10</span></div>', '', lies("board-"+name+".html"), flags=re.S)
+    return (f'<div class="buehne"><div class="buehne-in" role="img" aria-label="{BESCHR.get(name,"Beispiel-Board")}">{inn}</div>'
+            f'<button type="button" class="anhalten" aria-pressed="false">{ic("pause")}<span>Anhalten</span></button></div>')
 
 LOGO = '<svg class="logo" viewBox="0 0 34 30" aria-hidden="true"><rect x="3" y="3" width="28" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M21 8c-2.5-2.5-8-1.5-7 1.5s7.5 1 6 4.5-6 2.5-8 0" fill="none" stroke="#4D9FFF" stroke-width="2.6" stroke-linecap="round"/><path d="M3 27h28" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>'
 NAV = [('index.html','Start','home',BLUE),('funktionen.html','Funktionen','spark',VIOLET),('anleitung.html','Anleitung','book',MINT),('vorlagen.html','Vorlagen','grid',GOLD),('testphase.html','Testphase','flask',CORAL)]
@@ -75,7 +82,6 @@ def seite(datei, titel, aktiv, haupt, kontext, beschreibung):
   <p class="slogan">Zeichnen, planen, gemeinsam denken – <b>auf jedem Gerät.</b></p>
   <span class="platz"></span>
   <button class="rund" type="button" id="thema" aria-label="Dunkle Ansicht einschalten" title="Hell / Dunkel">{ic("moon")}</button>
-  <a class="knopf rand nur-breit" href="{APP}">{ic("key")}<span>Mit Code beitreten</span></a>
   <a class="knopf haupt" href="{APP}">{ic("arrow")}<span>App öffnen</span></a>
   <button class="rund burger" type="button" aria-expanded="false" aria-controls="navi" aria-label="Menü öffnen">{ic("menu","ic zu")}{ic("x","ic auf")}</button>
 </header>
@@ -86,7 +92,7 @@ def seite(datei, titel, aktiv, haupt, kontext, beschreibung):
     <hr>
     <p class="nk">Rechtliches</p>
     {"".join(nv(*x) for x in NAV2)}
-    <div class="beta"><b>Beta · kostenlos</b><span>Skizix ist in der Testphase. Alles kostenlos, kein Gewerbe, keine Werbung.</span></div>
+    <div class="beta"><b>Beta · kostenlos bis März 2027</b><span>Skizix ist in der Testphase. Alles kostenlos, kein Gewerbe, keine Werbung.</span></div>
   </nav>
   <main id="inhalt">
 {haupt}
@@ -108,7 +114,6 @@ def seite(datei, titel, aktiv, haupt, kontext, beschreibung):
 
 def haken(liste, c=MINT): return '<ul class="haken" style="--c:%s">%s</ul>' % (c, ''.join(f'<li>{ic("check")}<span>{x}</span></li>' for x in liste))
 def chips(liste): return '<p class="chips">' + ''.join(f'<span>{x}</span>' for x in liste) + '</p>'
-def code_kasten(): return '<div class="code" aria-hidden="true">' + '<span>·</span>'*6 + '</div>'
 
 # ---------------------------------------------------------------- Startseite
 def start():
@@ -139,19 +144,18 @@ def start():
         ['Pfeile docken magnetisch an Formen an','BPMN 2.0 mit Bahnen und Gateways','Kanban und Scrum als fertige Bausteine'],['BPMN','Kanban','Workshops','Retro'],'beruf','Für Teams','funktionen.html#formen') \
       + bereich('heart',CORAL,'Alltag &amp; Familie','Einkaufsliste, Wochenplan und To-dos gemeinsam auf allen Handys – wer etwas abhakt, sieht jeder sofort.',
         ['Einkaufsliste mit Häkchen und Namen','Wochenplaner für die ganze Familie','Notizen und Zeichnungen direkt daneben'],['Einkauf','Planer','To-do','Teilen'],'alltag','Für zu Hause','vorlagen.html')
-    kontext = box('Testphase läuft', f'<p>Wir suchen Lehrkräfte, Dozierende und Familien, die Skizix im Alltag testen und ehrlich Rückmeldung geben.</p>{knopf("Mitmachen","haupt",None,"testphase.html")}', 'flask', CORAL) \
-      + box('Einem Board beitreten', f'<p>Code von der Tafel eingeben – ohne Konto.</p>{code_kasten()}{knopf("Zur App","weich","arrow",APP)}', 'key', MINT) \
-      + box('Neu in Skizix', '<ul class="neu"><li style="--c:var(--violett)"><b>Ordner für Boards</b><span>November 2026</span></li><li style="--c:var(--blau)"><b>Neues Design, hell und dunkel</b><span>November 2026</span></li><li style="--c:var(--gold)"><b>Stifte auf allen Geräten</b><span>November 2026</span></li></ul>', 'spark', VIOLET) \
+    kontext = box('Testgruppe', f'<p>Ausprobieren geht sofort und ohne Anmeldung. Wer im Alltag testet und Rückmeldung gibt, hilft uns besonders.</p>{knopf("Testgruppe beitreten","rand",None,"testphase.html")}', 'flask', CORAL) \
+      + box('Neu in Skizix', '<ul class="neu"><li style="--c:var(--blau)"><b>Live-Quiz per Handy mit QR-Code</b><span>24.11.2026</span></li><li style="--c:var(--koralle)"><b>Checklisten zum Abhaken, Wochenplaner</b><span>24.11.2026</span></li><li style="--c:var(--violett)"><b>Ordner für Boards</b><span>23.11.2026</span></li></ul>', 'spark', VIOLET) \
       + box('Alle Funktionen', f'<p>Live zusammen, Stift wie auf Papier, Formen, Quiz, Präsentieren – alles auf einen Blick.</p>{knopf("Ansehen","rand","arrow","funktionen.html")}', 'grid', BLUE)
     seite('index.html','Das Whiteboard für Unterricht und Alltag','Start',haupt,kontext,'Skizix: digitales Whiteboard zum Zeichnen, Planen und gemeinsamen Arbeiten – im Unterricht, im Team und mit der Familie.')
 
 # ---------------------------------------------------------------- Funktionen
-GRUPPEN = [('zeichnen','Zeichnen &amp; Schreiben',BLUE,'pen',['Stift, Pinsel, Marker und Radierer','Druckstufen und Apple Pencil','Text auf dem Board, Absätze einzeln formatierbar','Stifte gleichen sich zwischen deinen Geräten ab']),
+GRUPPEN = [('zeichnen','Zeichnen &amp; Schreiben',CORAL,'pen',['Stift, Pinsel, Marker und Radierer','Druckstufen und Apple Pencil','Text auf dem Board, Absätze einzeln formatierbar','Stifte gleichen sich zwischen deinen Geräten ab']),
            ('formen','Formen &amp; Diagramme',VIOLET,'flow',['Über 100 Formen zum Hineinziehen, mit Suche','BPMN 2.0, Flussdiagramm, UML, ER-Diagramm, Netzwerk, Struktogramm','Pfeile docken magnetisch an','Hilfslinien und Einrasten am Raster']),
-           ('bausteine','Bausteine',GOLD,'kanban',['Tabellen','Kanban- und Scrum-Boards','Aufzählungen und Mindmaps','Vorlagen: SWOT, Retro, Zeitstrahl und mehr']),
+           ('bausteine','Bausteine',GOLD,'kanban',['Tabellen','Kanban- und Scrum-Boards','Checklisten zum Abhaken, Aufzählungen und Mindmaps','Vorlagen: Einkaufsliste, Wochenplaner, SWOT, Retro und mehr']),
            ('zusammen','Zusammenarbeit',MINT,'live',['Live auf mehreren Geräten gleichzeitig','Gäste per Link – ohne Konto','Nur-ansehen-Links','Links laufen auf Wunsch automatisch ab']),
-           ('unterricht','Unterricht',CORAL,'quiz',['Quiz-Bausteine mit Lösung in der Präsentation','Präsentieren mit Folien und Laserpointer','Tafelflächen wie Tafelgrün, Schiefer, Nacht','Live-Quiz per Handy – kommt in der Testphase']),
-           ('geraete','Geräte &amp; Daten',BLUE,'device',['Läuft im Browser und als App, auch offline','Konto: Boards und Ordner auf allen Geräten','Export als PNG, SVG, PDF und Sicherung','Oberfläche dunkel oder hell'])]
+           ('unterricht','Unterricht',BLUE,'quiz',['Live-Quiz per Handy: QR-Code scannen, antworten, Rangliste','Quiz-Folien mit Lösung, auch als Umfrage ohne Punkte','Präsentieren mit Folienübergängen, Einblenden und Laserpointer','Tafelflächen wie Tafelgrün, Schiefer, Nacht']),
+           ('geraete','Geräte &amp; Daten',MINT,'device',['Läuft im Browser und als App, auch offline','Konto: Boards und Ordner auf allen Geräten','Export als PNG, SVG, PDF und Sicherung','Oberfläche dunkel oder hell'])]
 def funktionen():
     karten = ''.join(f'<section class="karte fk" id="{i}"><h2 class="bt">{ichip(n,c)}{h}</h2>{haken(p,c)}</section>' for i,h,c,n,p in GRUPPEN)
     haupt = karte('<p class="marker" style="--c:var(--violett)">' + ic('spark') + 'Funktionen</p><h1>Alles, was ein Whiteboard braucht</h1><p class="lead">– und ein paar Dinge, die andere nicht haben.</p>') + f'<div class="raster2">{karten}</div>'
@@ -176,9 +180,10 @@ VORL = [('Einkaufsliste','Alltag',MINT,'cart'),('Wochenplaner','Alltag',CORAL,'c
         ('Gruppenarbeit','Unterricht',VIOLET,'users'),('Mindmap','Unterricht',CORAL,'mind'),('BPMN-Prozess','Beruf',BLUE,'flow'),('Kanban','Beruf',GOLD,'kanban'),
         ('Retro','Beruf',MINT,'chat'),('Lernplan','Unterricht',VIOLET,'book'),('SWOT-Analyse','Beruf',CORAL,'grid'),('Präsentation','Beruf',BLUE,'play')]
 def vorlagen():
-    kacheln = ''.join(f'<a class="vk karte" href="{APP}" data-kat="{k}" style="--c:{c}"><span class="vbild">{ic(n,"ic gross")}<em>{k}</em></span><span class="vname">{t}{ic("arrow")}</span></a>' for t,k,c,n in VORL)
-    filt = ''.join(f'<button type="button" class="filter" data-kat="{k}" aria-pressed="{str(i==0).lower()}" style="--c:{c}">{k if k!="*" else "Alle"}</button>' for i,(k,c) in enumerate([('*',BLUE),('Alltag',CORAL),('Unterricht',MINT),('Beruf',VIOLET)]))
-    haupt = karte(f'<p class="marker" style="--c:var(--gold)">{ic("grid")}Vorlagen</p><h1>Vorlagen</h1><p class="lead">Ein Klick, und das Board ist vorbereitet. Alle Vorlagen lassen sich frei anpassen.</p><p class="filterzeile" role="group" aria-label="Vorlagen filtern">{filt}</p>') + f'<div class="raster3" id="vorlagen">{kacheln}</div>'
+    KAT={'Alltag':CORAL,'Unterricht':BLUE,'Beruf':VIOLET}
+    kacheln = ''.join(f'<a class="vk karte" href="{APP}" data-kat="{k}" style="--c:{KAT[k]}"><span class="vbild">{ic(n,"ic gross")}<em>{k}</em></span><span class="vname">{t}{ic("arrow")}</span></a>' for t,k,c,n in VORL)
+    filt = ''.join(f'<button type="button" class="filter" data-kat="{k}" aria-pressed="{str(i==0).lower()}" style="--c:{c}">{k if k!="*" else "Alle"}</button>' for i,(k,c) in enumerate([('*',BLUE),('Alltag',CORAL),('Unterricht',BLUE),('Beruf',VIOLET)]))
+    haupt = karte(f'<p class="marker" style="--c:var(--gold)">{ic("grid")}Vorlagen</p><h1>Vorlagen</h1><p class="lead">Fertige Boards zum Anpassen – in der App unter <b>Vorlagen</b>.</p><p class="filterzeile" role="group" aria-label="Vorlagen filtern">{filt}</p>') + f'<div class="raster3" id="vorlagen">{kacheln}</div>'
     kontext = box('So findest du sie', '<p>In der App liegen die Vorlagen links in der Formenleiste unter <b>Vorlagen</b>. „Alle Vorlagen“ öffnet die Übersicht.</p>', 'grid', GOLD) \
       + box('Vorlage wünschen', f'<p>Dir fehlt etwas? Die meistgewünschten Vorlagen bauen wir als Nächstes.</p>{knopf("Wunsch senden","rand","mail","impressum.html")}', 'spark', VIOLET)
     seite('vorlagen.html','Vorlagen','Vorlagen',haupt,kontext,'Vorlagen für Skizix: Einkaufsliste, Wochenplaner, Kanban, BPMN, Mindmap, Retro und mehr.')
@@ -186,12 +191,12 @@ def vorlagen():
 # ---------------------------------------------------------------- Testphase
 def testphase():
     wer = ''.join(f'<div class="wer" style="--c:{c}">{ic(n)}<b>{h}</b><span>{d}</span></div>' for n,c,h,d in [('users',BLUE,'Lehrkräfte &amp; Dozierende','Im eigenen Kurs mit Gruppenarbeit und Quiz – mit Erlaubnis der Einrichtung.'),('heart',CORAL,'Familien &amp; Freunde','Einkauf, Wochenplan, Planung – gemeinsam auf allen Handys.'),('flow',VIOLET,'Teams','Prozesse und Kanban im kleinen Team ausprobieren.')])
-    schritte = ''.join(f'<li style="--c:{c}"><b>{h}</b><span>{d}</span></li>' for c,h,d in [(BLUE,'Melden','Kurze E-Mail mit Name und wofür du Skizix nutzen möchtest.'),(MINT,'Loslegen','Du bekommst den Link und kannst sofort starten.'),(GOLD,'Ausprobieren','Ein paar Wochen im echten Alltag nutzen.'),(CORAL,'Rückmeldung geben','Kurzer Fragebogen, gern auch ein Gespräch.')])
+    schritte = ''.join(f'<li style="--c:{c}"><b>{h}</b><span>{d}</span></li>' for c,h,d in [(BLUE,'Ausprobieren','App öffnen und loslegen – sofort, ohne Anmeldung.'),(MINT,'Testgruppe beitreten','Kurze E-Mail, wofür du Skizix nutzt. Dann bekommst du Neuigkeiten und später den Fragebogen.'),(GOLD,'Im Alltag nutzen','Ein paar Wochen im Kurs, im Team oder zu Hause.'),(CORAL,'Rückmeldung geben','Kurzer Fragebogen, gern auch ein Gespräch.')])
     haupt = karte(f'<p class="marker" style="--c:var(--koralle)">{ic("flask")}Testphase · bis März 2027</p><h1>Hilf mit, Skizix besser zu machen</h1><p class="lead">Skizix ist noch jung. In der Testphase ist alles kostenlos – im Gegenzug wünschen wir uns ehrliche Rückmeldung.</p>') \
       + karte(f'<h2>Für wen?</h2><div class="raster3 wer-raster">{wer}</div>') \
       + karte(f'<h2>So läuft es ab</h2><ol class="schritte">{schritte}</ol>') \
-      + karte(f'<div class="zeile">{ichip("shield",MINT)}<div><h2>Datenschutz in Kursen</h2><p>Teilnehmende brauchen kein Konto und nutzen nur Spitznamen. Links zum Mitmachen laufen auf Wunsch automatisch ab. Für den Einsatz im Unterricht braucht es die Erlaubnis der Einrichtung.</p></div></div>')
-    kontext = box('Jetzt mitmachen', f'<p>Schreib uns eine kurze E-Mail – die Adresse steht im Impressum.</p>{knopf("Zum Kontakt","haupt","mail","impressum.html")}', 'flask', CORAL) \
+      + karte(f'<div class="zeile">{ichip("shield",MINT)}<div><h2>Datenschutz in Kursen</h2><p>Teilnehmende brauchen kein Konto und nutzen nur Spitznamen. Quiz-Antworten werden nicht gespeichert, Links zum Mitmachen laufen auf Wunsch automatisch ab. Für den Einsatz im Unterricht braucht es die Erlaubnis der Einrichtung.</p></div></div>')
+    kontext = box('Testgruppe beitreten', f'<p>Ausprobieren geht ohne Anmeldung. Für die Testgruppe schreib uns eine kurze E-Mail – die Adresse steht im Impressum.</p>{knopf("Kontaktdaten im Impressum","rand","mail","impressum.html")}', 'flask', CORAL) \
       + box('Häufige Fragen', '<details><summary>Kostet das etwas?</summary><p>Nein. In der Testphase ist alles kostenlos.</p></details><details><summary>Brauche ich ein Konto?</summary><p>Nein. Ein Konto brauchst du nur, wenn deine Boards auf mehreren Geräten erscheinen sollen.</p></details><details><summary>Was passiert nach der Testphase?</summary><p>Die Grundfunktionen bleiben kostenlos. Deine Boards bleiben erhalten.</p></details><details><summary>Darf ich es im Kurs nutzen?</summary><p>Ja, mit Erlaubnis der Einrichtung. Teilnehmende brauchen kein Konto.</p></details>', 'info', BLUE)
     seite('testphase.html','Testphase','Testphase',haupt,kontext,'Skizix-Testphase bis März 2027: kostenlos mitmachen und Rückmeldung geben.')
 
