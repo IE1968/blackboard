@@ -300,6 +300,12 @@ main>.held{flex-direction:column;align-items:stretch;justify-content:center}
 .bereich .akz{color:color-mix(in srgb,var(--c) 72%,var(--mix))}
 .bereich b.akz{font-weight:700}
 .held .buehne{justify-self:center}
+/* Hero: drei Versprechen in Handschrift, blau, untereinander */
+.hand-liste{list-style:none;margin:0 0 26px;padding:0;display:flex;flex-direction:column;gap:6px}
+.hand-liste li{font-family:'Caveat',cursive;font-weight:700;font-size:clamp(30px,2.7vw,40px);line-height:1.05;color:color-mix(in srgb,var(--blau) 85%,var(--mix))}
+.held .text{align-self:center}
+/* Handschrift für die Hervorhebung in den Überschriften der Bereiche */
+.hand-a{font-family:'Caveat',cursive;font-weight:700;font-size:1.3em;line-height:.9;letter-spacing:.005em}
 
 /* Animationen der Beispiel-Boards */
 @keyframes hb1{0%,0%{opacity:0;transform:scale(.7)}4%{opacity:1;transform:scale(1.04)}7%,94%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
@@ -355,3 +361,23 @@ main>.held{flex-direction:column;align-items:stretch;justify-content:center}
 @keyframes ax2{0%,35%{opacity:0}37%,94%{opacity:1}100%{opacity:0}}
 @keyframes ax3{0%,55%{opacity:0}57%,94%{opacity:1}100%{opacity:0}}
 @keyframes ax4{0%,66%{opacity:0;transform:scale(.7)}70%{opacity:1;transform:scale(1.04)}73%,94%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
+/* Hero-Board: vier Szenen nacheinander (Zeichnen, Unterricht, Beruf, Privat), je 7 s */
+@keyframes zsz{0%{opacity:0}2.5%,22.5%{opacity:1}25%,100%{opacity:0}}
+@keyframes zd1{0%,4%{stroke-dashoffset:var(--len)}40%,100%{stroke-dashoffset:0}}
+@keyframes zd2{0%,25%{stroke-dashoffset:var(--len)}48%,100%{stroke-dashoffset:0}}
+@keyframes zd3{0%,40%{stroke-dashoffset:var(--len)}58%,100%{stroke-dashoffset:0}}
+@keyframes zd4{0%,55%{stroke-dashoffset:var(--len)}70%,100%{stroke-dashoffset:0}}
+@keyframes zd5{0%,66%{stroke-dashoffset:var(--len)}78%,100%{stroke-dashoffset:0}}
+@keyframes zi1{0%,3%{opacity:0;transform:translateY(6px)}10%,100%{opacity:1;transform:none}}
+@keyframes zi2{0%,18%{opacity:0;transform:scale(.8)}26%,100%{opacity:1;transform:scale(1)}}
+@keyframes zi3{0%,38%{opacity:0;transform:scale(.8)}46%,100%{opacity:1;transform:scale(1)}}
+@keyframes zi4{0%,55%{opacity:0;transform:scale(.8)}62%,100%{opacity:1;transform:scale(1)}}
+@keyframes zi5{0%,68%{opacity:0;transform:scale(.8)}75%,100%{opacity:1;transform:scale(1)}}
+@keyframes zbar{0%,12%{transform:scaleY(0)}50%,100%{transform:scaleY(1)}}
+@keyframes zck1{0%,30%{opacity:0}34%,100%{opacity:1}}
+@keyframes zck2{0%,48%{opacity:0}52%,100%{opacity:1}}
+@keyframes zck3{0%,66%{opacity:0}70%,100%{opacity:1}}
+@keyframes zck4{0%,100%{opacity:0}}
+@keyframes zpen{0%{transform:translate(70px,226px)}20%{transform:translate(118px,120px)}38%{transform:translate(166px,226px)}48%{transform:translate(250px,70px)}58%{transform:translate(284px,172px)}72%{transform:translate(404px,212px)}85%,100%{transform:translate(404px,212px);opacity:1}}
+@media (prefers-reduced-motion:reduce){ .szene{opacity:0!important} .szene.s0{opacity:1!important} }
+

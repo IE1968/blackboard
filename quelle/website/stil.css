@@ -300,3 +300,9 @@ main>.held{flex-direction:column;align-items:stretch;justify-content:center}
 .bereich .akz{color:color-mix(in srgb,var(--c) 72%,var(--mix))}
 .bereich b.akz{font-weight:700}
 .held .buehne{justify-self:center}
+/* Hero: drei Versprechen in Handschrift, blau, untereinander */
+.hand-liste{list-style:none;margin:0 0 26px;padding:0;display:flex;flex-direction:column;gap:6px}
+.hand-liste li{font-family:'Caveat',cursive;font-weight:700;font-size:clamp(30px,2.7vw,40px);line-height:1.05;color:color-mix(in srgb,var(--blau) 85%,var(--mix))}
+.held .text{align-self:center}
+/* Handschrift für die Hervorhebung in den Überschriften der Bereiche */
+.hand-a{font-family:'Caveat',cursive;font-weight:700;font-size:1.3em;line-height:.9;letter-spacing:.005em}
