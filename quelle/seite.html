@@ -61,6 +61,7 @@
       <button data-m="livestart" id="liveStartBtn">Live schalten …</button>
       <button data-m="liveshare" id="liveShareBtn" hidden>Teilen und Links …</button>
       <button data-m="livestop" id="liveStopBtn" hidden>Live beenden</button>
+      <button data-m="quizjoin" id="quizJoinBtn">Bei einem Live-Quiz mitmachen …</button>
       <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Live-Link einfügen" aria-label="Live-Link zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
     </div>
   </div>
@@ -164,6 +165,7 @@
     <span id="presNo" role="status"></span>
     <button id="presNext" title="Nächste Folie (Pfeil rechts oder Leertaste)" aria-label="Nächste Folie"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
     <button id="presSolve" aria-pressed="false" title="Lösung zeigen (A)" style="font-size:13px;font-weight:600;padding:0 10px">Lösung</button>
+    <button id="presQuiz" hidden aria-pressed="false" title="Live-Quiz: Teilnehmende antworten auf dem Handy" style="font-size:13px;font-weight:600;padding:0 10px">Live-Quiz</button>
     <button id="presLaser" aria-pressed="false" title="Laserpointer (L)" aria-label="Laserpointer"><svg viewBox="0 0 24 24"><path d="M4 20l8-8"/><circle cx="16" cy="8" r="4" fill="#2f8fff" stroke="none"/></svg></button>
     <button id="presClose" title="Präsentation beenden (Esc)" aria-label="Präsentation beenden"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>

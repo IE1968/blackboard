@@ -35,6 +35,7 @@ function menuDo(m){
     case 'livestart': liveStart(); break;
     case 'liveshare': openLiveDlg(); break;
     case 'livestop': liveStop(); break;
+    case 'quizjoin': qzPlayOpen(''); break;
     case 'ktlogin': openKtDlg(); break;
     case 'ktlogout': ktLogout(); break;
     case 'delboard': deleteBoard(); break;

@@ -13,7 +13,8 @@ sondern immer die Dateien hier und danach neu bauen.
 | `css/schrift-tafel.css` | Eingebettete Schrift Roboto Mono (Menüs und Text auf der Tafel) |
 | `css/schrift-logo.css` | Eingebettete Schrift Doto (Schriftzug) |
 | `css/schrift-oberflaeche.css` | Eingebettete Schrift Plus Jakarta Sans (Menüs und Knöpfe) |
-| `js/01-grundlagen.js` … `js/19-beispiel-start.js` | Das Programm, nach Themen getrennt. Die Nummern legen die Reihenfolge fest. |
+| `js/01-grundlagen.js` … `js/19-beispiel-start.js` | Das Programm, nach Themen getrennt. Die Nummern legen die Reihenfolge fest. `19-beispiel-start.js` schließt den gemeinsamen Rahmen, neue Dateien müssen davor einsortiert werden (z. B. `18c-quiz.js`). |
+| `js/18b-qr.js`, `js/18c-quiz.js` | QR-Code und Live-Quiz: Beamer und Handys tauschen Fragen und Antworten nur über den Echtzeit-Kanal aus, ohne Datenbank. |
 | `supabase/` | Datenbank-Skripte für Supabase. Jedes Skript einmal im Supabase-Dashboard unter „SQL Editor“ ausführen. |
 | `build.py` | Setzt alles zur `index.html` zusammen |
 | `tests/` | Automatische Tests |
