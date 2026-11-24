@@ -142,7 +142,7 @@ def start():
     cta = f'''<section class="karte cta-band">
   <div class="cta-text">
     <h2>Bereit für dein erstes Board? <span class="hand-a hs-blau">Leg einfach los.</span></h2>
-    <p class="lead">Im Browser, auf dem iPad, am PC und am Handy – ohne Installation und ohne Anmeldung. Deine Boards bleiben bei dir.</p>
+    <p class="lead">Im Browser, auf Tablet, PC und Handy – ohne Installation und ohne Anmeldung. Deine Boards bleiben bei dir.</p>
     <p class="b-aktion">{knopf("Kostenlos ausprobieren","haupt","arrow",APP)}</p>
   </div>
   <ul class="cta-punkte">
@@ -173,7 +173,7 @@ vtext = f'''<div class="b-text">
 vorl = f'<section class="karte bereich" style="--c:{GOLD}"><div class="b-oben"><p class="b-name">{ichip("grid",GOLD,"klein")}Vorlagen</p><h2>Über 20 Vorlagen – <span class="hand-a hs-blau">ein Klick, und los.</span></h2></div><div class="b-reihe">{vtext}{wolke}</div></section>'
 
 # ---------------------------------------------------------------- Funktionen
-GRUPPEN = [('zeichnen','Zeichnen &amp; Schreiben',CORAL,'pen',['Stift, Pinsel, Marker und Radierer','Druckstufen und Apple Pencil','Text auf dem Board, Absätze einzeln formatierbar','Stifte gleichen sich zwischen deinen Geräten ab']),
+GRUPPEN = [('zeichnen','Zeichnen &amp; Schreiben',CORAL,'pen',['Stift, Pinsel, Marker und Radierer','Digitale Stifte mit hoher Druckempfindlichkeit','Text auf dem Board, Absätze einzeln formatierbar','Stifte gleichen sich zwischen deinen Geräten ab']),
            ('formen','Formen &amp; Diagramme',VIOLET,'flow',['Über 100 Formen zum Hineinziehen, mit Suche','BPMN 2.0, Flussdiagramm, UML, ER-Diagramm, Netzwerk, Struktogramm','Pfeile docken magnetisch an','Hilfslinien und Einrasten am Raster']),
            ('bausteine','Bausteine',GOLD,'kanban',['Tabellen','Kanban- und Scrum-Boards','Checklisten zum Abhaken, Aufzählungen und Mindmaps','Vorlagen: Einkaufsliste, Wochenplaner, SWOT, Retro und mehr']),
            ('zusammen','Zusammenarbeit',MINT,'live',['Live auf mehreren Geräten gleichzeitig','Gäste per Link – ohne Konto','Nur-ansehen-Links','Links laufen auf Wunsch automatisch ab']),
