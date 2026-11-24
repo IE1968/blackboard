@@ -827,6 +827,12 @@ body.phone #props .pgQuick{order:-1}
 body.phone #colorPop{position:fixed!important;left:8px!important;right:8px!important;top:auto!important;bottom:calc(140px + env(safe-area-inset-bottom))!important;width:auto!important;max-width:none!important;max-height:50dvh;overflow-y:auto;border-radius:16px}
 body.phone #livePop .liveMain,body.phone #livePop button{align-self:stretch}
 body.compact .brand .wm{height:.75em}
+/* Seitengriffe hängen direkt an der Leiste (kein Spalt) */
+#palHandle{left:max(0px,calc(var(--palw) - 7px))}
+#propsToggle{right:max(0px,calc(var(--propw) - 7px))}
+main:not(.pal-closed) #palHandle{border-left:0;border-radius:0 10px 10px 0;box-shadow:4px 0 10px rgba(0,0,0,.18)}
+main:not(.props-closed) #propsToggle{border-right:0;border-radius:10px 0 0 10px;box-shadow:-4px 0 10px rgba(0,0,0,.18)}
+#menu > button{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
