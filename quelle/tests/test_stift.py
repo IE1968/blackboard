@@ -10,7 +10,7 @@ try:
   br=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox']); pg=br.new_page(viewport={'width':1400,'height':900})
   pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.goto(URL); pg.wait_for_timeout(800)
-  openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(200)
+  leeren(pg); pg.wait_for_timeout(200)
   pg.click('#tools [data-tool="pen"]')
   ramp=[0.05+0.9*i/40 for i in range(41)]
   pg.evaluate(DRAW,['pen',ramp,300]); pg.wait_for_timeout(400)
@@ -25,20 +25,20 @@ try:
   check('Finger zeichnet nicht, verschiebt',len([i for i in pg.evaluate(READ)['items'] if i['type']=='path'])==n)
   # Stufe „Stark“ spreizt mehr als „Leicht“
   def spread(level):
-      pg.click('#viewBtn'); pg.click(f'#pressRow [data-press="{level}"]'); pg.keyboard.press('Escape')
+      pg.click('#viewBtn'); pg.click('#viewPop [data-vt=\"geraet\"]'); pg.click(f'#pressRow [data-press="{level}"]'); pg.keyboard.press('Escape')
       pg.evaluate(DRAW,['pen',ramp,300]); pg.wait_for_timeout(300)
       w=[i for i in pg.evaluate(READ)['items'] if i['type']=='path'][-1]['ws']; return w[-1]/w[2]
   sl,ss=spread('soft'),spread('strong')
   check('„Stark“ reagiert stärker als „Leicht“',ss>sl*2,f'leicht {sl:.2f} stark {ss:.2f}')
-  pg.click('#viewBtn'); pg.click('#pressRow [data-press="off"]'); pg.keyboard.press('Escape')
+  pg.click('#viewBtn'); pg.click('#viewPop [data-vt=\"geraet\"]'); pg.click('#pressRow [data-press="off"]'); pg.keyboard.press('Escape')
   pg.evaluate(DRAW,['pen',ramp,300]); pg.wait_for_timeout(300)
   check('Druck aus: gleichmäßiger Strich','ws' not in [i for i in pg.evaluate(READ)['items'] if i['type']=='path'][-1])
-  pg.click('#viewBtn'); pg.click('#pressRow [data-press="normal"]'); pg.click('#fingerBtn'); pg.keyboard.press('Escape')
+  pg.click('#viewBtn'); pg.click('#viewPop [data-vt=\"geraet\"]'); pg.click('#pressRow [data-press="normal"]'); pg.click('#fingerBtn'); pg.keyboard.press('Escape')
   n=len([i for i in pg.evaluate(READ)['items'] if i['type']=='path']); pg.evaluate(DRAW,['touch',[0.5]*20,600]); pg.wait_for_timeout(300)
   check('Finger wieder eingeschaltet: zeichnet',len([i for i in pg.evaluate(READ)['items'] if i['type']=='path'])==n+1)
   pg.click('#viewBtn'); pg.wait_for_timeout(200); pg.screenshot(path=OUT+'/stift.png')
   # Glatter Umriss: keine Zacken (Kurvenstücke statt vieler Geradenstücke)
-  pg.keyboard.press('Escape'); pg.click('#viewBtn'); pg.click('#pressRow [data-press="normal"]'); pg.keyboard.press('Escape')
+  pg.keyboard.press('Escape'); pg.click('#viewBtn'); pg.click('#viewPop [data-vt=\"geraet\"]'); pg.click('#pressRow [data-press="normal"]'); pg.keyboard.press('Escape')
   import random; random.seed(1); jitter=[0.4+random.uniform(-0.15,0.15) for _ in range(60)]
   pg.evaluate(DRAW,['pen',jitter,200]); pg.wait_for_timeout(300)
   d=pg.evaluate("()=>{const g=[...document.querySelectorAll('#items g.it')].pop(); const p=g.querySelectorAll('path')[1]; return p?p.getAttribute('d'):''}")

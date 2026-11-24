@@ -89,6 +89,9 @@ function placeViewPop(){
 function openViewPop(){ closeMenu(); closeKtPop(); renderViewPop(); $('viewPop').hidden=false; $('viewBtn').setAttribute('aria-expanded','true'); placeViewPop(); }
 function closeViewPop(){ if($('viewPop').hidden) return; $('viewPop').hidden=true; $('viewBtn').setAttribute('aria-expanded','false'); }
 $('viewBtn').onclick=e=>{ e.stopPropagation(); if($('viewPop').hidden) openViewPop(); else closeViewPop(); };
+let vpTab='tafel';
+function setVpTab(t){ vpTab=t; document.querySelectorAll('#viewPop [data-vt]').forEach(b=>b.setAttribute('aria-selected',b.dataset.vt===t)); document.querySelectorAll('#viewPop [data-vp]').forEach(p=>p.hidden=p.dataset.vp!==t); if(!$('viewPop').hidden) placeViewPop(); }
+$('viewPop').addEventListener('click',e=>{ const t=e.target.closest('[data-vt]'); if(t){ setVpTab(t.dataset.vt); } });
 $('viewPop').addEventListener('click',e=>{
   e.stopPropagation(); const t=e.target.closest('button'); if(!t||t.disabled) return;
   if(t.dataset.s) setBoardSurface({s:t.dataset.s});

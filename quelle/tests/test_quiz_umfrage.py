@@ -31,7 +31,7 @@ try:
       ctx=br.new_context(viewport={'width':w,'height':h}); ctx.add_init_script(FAKE); ctx.expose_binding('__relay',relay)
       pg=ctx.new_page(); pg.on('pageerror',lambda e: errs.append(str(e))); pg.goto(url); pg.wait_for_timeout(500); pages.append(pg); return pg
   B=geraet(1400,860)
-  openFile(B); B.click('#menu [data-m="clear"]'); B.wait_for_timeout(100)
+  leeren(B); B.wait_for_timeout(100)
   B.evaluate("()=>{for(let i=0;i<14;i++){const h=[...document.querySelectorAll('.gh')].find(h=>h.getAttribute('aria-expanded')==='false'); if(!h) break; h.click();}}")
   B.focus('.pal[data-kind="quiz"]'); B.keyboard.press('Enter'); B.wait_for_timeout(150); B.keyboard.press('Escape')
   einpassen(B); B.wait_for_timeout(200)

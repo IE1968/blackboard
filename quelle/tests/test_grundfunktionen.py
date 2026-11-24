@@ -20,6 +20,7 @@ try:
         vx,vy,k=view(); rc=pg.evaluate("()=>{const r=document.getElementById('board').getBoundingClientRect();return [r.left,r.top]}")
         return rc[0]+vx+x*k, rc[1]+vy+y*k
     def menu(m):
+        if m=='clear': leeren(pg); pg.wait_for_timeout(150); return
         openFile(pg); pg.click(f'#menu [data-m="{m}"]'); pg.wait_for_timeout(150)
     def add(kind):
         pg.evaluate("(k)=>{const g=[...document.querySelectorAll('.gh')];for(const h of g){if(h.getAttribute('aria-expanded')==='false')h.click()}}",kind)
@@ -45,11 +46,11 @@ try:
     ok('Einrasten an Oberkante',abs(B['y']-A['y'])<0.01,f"A.y={A['y']} B.y={B['y']}")
     ok('Hilfslinie sichtbar',g)
     # Einrasten aus -> frei
-    pg.click('#viewBtn'); pg.click('#snapBtn'); pg.keyboard.press('Escape')
+    pg.click('#viewBtn'); pg.click('#viewPop [data-vt=\"geraet\"]'); pg.click('#snapBtn'); pg.keyboard.press('Escape')
     bx,by=scr(B['x']+B['w']/2,B['y']+B['h']/2); drag(bx,by,bx+3,by+137)
     d=doc(); A,B=[i for i in d['items'] if i['type']=='shape']
     kz=view()[2]; ok("Einrasten aus: freie Position",abs(B["y"]-A["y"]-137/kz)<0.05 and (B["x"]%10)!=0 ,f"A={A}  B={B} snap={pg.evaluate('()=>localStorage.getItem("blackboard-ui")')}")
-    pg.click('#viewBtn'); pg.click('#snapBtn'); pg.keyboard.press('Escape')
+    pg.click('#viewBtn'); pg.click('#viewPop [data-vt=\"geraet\"]'); pg.click('#snapBtn'); pg.keyboard.press('Escape')
     # --- Andocken
     add('lineArrow'); d=doc(); C=[i for i in d['items'] if i['type']=='conn'][0]
     ex,ey=scr(C['p2']['x'],C['p2']['y'])

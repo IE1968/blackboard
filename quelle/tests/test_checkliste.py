@@ -8,7 +8,7 @@ try:
   pg.add_init_script("localStorage.setItem('skizix-test-bartop','1')")
   pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.goto(URL); pg.wait_for_timeout(900)
-  openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
+  leeren(pg); pg.wait_for_timeout(100)
   pg.evaluate("()=>{for(let i=0;i<14;i++){const h=[...document.querySelectorAll('.gh')].find(h=>h.getAttribute('aria-expanded')==='false'); if(!h) break; h.click();}}")
   check('Checkliste in der Formenleiste',pg.locator('.pal[data-kind="checklist"]').count()==1)
   pg.focus('.pal[data-kind="checklist"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(200); pg.keyboard.press('Escape'); pg.keyboard.press('Escape')
@@ -36,7 +36,7 @@ try:
   pact(pg,'[data-act="chk"]'); pg.wait_for_timeout(150)
   check('Checkliste aus',not [i for i in pg.evaluate(READ)['items'] if i.get('pf')])
   # Beim Schreiben: Feld durchsichtig, Kästchen bleiben sichtbar und wachsen mit
-  pg.keyboard.press('Escape'); openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
+  pg.keyboard.press('Escape'); leeren(pg); pg.wait_for_timeout(100)
   pg.focus('.pal[data-kind="checklist"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(200); pg.keyboard.press('Escape'); pg.keyboard.press('Escape')
   t=pg.locator('#items text').first.bounding_box(); pg.mouse.dblclick(t['x']+80,t['y']+10); pg.wait_for_timeout(200)
   check('Beim Schreiben: kein weißes Feld',pg.evaluate("()=>getComputedStyle(document.getElementById('editor')).backgroundColor")=='rgba(0, 0, 0, 0)')
@@ -47,7 +47,7 @@ try:
   pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
   check('Fertig: vier Zeilen mit Kästchen',it()['pf']==['c','c','c','c'] and it()['text'].endswith('Neu'))
   # Vorlagen
-  pg.keyboard.press('Escape'); openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
+  pg.keyboard.press('Escape'); leeren(pg); pg.wait_for_timeout(100)
   pg.evaluate("()=>document.querySelector('[data-tpl]').click()"); pg.wait_for_timeout(300)
   names=pg.locator('#tplGrid .tc b').all_text_contents()
   check('Vorlagen Alltag vorne',names[:3]==['Einkaufsliste','Wochenplaner','To-do-Liste'],str(names[:4]))

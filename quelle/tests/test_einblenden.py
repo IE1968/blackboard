@@ -8,7 +8,7 @@ try:
   pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.evaluate("()=>0"); pg.goto(URL); pg.wait_for_timeout(900)
   pg.evaluate("()=>localStorage.setItem('skizix-test-bartop','1')"); pg.reload(); pg.wait_for_timeout(900)
-  openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
+  leeren(pg); pg.wait_for_timeout(100)
   def add(kind):
     pg.evaluate("()=>{for(let i=0;i<12;i++){const h=[...document.querySelectorAll('.gh')].find(h=>h.getAttribute('aria-expanded')==='false'); if(!h) break; h.click();}}")
     pg.focus(f'.pal[data-kind="{kind}"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(150)

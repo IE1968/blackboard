@@ -17,7 +17,7 @@ try:
   check('Werkzeug unverändert (kein Radierer o. Ä.)',pg.get_attribute('#board','class')=='t-select')
   pg.keyboard.press('Escape'); pg.keyboard.press('p'); pg.wait_for_timeout(50)
   check('Ohne Auswahl bleiben die Kürzel',pg.get_attribute('#board','class')=='t-pen'); pg.keyboard.press('v')
-  openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(200)
+  leeren(pg); pg.wait_for_timeout(200)
   tb=pg.locator('#toast').bounding_box()
   check('Meldung unten',tb['y']>860*0.75,str(tb))
   check('Meldung mit „Rückgängig“',pg.locator('#toast [data-t="undo"]').count()==1)

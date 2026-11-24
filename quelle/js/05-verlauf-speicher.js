@@ -162,7 +162,6 @@ function removeBoards(ids){
 }
 function renderBoardList(){
   $('boardList').innerHTML=folderListHTML(); thFill();
-  const d=$('delBoard'); (d.querySelector('.t')||d).textContent='Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
 }
 function fileBase(){ return (curBoard().name||'').trim().replace(/[^\wäöüÄÖÜß -]+/g,'').replace(/\s+/g,'-')||'skizix'; }
 function assignFrames(){

@@ -50,38 +50,44 @@
       <button class="tb" id="zoomIn" title="Vergrößern"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button>
     </div>
     <div class="sep"></div>
-    <button class="tb" id="liveBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="livePop" title="Live: Board mit anderen Geräten teilen"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.500 8.500a5 5 0 000 7M15.500 8.500a5 5 0 010 7M5.600 5.600a9 9 0 000 12.800M18.400 5.600a9 9 0 010 12.800"/></svg><span>Live</span><b id="liveBadge" hidden>LIVE</b></button>
+    <button class="tb" id="liveBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="livePop" title="Teilen: Board live mit anderen Geräten teilen oder mitmachen"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.500 8.500a5 5 0 000 7M15.500 8.500a5 5 0 010 7M5.600 5.600a9 9 0 000 12.800M18.400 5.600a9 9 0 010 12.800"/></svg><span>Teilen</span><b id="liveBadge" hidden>LIVE</b></button>
     <button class="tb" id="ktBtn" type="button" title="Anmelden"><div class="ktAv" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4.500 20c1.500-4 4.500-5.500 7.500-5.500s6 1.500 7.500 5.500"/></svg><b id="ktInitial"></b></div><span>Konto</span></button>
   </div>
   <div id="presPop" class="hdrPop" hidden role="menu" aria-label="Präsentation"><div class="mh">Präsentation</div><button data-m="play" role="menuitem">▶ Präsentation starten</button><button data-m="slides" role="menuitem">Folienübersicht</button><div class="mh">Folienübergang</div><div class="mrow" id="trRow"><button data-tr="zoom" title="Kamerafahrt über das Board">Zoom</button><button data-tr="glide" title="Neue Folie schiebt seitlich herein">Gleiten</button><button data-tr="none" title="Sofort wechseln">Keiner</button></div></div>
   <div id="livePop" class="hdrPop" hidden role="dialog" aria-label="Live">
 <div id="liveSec">
-      <div class="mh">Live</div>
+      <div class="mh">Dieses Board teilen</div>
       <div class="mh" id="liveInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nur auf diesem Gerät</div>
-      <button data-m="livestart" id="liveStartBtn">Live schalten …</button>
-      <button data-m="liveshare" id="liveShareBtn" hidden>Teilen und Links …</button>
-      <button data-m="livestop" id="liveStopBtn" hidden>Live beenden</button>
-      <button data-m="quizjoin" id="quizJoinBtn">Bei einem Live-Quiz mitmachen …</button>
-      <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Live-Link einfügen" aria-label="Live-Link zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
+      <button data-m="livestart" id="liveStartBtn" class="liveMain">Board teilen …</button>
+      <button data-m="liveshare" id="liveShareBtn" class="liveMain" hidden>Teilen und Links …</button>
+      <button data-m="livestop" id="liveStopBtn" hidden>Teilen beenden</button>
+      <div class="mh liveH2">Bei anderen mitmachen</div>
+      <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Link oder Quiz-Code" aria-label="Live-Link oder Quiz-Code zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
+      <button data-m="quizjoin" id="quizJoinBtn" class="liveSub">Quiz beitreten …</button>
     </div>
   </div>
   <div id="expPop" class="hdrPop" hidden role="menu" aria-label="Exportieren"><div class="mh">Exportieren</div><button data-m="png" role="menuitem">Bild (PNG)</button><button data-m="svg" role="menuitem">Vektor (SVG)</button><button data-m="pdf" role="menuitem">PDF (A4)</button><button data-m="json" role="menuitem" title="Sicherungsdatei, die sich mit „Board laden“ wieder öffnen lässt">Sicherung (.json)</button></div>
   <div id="viewPop" hidden role="dialog" aria-label="Ansicht">
-    <div class="mh">Tafel <small>für dieses Board</small></div><div class="vpGrid" id="vpSurf"></div>
+    <div class="vpTabs" role="tablist" aria-label="Ansicht"><button type="button" role="tab" data-vt="tafel" aria-selected="true">Tafel <small>dieses Board</small></button><button type="button" role="tab" data-vt="geraet" aria-selected="false">Einstellungen <small>dieses Gerät</small></button></div>
+    <div class="vpPane" data-vp="tafel" role="tabpanel">
+    <div class="mh">Tafelfläche</div><div class="vpGrid" id="vpSurf"></div>
     <div class="mh">Muster</div><div class="vpGrid" id="vpPat"></div>
-    <div class="mh">Oberfläche <small>dieses Gerät</small></div>
+    </div>
+    <div class="vpPane" data-vp="geraet" role="tabpanel" hidden>
+    <div class="mh">Oberfläche</div>
     <div class="mrow" id="appRow"><button data-app="dark">Dunkel</button><button data-app="light">Hell</button><button data-app="auto">Automatisch</button></div>
-    <div class="mh">Optionsleiste <small>dieses Gerät</small></div>
+    <div class="mh">Optionsleiste</div>
     <div class="mrow" id="barRow"><button data-bar="float">Über der Auswahl</button><button data-bar="top">Oben fest</button></div>
     <div class="mh">Größe</div>
     <div class="mrow" id="uiRow"><button data-m="ui" data-v="1">100 %</button><button data-m="ui" data-v="1.25">125 %</button><button data-m="ui" data-v="1.5">150 %</button></div>
     <button data-m="hc" id="hcBtn" class="vpTog">Hoher Kontrast</button>
     <button data-m="snap" id="snapBtn" class="vpTog">Hilfslinien und Einrasten</button>
-    <div class="mh">Stift <small>dieses Gerät</small></div>
+    <div class="mh">Stift</div>
     <div class="vpLbl">Druckempfindlichkeit</div>
     <div class="mrow" id="pressRow"><button data-press="off">Aus</button><button data-press="soft">Leicht</button><button data-press="normal">Normal</button><button data-press="strong">Stark</button></div>
     <div id="pressTest" title="Zum Ausprobieren hier mit dem Stift zeichnen"><svg id="pressSvg"></svg><span>Hier ausprobieren</span></div>
     <button data-m="finger" id="fingerBtn" class="vpTog">Mit dem Finger zeichnen</button>
+    </div>
   </div>
   <div id="ktPop" hidden role="dialog" aria-label="Konto">
     <div class="mh">Angemeldet als</div><div id="ktPopMail"></div>
@@ -109,8 +115,6 @@
     <button data-m="new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Neues Board</button>
     <button data-m="tpl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Vorlagen …</button>
     <button data-m="open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/></svg>Board laden …</button>
-    <button data-m="clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 20h12M5 15l9-9 5 5-8 8H8z"/></svg>Board leeren</button>
-    <button data-m="delboard" id="delBoard"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span class="t">Board löschen</span></button>
     <hr>
     <div class="mh mhRow"><span>Boards</span><button type="button" id="newFolder" title="Neuen Ordner anlegen">+ Ordner</button></div>
     <div id="boardList"></div>
@@ -157,7 +161,7 @@
   </form>
 </div>
 <div id="tplDlg" hidden role="dialog" aria-modal="true" aria-labelledby="tplTitle"><div id="tplBox" tabindex="-1"><div class="tplHead"><h2 id="tplTitle">Vorlage einfügen</h2><button type="button" id="tplX" class="dlgX" aria-label="Schließen">✕</button></div><div id="tplFilt" role="group" aria-label="Vorlagen filtern"></div><div id="tplGrid"></div><div class="dlgBtns"><button type="button" class="pb" id="tplClose">Schließen</button></div></div></div>
-<div id="keysDlg" hidden role="dialog" aria-modal="true" aria-labelledby="keysTitle"><div id="keysBox" tabindex="-1"><h2 id="keysTitle">Tastenkürzel</h2><h3>Werkzeuge</h3><dl><dt><kbd>V</kbd></dt><dd>Auswählen</dd><dt><kbd>P</kbd></dt><dd>Stift</dd><dt><kbd>B</kbd></dt><dd>Pinsel</dd><dt><kbd>M</kbd></dt><dd>Marker</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>E</kbd></dt><dd>Radierer</dd><dt><kbd>H</kbd> oder <kbd>Leertaste</kbd> halten</dt><dd>Tafel verschieben</dd><dt><kbd>0</kbd></dt><dd>Zoom 100 %</dd><dt><kbd>Umschalt</kbd>+<kbd>1</kbd></dt><dd>Alles einpassen</dd></dl><h3>Bearbeiten</h3><dl><dt><kbd>Strg</kbd>+<kbd>Z</kbd> / <kbd>Strg</kbd>+<kbd>Y</kbd></dt><dd>Rückgängig / Wiederholen</dd><dt><kbd>Strg</kbd>+<kbd>C</kbd> <kbd>Strg</kbd>+<kbd>X</kbd> <kbd>Strg</kbd>+<kbd>V</kbd></dt><dd>Kopieren, Ausschneiden, Einfügen</dd><dt><kbd>Strg</kbd>+<kbd>D</kbd></dt><dd>Duplizieren</dd><dt><kbd>Strg</kbd>+<kbd>A</kbd></dt><dd>Alles auswählen</dd><dt><kbd>Strg</kbd>+<kbd>G</kbd> / <kbd>Strg</kbd>+<kbd>⇧</kbd>+<kbd>G</kbd></dt><dd>Gruppieren / Gruppe lösen</dd><dt><kbd>Entf</kbd></dt><dd>Löschen</dd><dt><kbd>Enter</kbd> oder <kbd>F2</kbd></dt><dd>Text der Auswahl bearbeiten</dd><dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Verschieben (mit <kbd>⇧</kbd> pixelgenau)</dd><dt><kbd>Esc</kbd></dt><dd>Auswahl aufheben, Aktion abbrechen</dd></dl><h3>Beim Ziehen</h3><dl><dt><kbd>⇧</kbd></dt><dd>Ecken: frei verformen · Pfeilende: in 45°-Schritten</dd><dt><kbd>Alt</kbd></dt><dd>Ohne Einrasten und Hilfslinien</dd><dt><kbd>Strg</kbd> + Mausrad</dt><dd>Zoomen</dd></dl><h3>Beim Schreiben</h3><dl><dt><kbd>Enter</kbd></dt><dd>Neuer Absatz</dd><dt><kbd>Strg</kbd>+<kbd>Enter</kbd> / <kbd>Esc</kbd></dt><dd>Fertig</dd><dt><kbd>Enter</kbd> in der Mindmap</dt><dd>Fertig (⇧+Enter: neue Zeile)</dd><dt><kbd>Tab</kbd></dt><dd>Tabelle: nächste Zelle · Mindmap: neuer Zweig</dd></dl><h3>Präsentation</h3><dl><dt><kbd>→</kbd> <kbd>Leertaste</kbd></dt><dd>Weiter</dd><dt><kbd>←</kbd></dt><dd>Zurück</dd><dt><kbd>L</kbd></dt><dd>Laserpointer</dd><dt><kbd>A</kbd></dt><dd>Quiz-Lösung zeigen</dd><dt><kbd>Esc</kbd></dt><dd>Beenden</dd></dl><h3>Hilfe</h3><dl><dt><kbd>?</kbd></dt><dd>Diese Übersicht</dd></dl><div class="dlgBtns"><button type="button" class="pb" id="keysClose">Schließen</button></div></div></div>
+<div id="keysDlg" hidden role="dialog" aria-modal="true" aria-labelledby="keysTitle"><div id="keysBox" tabindex="-1"><div class="tplHead"><h2 id="keysTitle">Hilfe</h2><button type="button" id="keysX" class="dlgX" aria-label="Schließen">✕</button></div><div class="vpTabs" role="tablist" aria-label="Hilfe"><button type="button" role="tab" data-kt="start" aria-selected="true">Erste Schritte</button><button type="button" role="tab" data-kt="keys" aria-selected="false">Tastenkürzel</button></div><div class="kPane" data-kp="start" role="tabpanel" id="helpStart"></div><div class="kPane" data-kp="keys" role="tabpanel" hidden><h3>Werkzeuge</h3><dl><dt><kbd>V</kbd></dt><dd>Auswählen</dd><dt><kbd>P</kbd></dt><dd>Stift</dd><dt><kbd>B</kbd></dt><dd>Pinsel</dd><dt><kbd>M</kbd></dt><dd>Marker</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>E</kbd></dt><dd>Radierer</dd><dt><kbd>H</kbd> oder <kbd>Leertaste</kbd> halten</dt><dd>Tafel verschieben</dd><dt><kbd>0</kbd></dt><dd>Zoom 100 %</dd><dt><kbd>Umschalt</kbd>+<kbd>1</kbd></dt><dd>Alles einpassen</dd></dl><h3>Bearbeiten</h3><dl><dt><kbd>Strg</kbd>+<kbd>Z</kbd> / <kbd>Strg</kbd>+<kbd>Y</kbd></dt><dd>Rückgängig / Wiederholen</dd><dt><kbd>Strg</kbd>+<kbd>C</kbd> <kbd>Strg</kbd>+<kbd>X</kbd> <kbd>Strg</kbd>+<kbd>V</kbd></dt><dd>Kopieren, Ausschneiden, Einfügen</dd><dt><kbd>Strg</kbd>+<kbd>D</kbd></dt><dd>Duplizieren</dd><dt><kbd>Strg</kbd>+<kbd>A</kbd></dt><dd>Alles auswählen</dd><dt><kbd>Strg</kbd>+<kbd>G</kbd> / <kbd>Strg</kbd>+<kbd>⇧</kbd>+<kbd>G</kbd></dt><dd>Gruppieren / Gruppe lösen</dd><dt><kbd>Entf</kbd></dt><dd>Löschen</dd><dt><kbd>Enter</kbd> oder <kbd>F2</kbd></dt><dd>Text der Auswahl bearbeiten</dd><dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Verschieben (mit <kbd>⇧</kbd> pixelgenau)</dd><dt><kbd>Esc</kbd></dt><dd>Auswahl aufheben, Aktion abbrechen</dd></dl><h3>Beim Ziehen</h3><dl><dt><kbd>⇧</kbd></dt><dd>Ecken: frei verformen · Pfeilende: in 45°-Schritten</dd><dt><kbd>Alt</kbd></dt><dd>Ohne Einrasten und Hilfslinien</dd><dt><kbd>Strg</kbd> + Mausrad</dt><dd>Zoomen</dd></dl><h3>Beim Schreiben</h3><dl><dt><kbd>Enter</kbd></dt><dd>Neuer Absatz</dd><dt><kbd>Strg</kbd>+<kbd>Enter</kbd> / <kbd>Esc</kbd></dt><dd>Fertig</dd><dt><kbd>Enter</kbd> in der Mindmap</dt><dd>Fertig (⇧+Enter: neue Zeile)</dd><dt><kbd>Tab</kbd></dt><dd>Tabelle: nächste Zelle · Mindmap: neuer Zweig</dd></dl><h3>Präsentation</h3><dl><dt><kbd>→</kbd> <kbd>Leertaste</kbd></dt><dd>Weiter</dd><dt><kbd>←</kbd></dt><dd>Zurück</dd><dt><kbd>L</kbd></dt><dd>Laserpointer</dd><dt><kbd>A</kbd></dt><dd>Quiz-Lösung zeigen</dd><dt><kbd>Esc</kbd></dt><dd>Beenden</dd></dl><h3>Hilfe</h3><dl><dt><kbd>?</kbd></dt><dd>Diese Übersicht</dd></dl></div><div class="dlgBtns"><button type="button" class="pb" id="keysClose">Schließen</button></div></div></div>
 <div id="pres" hidden tabindex="-1" role="dialog" aria-modal="true" aria-label="Präsentation">
   <svg id="presSvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
   <svg id="laserSvg" xmlns="http://www.w3.org/2000/svg"><polyline id="laserTrail" fill="none" stroke="#2f8fff" stroke-opacity=".5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>

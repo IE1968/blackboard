@@ -64,7 +64,7 @@ header{position:relative;min-width:0;zoom:var(--ui);border-bottom:1px solid var(
 #boardName:hover,#boardName:focus{border-color:var(--accent);outline:none}
 .mh{font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 12px 4px}
 #boardList{display:flex;flex-direction:column}
-#boardList button[aria-current="true"]{font-weight:600}
+#boardList [data-b][aria-current="true"]{font-weight:600}
 #zoomLabel{min-width:54px;padding:8px 6px;font-weight:500;font-variant-numeric:tabular-nums;font-size:13px}
 #zoomLabel:hover{background:var(--hover)}
 #menu{zoom:var(--ui);min-width:0;min-height:0;background:var(--panel);border-left:1px solid var(--line);padding:8px 5px 20px;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
@@ -500,13 +500,8 @@ body.light .sw.none,body.light .cdot.none{border-color:rgba(24,24,26,.3)}
 #menu [data-m="open"] svg{color:var(--c-gold)}
 #menu [data-m="clear"] svg{color:var(--c-violet)}
 #menu [data-m="delboard"] svg{color:var(--c-coral)}
-#boardList button{display:flex;align-items:center;gap:7px}
-#boardList button::before{content:'';width:8px;height:8px;border-radius:3px;flex:none;background:var(--c-blue)}
-#boardList button:nth-child(5n+2)::before{background:var(--c-mint)}
-#boardList button:nth-child(5n+3)::before{background:var(--c-gold)}
-#boardList button:nth-child(5n+4)::before{background:var(--c-coral)}
-#boardList button:nth-child(5n+5)::before{background:var(--c-violet)}
-#boardList button[aria-current="true"]{background:var(--acc-soft);color:var(--accent)}
+#boardList [data-b]{display:flex;align-items:center;gap:7px}
+#boardList [data-b][aria-current="true"]{background:var(--acc-soft);color:var(--accent)}
 
 /* ---- Schritt 3: schwebende Seitenfelder, breitere Formenleiste mit Namen und Suche, breitere Board-Leiste ---- */
 main{--palw:calc(204px*var(--ui));--propw:calc(204px*var(--ui));background:var(--chrome)}
@@ -738,6 +733,56 @@ body.narrow .saTips{display:none}
 .tc small em{font-style:normal;font-weight:700}
 .tc[hidden]{display:none}
 .slWarn{position:absolute;left:8px;top:8px;padding:2px 7px;border-radius:999px;background:#ffe3dd;color:#8a2414;font:700 10.5px/1.4 var(--body);font-style:normal;pointer-events:none}
+/* ---- Kompakte Optionsleiste: Gruppen ohne Überschrift (nur für Vorlese-Programme), feine Trennlinien, direkte Aktionen ---- */
+#props .pb.ico{display:flex;align-items:center;justify-content:center;min-width:34px;padding:4px 6px}
+#props .pb.ico svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#props .pb.ico.danger{color:#ff8f7a}
+body.light #props .pb.ico.danger{color:#c8321f}
+body.floatbar #props{gap:0;padding:5px 6px;align-items:center;row-gap:6px}
+body.floatbar #props .pg>b{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+body.floatbar #props .pg{padding:0 8px;gap:4px;flex-wrap:nowrap}
+body.floatbar #props .pg+.pg{border-left:1px solid var(--line)}
+body.floatbar #props .pb{border-color:transparent;background:transparent}
+body.floatbar #props .pb:hover{background:var(--hover)}
+body.floatbar #props .pb[aria-pressed="true"]{background:var(--acc-soft);color:var(--accent);border-color:transparent}
+body.floatbar #props .cdrop{border-color:transparent}
+/* ---- Board-Zeile mit „⋯“-Menü ---- */
+.bRow{display:flex;align-items:center;min-width:0;border-radius:9px}
+#boardList .bRow [data-b]{flex:1;min-width:0;width:auto}
+#menu .bM{flex:none;width:28px;padding:6px 0!important;text-align:center!important;color:var(--muted);font-weight:700;opacity:.55}
+.bRow:hover .bM,.bRow.open .bM,.bM:focus-visible{opacity:1}
+body.touch #menu .bM{opacity:1;width:36px}
+.bAct{flex-direction:column;align-items:stretch;padding:2px 4px 8px 12px!important}
+#menu .bAct button{text-align:left!important;flex:none;padding:7px 10px!important;border-radius:8px}
+#menu .bAct button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.bActH{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:4px 4px 2px}
+.bDot{display:inline-block;width:8px;height:8px;border-radius:3px;background:var(--fc);margin-right:7px}
+#menu .bAct .bAdd{color:var(--accent)}
+#menu .bAct .bBack{border-color:transparent;color:var(--muted)}
+/* Ansicht: zwei Reiter */
+.vpTabs{display:flex;gap:4px;padding:2px;margin:0 0 6px;border-radius:10px;background:var(--hover)}
+.vpTabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 4px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted)}
+.vpTabs button small{font-size:10.5px;font-weight:500;opacity:.8}
+.vpTabs button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.vpPane{display:flex;flex-direction:column}
+.vpPane[hidden]{display:none}
+/* Hilfe: Erste Schritte */
+#keysBox .vpTabs{margin:0 0 12px}
+.kPane[hidden]{display:none}
+.hsList{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hs{display:flex;gap:11px;align-items:flex-start;padding:11px;border:1px solid var(--line);border-radius:12px}
+.hs i{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:color-mix(in srgb,var(--c) 18%,transparent)}
+.hs svg{width:18px;height:18px;fill:none;stroke:var(--c);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.hs b{display:block;font-size:13.5px;margin-bottom:2px}
+.hs span{display:block;font-size:12.5px;line-height:1.4;color:var(--muted)}
+#keysBox{max-width:680px}
+@media (max-width:560px){ .hsList{grid-template-columns:1fr} }
+/* Teilen-Menü: Hauptknopf und Bereich „Bei anderen mitmachen“ */
+#livePop{width:268px}
+#livePop .liveMain{background:var(--accent-fill);color:var(--accent-ink,#fff)!important;text-align:center!important;font-weight:600;border-radius:9px;margin:2px 4px 4px;padding:9px 8px!important}
+#livePop .liveMain:hover{filter:brightness(1.08);background:var(--accent-fill)}
+#livePop .liveH2{margin-top:8px;padding-top:12px;border-top:1px solid var(--line)}
+#livePop .liveSub{text-align:center!important;font-size:12.5px;color:var(--accent)!important}
 </style>
 </head>
 <body>
@@ -771,38 +816,44 @@ body.narrow .saTips{display:none}
       <button class="tb" id="zoomIn" title="Vergrößern"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button>
     </div>
     <div class="sep"></div>
-    <button class="tb" id="liveBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="livePop" title="Live: Board mit anderen Geräten teilen"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.500 8.500a5 5 0 000 7M15.500 8.500a5 5 0 010 7M5.600 5.600a9 9 0 000 12.800M18.400 5.600a9 9 0 010 12.800"/></svg><span>Live</span><b id="liveBadge" hidden>LIVE</b></button>
+    <button class="tb" id="liveBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="livePop" title="Teilen: Board live mit anderen Geräten teilen oder mitmachen"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.500 8.500a5 5 0 000 7M15.500 8.500a5 5 0 010 7M5.600 5.600a9 9 0 000 12.800M18.400 5.600a9 9 0 010 12.800"/></svg><span>Teilen</span><b id="liveBadge" hidden>LIVE</b></button>
     <button class="tb" id="ktBtn" type="button" title="Anmelden"><div class="ktAv" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4.500 20c1.500-4 4.500-5.500 7.500-5.500s6 1.500 7.500 5.500"/></svg><b id="ktInitial"></b></div><span>Konto</span></button>
   </div>
   <div id="presPop" class="hdrPop" hidden role="menu" aria-label="Präsentation"><div class="mh">Präsentation</div><button data-m="play" role="menuitem">▶ Präsentation starten</button><button data-m="slides" role="menuitem">Folienübersicht</button><div class="mh">Folienübergang</div><div class="mrow" id="trRow"><button data-tr="zoom" title="Kamerafahrt über das Board">Zoom</button><button data-tr="glide" title="Neue Folie schiebt seitlich herein">Gleiten</button><button data-tr="none" title="Sofort wechseln">Keiner</button></div></div>
   <div id="livePop" class="hdrPop" hidden role="dialog" aria-label="Live">
 <div id="liveSec">
-      <div class="mh">Live</div>
+      <div class="mh">Dieses Board teilen</div>
       <div class="mh" id="liveInfo" style="text-transform:none;letter-spacing:0;font-weight:400">Nur auf diesem Gerät</div>
-      <button data-m="livestart" id="liveStartBtn">Live schalten …</button>
-      <button data-m="liveshare" id="liveShareBtn" hidden>Teilen und Links …</button>
-      <button data-m="livestop" id="liveStopBtn" hidden>Live beenden</button>
-      <button data-m="quizjoin" id="quizJoinBtn">Bei einem Live-Quiz mitmachen …</button>
-      <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Live-Link einfügen" aria-label="Live-Link zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
+      <button data-m="livestart" id="liveStartBtn" class="liveMain">Board teilen …</button>
+      <button data-m="liveshare" id="liveShareBtn" class="liveMain" hidden>Teilen und Links …</button>
+      <button data-m="livestop" id="liveStopBtn" hidden>Teilen beenden</button>
+      <div class="mh liveH2">Bei anderen mitmachen</div>
+      <form id="liveJoinForm" autocomplete="off"><input id="liveJoinIn" type="text" placeholder="Link oder Quiz-Code" aria-label="Live-Link oder Quiz-Code zum Beitreten" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="submit">Beitreten</button></form>
+      <button data-m="quizjoin" id="quizJoinBtn" class="liveSub">Quiz beitreten …</button>
     </div>
   </div>
   <div id="expPop" class="hdrPop" hidden role="menu" aria-label="Exportieren"><div class="mh">Exportieren</div><button data-m="png" role="menuitem">Bild (PNG)</button><button data-m="svg" role="menuitem">Vektor (SVG)</button><button data-m="pdf" role="menuitem">PDF (A4)</button><button data-m="json" role="menuitem" title="Sicherungsdatei, die sich mit „Board laden“ wieder öffnen lässt">Sicherung (.json)</button></div>
   <div id="viewPop" hidden role="dialog" aria-label="Ansicht">
-    <div class="mh">Tafel <small>für dieses Board</small></div><div class="vpGrid" id="vpSurf"></div>
+    <div class="vpTabs" role="tablist" aria-label="Ansicht"><button type="button" role="tab" data-vt="tafel" aria-selected="true">Tafel <small>dieses Board</small></button><button type="button" role="tab" data-vt="geraet" aria-selected="false">Einstellungen <small>dieses Gerät</small></button></div>
+    <div class="vpPane" data-vp="tafel" role="tabpanel">
+    <div class="mh">Tafelfläche</div><div class="vpGrid" id="vpSurf"></div>
     <div class="mh">Muster</div><div class="vpGrid" id="vpPat"></div>
-    <div class="mh">Oberfläche <small>dieses Gerät</small></div>
+    </div>
+    <div class="vpPane" data-vp="geraet" role="tabpanel" hidden>
+    <div class="mh">Oberfläche</div>
     <div class="mrow" id="appRow"><button data-app="dark">Dunkel</button><button data-app="light">Hell</button><button data-app="auto">Automatisch</button></div>
-    <div class="mh">Optionsleiste <small>dieses Gerät</small></div>
+    <div class="mh">Optionsleiste</div>
     <div class="mrow" id="barRow"><button data-bar="float">Über der Auswahl</button><button data-bar="top">Oben fest</button></div>
     <div class="mh">Größe</div>
     <div class="mrow" id="uiRow"><button data-m="ui" data-v="1">100 %</button><button data-m="ui" data-v="1.25">125 %</button><button data-m="ui" data-v="1.5">150 %</button></div>
     <button data-m="hc" id="hcBtn" class="vpTog">Hoher Kontrast</button>
     <button data-m="snap" id="snapBtn" class="vpTog">Hilfslinien und Einrasten</button>
-    <div class="mh">Stift <small>dieses Gerät</small></div>
+    <div class="mh">Stift</div>
     <div class="vpLbl">Druckempfindlichkeit</div>
     <div class="mrow" id="pressRow"><button data-press="off">Aus</button><button data-press="soft">Leicht</button><button data-press="normal">Normal</button><button data-press="strong">Stark</button></div>
     <div id="pressTest" title="Zum Ausprobieren hier mit dem Stift zeichnen"><svg id="pressSvg"></svg><span>Hier ausprobieren</span></div>
     <button data-m="finger" id="fingerBtn" class="vpTog">Mit dem Finger zeichnen</button>
+    </div>
   </div>
   <div id="ktPop" hidden role="dialog" aria-label="Konto">
     <div class="mh">Angemeldet als</div><div id="ktPopMail"></div>
@@ -830,8 +881,6 @@ body.narrow .saTips{display:none}
     <button data-m="new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Neues Board</button>
     <button data-m="tpl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Vorlagen …</button>
     <button data-m="open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/></svg>Board laden …</button>
-    <button data-m="clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 20h12M5 15l9-9 5 5-8 8H8z"/></svg>Board leeren</button>
-    <button data-m="delboard" id="delBoard"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span class="t">Board löschen</span></button>
     <hr>
     <div class="mh mhRow"><span>Boards</span><button type="button" id="newFolder" title="Neuen Ordner anlegen">+ Ordner</button></div>
     <div id="boardList"></div>
@@ -878,7 +927,7 @@ body.narrow .saTips{display:none}
   </form>
 </div>
 <div id="tplDlg" hidden role="dialog" aria-modal="true" aria-labelledby="tplTitle"><div id="tplBox" tabindex="-1"><div class="tplHead"><h2 id="tplTitle">Vorlage einfügen</h2><button type="button" id="tplX" class="dlgX" aria-label="Schließen">✕</button></div><div id="tplFilt" role="group" aria-label="Vorlagen filtern"></div><div id="tplGrid"></div><div class="dlgBtns"><button type="button" class="pb" id="tplClose">Schließen</button></div></div></div>
-<div id="keysDlg" hidden role="dialog" aria-modal="true" aria-labelledby="keysTitle"><div id="keysBox" tabindex="-1"><h2 id="keysTitle">Tastenkürzel</h2><h3>Werkzeuge</h3><dl><dt><kbd>V</kbd></dt><dd>Auswählen</dd><dt><kbd>P</kbd></dt><dd>Stift</dd><dt><kbd>B</kbd></dt><dd>Pinsel</dd><dt><kbd>M</kbd></dt><dd>Marker</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>E</kbd></dt><dd>Radierer</dd><dt><kbd>H</kbd> oder <kbd>Leertaste</kbd> halten</dt><dd>Tafel verschieben</dd><dt><kbd>0</kbd></dt><dd>Zoom 100 %</dd><dt><kbd>Umschalt</kbd>+<kbd>1</kbd></dt><dd>Alles einpassen</dd></dl><h3>Bearbeiten</h3><dl><dt><kbd>Strg</kbd>+<kbd>Z</kbd> / <kbd>Strg</kbd>+<kbd>Y</kbd></dt><dd>Rückgängig / Wiederholen</dd><dt><kbd>Strg</kbd>+<kbd>C</kbd> <kbd>Strg</kbd>+<kbd>X</kbd> <kbd>Strg</kbd>+<kbd>V</kbd></dt><dd>Kopieren, Ausschneiden, Einfügen</dd><dt><kbd>Strg</kbd>+<kbd>D</kbd></dt><dd>Duplizieren</dd><dt><kbd>Strg</kbd>+<kbd>A</kbd></dt><dd>Alles auswählen</dd><dt><kbd>Strg</kbd>+<kbd>G</kbd> / <kbd>Strg</kbd>+<kbd>⇧</kbd>+<kbd>G</kbd></dt><dd>Gruppieren / Gruppe lösen</dd><dt><kbd>Entf</kbd></dt><dd>Löschen</dd><dt><kbd>Enter</kbd> oder <kbd>F2</kbd></dt><dd>Text der Auswahl bearbeiten</dd><dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Verschieben (mit <kbd>⇧</kbd> pixelgenau)</dd><dt><kbd>Esc</kbd></dt><dd>Auswahl aufheben, Aktion abbrechen</dd></dl><h3>Beim Ziehen</h3><dl><dt><kbd>⇧</kbd></dt><dd>Ecken: frei verformen · Pfeilende: in 45°-Schritten</dd><dt><kbd>Alt</kbd></dt><dd>Ohne Einrasten und Hilfslinien</dd><dt><kbd>Strg</kbd> + Mausrad</dt><dd>Zoomen</dd></dl><h3>Beim Schreiben</h3><dl><dt><kbd>Enter</kbd></dt><dd>Neuer Absatz</dd><dt><kbd>Strg</kbd>+<kbd>Enter</kbd> / <kbd>Esc</kbd></dt><dd>Fertig</dd><dt><kbd>Enter</kbd> in der Mindmap</dt><dd>Fertig (⇧+Enter: neue Zeile)</dd><dt><kbd>Tab</kbd></dt><dd>Tabelle: nächste Zelle · Mindmap: neuer Zweig</dd></dl><h3>Präsentation</h3><dl><dt><kbd>→</kbd> <kbd>Leertaste</kbd></dt><dd>Weiter</dd><dt><kbd>←</kbd></dt><dd>Zurück</dd><dt><kbd>L</kbd></dt><dd>Laserpointer</dd><dt><kbd>A</kbd></dt><dd>Quiz-Lösung zeigen</dd><dt><kbd>Esc</kbd></dt><dd>Beenden</dd></dl><h3>Hilfe</h3><dl><dt><kbd>?</kbd></dt><dd>Diese Übersicht</dd></dl><div class="dlgBtns"><button type="button" class="pb" id="keysClose">Schließen</button></div></div></div>
+<div id="keysDlg" hidden role="dialog" aria-modal="true" aria-labelledby="keysTitle"><div id="keysBox" tabindex="-1"><div class="tplHead"><h2 id="keysTitle">Hilfe</h2><button type="button" id="keysX" class="dlgX" aria-label="Schließen">✕</button></div><div class="vpTabs" role="tablist" aria-label="Hilfe"><button type="button" role="tab" data-kt="start" aria-selected="true">Erste Schritte</button><button type="button" role="tab" data-kt="keys" aria-selected="false">Tastenkürzel</button></div><div class="kPane" data-kp="start" role="tabpanel" id="helpStart"></div><div class="kPane" data-kp="keys" role="tabpanel" hidden><h3>Werkzeuge</h3><dl><dt><kbd>V</kbd></dt><dd>Auswählen</dd><dt><kbd>P</kbd></dt><dd>Stift</dd><dt><kbd>B</kbd></dt><dd>Pinsel</dd><dt><kbd>M</kbd></dt><dd>Marker</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>E</kbd></dt><dd>Radierer</dd><dt><kbd>H</kbd> oder <kbd>Leertaste</kbd> halten</dt><dd>Tafel verschieben</dd><dt><kbd>0</kbd></dt><dd>Zoom 100 %</dd><dt><kbd>Umschalt</kbd>+<kbd>1</kbd></dt><dd>Alles einpassen</dd></dl><h3>Bearbeiten</h3><dl><dt><kbd>Strg</kbd>+<kbd>Z</kbd> / <kbd>Strg</kbd>+<kbd>Y</kbd></dt><dd>Rückgängig / Wiederholen</dd><dt><kbd>Strg</kbd>+<kbd>C</kbd> <kbd>Strg</kbd>+<kbd>X</kbd> <kbd>Strg</kbd>+<kbd>V</kbd></dt><dd>Kopieren, Ausschneiden, Einfügen</dd><dt><kbd>Strg</kbd>+<kbd>D</kbd></dt><dd>Duplizieren</dd><dt><kbd>Strg</kbd>+<kbd>A</kbd></dt><dd>Alles auswählen</dd><dt><kbd>Strg</kbd>+<kbd>G</kbd> / <kbd>Strg</kbd>+<kbd>⇧</kbd>+<kbd>G</kbd></dt><dd>Gruppieren / Gruppe lösen</dd><dt><kbd>Entf</kbd></dt><dd>Löschen</dd><dt><kbd>Enter</kbd> oder <kbd>F2</kbd></dt><dd>Text der Auswahl bearbeiten</dd><dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Verschieben (mit <kbd>⇧</kbd> pixelgenau)</dd><dt><kbd>Esc</kbd></dt><dd>Auswahl aufheben, Aktion abbrechen</dd></dl><h3>Beim Ziehen</h3><dl><dt><kbd>⇧</kbd></dt><dd>Ecken: frei verformen · Pfeilende: in 45°-Schritten</dd><dt><kbd>Alt</kbd></dt><dd>Ohne Einrasten und Hilfslinien</dd><dt><kbd>Strg</kbd> + Mausrad</dt><dd>Zoomen</dd></dl><h3>Beim Schreiben</h3><dl><dt><kbd>Enter</kbd></dt><dd>Neuer Absatz</dd><dt><kbd>Strg</kbd>+<kbd>Enter</kbd> / <kbd>Esc</kbd></dt><dd>Fertig</dd><dt><kbd>Enter</kbd> in der Mindmap</dt><dd>Fertig (⇧+Enter: neue Zeile)</dd><dt><kbd>Tab</kbd></dt><dd>Tabelle: nächste Zelle · Mindmap: neuer Zweig</dd></dl><h3>Präsentation</h3><dl><dt><kbd>→</kbd> <kbd>Leertaste</kbd></dt><dd>Weiter</dd><dt><kbd>←</kbd></dt><dd>Zurück</dd><dt><kbd>L</kbd></dt><dd>Laserpointer</dd><dt><kbd>A</kbd></dt><dd>Quiz-Lösung zeigen</dd><dt><kbd>Esc</kbd></dt><dd>Beenden</dd></dl><h3>Hilfe</h3><dl><dt><kbd>?</kbd></dt><dd>Diese Übersicht</dd></dl></div><div class="dlgBtns"><button type="button" class="pb" id="keysClose">Schließen</button></div></div></div>
 <div id="pres" hidden tabindex="-1" role="dialog" aria-modal="true" aria-label="Präsentation">
   <svg id="presSvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
   <svg id="laserSvg" xmlns="http://www.w3.org/2000/svg"><polyline id="laserTrail" fill="none" stroke="#2f8fff" stroke-opacity=".5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1804,7 +1853,6 @@ function removeBoards(ids){
 }
 function renderBoardList(){
   $('boardList').innerHTML=folderListHTML(); thFill();
-  const d=$('delBoard'); (d.querySelector('.t')||d).textContent='Board löschen'; delete d.dataset.sure; d.hidden=boards.list.length<2;
 }
 function fileBase(){ return (curBoard().name||'').trim().replace(/[^\wäöüÄÖÜß -]+/g,'').replace(/\s+/g,'-')||'skizix'; }
 function assignFrames(){
@@ -1897,7 +1945,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('bmDlg').hidden
    Ein Ordner ist ein Name am Board (b.f). Die Reihenfolge der Ordner steht in boards.folders, auch leere Ordner.
    Mit Konto wird der Ordner jedes Boards mit abgeglichen (Spalte „folder“, siehe quelle/supabase/02-ordner.sql). */
 const FOLD_C=['var(--c-blue)','var(--c-mint)','var(--c-gold)','var(--c-coral)','var(--c-violet)'];
-var fUi={adding:false,edit:null,menu:null};
+var fUi={adding:false,edit:null,menu:null,bm:null,bmF:false,bmDel:false};
 function fClean(n){ return String(n==null?'':n).replace(/\s+/g,' ').trim().slice(0,40); }
 function fOpenSet(){ try{ const v=JSON.parse(lsGet('skizix-ordner-offen')||'{}'); return v&&typeof v==='object'?v:{}; }catch(e){ return {}; } }
 function fSetOpen(n,o){ const v=fOpenSet(); v[n]=o; lsSet('skizix-ordner-offen',JSON.stringify(v)); }
@@ -1920,7 +1968,23 @@ function moveBoards(ids,f){
   for(const b of boards.list) if(s.has(b.id)&&fClean(b.f)!==f){ b.f=f; n++; }
   saveIdx(); ktSoon(300); return n;
 }
-function boardBtn(b){ return `<button data-b="${b.id}" aria-current="${b.id===boards.cur}" title="${esc(b.name)}">${thHTML(b)}<span class="bn">${b.id===boards.cur?'✓ ':''}${esc(b.name)}</span></button>`; }
+function boardBtn(b){
+  const cur=b.id===boards.cur, nm=esc(b.name);
+  let h=`<div class="bRow${fUi.bm===b.id?' open':''}"><button data-b="${b.id}" aria-current="${cur}" title="${nm}">${thHTML(b)}<span class="bn">${cur?'✓ ':''}${nm}</span></button><button type="button" class="bM" data-bm="${b.id}" aria-expanded="${fUi.bm===b.id}" title="Umbenennen, Ordner, Duplizieren, Löschen" aria-label="Board ${nm}: weitere Befehle">⋯</button></div>`;
+  if(fUi.bm!==b.id) return h;
+  if(fUi.bmF){ const F=folderList(), here=fClean(b.f);
+    return h+`<div class="fAct bAct"><div class="bActH">In Ordner verschieben</div>`+F.map(f=>`<button type="button" data-bto="${esc(f)}" style="--fc:${fColor(f)}" aria-pressed="${f===here}"><i class="bDot"></i>${esc(f)}</button>`).join('')+`<button type="button" data-bto="" aria-pressed="${!here}">Ohne Ordner</button><button type="button" data-bnewf="1" class="bAdd">+ Neuer Ordner …</button><button type="button" data-bback="1" class="bBack">‹ Zurück</button></div>`; }
+  return h+`<div class="fAct bAct"><button type="button" data-bact="ren">Umbenennen</button><button type="button" data-bact="fold">In Ordner verschieben ›</button><button type="button" data-bact="dup">Duplizieren</button>`
+    +(cur?`<button type="button" data-m="clear">Board leeren</button>`:'')
+    +`<button type="button" data-bact="del" class="fDel">${fUi.bmDel?'Wirklich löschen? Das lässt sich nicht zurückholen.':'Board löschen'}</button></div>`;
+}
+function dupBoard(id){
+  const src=boards.list.find(b=>b.id===id); if(!src) return;
+  const json=id===boards.cur?JSON.stringify(Object.assign({},doc,{fmt:Math.max(doc.fmt||0,DOC_FMT)})):(docGet(id)||JSON.stringify({items:[],n:0,fmt:DOC_FMT}));
+  const nb={id:genId(),name:(src.name+' (Kopie)').slice(0,40)}; if(src.f) nb.f=src.f;
+  boards.list.splice(boards.list.indexOf(src)+1,0,nb); docSet(nb.id,json); markDirty(nb); saveIdx(); ktSoon(500);
+  fUi.bm=null; renderBoardList(); toast('„'+src.name+'“ dupliziert.');
+}
 function folderListHTML(){
   const F=folderList(), open=fOpenSet(); let h='';
   if(!F.length&&!fUi.adding) return boards.list.map(boardBtn).join('');
@@ -1943,6 +2007,20 @@ $('newFolder').onclick=e=>{
   fFocus();
 };
 $('boardList').addEventListener('click',e=>{
+  const q=e.target.closest('[data-bm],[data-bact],[data-bto],[data-bnewf],[data-bback]');
+  if(q){ e.stopPropagation(); const id=fUi.bm;
+    if(q.dataset.bm!==undefined){ fUi.bm=fUi.bm===q.dataset.bm?null:q.dataset.bm; fUi.bmF=false; fUi.bmDel=false; fUi.menu=null; renderBoardList(); return; }
+    if(q.dataset.bback!==undefined){ fUi.bmF=false; renderBoardList(); return; }
+    if(q.dataset.bnewf!==undefined){ fUi.bm=null; fUi.bmF=false; fUi.adding=true; renderBoardList(); fFocus(); toast('Ordner anlegen, dann das Board über „⋯ → In Ordner verschieben“ hineinlegen.'); return; }
+    if(q.dataset.bto!==undefined){ const n=moveBoards([id],q.dataset.bto); fUi.bm=null; fUi.bmF=false; renderBoardList(); if(n) toast(q.dataset.bto?'In „'+q.dataset.bto+'“ verschoben.':'Steht jetzt unter „Ohne Ordner“.'); return; }
+    switch(q.dataset.bact){
+      case 'ren': fUi.bm=null; if(id!==boards.cur) openBoard(id); renderBoardList(); closeMenu(); { const i=$('boardName'); i.focus(); i.select(); } break;
+      case 'fold': fUi.bmF=true; renderBoardList(); break;
+      case 'dup': dupBoard(id); break;
+      case 'del': if(!fUi.bmDel){ fUi.bmDel=true; renderBoardList(); return; } { const b=boards.list.find(x=>x.id===id), nm=b?b.name:''; fUi.bm=null; fUi.bmDel=false; removeBoards([id]); renderBoardList(); toast('„'+nm+'“ gelöscht.'); } break;
+    }
+    return; }
+  if(e.target.closest('[data-m="clear"]')){ fUi.bm=null; setTimeout(renderBoardList,0); return; }   /* läuft weiter zum Menü (Board leeren) */
   const t=e.target.closest('[data-fo],[data-fm],[data-fren],[data-fdel]'); if(!t) return; e.stopPropagation();
   if(t.dataset.fo!==undefined){ const f=t.dataset.fo; fSetOpen(f,fOpenSet()[f]===false); fUi.menu=null; renderBoardList(); }
   else if(t.dataset.fm!==undefined){ fUi.menu=fUi.menu===t.dataset.fm?null:t.dataset.fm; renderBoardList(); }
@@ -2397,8 +2475,9 @@ function updateProps_(){
     const ab=([v,t,d])=>`<button class="pb" data-act="al" data-val="${v}" title="${t}" aria-label="${t}"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="${d}"/></svg></button>`;
     h+=`<div class="pg"><b>Ausrichten</b>${md('al','Ausrichten',`<div class="sws three">`+AL.map(ab).join('')+`</div>`+(nUnits>=3?`<div class="sws two">`+[['dh','Waagerecht gleichmäßig verteilen','M3 2v16M17 2v16M8 6h4v8H8z'],['dv','Senkrecht gleichmäßig verteilen','M2 3h16M2 17h16M6 8h8v4H6z']].map(ab).join('')+`</div>`:''),`<svg viewBox="0 0 20 20" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:1.600"><path d="${AL[0][2]}"/></svg>`)}</div>`; }
   if(items.length>1||items.some(i=>i.g)) h+=`<div class="pg"><b>Gruppe</b>`+(items.length>1?`<button class="pb" data-act="group" title="Strg+G">Gruppieren</button>`:'')+(items.some(i=>i.g)?`<button class="pb" data-act="ungroup" title="Strg+Umschalt+G">Gruppe lösen</button>`:'')+`</div>`;
-  if(items.length) h+=`<div class="pg"><b>Element</b>${md('elem','Element',`<button class="pb" data-act="front">Nach vorn</button><button class="pb" data-act="back">Nach hinten</button><button class="pb" data-act="dup">Duplizieren</button><button class="pb" data-act="copy" title="Strg+C">Kopieren</button><button class="pb" data-act="lock" aria-pressed="${items.every(i=>i.lock)}" title="Gesperrte Elemente lassen sich nicht verschieben, ändern oder löschen">${items.every(i=>i.lock)?'Entsperren':'Sperren'}</button>`+(hasClip()?`<button class="pb" data-act="paste" title="Strg+V">Einfügen</button>`:'')+`<button class="pb danger" data-act="del">Löschen</button>`,'<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4.500" cy="10" r="1.600"/><circle cx="10" cy="10" r="1.600"/><circle cx="15.500" cy="10" r="1.600"/></svg>')}</div>`;
-  propsEl.innerHTML=h; refreshPop();
+  if(items.length) h+=`<div class="pg pgQuick"><b>Schnell</b><button class="pb ico" data-act="dup" title="Duplizieren (Strg+D)" aria-label="Duplizieren"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/></svg></button><button class="pb ico danger" data-act="del" title="Löschen (Entf)" aria-label="Löschen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg></button></div>`;
+  if(items.length) h+=`<div class="pg"><b>Element</b>${md('elem','Mehr',`<button class="pb" data-act="front">Nach vorn</button><button class="pb" data-act="back">Nach hinten</button><button class="pb" data-act="copy" title="Strg+C">Kopieren</button><button class="pb" data-act="lock" aria-pressed="${items.every(i=>i.lock)}" title="Gesperrte Elemente lassen sich nicht verschieben, ändern oder löschen">${items.every(i=>i.lock)?'Entsperren':'Sperren'}</button>`+(hasClip()?`<button class="pb" data-act="paste" title="Strg+V">Einfügen</button>`:''),'<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4.500" cy="10" r="1.600"/><circle cx="10" cy="10" r="1.600"/><circle cx="15.500" cy="10" r="1.600"/></svg>')}</div>`;
+  propsEl.innerHTML=h; propsEl.querySelectorAll('.pg').forEach(g=>{ const b=g.querySelector(':scope>b'); if(b) g.setAttribute('aria-label',b.textContent); g.setAttribute('role','group'); }); refreshPop();
 }
 const CDROP={}; let paraSel=null;   /* zuletzt markierte Absätze (Fett/Aufzählung) */
 function allF(i,f){ if(paraSel&&paraSel.id===i.id){ const R=[]; for(let k=paraSel.i0;k<=paraSel.i1;k++) R.push(pfOf(i,k)[f]); return R.every(Boolean); } if(!i.pf) return f==='b'?!!i.bold:f==='c'?false:!!i.list; return String(i.text||'').split('\n').every((_,k)=>pfOf(i,k)[f]); }
@@ -2516,13 +2595,21 @@ function placeProps_(){
     let x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;
     for(const it of items){ let q; try{ q=bbox(it); }catch(e){ continue; } x1=Math.min(x1,q.x); y1=Math.min(y1,q.y); x2=Math.max(x2,q.x+q.w); y2=Math.max(y2,q.y+q.h); }
     const sx1=rc.left+view.x+x1*view.k, sx2=rc.left+view.x+x2*view.k, sy1=rc.top+view.y+y1*view.k, sy2=rc.top+view.y+y2*view.k;
-    left=(sx1+sx2)/2-bw/2; top=sy1-bh-46;   /* Abstand: Drehgriff über dem Element bleibt frei */
-    if(top<rc.top+m) top=sy2+26;
-    if(top+bh>rc.bottom-m) top=rc.top+m;
-  } else { left=rc.left+rc.width/2-bw/2; top=rc.top+m; }
-  left=Math.max(rc.left+m,Math.min(rc.right-bw-m,left));
+    left=(sx1+sx2)/2-bw/2; left=Math.max(rc.left+m,Math.min(rc.right-bw-m,left));
+    /* Kandidaten: über der Auswahl, darunter, oben in der Tafel – der erste, der nichts verdeckt (Folienübersicht, offene Menüs) */
+    const cands=[sy1-bh-46,sy2+26,rc.top+m].filter(t=>t>=rc.top+m-0.5&&t+bh<=rc.bottom-m+0.5);
+    top=cands.find(t=>!barBlocked(left,t,bw,bh));
+    if(top===undefined){ if(cands.length&&!barObstacles().length) top=cands[0]; else { propsEl.classList.add('fhide'); closeColorPop&&closeColorPop(); return; } }
+  } else { left=rc.left+rc.width/2-bw/2; top=rc.top+m; left=Math.max(rc.left+m,Math.min(rc.right-bw-m,left));
+    if(barBlocked(left,top,bw,bh)){ propsEl.classList.add('fhide'); return; } }
   propsEl.style.left=(left/z)+'px'; propsEl.style.top=(top/z)+'px';
 }
+function barObstacles(){
+  const o=[]; const sl=$('slides'); if(sl&&!sl.hidden) o.push(sl.getBoundingClientRect());
+  document.querySelectorAll('.hdrPop:not([hidden])').forEach(e=>o.push(e.getBoundingClientRect()));
+  return o.filter(r=>r.width&&r.height);
+}
+function barBlocked(l,t,w,h){ return barObstacles().some(r=>l<r.right&&l+w>r.left&&t<r.bottom&&t+h>r.top); }
 /* ---------- Zeiger auf der Tafel ---------- */
 /* Magnetisches Andocken: sucht die Form in der Nähe des Pfeilendes und den passenden Andockpunkt */
 function dockAt(w,exclude){
@@ -3101,6 +3188,9 @@ function placeViewPop(){
 function openViewPop(){ closeMenu(); closeKtPop(); renderViewPop(); $('viewPop').hidden=false; $('viewBtn').setAttribute('aria-expanded','true'); placeViewPop(); }
 function closeViewPop(){ if($('viewPop').hidden) return; $('viewPop').hidden=true; $('viewBtn').setAttribute('aria-expanded','false'); }
 $('viewBtn').onclick=e=>{ e.stopPropagation(); if($('viewPop').hidden) openViewPop(); else closeViewPop(); };
+let vpTab='tafel';
+function setVpTab(t){ vpTab=t; document.querySelectorAll('#viewPop [data-vt]').forEach(b=>b.setAttribute('aria-selected',b.dataset.vt===t)); document.querySelectorAll('#viewPop [data-vp]').forEach(p=>p.hidden=p.dataset.vp!==t); if(!$('viewPop').hidden) placeViewPop(); }
+$('viewPop').addEventListener('click',e=>{ const t=e.target.closest('[data-vt]'); if(t){ setVpTab(t.dataset.vt); } });
 $('viewPop').addEventListener('click',e=>{
   e.stopPropagation(); const t=e.target.closest('button'); if(!t||t.disabled) return;
   if(t.dataset.s) setBoardSurface({s:t.dataset.s});
@@ -3444,14 +3534,30 @@ document.addEventListener('keydown',e=>{
     commit(); render(); return; }
   if(e.shiftKey&&e.code==='Digit1'){ e.preventDefault(); fit(); return; }
   if(e.key==='0'){ e.preventDefault(); zoomCenter(1/view.k); return; }
-  if(e.key==='?'){ e.preventDefault(); openKeys(); return; }
+  if(e.key==='?'){ e.preventDefault(); openKeys('keys'); return; }
   /* Genau eine Form ausgewählt und einfach lostippen: der Buchstabe ersetzt ihren Text (wie in Präsentationsprogrammen) */
   if(sel.size===1&&e.key.length===1&&e.key!==' '&&!e.altKey&&!liveRO()&&!(t&&t.tagName==='BUTTON')){ const it=byId([...sel][0]);
     if(it&&it.type==='shape'&&it.kind!=='frame'&&!it.lock){ e.preventDefault(); startEdit(it.id); editor.value=e.key; editor.setSelectionRange(1,1); placeEditor(); if(it.pf||it.list) render(); return; } }
   const map={v:'select',f:'shape',p:'pen',b:'brush',m:'marker',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
 });
 document.addEventListener('keyup',e=>{ if(e.key===' ') spaceDown=false; });
-function openKeys(){ closeMenu(); $('keysDlg').hidden=false; const b=$('keysBox'); b.scrollTop=0; b.focus({preventScroll:true}); }
+let keysTab=null;
+function helpStartHTML(){
+  const t=!isPC, I=(c,p)=>`<i style="--c:var(--c-${c})"><svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg></i>`;
+  const R=[
+    [I('coral','<path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/>'),'Zeichnen','Oben Stift, Pinsel oder Marker wählen und losziehen.'+(t?' Mit einem digitalen Stift zeichnet nur der Stift – mit dem Finger verschiebst du dann die Tafel.':'')],
+    [I('violet','<rect x="4" y="5" width="11" height="9" rx="1.5"/><circle cx="15.5" cy="15.5" r="4.5"/>'),'Formen',(t?'Formenleiste links mit ›  öffnen, Form antippen':'Form in der Leiste links anklicken')+' oder auf die Tafel ziehen. Neue Boards bieten auch Vorlagen an.'],
+    [I('mint','<path d="M5 6h14M12 6v13M9 19h6"/>'),'Text ändern',(t?'Doppeltippen':'Doppelklicken')+' auf eine Form oder einen Text – oder Form wählen und einfach lostippen.'],
+    [I('blue','<path d="M4 12h12M12 7l5 5-5 5"/>'),'Pfeile','An einem der blauen Punkte einer gewählten Form ziehen. Der Pfeil dockt an der nächsten Form an.'],
+    [I('gold','<path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/>'),'Tafel bewegen und zoomen',t?'Mit zwei Fingern ziehen; zum Zoomen zwei Finger auseinander- oder zusammenschieben.':'Mausrad oder Touchpad verschiebt, Strg + Mausrad zoomt. Leertaste halten und ziehen geht auch.'],
+    [I('blue','<path d="M5 3l14 8-6 2-2 6z"/>'),'Auswählen',(t?'Antippen':'Anklicken')+' wählt aus. Mit „Auswahl“ einen Rahmen um mehrere Elemente ziehen. Die Leiste über der Auswahl ändert Farbe, Text und mehr.'],
+    [I('coral','<path d="M8 7L4 11l4 4M4 11h10a5 5 0 010 10h-3"/>'),'Rückgängig','Oben „Zurück“'+(t?'.':' oder Strg + Z.')+' Nichts geht verloren: Boards werden auf dem Gerät gespeichert.'],
+    [I('mint','<circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7"/>'),'Teilen und präsentieren','„Live“ teilt das Board per Link, auch als Quiz per QR-Code. „Präsentieren“ zeigt deine Folien.']];
+  return '<div class="hsList">'+R.map(([i,h,d])=>`<div class="hs">${i}<div><b>${h}</b><span>${d}</span></div></div>`).join('')+'</div>';
+}
+function setKeysTab(t){ keysTab=t; document.querySelectorAll('#keysBox [data-kt]').forEach(b=>b.setAttribute('aria-selected',b.dataset.kt===t)); document.querySelectorAll('#keysBox [data-kp]').forEach(p=>p.hidden=p.dataset.kp!==t); }
+function openKeys(tab){ closeMenu(); $('helpStart').innerHTML=helpStartHTML(); setKeysTab(tab||keysTab||'start'); $('keysDlg').hidden=false; const b=$('keysBox'); b.scrollTop=0; b.focus({preventScroll:true}); }
+$('keysBox').addEventListener('click',e=>{ const b=e.target.closest('[data-kt]'); if(b) setKeysTab(b.dataset.kt); if(e.target.closest('#keysX')) closeKeys(); });
 function closeKeys(){ if($('keysDlg').hidden) return; $('keysDlg').hidden=true; svg.focus(); }
 $('keysClose').onclick=closeKeys;
 $('keysDlg').addEventListener('pointerdown',e=>{ if(e.target===$('keysDlg')) closeKeys(); });
@@ -4128,7 +4234,7 @@ function liveBadge(){
     el.textContent=LV.joined?(lbl+(n>1?' · '+n:'')):lbl+' …';
     el.title=(c.role==='view'?'Nur ansehen. ':'')+(LV.joined?(n>1?n+' Geräte sind mit diesem Board verbunden':'Verbunden, gerade niemand sonst da'):'Verbindung wird aufgebaut …'); }
   const lb=$('liveBtn'); if(lb){ lb.classList.toggle('isLive',on); lb.dataset.st=on?(LV.joined?'ok':'off'):''; lb.dataset.role=on?c.role:'';
-    lb.querySelector('span').textContent=on?(c.role==='view'?'Ansehen':'Live')+(LV.joined&&LV.peers.size?' · '+(LV.peers.size+1):''):'Live';
+    lb.querySelector('span').textContent=on?(c.role==='view'?'Ansehen':'Live')+(LV.joined&&LV.peers.size?' · '+(LV.peers.size+1):''):'Teilen';
     lb.title=on?el.title:'Live: Board mit anderen Geräten teilen'; }
   const info=$('liveInfo'); if(!info) return;
   info.textContent=!liveOk()?'Hier nicht verfügbar':!on?'Nur auf diesem Gerät':(c.own?'':c.role==='view'?'Gast, nur ansehen · ':'Gast, mitzeichnen · ')+(LV.joined?(LV.peers.size?'verbunden mit '+LV.peers.size+(LV.peers.size>1?' anderen Geräten':' anderem Gerät'):'verbunden, niemand sonst da'):'Verbindung wird aufgebaut …');
@@ -4205,7 +4311,9 @@ function liveFromHash(){
 window.addEventListener('hashchange',liveFromHash);
 $('liveJoinForm').addEventListener('submit',async e=>{
   e.preventDefault(); const inp=$('liveJoinIn'), p=liveParse(inp.value);
-  if(!p){ toast('Das ist kein gültiger Live-Link. Füge den ganzen Link ein.'); return; }
+  { const v=String(inp.value||'').trim(), m=/#quiz=([A-Za-z0-9]{6})\b/.exec(v), c=(m?m[1]:v).toUpperCase().replace(/[^A-Z0-9]/g,'');   /* Quiz-Code (6 Zeichen) oder Quiz-Link */
+    if(!p&&(m||v.replace(/[\s-]/g,'').length===6)&&QZ_RE.test(c)){ closeMenu(); inp.value=''; qzPlayOpen(c); return; } }
+  if(!p){ toast('Das ist weder ein Live-Link noch ein Quiz-Code. Füge den ganzen Link ein oder tippe den 6-stelligen Code.'); return; }
   closeMenu(); if(await liveJoin(p)) inp.value='';
 });
 

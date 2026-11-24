@@ -16,10 +16,18 @@ function placeProps_(){
     let x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;
     for(const it of items){ let q; try{ q=bbox(it); }catch(e){ continue; } x1=Math.min(x1,q.x); y1=Math.min(y1,q.y); x2=Math.max(x2,q.x+q.w); y2=Math.max(y2,q.y+q.h); }
     const sx1=rc.left+view.x+x1*view.k, sx2=rc.left+view.x+x2*view.k, sy1=rc.top+view.y+y1*view.k, sy2=rc.top+view.y+y2*view.k;
-    left=(sx1+sx2)/2-bw/2; top=sy1-bh-46;   /* Abstand: Drehgriff über dem Element bleibt frei */
-    if(top<rc.top+m) top=sy2+26;
-    if(top+bh>rc.bottom-m) top=rc.top+m;
-  } else { left=rc.left+rc.width/2-bw/2; top=rc.top+m; }
-  left=Math.max(rc.left+m,Math.min(rc.right-bw-m,left));
+    left=(sx1+sx2)/2-bw/2; left=Math.max(rc.left+m,Math.min(rc.right-bw-m,left));
+    /* Kandidaten: über der Auswahl, darunter, oben in der Tafel – der erste, der nichts verdeckt (Folienübersicht, offene Menüs) */
+    const cands=[sy1-bh-46,sy2+26,rc.top+m].filter(t=>t>=rc.top+m-0.5&&t+bh<=rc.bottom-m+0.5);
+    top=cands.find(t=>!barBlocked(left,t,bw,bh));
+    if(top===undefined){ if(cands.length&&!barObstacles().length) top=cands[0]; else { propsEl.classList.add('fhide'); closeColorPop&&closeColorPop(); return; } }
+  } else { left=rc.left+rc.width/2-bw/2; top=rc.top+m; left=Math.max(rc.left+m,Math.min(rc.right-bw-m,left));
+    if(barBlocked(left,top,bw,bh)){ propsEl.classList.add('fhide'); return; } }
   propsEl.style.left=(left/z)+'px'; propsEl.style.top=(top/z)+'px';
 }
+function barObstacles(){
+  const o=[]; const sl=$('slides'); if(sl&&!sl.hidden) o.push(sl.getBoundingClientRect());
+  document.querySelectorAll('.hdrPop:not([hidden])').forEach(e=>o.push(e.getBoundingClientRect()));
+  return o.filter(r=>r.width&&r.height);
+}
+function barBlocked(l,t,w,h){ return barObstacles().some(r=>l<r.right&&l+w>r.left&&t<r.bottom&&t+h>r.top); }

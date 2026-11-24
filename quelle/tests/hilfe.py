@@ -45,3 +45,9 @@ def pact(pg,sel):
             pg.locator('#props .mdrop').nth(i).click(); pg.wait_for_timeout(80)
         if pg.locator('#colorPop:not([hidden]) '+sel).count(): pg.locator('#colorPop '+sel).first.click(); return
     raise AssertionError('Knopf nicht gefunden: '+sel)
+
+def leeren(pg):
+    """Aktuelles Board leeren: Datei-Leiste → „⋯“ am aktuellen Board → Board leeren."""
+    openFile(pg)
+    pg.evaluate("()=>{const r=document.querySelector('#boardList [data-b][aria-current=\"true\"]').closest('.bRow'); if(!r.classList.contains('open')) r.querySelector('.bM').click()}"); pg.wait_for_timeout(80)
+    pg.click('#boardList [data-m="clear"]')

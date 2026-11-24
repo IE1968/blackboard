@@ -255,7 +255,7 @@ function liveBadge(){
     el.textContent=LV.joined?(lbl+(n>1?' · '+n:'')):lbl+' …';
     el.title=(c.role==='view'?'Nur ansehen. ':'')+(LV.joined?(n>1?n+' Geräte sind mit diesem Board verbunden':'Verbunden, gerade niemand sonst da'):'Verbindung wird aufgebaut …'); }
   const lb=$('liveBtn'); if(lb){ lb.classList.toggle('isLive',on); lb.dataset.st=on?(LV.joined?'ok':'off'):''; lb.dataset.role=on?c.role:'';
-    lb.querySelector('span').textContent=on?(c.role==='view'?'Ansehen':'Live')+(LV.joined&&LV.peers.size?' · '+(LV.peers.size+1):''):'Live';
+    lb.querySelector('span').textContent=on?(c.role==='view'?'Ansehen':'Live')+(LV.joined&&LV.peers.size?' · '+(LV.peers.size+1):''):'Teilen';
     lb.title=on?el.title:'Live: Board mit anderen Geräten teilen'; }
   const info=$('liveInfo'); if(!info) return;
   info.textContent=!liveOk()?'Hier nicht verfügbar':!on?'Nur auf diesem Gerät':(c.own?'':c.role==='view'?'Gast, nur ansehen · ':'Gast, mitzeichnen · ')+(LV.joined?(LV.peers.size?'verbunden mit '+LV.peers.size+(LV.peers.size>1?' anderen Geräten':' anderem Gerät'):'verbunden, niemand sonst da'):'Verbindung wird aufgebaut …');
@@ -332,7 +332,9 @@ function liveFromHash(){
 window.addEventListener('hashchange',liveFromHash);
 $('liveJoinForm').addEventListener('submit',async e=>{
   e.preventDefault(); const inp=$('liveJoinIn'), p=liveParse(inp.value);
-  if(!p){ toast('Das ist kein gültiger Live-Link. Füge den ganzen Link ein.'); return; }
+  { const v=String(inp.value||'').trim(), m=/#quiz=([A-Za-z0-9]{6})\b/.exec(v), c=(m?m[1]:v).toUpperCase().replace(/[^A-Z0-9]/g,'');   /* Quiz-Code (6 Zeichen) oder Quiz-Link */
+    if(!p&&(m||v.replace(/[\s-]/g,'').length===6)&&QZ_RE.test(c)){ closeMenu(); inp.value=''; qzPlayOpen(c); return; } }
+  if(!p){ toast('Das ist weder ein Live-Link noch ein Quiz-Code. Füge den ganzen Link ein oder tippe den 6-stelligen Code.'); return; }
   closeMenu(); if(await liveJoin(p)) inp.value='';
 });
 

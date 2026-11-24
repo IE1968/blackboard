@@ -76,14 +76,30 @@ document.addEventListener('keydown',e=>{
     commit(); render(); return; }
   if(e.shiftKey&&e.code==='Digit1'){ e.preventDefault(); fit(); return; }
   if(e.key==='0'){ e.preventDefault(); zoomCenter(1/view.k); return; }
-  if(e.key==='?'){ e.preventDefault(); openKeys(); return; }
+  if(e.key==='?'){ e.preventDefault(); openKeys('keys'); return; }
   /* Genau eine Form ausgewählt und einfach lostippen: der Buchstabe ersetzt ihren Text (wie in Präsentationsprogrammen) */
   if(sel.size===1&&e.key.length===1&&e.key!==' '&&!e.altKey&&!liveRO()&&!(t&&t.tagName==='BUTTON')){ const it=byId([...sel][0]);
     if(it&&it.type==='shape'&&it.kind!=='frame'&&!it.lock){ e.preventDefault(); startEdit(it.id); editor.value=e.key; editor.setSelectionRange(1,1); placeEditor(); if(it.pf||it.list) render(); return; } }
   const map={v:'select',f:'shape',p:'pen',b:'brush',m:'marker',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
 });
 document.addEventListener('keyup',e=>{ if(e.key===' ') spaceDown=false; });
-function openKeys(){ closeMenu(); $('keysDlg').hidden=false; const b=$('keysBox'); b.scrollTop=0; b.focus({preventScroll:true}); }
+let keysTab=null;
+function helpStartHTML(){
+  const t=!isPC, I=(c,p)=>`<i style="--c:var(--c-${c})"><svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg></i>`;
+  const R=[
+    [I('coral','<path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/>'),'Zeichnen','Oben Stift, Pinsel oder Marker wählen und losziehen.'+(t?' Mit einem digitalen Stift zeichnet nur der Stift – mit dem Finger verschiebst du dann die Tafel.':'')],
+    [I('violet','<rect x="4" y="5" width="11" height="9" rx="1.5"/><circle cx="15.5" cy="15.5" r="4.5"/>'),'Formen',(t?'Formenleiste links mit ›  öffnen, Form antippen':'Form in der Leiste links anklicken')+' oder auf die Tafel ziehen. Neue Boards bieten auch Vorlagen an.'],
+    [I('mint','<path d="M5 6h14M12 6v13M9 19h6"/>'),'Text ändern',(t?'Doppeltippen':'Doppelklicken')+' auf eine Form oder einen Text – oder Form wählen und einfach lostippen.'],
+    [I('blue','<path d="M4 12h12M12 7l5 5-5 5"/>'),'Pfeile','An einem der blauen Punkte einer gewählten Form ziehen. Der Pfeil dockt an der nächsten Form an.'],
+    [I('gold','<path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/>'),'Tafel bewegen und zoomen',t?'Mit zwei Fingern ziehen; zum Zoomen zwei Finger auseinander- oder zusammenschieben.':'Mausrad oder Touchpad verschiebt, Strg + Mausrad zoomt. Leertaste halten und ziehen geht auch.'],
+    [I('blue','<path d="M5 3l14 8-6 2-2 6z"/>'),'Auswählen',(t?'Antippen':'Anklicken')+' wählt aus. Mit „Auswahl“ einen Rahmen um mehrere Elemente ziehen. Die Leiste über der Auswahl ändert Farbe, Text und mehr.'],
+    [I('coral','<path d="M8 7L4 11l4 4M4 11h10a5 5 0 010 10h-3"/>'),'Rückgängig','Oben „Zurück“'+(t?'.':' oder Strg + Z.')+' Nichts geht verloren: Boards werden auf dem Gerät gespeichert.'],
+    [I('mint','<circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7"/>'),'Teilen und präsentieren','„Live“ teilt das Board per Link, auch als Quiz per QR-Code. „Präsentieren“ zeigt deine Folien.']];
+  return '<div class="hsList">'+R.map(([i,h,d])=>`<div class="hs">${i}<div><b>${h}</b><span>${d}</span></div></div>`).join('')+'</div>';
+}
+function setKeysTab(t){ keysTab=t; document.querySelectorAll('#keysBox [data-kt]').forEach(b=>b.setAttribute('aria-selected',b.dataset.kt===t)); document.querySelectorAll('#keysBox [data-kp]').forEach(p=>p.hidden=p.dataset.kp!==t); }
+function openKeys(tab){ closeMenu(); $('helpStart').innerHTML=helpStartHTML(); setKeysTab(tab||keysTab||'start'); $('keysDlg').hidden=false; const b=$('keysBox'); b.scrollTop=0; b.focus({preventScroll:true}); }
+$('keysBox').addEventListener('click',e=>{ const b=e.target.closest('[data-kt]'); if(b) setKeysTab(b.dataset.kt); if(e.target.closest('#keysX')) closeKeys(); });
 function closeKeys(){ if($('keysDlg').hidden) return; $('keysDlg').hidden=true; svg.focus(); }
 $('keysClose').onclick=closeKeys;
 $('keysDlg').addEventListener('pointerdown',e=>{ if(e.target===$('keysDlg')) closeKeys(); });

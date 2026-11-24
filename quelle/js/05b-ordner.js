@@ -2,7 +2,7 @@
    Ein Ordner ist ein Name am Board (b.f). Die Reihenfolge der Ordner steht in boards.folders, auch leere Ordner.
    Mit Konto wird der Ordner jedes Boards mit abgeglichen (Spalte „folder“, siehe quelle/supabase/02-ordner.sql). */
 const FOLD_C=['var(--c-blue)','var(--c-mint)','var(--c-gold)','var(--c-coral)','var(--c-violet)'];
-var fUi={adding:false,edit:null,menu:null};
+var fUi={adding:false,edit:null,menu:null,bm:null,bmF:false,bmDel:false};
 function fClean(n){ return String(n==null?'':n).replace(/\s+/g,' ').trim().slice(0,40); }
 function fOpenSet(){ try{ const v=JSON.parse(lsGet('skizix-ordner-offen')||'{}'); return v&&typeof v==='object'?v:{}; }catch(e){ return {}; } }
 function fSetOpen(n,o){ const v=fOpenSet(); v[n]=o; lsSet('skizix-ordner-offen',JSON.stringify(v)); }
@@ -25,7 +25,23 @@ function moveBoards(ids,f){
   for(const b of boards.list) if(s.has(b.id)&&fClean(b.f)!==f){ b.f=f; n++; }
   saveIdx(); ktSoon(300); return n;
 }
-function boardBtn(b){ return `<button data-b="${b.id}" aria-current="${b.id===boards.cur}" title="${esc(b.name)}">${thHTML(b)}<span class="bn">${b.id===boards.cur?'✓ ':''}${esc(b.name)}</span></button>`; }
+function boardBtn(b){
+  const cur=b.id===boards.cur, nm=esc(b.name);
+  let h=`<div class="bRow${fUi.bm===b.id?' open':''}"><button data-b="${b.id}" aria-current="${cur}" title="${nm}">${thHTML(b)}<span class="bn">${cur?'✓ ':''}${nm}</span></button><button type="button" class="bM" data-bm="${b.id}" aria-expanded="${fUi.bm===b.id}" title="Umbenennen, Ordner, Duplizieren, Löschen" aria-label="Board ${nm}: weitere Befehle">⋯</button></div>`;
+  if(fUi.bm!==b.id) return h;
+  if(fUi.bmF){ const F=folderList(), here=fClean(b.f);
+    return h+`<div class="fAct bAct"><div class="bActH">In Ordner verschieben</div>`+F.map(f=>`<button type="button" data-bto="${esc(f)}" style="--fc:${fColor(f)}" aria-pressed="${f===here}"><i class="bDot"></i>${esc(f)}</button>`).join('')+`<button type="button" data-bto="" aria-pressed="${!here}">Ohne Ordner</button><button type="button" data-bnewf="1" class="bAdd">+ Neuer Ordner …</button><button type="button" data-bback="1" class="bBack">‹ Zurück</button></div>`; }
+  return h+`<div class="fAct bAct"><button type="button" data-bact="ren">Umbenennen</button><button type="button" data-bact="fold">In Ordner verschieben ›</button><button type="button" data-bact="dup">Duplizieren</button>`
+    +(cur?`<button type="button" data-m="clear">Board leeren</button>`:'')
+    +`<button type="button" data-bact="del" class="fDel">${fUi.bmDel?'Wirklich löschen? Das lässt sich nicht zurückholen.':'Board löschen'}</button></div>`;
+}
+function dupBoard(id){
+  const src=boards.list.find(b=>b.id===id); if(!src) return;
+  const json=id===boards.cur?JSON.stringify(Object.assign({},doc,{fmt:Math.max(doc.fmt||0,DOC_FMT)})):(docGet(id)||JSON.stringify({items:[],n:0,fmt:DOC_FMT}));
+  const nb={id:genId(),name:(src.name+' (Kopie)').slice(0,40)}; if(src.f) nb.f=src.f;
+  boards.list.splice(boards.list.indexOf(src)+1,0,nb); docSet(nb.id,json); markDirty(nb); saveIdx(); ktSoon(500);
+  fUi.bm=null; renderBoardList(); toast('„'+src.name+'“ dupliziert.');
+}
 function folderListHTML(){
   const F=folderList(), open=fOpenSet(); let h='';
   if(!F.length&&!fUi.adding) return boards.list.map(boardBtn).join('');
@@ -48,6 +64,20 @@ $('newFolder').onclick=e=>{
   fFocus();
 };
 $('boardList').addEventListener('click',e=>{
+  const q=e.target.closest('[data-bm],[data-bact],[data-bto],[data-bnewf],[data-bback]');
+  if(q){ e.stopPropagation(); const id=fUi.bm;
+    if(q.dataset.bm!==undefined){ fUi.bm=fUi.bm===q.dataset.bm?null:q.dataset.bm; fUi.bmF=false; fUi.bmDel=false; fUi.menu=null; renderBoardList(); return; }
+    if(q.dataset.bback!==undefined){ fUi.bmF=false; renderBoardList(); return; }
+    if(q.dataset.bnewf!==undefined){ fUi.bm=null; fUi.bmF=false; fUi.adding=true; renderBoardList(); fFocus(); toast('Ordner anlegen, dann das Board über „⋯ → In Ordner verschieben“ hineinlegen.'); return; }
+    if(q.dataset.bto!==undefined){ const n=moveBoards([id],q.dataset.bto); fUi.bm=null; fUi.bmF=false; renderBoardList(); if(n) toast(q.dataset.bto?'In „'+q.dataset.bto+'“ verschoben.':'Steht jetzt unter „Ohne Ordner“.'); return; }
+    switch(q.dataset.bact){
+      case 'ren': fUi.bm=null; if(id!==boards.cur) openBoard(id); renderBoardList(); closeMenu(); { const i=$('boardName'); i.focus(); i.select(); } break;
+      case 'fold': fUi.bmF=true; renderBoardList(); break;
+      case 'dup': dupBoard(id); break;
+      case 'del': if(!fUi.bmDel){ fUi.bmDel=true; renderBoardList(); return; } { const b=boards.list.find(x=>x.id===id), nm=b?b.name:''; fUi.bm=null; fUi.bmDel=false; removeBoards([id]); renderBoardList(); toast('„'+nm+'“ gelöscht.'); } break;
+    }
+    return; }
+  if(e.target.closest('[data-m="clear"]')){ fUi.bm=null; setTimeout(renderBoardList,0); return; }   /* läuft weiter zum Menü (Board leeren) */
   const t=e.target.closest('[data-fo],[data-fm],[data-fren],[data-fdel]'); if(!t) return; e.stopPropagation();
   if(t.dataset.fo!==undefined){ const f=t.dataset.fo; fSetOpen(f,fOpenSet()[f]===false); fUi.menu=null; renderBoardList(); }
   else if(t.dataset.fm!==undefined){ fUi.menu=fUi.menu===t.dataset.fm?null:t.dataset.fm; renderBoardList(); }

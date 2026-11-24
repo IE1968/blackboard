@@ -13,7 +13,7 @@ try:
   w=pg.evaluate("()=>[document.getElementById('palette').getBoundingClientRect().width,document.getElementById('menu').getBoundingClientRect().width]")
   check('Rechte Leiste so breit wie die linke',abs(w[0]-w[1])<1.5,str(w))
   check('Rechts: Datei-Inhalte ohne Export',pg.locator('main #menu #boardList').count()==1 and pg.locator('main #menu [data-m="pdf"]').count()==0)
-  check('Neues Board, Vorlagen und Löschen direkt unter Boards verwalten',pg.evaluate("()=>{const k=[...document.querySelectorAll('#menu > *')]; const i=k.findIndex(e=>e.id==='manageBtn'); return k[i+1].dataset.m==='new'&&k[i+2].dataset.m==='tpl'&&k[i+3].dataset.m==='open'&&k[i+4].dataset.m==='clear'&&k[i+5].id==='delBoard'&&k[i+5].textContent==='Board löschen'}"))
+  check('Oben nur Neues Board, Vorlagen, Board laden – Leeren und Löschen im „⋯“ der Boards',pg.evaluate("()=>{const k=[...document.querySelectorAll('#menu > *')]; const i=k.findIndex(e=>e.id==='manageBtn'); return k[i+1].dataset.m==='new'&&k[i+2].dataset.m==='tpl'&&k[i+3].dataset.m==='open'&&k[i+4].tagName==='HR'&&!document.getElementById('delBoard')&&document.querySelectorAll('#boardList .bM').length>0}"))
   check('Kein Hinweistext auf der Tafel',pg.locator('#hint').count()==0)
   # Optionsleiste je Werkzeug
   pg.click('#tools [data-tool="pen"]'); pg.wait_for_timeout(150)
@@ -49,7 +49,7 @@ try:
   pact(pg,'[data-act="copy"]'); pg.wait_for_timeout(150)
   pg.click('#props [data-drop="elem"]'); pg.wait_for_timeout(120)
   check('Einfügen steht bei Kopieren und Duplizieren',pg.locator('#colorPop [data-act="copy"]').count()==1 and pg.locator('#colorPop [data-act="paste"]').count()==1)
-  check('Löschen ist der letzte Eintrag',pg.evaluate("()=>[...document.querySelectorAll('#colorPop [data-act]')].pop().dataset.act")=='del')
+  check('Duplizieren und Löschen direkt in der Leiste, nicht doppelt im „Mehr“',pg.locator('#props .pgQuick [data-act="dup"]').count()==1 and pg.locator('#props .pgQuick [data-act="del"]').count()==1 and pg.locator('#colorPop [data-act="del"]').count()==0)
   pg.keyboard.press('Escape'); pg.wait_for_timeout(100)
   gap=pg.evaluate("()=>{const p=document.getElementById('props').getBoundingClientRect();let t=1e9,b=0;document.querySelectorAll('#props .pg').forEach(g=>{const q=g.getBoundingClientRect();t=Math.min(t,q.top);b=Math.max(b,q.bottom)});return [t-p.top,p.bottom-b]}")
   check('Leiste oben: Abstand unten wie oben',abs(gap[0]-gap[1])<3,str(gap))

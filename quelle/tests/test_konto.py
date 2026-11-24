@@ -82,7 +82,7 @@ try:
   check('Neues Board erscheint auf Gerät A',warte(lambda: len(boards(A))==n),f'{len(boards(A))} / {n}')
 
   # Löschen auf B entfernt es auf A
-  openFile(B); B.click('#delBoard'); B.click('#delBoard'); B.wait_for_timeout(1200)
+  openFile(B); B.evaluate("()=>document.querySelector('#boardList [data-b][aria-current=\"true\"]').closest('.bRow').querySelector('.bM').click()"); B.click('#boardList [data-bact="del"]'); B.click('#boardList [data-bact="del"]'); B.wait_for_timeout(1200)
   n=len(boards(B)); sync(A)
   check('Gelöschtes Board verschwindet auch auf Gerät A',warte(lambda: len(boards(A))==n),f'{len(boards(A))} / {n}')
 

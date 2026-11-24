@@ -7,7 +7,7 @@ try:
   br=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox']); pg=br.new_page(viewport={'width':1500,'height':900})
   pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.goto(URL); pg.wait_for_timeout(900)
-  openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(100)
+  leeren(pg); pg.wait_for_timeout(100)
   def add(kind):
     pg.evaluate("()=>{for(let i=0;i<12;i++){const h=[...document.querySelectorAll('.gh')].find(h=>h.getAttribute('aria-expanded')==='false'); if(!h) break; h.click();}}")
     pg.focus(f'.pal[data-kind="{kind}"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(150)

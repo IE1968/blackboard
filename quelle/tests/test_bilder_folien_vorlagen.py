@@ -22,6 +22,7 @@ try:
     if m=='tpl': pg.evaluate("()=>document.querySelector('[data-tpl]').click()")
     elif m=='img': pg.evaluate("()=>document.querySelector('.pal[data-kind=\"image\"]').click()")
     elif m=='slides': pg.click('#playBtn'); pg.click('#presPop [data-m="slides"]')
+    elif m=='clear': leeren(pg)
     else: openFile(pg); pg.click(f'#menu [data-m="{m}"]')
     pg.wait_for_timeout(200)
   menu('clear')

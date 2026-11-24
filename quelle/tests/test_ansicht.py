@@ -9,6 +9,7 @@ try:
   pg.goto(URL); pg.wait_for_timeout(800)
   def view(sel): 
       if not pg.is_visible('#viewPop'): pg.click('#viewBtn'); pg.wait_for_timeout(150)
+      if not pg.is_visible('#viewPop '+sel.split()[0]): pg.click('#viewPop [data-vt="geraet"]' if pg.is_visible('#viewPop #vpSurf') else '#viewPop [data-vt="tafel"]'); pg.wait_for_timeout(80)
       pg.click(sel); pg.wait_for_timeout(200)
   stage=lambda: pg.evaluate("()=>{const s=document.getElementById('stage');return [s.dataset.surf,s.style.getPropertyValue('--paper'),document.getElementById('grid').dataset.p,s.classList.contains('dark')]}")
   check('Kein Abschnitt „Anzeige“ mehr im Menü',pg.locator('#menu #uiRow').count()==0 and pg.locator('#viewPop #uiRow').count()==1)

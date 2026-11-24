@@ -45,7 +45,7 @@ header{position:relative;min-width:0;zoom:var(--ui);border-bottom:1px solid var(
 #boardName:hover,#boardName:focus{border-color:var(--accent);outline:none}
 .mh{font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 12px 4px}
 #boardList{display:flex;flex-direction:column}
-#boardList button[aria-current="true"]{font-weight:600}
+#boardList [data-b][aria-current="true"]{font-weight:600}
 #zoomLabel{min-width:54px;padding:8px 6px;font-weight:500;font-variant-numeric:tabular-nums;font-size:13px}
 #zoomLabel:hover{background:var(--hover)}
 #menu{zoom:var(--ui);min-width:0;min-height:0;background:var(--panel);border-left:1px solid var(--line);padding:8px 5px 20px;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
@@ -481,13 +481,8 @@ body.light .sw.none,body.light .cdot.none{border-color:rgba(24,24,26,.3)}
 #menu [data-m="open"] svg{color:var(--c-gold)}
 #menu [data-m="clear"] svg{color:var(--c-violet)}
 #menu [data-m="delboard"] svg{color:var(--c-coral)}
-#boardList button{display:flex;align-items:center;gap:7px}
-#boardList button::before{content:'';width:8px;height:8px;border-radius:3px;flex:none;background:var(--c-blue)}
-#boardList button:nth-child(5n+2)::before{background:var(--c-mint)}
-#boardList button:nth-child(5n+3)::before{background:var(--c-gold)}
-#boardList button:nth-child(5n+4)::before{background:var(--c-coral)}
-#boardList button:nth-child(5n+5)::before{background:var(--c-violet)}
-#boardList button[aria-current="true"]{background:var(--acc-soft);color:var(--accent)}
+#boardList [data-b]{display:flex;align-items:center;gap:7px}
+#boardList [data-b][aria-current="true"]{background:var(--acc-soft);color:var(--accent)}
 
 /* ---- Schritt 3: schwebende Seitenfelder, breitere Formenleiste mit Namen und Suche, breitere Board-Leiste ---- */
 main{--palw:calc(204px*var(--ui));--propw:calc(204px*var(--ui));background:var(--chrome)}
@@ -719,3 +714,53 @@ body.narrow .saTips{display:none}
 .tc small em{font-style:normal;font-weight:700}
 .tc[hidden]{display:none}
 .slWarn{position:absolute;left:8px;top:8px;padding:2px 7px;border-radius:999px;background:#ffe3dd;color:#8a2414;font:700 10.5px/1.4 var(--body);font-style:normal;pointer-events:none}
+/* ---- Kompakte Optionsleiste: Gruppen ohne Überschrift (nur für Vorlese-Programme), feine Trennlinien, direkte Aktionen ---- */
+#props .pb.ico{display:flex;align-items:center;justify-content:center;min-width:34px;padding:4px 6px}
+#props .pb.ico svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#props .pb.ico.danger{color:#ff8f7a}
+body.light #props .pb.ico.danger{color:#c8321f}
+body.floatbar #props{gap:0;padding:5px 6px;align-items:center;row-gap:6px}
+body.floatbar #props .pg>b{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+body.floatbar #props .pg{padding:0 8px;gap:4px;flex-wrap:nowrap}
+body.floatbar #props .pg+.pg{border-left:1px solid var(--line)}
+body.floatbar #props .pb{border-color:transparent;background:transparent}
+body.floatbar #props .pb:hover{background:var(--hover)}
+body.floatbar #props .pb[aria-pressed="true"]{background:var(--acc-soft);color:var(--accent);border-color:transparent}
+body.floatbar #props .cdrop{border-color:transparent}
+/* ---- Board-Zeile mit „⋯“-Menü ---- */
+.bRow{display:flex;align-items:center;min-width:0;border-radius:9px}
+#boardList .bRow [data-b]{flex:1;min-width:0;width:auto}
+#menu .bM{flex:none;width:28px;padding:6px 0!important;text-align:center!important;color:var(--muted);font-weight:700;opacity:.55}
+.bRow:hover .bM,.bRow.open .bM,.bM:focus-visible{opacity:1}
+body.touch #menu .bM{opacity:1;width:36px}
+.bAct{flex-direction:column;align-items:stretch;padding:2px 4px 8px 12px!important}
+#menu .bAct button{text-align:left!important;flex:none;padding:7px 10px!important;border-radius:8px}
+#menu .bAct button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.bActH{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:4px 4px 2px}
+.bDot{display:inline-block;width:8px;height:8px;border-radius:3px;background:var(--fc);margin-right:7px}
+#menu .bAct .bAdd{color:var(--accent)}
+#menu .bAct .bBack{border-color:transparent;color:var(--muted)}
+/* Ansicht: zwei Reiter */
+.vpTabs{display:flex;gap:4px;padding:2px;margin:0 0 6px;border-radius:10px;background:var(--hover)}
+.vpTabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 4px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted)}
+.vpTabs button small{font-size:10.5px;font-weight:500;opacity:.8}
+.vpTabs button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.vpPane{display:flex;flex-direction:column}
+.vpPane[hidden]{display:none}
+/* Hilfe: Erste Schritte */
+#keysBox .vpTabs{margin:0 0 12px}
+.kPane[hidden]{display:none}
+.hsList{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hs{display:flex;gap:11px;align-items:flex-start;padding:11px;border:1px solid var(--line);border-radius:12px}
+.hs i{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:color-mix(in srgb,var(--c) 18%,transparent)}
+.hs svg{width:18px;height:18px;fill:none;stroke:var(--c);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.hs b{display:block;font-size:13.5px;margin-bottom:2px}
+.hs span{display:block;font-size:12.5px;line-height:1.4;color:var(--muted)}
+#keysBox{max-width:680px}
+@media (max-width:560px){ .hsList{grid-template-columns:1fr} }
+/* Teilen-Menü: Hauptknopf und Bereich „Bei anderen mitmachen“ */
+#livePop{width:268px}
+#livePop .liveMain{background:var(--accent-fill);color:var(--accent-ink,#fff)!important;text-align:center!important;font-weight:600;border-radius:9px;margin:2px 4px 4px;padding:9px 8px!important}
+#livePop .liveMain:hover{filter:brightness(1.08);background:var(--accent-fill)}
+#livePop .liveH2{margin-top:8px;padding-top:12px;border-top:1px solid var(--line)}
+#livePop .liveSub{text-align:center!important;font-size:12.5px;color:var(--accent)!important}

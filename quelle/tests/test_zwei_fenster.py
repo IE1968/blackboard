@@ -6,7 +6,7 @@ try:
   with sync_playwright() as p:
     b=p.chromium.launch(executable_path=CHROME,headless=True,args=['--no-sandbox'])
     ctx=b.new_context(viewport={'width':1500,'height':900}); pg=ctx.new_page(); pg.goto(URL); pg.wait_for_timeout(500)
-    openFile(pg); pg.click('#menu [data-m="clear"]'); pg.wait_for_timeout(500)
+    leeren(pg); pg.wait_for_timeout(500)
     pg2=ctx.new_page(); pg2.goto(URL); pg2.wait_for_timeout(600)
     cnt=lambda q: q.evaluate("()=>document.querySelectorAll('#items > g').length")
     print('start',cnt(pg),cnt(pg2))
