@@ -187,3 +187,30 @@ details p{margin:6px 0 0}
 @media (min-width:600px) and (max-width:820px){ .raster3{grid-template-columns:repeat(2,minmax(0,1fr))} }
 @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} .vk:hover{transform:none} .buehne *{animation:none!important} }
 @media print{ .kopf .knopf,.rund,.navi,.kontext{display:none} body{padding:0} .rahmen{display:block} .karte{box-shadow:none} }
+
+/* Kopf- und Fußleiste durchgehend blau über die ganze Breite */
+:root{--leiste:#3B6FE8;--leiste-text:#FFFFFF}
+:root[data-thema="dunkel"]{--leiste:#2B55C4}
+body{padding:0}
+.rahmen{margin:12px}
+.kopf{border:0;border-radius:0;box-shadow:none;background:var(--leiste);color:var(--leiste-text);padding:12px 24px;min-height:72px}
+.kopf::after{display:none}
+.kopf .marke{background:#fff;color:#18181A;padding:6px 12px 6px 9px;border-radius:12px}
+.kopf .trenner{background:rgba(255,255,255,.35)}
+.kopf .slogan{color:rgba(255,255,255,.85)}
+.kopf .slogan b{color:#fff}
+.kopf .rund{background:rgba(255,255,255,.16);color:#fff}
+.kopf .rund:hover{background:rgba(255,255,255,.26);filter:none}
+.kopf .knopf.rand{border-color:rgba(255,255,255,.55);color:#fff}
+.kopf .knopf.rand:hover{background:rgba(255,255,255,.12)}
+.kopf .knopf.haupt{background:#fff;color:var(--leiste);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.kopf :focus-visible,.fuss :focus-visible{outline-color:#fff}
+.fuss{border:0;border-radius:0;box-shadow:none;background:var(--leiste);color:rgba(255,255,255,.85);padding:18px 24px}
+.fuss a{color:#fff}
+.fuss a:hover{color:#fff;text-decoration:underline}
+.fuss .marke{background:#fff;color:#18181A;padding:4px 10px 4px 8px;border-radius:10px}
+.navi,.kontext{top:12px}
+@media (max-width:820px){ .rahmen{margin:8px} .kopf{padding:12px 14px} .fuss{padding:14px 16px} }
+.zwei>*{min-width:0}
+.buehne{overflow:hidden}
+main>.karte{min-width:0;overflow:hidden}

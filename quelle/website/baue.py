@@ -11,7 +11,7 @@ import os, re, base64, shutil
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '3'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '4'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -62,7 +62,7 @@ def seite(datei, titel, aktiv, haupt, kontext, beschreibung):
 <meta name="robots" content="noindex,nofollow">
 <title>{titel} – Skizix</title>
 <meta name="description" content="{beschreibung}">
-<meta name="theme-color" content="#F8F8F7">
+<meta name="theme-color" content="#3B6FE8">
 <link rel="icon" type="image/png" href="../icon-192.png">
 <link rel="stylesheet" href="stil.css?v={V}">
 <script>try{{if(localStorage.getItem('skizix-web-thema')==='dunkel')document.documentElement.dataset.thema='dunkel'}}catch(e){{}}</script>

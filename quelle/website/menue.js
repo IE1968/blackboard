@@ -8,7 +8,7 @@
   /* Hell / Dunkel, wird auf diesem Gerät gemerkt */
   var t=document.getElementById('thema'), root=document.documentElement;
   function zeige(){ var d=root.dataset.thema==='dunkel'; if(t){ t.setAttribute('aria-label',d?'Helle Ansicht einschalten':'Dunkle Ansicht einschalten'); t.setAttribute('aria-pressed',d); }
-    var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content',d?'#18181A':'#F8F8F7'); }
+    var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content',d?'#2B55C4':'#3B6FE8'); }
   if(t) t.addEventListener('click',function(){ var d=root.dataset.thema!=='dunkel'; if(d) root.dataset.thema='dunkel'; else delete root.dataset.thema; try{ localStorage.setItem('skizix-web-thema',d?'dunkel':'hell'); }catch(e){} zeige(); });
   zeige();
   /* Beispiel-Boards sind 440 × 320 Pixel groß und werden auf die verfügbare Breite gebracht */
