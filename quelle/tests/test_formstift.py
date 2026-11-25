@@ -41,7 +41,7 @@ try:
   pg.click('#tools [data-tool="select"]'); pg.click('#tools [data-tool="text"]'); pg.mouse.click(600,700); pg.keyboard.type('Hallo Welt'); pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
   tx=[i for i in pg.evaluate(READ)['items'] if i.get('kind')=='text'][0]
   b=pg.locator(f'#items > [data-id="{tx["id"]}"]').bounding_box(); pg.mouse.click(b['x']+b['width']/2,b['y']+b['height']/2); pg.wait_for_timeout(200)
-  pg.click('#props [data-drop="text"]'); pg.click('#colorPop [data-act="hand"]'); pg.wait_for_timeout(300)
+  pg.click('#props [data-drop="text"]'); pg.click('#colorPop [data-act="ff"][data-val="hand"]'); pg.wait_for_timeout(300)
   tx=[i for i in pg.evaluate(READ)['items'] if i.get('kind')=='text'][0]
   fam=pg.evaluate(f"()=>document.querySelector('#items > [data-id=\"{tx['id']}\"] text').getAttribute('font-family')")
   check('Schriftart Handschrift gesetzt und angezeigt',tx.get('ff')=='hand' and 'Caveat' in fam,fam)

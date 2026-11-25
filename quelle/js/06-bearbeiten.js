@@ -2,7 +2,9 @@
 function mkShape(kind,cx,cy){
   const d=KINDS[kind];
   if(kind==='frame') return {id:nid(),type:'shape',kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:'',fill:'none',stroke:INK,sw:2,ord:frames().reduce((m,f)=>Math.max(m,f.ord||0),0)+1};
-  return {id:nid(),type:'shape',kind:d.as||kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:d.text||'',fill:d.fill||'#ffffff',stroke:INK,sw:2,...(d.list?{list:true,fs:16}:{}),...(d.chk?{pf:String(d.text).split('\n').map(()=>'c'),fs:16}:{})};
+  /* Neue Elemente: gut lesbare Schrift (Text 24 px, Formen 18 px, Listen 20 px); ältere Boards behalten ihre Größen */
+  const fs=kind==='text'?24:(d.list||d.chk)?20:18;
+  return {id:nid(),type:'shape',kind:d.as||kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:d.text||'',fill:d.fill||'#ffffff',stroke:INK,sw:2,fs,...(d.list?{list:true}:{}),...(d.chk?{pf:String(d.text).split('\n').map(()=>'c')}:{})};
 }
 function mkTable(colW,rowH,heads){
   return {id:nid(),type:'shape',kind:'table',x:0,y:0,w:sum(colW),h:sum(rowH),colW,rowH,
@@ -262,7 +264,7 @@ function placeEditor(){
     editor.classList.add('inl');
     editor.style.left=(view.x+(it.x+x0)*k)+'px'; editor.style.top=(view.y+(it.y+top)*k)+'px';
     editor.style.width=(w*k+2)+'px'; editor.style.height=(n*LH*k+2)+'px';
-    editor.style.fontSize=(FS*k)+'px'; editor.style.lineHeight=(LH*k)+'px'; editor.style.padding='0'; editor.style.fontFamily=FAM;
+    editor.style.fontSize=(FS*k)+'px'; editor.style.lineHeight=(LH*k)+'px'; editor.style.padding='0'; editor.style.fontFamily=FAM; editor.style.fontStyle=ITAL?'italic':'normal';
     editor.style.textAlign=al; editor.style.color=edTextColor(it); editor.style.caretColor=edTextColor(it);
     if(editor.scrollHeight>editor.clientHeight+1) editor.style.height=(editor.scrollHeight+2)+'px';   /* falls das Feld anders umbricht: nichts abschneiden */
     if(it.rot){ editor.style.transformOrigin=((it.w/2-x0)*k)+'px '+((it.h/2-top)*k)+'px'; editor.style.transform='rotate('+it.rot+'deg)'; } else editor.style.transform='';
@@ -273,7 +275,7 @@ function placeEditor(){
   const lines=Math.max(1,editor.value.split('\n').length), H=R.h*k, lh=LH*k;
   editor.style.left=(view.x+R.x*k)+'px'; editor.style.top=(view.y+R.y*k)+'px';
   editor.style.width=Math.max(90,R.w*k)+'px'; editor.style.height=Math.max(H,lines*lh+8)+'px';
-  editor.style.fontSize=(FS*k)+'px'; editor.style.lineHeight=lh+'px'; editor.style.fontFamily=FAM;
+  editor.style.fontSize=(FS*k)+'px'; editor.style.lineHeight=lh+'px'; editor.style.fontFamily=FAM; editor.style.fontStyle=ITAL?'italic':'normal';
   editor.style.padding=Math.max(2,(H-lines*lh)/2-2)+'px 6px 0';
   editor.style.textAlign=it.kind==='table'?(editCell&&editCell.r===0&&!it.al?'center':alOf(it)):it.list?'left':alOf(it);
 }

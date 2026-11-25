@@ -109,8 +109,8 @@ async function pdfVector(boxes){
   async function imgOf(src){ return img(src,async()=>{ const im=await decode(src), w=im.naturalWidth, h=im.naturalHeight;
     if(/^data:image\/jpeg;base64,/.test(src)){ const bin=atob(src.slice(src.indexOf(',')+1)), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return {w,h,jpg:u}; }
     const cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(im,0,0); return rgba(cv); }); }
-  function rasterText(txt,fs,wt,col,fam){   /* Zeichen, die die eingebettete Schrift nicht kennt (Pfeile, Emojis) – und Handschrift: als Bild */
-    const S=4, c=document.createElement('canvas'), g=c.getContext('2d'), font=`${wt} ${fs*S}px ${fam||FONT}`; g.font=font;
+  function rasterText(txt,fs,wt,col,fam,ital){   /* Zeichen, die die eingebettete Schrift nicht kennt (Pfeile, Emojis) – und andere Schriftarten: als Bild */
+    const S=4, c=document.createElement('canvas'), g=c.getContext('2d'), font=`${ital?'italic ':''}${wt} ${fs*S}px ${fam||FONT}`; g.font=font;
     const w=Math.max(1,Math.ceil(g.measureText(txt).width)); c.width=w; c.height=Math.ceil(fs*1.5*S);
     g.font=font; g.fillStyle=`rgba(${Math.round(col[0]*255)},${Math.round(col[1]*255)},${Math.round(col[2]*255)},${col[3]})`; g.textBaseline='alphabetic'; g.fillText(txt,0,fs*1.15*S);
     return {w:w/S,h:c.height/S,asc:fs*1.15,data:rgba(c)}; }
@@ -132,9 +132,9 @@ async function pdfVector(boxes){
       const txt=raw.replace(/\s+/g,' ').trim(); if(!txt) continue;
       const col=pdCol(s2.fill==null?'#000':s2.fill); if(!col) continue;
       const fs=+(s2['font-size']||16), wt=wOf(s2), fo=F[wt], al=col[3]*(s2.op??1), anc=s2['text-anchor']||'start', cw=fo.adv*fs/fo.upm;
-      const hand=/Caveat/.test(el.getAttribute('font-family')||'');
-      const segs=[]; if(hand) segs.push({t:txt,ok:false}); else for(const c of txt){ const ok=fo.cm.has(c.codePointAt(0)), L=segs[segs.length-1]; if(L&&L.ok===ok) L.t+=c; else segs.push({t:c,ok}); }
-      for(const g of segs){ if(g.ok) g.w=[...g.t].length*cw; else { g.R=rasterText(g.t,fs,wt,col,hand?HAND:null); g.w=g.R.w; } }
+      const fam=el.getAttribute('font-family')||'', ital=el.getAttribute('font-style')==='italic', eigen=!fam||/Roboto Mono/.test(fam);
+      const segs=[]; if(!eigen||ital) segs.push({t:txt,ok:false}); else for(const c of txt){ const ok=fo.cm.has(c.codePointAt(0)), L=segs[segs.length-1]; if(L&&L.ok===ok) L.t+=c; else segs.push({t:c,ok}); }
+      for(const g of segs){ if(g.ok) g.w=[...g.t].length*cw; else { g.R=rasterText(g.t,fs,wt,col,eigen?null:fam,ital); g.w=g.R.w; } }
       const w=segs.reduce((a,g)=>a+g.w,0); let x0=anc==='middle'?px-w/2:anc==='end'?px-w:px, cx=x0;
       for(const g of segs){
         if(g.R){ const R=g.R, im=await img('t'+imgs.size,async()=>R.data); o.push('q',...(al<1?[gs(al,al)]:[]),`${pdN(R.w)} 0 0 ${pdN(-R.h)} ${pdN(cx)} ${pdN(py-R.asc+R.h)} cm /${im.name} Do`,'Q'); }
@@ -144,6 +144,7 @@ async function pdfVector(boxes){
           o.push(`${pdN(col[0])} ${pdN(col[1])} ${pdN(col[2])} rg`,`BT /F${wt} ${pdN(fs)} Tf 1 0 0 -1 ${pdN(cx)} ${pdN(py)} Tm <${hex}> Tj ET`,'Q'); }
         cx+=g.w; }
       if(/underline/.test(s2['text-decoration']||'')) paint(o,{fill:s2.fill,op:s2.op},[`${pdN(x0)} ${pdN(py+fs*0.12)} ${pdN(w)} ${pdN(Math.max(0.8,fs*0.07))} re`]);
+      if(/line-through/.test(s2['text-decoration']||'')) paint(o,{fill:s2.fill,op:s2.op},[`${pdN(x0)} ${pdN(py-fs*0.32)} ${pdN(w)} ${pdN(Math.max(0.8,fs*0.07))} re`]);
       px=x0+w;
     }
   }

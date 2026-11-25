@@ -842,3 +842,13 @@ body.phone main #palette,body.phone main #menu{justify-self:stretch!important}
 body:not(.nolabels):not(.compact) #tools .tb{padding:5px 3px 4px;min-width:42px}
 body.touch:not(.nolabels):not(.compact) #tools .tb{min-width:44px}
 body.eng3:not(.nolabels) #boardName{width:96px;min-width:70px}
+/* Text-Optionen im Feld „Aa“ */
+#colorPop .txH{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:8px 2px 4px}
+#colorPop .ffList{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+#colorPop .pb.ff{font-size:15px;padding:6px 8px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#colorPop .fsRow{display:grid;grid-template-columns:auto 1fr auto;gap:6px;align-items:center}
+#colorPop .fsVal{text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+#colorPop .fsGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:4px}
+#colorPop .sws.four{grid-template-columns:repeat(4,1fr)}
+#colorPop .sws.four .pb{font-size:15px}
+#colorPop{overflow-y:auto;overscroll-behavior:contain}

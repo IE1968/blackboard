@@ -21,9 +21,16 @@ function updateProps_(){
   if(items.length&&items.every(i=>i.kind==='check')) h+=`<div class="pg"><b>Quiz</b><button class="pb" data-act="qok" aria-pressed="${items.every(i=>i.ok)}" title="Als richtige Antwort markieren. In der Präsentation zeigt „Lösung“ die richtigen Antworten.">Richtig</button></div>`;
   const texty=items.filter(i=>i.type!=='path');
   let tm='';   /* Text: Knöpfe kommen in ein Aufklappfeld */
-  if(texty.length) tm=(items.length===1?`<button class="pb wide" data-act="edit">Text ändern</button>`:'')+`<div class="sws two"><button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><button class="pb" data-act="fsup" title="Schrift größer">A+</button></div><div class="sws one"><button class="pb wide hand" data-act="hand" aria-pressed="${texty.every(i=>i.ff==='hand')}" title="Schriftart Handschrift ein/aus">Handschrift</button></div><div class="sws three"><button class="pb" data-act="bold" aria-pressed="${allF(texty[0],'b')}" title="Fett">Fett</button><button class="pb" data-act="list" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>allF(i,'u'))}" title="Aufzählung: jeder Absatz beginnt mit einem Punkt" aria-label="Aufzählung"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.600" fill="currentColor" stroke="none"/><path d="M10 7h10M10 12h10M10 17h10" stroke-linecap="round"/></svg></button><button class="pb" data-act="chk" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>allF(i,'c'))}" title="Checkliste: jede Zeile mit Kästchen zum Abhaken" aria-label="Checkliste"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="5" height="5" rx="1.2"/><path d="M3.8 15.8l1.4 1.4 2.6-3"/><path d="M11 7h10M11 16h10"/></svg></button></div></div>`;
+  if(texty.length){ const t0=texty[0], cur=t0.ff&&FONTS[t0.ff]?t0.ff:'mono', fs0=t0.fs||14, lh0=t0.lh||1.3, on=k=>texty.every(i=>!!i[k]);
+    tm=(items.length===1?`<button class="pb wide" data-act="edit">Text ändern</button>`:'')
+    +`<div class="txH">Schriftart</div><div class="ffList">`+Object.entries(FONTS).map(([k,[n,f]])=>`<button class="pb ff" data-act="ff" data-val="${k}" aria-pressed="${k===cur}" style="font-family:${f.replace(/"/g,'&quot;')}">${n}</button>`).join('')+`</div>`
+    +`<div class="txH">Größe</div><div class="fsRow"><button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><span class="fsVal" aria-live="polite">${fs0} px</span><button class="pb" data-act="fsup" title="Schrift größer">A+</button></div>`
+    +`<div class="fsGrid">`+[12,14,18,24,32,48,64,96].map(v=>`<button class="pb" data-act="fs" data-val="${v}" aria-pressed="${v===fs0}">${v}</button>`).join('')+`</div>`
+    +`<div class="txH">Stil</div><div class="sws four"><button class="pb" data-act="bold" aria-pressed="${allF(t0,'b')}" title="Fett" aria-label="Fett"><b>F</b></button><button class="pb" data-act="ital" aria-pressed="${on('it')}" title="Kursiv" aria-label="Kursiv"><i style="font-family:serif">K</i></button><button class="pb" data-act="ul" aria-pressed="${on('ul')}" title="Unterstrichen" aria-label="Unterstrichen"><u>U</u></button><button class="pb" data-act="strike" aria-pressed="${on('st')}" title="Durchgestrichen" aria-label="Durchgestrichen"><s>S</s></button></div>`
+    +`<div class="sws two"><button class="pb" data-act="list" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>allF(i,'u'))}" title="Aufzählung: jeder Absatz beginnt mit einem Punkt" aria-label="Aufzählung"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.600" fill="currentColor" stroke="none"/><path d="M10 7h10M10 12h10M10 17h10" stroke-linecap="round"/></svg></button><button class="pb" data-act="chk" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>allF(i,'c'))}" title="Checkliste: jede Zeile mit Kästchen zum Abhaken" aria-label="Checkliste"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="5" height="5" rx="1.2"/><path d="M3.8 15.8l1.4 1.4 2.6-3"/><path d="M11 7h10M11 16h10"/></svg></button></div>`
+    +`<div class="txH">Zeilenabstand</div><div class="sws four">`+LH_STUFEN.map(([v,n])=>`<button class="pb" data-act="lh" data-val="${v}" aria-pressed="${v===lh0}">${n}</button>`).join('')+`</div>`; }
   const alable=texty.filter(i=>i.type==='shape'&&i.kind!=='pool'&&i.kind!=='frame');
-  if(alable.length){ const A=alOf(alable[0]); tm=tm.replace(/<\/div><\/div>$/,`</div><div class="sws three"><button class="pb" data-act="txal" data-val="left" aria-pressed="${A==='left'}" title="Linksbündig" aria-label="Linksbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M3 9h9M3 13h14M3 17h9"/></svg></button><button class="pb" data-act="txal" data-val="center" aria-pressed="${A==='center'}" title="Zentriert" aria-label="Zentriert"><svg viewBox="0 0 20 20"><path d="M3 5h14M5.500 9h9M3 13h14M5.500 17h9"/></svg></button><button class="pb" data-act="txal" data-val="right" aria-pressed="${A==='right'}" title="Rechtsbündig" aria-label="Rechtsbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M8 9h9M3 13h14M8 17h9"/></svg></button></div></div>`); }
+  if(alable.length){ const A=alOf(alable[0]); tm=tm.replace('<div class="txH">Zeilenabstand</div>',`<div class="txH">Ausrichtung</div><div class="sws three"><button class="pb" data-act="txal" data-val="left" aria-pressed="${A==='left'}" title="Linksbündig" aria-label="Linksbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M3 9h9M3 13h14M3 17h9"/></svg></button><button class="pb" data-act="txal" data-val="center" aria-pressed="${A==='center'}" title="Zentriert" aria-label="Zentriert"><svg viewBox="0 0 20 20"><path d="M3 5h14M5.500 9h9M3 13h14M5.500 17h9"/></svg></button><button class="pb" data-act="txal" data-val="right" aria-pressed="${A==='right'}" title="Rechtsbündig" aria-label="Rechtsbündig"><svg viewBox="0 0 20 20"><path d="M3 5h14M8 9h9M3 13h14M8 17h9"/></svg></button></div><div class="txH">Zeilenabstand</div>`); }
   if(tm) h+=`<div class="pg"><b>Text</b>${md('text','Text',tm.replace('<div class="pg"><b>Text</b>','').replace(/<\/div>$/,''),'Aa')}</div>`;
   const onlyText=items.length>0&&items.every(i=>i.type==='shape'&&i.kind==='text');
   if(texty.length){ const t0=texty[0]; h+=`<div class="pg"><b>Schrift</b>${cd('tc',t0.tc||(t0.kind==='text'?t0.stroke:''),false,'Schriftfarbe')}</div>`; }
@@ -62,11 +69,11 @@ propsEl.addEventListener('click',e=>{
   if(d){ e.stopPropagation(); const p=$('colorPop'), info=CDROP[d.dataset.drop]; if(!info) return;
     if(!p.hidden&&p.dataset.for===d.dataset.drop){ closeColorPop(); return; }
     p.dataset.for=d.dataset.drop; p.hidden=false; refreshPop();
-    const r=d.getBoundingClientRect(), z=uiCfg.scale, w=p.offsetWidth*z; p.style.left=Math.max(6,Math.min(innerWidth-w-6,r.left+r.width/2-w/2))/z+'px'; p.style.top=(r.bottom+6)/z+'px'; return; }
+    const r=d.getBoundingClientRect(), z=uiCfg.scale, w=p.offsetWidth*z; p.style.left=Math.max(6,Math.min(innerWidth-w-6,r.left+r.width/2-w/2))/z+'px'; p.style.top=(r.bottom+6)/z+'px'; p.style.maxHeight=Math.max(160,innerHeight-r.bottom-16)/z+'px'; return; }
   const b=e.target.closest('[data-act]'); if(b) propsAct(b);
 });
 $('colorPop').addEventListener('click',e=>{ e.stopPropagation(); const b=e.target.closest('[data-act]'); if(!b||b.disabled) return;
-  const keep=['fsup','fsdown','bold','hand','list','txal','front','back','lock'].includes(b.dataset.act);   /* Formatieren: Feld bleibt offen */
+  const keep=['fsup','fsdown','fs','ff','bold','ital','ul','strike','lh','list','txal','front','back','lock'].includes(b.dataset.act);   /* Formatieren: Feld bleibt offen */
   if(!keep) closeColorPop(); propsAct(b); if(keep) refreshPop(); });
 document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#colorPop,[data-drop]')) closeColorPop(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('colorPop').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeColorPop(); } },true);
@@ -111,14 +118,19 @@ function propsAct(b){
   }
   const listOn=act==='list'&&!items.filter(canList).every(i=>i.pf?i.pf.length&&String(i.text).split('\n').every((_,k)=>pfOf(i,k).u):i.list);
   const allC=i=>!!i.pf&&String(i.text||'').split('\n').every((_,k)=>pfOf(i,k).c), chkOn=act==='chk'&&!items.filter(canList).every(allC);
-  const handOn=act==='hand'&&!items.filter(i=>i.type!=='path').every(i=>i.ff==='hand');
+  const TX=items.filter(i=>i.type!=='path'), flagOn=k=>!TX.every(i=>!!i[k]), FLAG={ital:'it',ul:'ul',strike:'st'}, fOn=FLAG[act]?flagOn(FLAG[act]):false;
   for(const it of items){ if(it.lock) continue;
     if(act==='chk'&&canList(it)){ if(chkOn!==allC(it)) setParaFmt(it,it.text||'',0,String(it.text||'').split('\n').length-1,'c'); if(it.kind==='text') it.fresh=true; autosize(it); }
     if(act==='list'&&canList(it)&&it.pf){ const n=String(it.text||'').split('\n').length-1; if(listOn!==String(it.text||'').split('\n').every((_,k)=>pfOf(it,k).u)) setParaFmt(it,it.text||'',0,n,'l'); autosize(it); }
     else if(act==='list'&&canList(it)){ if(listOn){ it.list=true; if(it.kind==='text') it.fresh=true;   /* Breite neu: Platz für die Aufzählungspunkte */ if(it.text) it.text=it.text.split('\n').map(l=>l.replace(/^\s*[•\-–]\s+/,'')).join('\n'); } else delete it.list; autosize(it); }
-    if(it.type!=='path'&&act==='hand'){ if(handOn) it.ff='hand'; else delete it.ff; if(it.kind==='text') it.fresh=true; autosize(it); }
+    if(it.type!=='path'&&(act==='ff'||act==='lh'||act==='fs'||FLAG[act])){
+      if(act==='ff'){ if(val==='mono') delete it.ff; else it.ff=val; }
+      if(act==='lh'){ const v=+val; if(v===1.3) delete it.lh; else it.lh=v; }
+      if(act==='fs') it.fs=clamp(+val,8,160);
+      if(FLAG[act]){ if(fOn) it[FLAG[act]]=true; else delete it[FLAG[act]]; }
+      if(it.kind==='text') it.fresh=true; autosize(it); }
     if(it.type!=='path'&&(act==='fsup'||act==='fsdown'||act==='bold')){
-      if(act==='bold'){ if(it.pf){ const n=String(it.text||'').split('\n').length-1; setParaFmt(it,it.text||'',0,n,'b'); } else it.bold=!it.bold; } else it.fs=clamp((it.fs||14)+(act==='fsup'?2:-2),10,40);
+      if(act==='bold'){ if(it.pf){ const n=String(it.text||'').split('\n').length-1; setParaFmt(it,it.text||'',0,n,'b'); } else it.bold=!it.bold; } else { const f=it.fs||14; it.fs=act==='fsup'?(FS_STUFEN.find(v=>v>f)||Math.min(160,f+16)):([...FS_STUFEN].reverse().find(v=>v<f)||Math.max(8,f-2)); }
       if(it.kind==='text') it.fresh=true; autosize(it); }
     if(act==='fill'&&it.type==='shape') it.fill=val;
     if(act==='stroke'&&(val!=='none'||it.type==='shape')) it.stroke=val;

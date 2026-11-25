@@ -8,10 +8,16 @@ function mapC(c){ if(!darkBoard) return c; if(c===INK) return INK_D; if(c==='#ff
 function onFill(f){ return f==='none'?tink():(isDark(mapC(f))?'#ffffff':INK); }
 function vis(it){ return Object.assign({},it,{fill:mapC(it.fill),stroke:mapC(it.stroke)}); }
 const FONT="'Roboto Mono',ui-monospace,Menlo,Consolas,monospace", HAND="'Caveat','Comic Sans MS',cursive";
-let FAM=FONT;   /* Schrift des gerade gezeichneten Elements: Roboto Mono oder Handschrift */
+/* Schriftarten auf dem Board (alle in der App eingebettet, damit sie überall gleich aussehen) */
+const FONTS={mono:['Standard',FONT],sans:['Klar',"'Plus Jakarta Sans',system-ui,sans-serif"],serif:['Serifen',"'Lora',Georgia,serif"],
+  school:['Schulschrift',"'Andika',sans-serif"],display:['Plakativ',"'Archivo Black',Impact,sans-serif"],hand:['Handschrift',HAND]};
+const FS_STUFEN=[10,12,14,16,18,20,24,28,32,40,48,64,80,96,128];
+const LH_STUFEN=[[1,'1,0'],[1.3,'1,3'],[1.6,'1,6'],[2,'2,0']];
+let FAM=FONT, ITAL=false, FX='';   /* Schrift des gerade gezeichneten Elements; FX = zusätzliche SVG-Angaben (kursiv, Linien) */
 let FS=14, LH=18, BOLD=false, lastCell=null;
 const GRID=20, KEY='blackboard-v1';
-function useFont(it){ FS=(it&&it.fs)||14; LH=Math.round(FS*1.3); BOLD=!!(it&&it.bold); FAM=it&&it.ff==='hand'?HAND:FONT; }
+function useFont(it){ FS=(it&&it.fs)||14; LH=Math.round(FS*((it&&it.lh)||1.3)); BOLD=!!(it&&it.bold); FAM=(it&&FONTS[it.ff]||FONTS.mono)[1]; ITAL=!!(it&&it.it);
+  const dc=[it&&it.ul&&'underline',it&&it.st&&'line-through'].filter(Boolean).join(' '); FX=(ITAL?' font-style="italic"':'')+(dc?` text-decoration="${dc}"`:''); }
 const COLORS=['none','#1c2a2e','#ffffff','#7a8790','#c8321f','#d97a00','#f2c200','#1f8a4c','#1e63d0','#7446c9','#fff3b0','#ffd9c7','#cfe8ff','#d3f0dc','#e6dcff','#e3e8ea'];
 const WIDTHS={shape:[1,2,3,5,8],pen:[1.5,3,5,8,12],brush:[4,8,12,18,26],marker:[8,14,20,28,40],smart:[1.5,2,3,5,8]};
 const DRAW={pen:'Stift',brush:'Pinsel',marker:'Marker',smart:'Formstift'};
@@ -162,7 +168,7 @@ const isSq=k=>k.startsWith('ev')||k.startsWith('gw');
 const isBox=k=>k==='pool'||k==='table'||k==='nsloop'||k==='nsloopf'||k==='frame';
 const noDock=k=>k==='pool'||k==='table'||k==='frame'||k==='bgroup'||k==='check';
 function isDark(c){ if(!/^#[0-9a-f]{6}$/i.test(c))return false; const n=parseInt(c.slice(1),16); return (0.299*(n>>16)+0.587*((n>>8)&255)+0.114*(n&255))/255<0.45; }
-function measure(t){ mctx.font=(BOLD?'600 ':'')+FS+'px '+FAM; return mctx.measureText(t).width; }
+function measure(t){ mctx.font=(ITAL?'italic ':'')+(BOLD?'600 ':'')+FS+'px '+FAM; return mctx.measureText(t).width; }
 function wrap(text,maxW){
   const out=[];
   for(const para of String(text).split('\n')){
