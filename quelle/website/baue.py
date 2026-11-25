@@ -11,7 +11,7 @@ import os, re, base64, shutil, json
 HIER = os.path.dirname(os.path.abspath(__file__)); INH = os.path.join(HIER, 'inhalt')
 ZIEL = os.path.join(os.path.dirname(os.path.dirname(HIER)), 'website')
 lies = lambda f: open(os.path.join(INH, f), encoding='utf-8').read()
-V = '28'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
+V = '29'   # Versionsnummer an CSS/JS, damit Handys die neue Gestaltung sofort laden
 
 BLUE, CORAL, MINT, GOLD, VIOLET = 'var(--blau)', 'var(--koralle)', 'var(--mint)', 'var(--gold)', 'var(--violett)'
 P = {
@@ -59,6 +59,7 @@ LOGO = '<svg class="logo" viewBox="0 0 34 30" aria-hidden="true"><rect x="3" y="
 NAV = [('index.html','Start','home',BLUE),('funktionen.html','Funktionen','spark',VIOLET),('vorlagen.html','Vorlagen','grid',GOLD),('anleitung.html','Anleitung','book',MINT)]
 NAV2 = [('datenschutz.html','Datenschutz','shield',MINT),('impressum.html','Impressum','info',BLUE)]
 APP = '../'
+BASIS = 'https://ie1968.github.io/blackboard/website/'   # Adresse der Website (bei eigener Domain hier ändern)
 
 def seite(datei, titel, aktiv, haupt, kontext, beschreibung, breit=''):
     def nv(f, l, n, c): return f'<a href="{f}"{" aria-current=\"page\"" if l==aktiv else ""}>{ichip(n,c)}<span>{l}</span></a>'
@@ -67,9 +68,21 @@ def seite(datei, titel, aktiv, haupt, kontext, beschreibung, breit=''):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ocfdhT+urYrxV9FiXf0yRlqZ1YuoEcAx8rsZ8QqhKlA='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="robots" content="noindex,nofollow">
 <title>{titel} – Skizix</title>
 <meta name="description" content="{beschreibung}">
+<link rel="canonical" href="{BASIS}{'' if datei=='index.html' else datei}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Skizix">
+<meta property="og:locale" content="de_DE">
+<meta property="og:title" content="{titel} – Skizix">
+<meta property="og:description" content="{beschreibung}">
+<meta property="og:url" content="{BASIS}{'' if datei=='index.html' else datei}">
+<meta property="og:image" content="{BASIS}bilder/vorschau.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Skizix – digitales Whiteboard">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#3B6FE8">
 <link rel="icon" type="image/png" href="../icon-192.png">
 <link rel="stylesheet" href="stil.css?v={V}">
@@ -238,10 +251,15 @@ def css():
 if __name__ == '__main__':
     os.makedirs(ZIEL, exist_ok=True)
     start(); funktionen(); anleitung(); vorlagen()
-    recht('datenschutz.html','Datenschutz','Datenschutz','shield',MINT, '', 'Datenschutzerklärung von Skizix.')
-    recht('impressum.html','Impressum','Impressum','info',BLUE, '', 'Impressum von Skizix.')
+    recht('datenschutz.html','Datenschutz','Datenschutz','shield',MINT, '', 'Datenschutzerklärung von Skizix: welche Daten das Whiteboard speichert, wo sie liegen (EU) und welche Rechte du hast.')
+    recht('impressum.html','Impressum','Impressum','info',BLUE, '', 'Impressum von Skizix, dem digitalen Whiteboard für Unterricht, Beruf und Alltag.')
     css()
     shutil.copy(os.path.join(HIER,'menue.js'), os.path.join(ZIEL,'menue.js'))
+    # Sitemap für Suchmaschinen (wirkt erst, wenn „noindex“ entfernt ist)
+    import datetime
+    heute = datetime.date.today().isoformat()
+    urls = ''.join(f'<url><loc>{BASIS}{"" if f=="index.html" else f}</loc><lastmod>{heute}</lastmod></url>' for f in ['index.html','funktionen.html','vorlagen.html','anleitung.html','datenschutz.html','impressum.html'])
+    open(os.path.join(ZIEL,'sitemap.xml'),'w',encoding='utf-8').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+urls+'</urlset>\n')
     for alt in ['stil-hell.css','testphase.html']:
         p = os.path.join(ZIEL, alt)
         if os.path.exists(p): os.remove(p)

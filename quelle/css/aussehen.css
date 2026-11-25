@@ -6,7 +6,7 @@
   --chrome:#18181a; --panel:#222225; --ink:#f2f2f0; --muted:#a0a0a5; --line:#35353a;
   --accent:#5b8cf5; --accent-fill:#3b6fe8; --accent-ink:#ffffff; --ctl-line:#707078; --hover:#2c2c30; --acc-soft:rgba(91,140,245,.18);
   --c-blue:#5b8cf5; --c-coral:#ee6a57; --c-mint:#22a88c; --c-gold:#e9b52f; --c-violet:#8b78f5;
-  --display:"Doto","Roboto Mono",ui-monospace,monospace;
+  --display:"Roboto Mono",ui-monospace,monospace;
   --body:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 /* Helle Oberfläche */

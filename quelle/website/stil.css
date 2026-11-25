@@ -1,8 +1,7 @@
 /* Skizix-Website: Aufbau wie die App. Hell als Standard, dunkel über den Mond-Knopf (data-thema="dunkel"). */
-@font-face{font-family:'Plus Jakarta Sans';src:url(schriften/PlusJakartaSans.woff) format('woff');font-weight:200 800;font-style:normal;font-display:swap}
-@font-face{font-family:'Roboto Mono';src:url(schriften/RobotoMono.ttf) format('truetype');font-weight:100 700;font-style:normal;font-display:swap}
-@font-face{font-family:'Caveat';src:url(schriften/Caveat.ttf) format('truetype');font-weight:400 700;font-style:normal;font-display:swap}
-@font-face{font-family:'Doto';src:url(schriften/Doto.ttf) format('truetype');font-weight:100 900;font-style:normal;font-display:swap}
+@font-face{font-family:'Plus Jakarta Sans';src:url(schriften/PlusJakartaSans.woff2) format('woff2');font-weight:200 800;font-style:normal;font-display:swap}
+@font-face{font-family:'Roboto Mono';src:url(schriften/RobotoMono.woff2) format('woff2');font-weight:100 700;font-style:normal;font-display:swap}
+@font-face{font-family:'Caveat';src:url(schriften/Caveat.woff2) format('woff2');font-weight:400 700;font-style:normal;font-display:swap}
 :root{
   --grund:#F8F8F7; --flaeche:#FFFFFF; --linie:#E5E5E4; --tinte:#18181A; --leise:#5F5F64; --weich:#F1F1F0;
   --blau:#3B6FE8; --koralle:#D9503C; --mint:#16917A; --gold:#C48E10; --violett:#6A55E6;
