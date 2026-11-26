@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-9pmFjyvK26ySia/unSrR1n/XuaW6A3SfS0MBTMY/g3s='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://127.0.0.1:* ws://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-4xxvE1Kji/dQ0vi86yrkrFpuU5c2QNL+kNcaZMSWwPc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://127.0.0.1:* ws://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Skizix</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#18181A">
@@ -2387,8 +2387,18 @@ function addShape(kind,c,ptype){
   if(ptype==='mouse'&&kind!=='frame') startEdit(s.id);
 }
 function removeIds(ids){ doc.items=doc.items.filter(i=>!ids.has(i.id)&&!(i.type==='conn'&&(ids.has(i.from)||ids.has(i.to)))); }
+function paperContent(p){   /* Notizblatt: was darauf liegt (Mitte auf dem Blatt, darüber gezeichnet) */
+  const pi=doc.items.indexOf(p), out=[];
+  for(const o of doc.items.slice(pi+1)){ if(o.type==='conn'||o.lock||o.kind==='frame') continue;
+    const b=bbox(o),cx=b.x+b.w/2,cy=b.y+b.h/2;
+    if(cx>p.x&&cx<p.x+p.w&&cy>p.y&&cy<p.y+p.h) out.push(o.id); }
+  return out;
+}
+function withPaperContent(ids){ const out=new Set(ids);
+  for(const id of ids){ const p=byId(id); if(p&&p.kind==='paper') paperContent(p).forEach(i=>out.add(i)); }
+  return out; }
 function deleteSel(){ if(!sel.size) return;
-  const ids=new Set([...sel].filter(id=>{ const i=byId(id); return i&&!i.lock; }));
+  const ids=new Set([...withPaperContent(sel)].filter(id=>{ const i=byId(id); return i&&!i.lock; }));
   if(!ids.size){ toast('Gesperrte Elemente lassen sich nicht löschen. Erst in der Optionsleiste unter „Element“ entsperren.'); return; }
   removeIds(ids); sel.clear(); commit(); render(); }
 function frames(){ return doc.items.map((f,i)=>({f,i})).filter(o=>o.f.type==='shape'&&o.f.kind==='frame').sort((a,b)=>((a.f.ord||0)-(b.f.ord||0))||(a.i-b.i)).map(o=>o.f); }
@@ -2397,6 +2407,7 @@ function moveFrame(id,dir){ const fr=frames(), i=fr.findIndex(f=>f.id===id), j=i
   const t=fr[i]; fr[i]=fr[j]; fr[j]=t; fr.forEach((f,n)=>f.ord=n+1); commit(); render(); }
 let clipB=null, pasteN=0;
 function withFrameContent(ids){   /* ausgewählte Folien bringen ihren Inhalt mit, dazu Pfeile zwischen diesen Elementen */
+  ids=withPaperContent(ids);
   const fids=new Set([...ids].filter(id=>(byId(id)||{}).kind==='frame')); if(!fids.size) return ids;
   assignFrames(); const out=new Set(ids);
   for(const it of doc.items) if(it.fr&&fids.has(it.fr)) out.add(it.id);
@@ -2803,9 +2814,8 @@ function movers(){
   const ids=new Set(sel);
   if([...sel].some(id=>(byId(id)||{}).kind==='frame')) assignFrames();
   for(const id of sel){ const p=byId(id); if(!p||p.type!=='shape'||!isBox(p.kind)) continue;
-    const pi=doc.items.indexOf(p);
+    if(p.kind==='paper'){ paperContent(p).forEach(i=>ids.add(i)); continue; }
     for(const o of doc.items){ if(o.id===p.id||o.type==='conn'||o.lock||o.kind==='frame') continue;
-      if(p.kind==='paper'&&doc.items.indexOf(o)<pi) continue;   /* Notizblatt: nur was darauf liegt (darüber gezeichnet), wandert mit */
       const b=bbox(o),cx=b.x+b.w/2,cy=b.y+b.h/2;
       if(p.kind==='frame'?o.fr===p.id:(cx>p.x&&cx<p.x+p.w&&cy>p.y&&cy<p.y+p.h)) ids.add(o.id); } }
   return [...ids].map(byId).filter(it=>it&&!it.lock).map(it=>({id:it.id,d:JSON.parse(JSON.stringify(it))}));

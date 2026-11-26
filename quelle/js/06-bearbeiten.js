@@ -127,8 +127,18 @@ function addShape(kind,c,ptype){
   if(ptype==='mouse'&&kind!=='frame') startEdit(s.id);
 }
 function removeIds(ids){ doc.items=doc.items.filter(i=>!ids.has(i.id)&&!(i.type==='conn'&&(ids.has(i.from)||ids.has(i.to)))); }
+function paperContent(p){   /* Notizblatt: was darauf liegt (Mitte auf dem Blatt, darüber gezeichnet) */
+  const pi=doc.items.indexOf(p), out=[];
+  for(const o of doc.items.slice(pi+1)){ if(o.type==='conn'||o.lock||o.kind==='frame') continue;
+    const b=bbox(o),cx=b.x+b.w/2,cy=b.y+b.h/2;
+    if(cx>p.x&&cx<p.x+p.w&&cy>p.y&&cy<p.y+p.h) out.push(o.id); }
+  return out;
+}
+function withPaperContent(ids){ const out=new Set(ids);
+  for(const id of ids){ const p=byId(id); if(p&&p.kind==='paper') paperContent(p).forEach(i=>out.add(i)); }
+  return out; }
 function deleteSel(){ if(!sel.size) return;
-  const ids=new Set([...sel].filter(id=>{ const i=byId(id); return i&&!i.lock; }));
+  const ids=new Set([...withPaperContent(sel)].filter(id=>{ const i=byId(id); return i&&!i.lock; }));
   if(!ids.size){ toast('Gesperrte Elemente lassen sich nicht löschen. Erst in der Optionsleiste unter „Element“ entsperren.'); return; }
   removeIds(ids); sel.clear(); commit(); render(); }
 function frames(){ return doc.items.map((f,i)=>({f,i})).filter(o=>o.f.type==='shape'&&o.f.kind==='frame').sort((a,b)=>((a.f.ord||0)-(b.f.ord||0))||(a.i-b.i)).map(o=>o.f); }
@@ -137,6 +147,7 @@ function moveFrame(id,dir){ const fr=frames(), i=fr.findIndex(f=>f.id===id), j=i
   const t=fr[i]; fr[i]=fr[j]; fr[j]=t; fr.forEach((f,n)=>f.ord=n+1); commit(); render(); }
 let clipB=null, pasteN=0;
 function withFrameContent(ids){   /* ausgewählte Folien bringen ihren Inhalt mit, dazu Pfeile zwischen diesen Elementen */
+  ids=withPaperContent(ids);
   const fids=new Set([...ids].filter(id=>(byId(id)||{}).kind==='frame')); if(!fids.size) return ids;
   assignFrames(); const out=new Set(ids);
   for(const it of doc.items) if(it.fr&&fids.has(it.fr)) out.add(it.id);

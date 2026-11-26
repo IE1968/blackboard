@@ -41,6 +41,13 @@ try:
   dx=d['p']['x']
   check('Blatt verschoben, Text und Strich darauf wandern mit',dx>20 and d['t']['x']==40+dx and abs(d['s']['pts'][0][0]-(50+dx))<0.01,str((dx,d['t']['x'],d['s']['pts'][0])))
   check('Form neben dem Blatt bleibt liegen',d['x']['x']==-300)
+  # Löschen: Blatt weg -> Text und Strich darauf auch weg, Form daneben bleibt
+  b=pg.locator('#items > [data-id="p"]').bounding_box(); pg.mouse.click(b['x']+b['width']*0.8,b['y']+b['height']*0.9); pg.wait_for_timeout(200)
+  pg.keyboard.press('Delete'); pg.wait_for_timeout(300)
+  ids={i['id'] for i in pg.evaluate(READ)['items']}
+  check('Blatt gelöscht, Inhalt darauf mit gelöscht, Rest bleibt',ids=={'x'},str(ids))
+  pg.keyboard.press('Control+z'); pg.wait_for_timeout(300)
+  check('Rückgängig bringt Blatt mit Inhalt zurück',{i['id'] for i in pg.evaluate(READ)['items']}=={'x','p','t','s'})
   check('Keine Fehler',not errs,str(errs))
   br.close()
 finally: srv.terminate()
