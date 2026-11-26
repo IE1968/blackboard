@@ -4,6 +4,8 @@ function mkShape(kind,cx,cy){
   if(kind==='frame') return {id:nid(),type:'shape',kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:'',fill:'none',stroke:INK,sw:2,ord:frames().reduce((m,f)=>Math.max(m,f.ord||0),0)+1};
   /* Neue Elemente: gut lesbare Schrift (Text 24 px, Formen 18 px, Listen 20 px); ältere Boards behalten ihre Größen */
   const fs=kind==='text'?24:(d.list||d.chk||kind==='paper')?20:18;
+  if(kind==='paper'){ const dt=new Date().toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});   /* oben Datum, darunter fette Überschrift */
+    return {id:nid(),type:'shape',kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:dt+'\nÜberschrift\n',pf:['','b',''],fill:d.fill,stroke:INK,sw:2,fs}; }
   return {id:nid(),type:'shape',kind:d.as||kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:d.text||'',fill:d.fill||'#ffffff',stroke:INK,sw:2,fs,...(d.list?{list:true}:{}),...(d.chk?{pf:String(d.text).split('\n').map(()=>'c')}:{})};
 }
 function mkTable(colW,rowH,heads){
@@ -295,6 +297,8 @@ function startEdit(id,cell){
   const tbl=it.kind==='table'; editCell=tbl?(cell||{r:0,c:0}):null;
   editing=id; sel=new Set([id]); editor.value=(tbl?it.cells[editCell.r][editCell.c]:it.text)||''; editor.hidden=false; placeEditor(); render();
   editor.focus(); editor.select();
+  if(it.kind==='paper'){ const v=editor.value, k=v.indexOf('\nÜberschrift');   /* neues Notizblatt: nur den Platzhalter markieren, Datum bleibt */
+    if(k>=0) editor.setSelectionRange(k+1,k+12); else editor.setSelectionRange(v.length,v.length); }
 }
 function finishEdit(cancel){
   if(editing==null) return;

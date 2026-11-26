@@ -1,4 +1,4 @@
-"""Notizblatt: Papier mit Linien, Text sitzt auf den Linien, Papierarten, Vorlage „Notizseite“."""
+"""Notizblatt: Papier mit Linien, Text sitzt auf den Linien, Papierarten, Kopf mit Datum und Überschrift."""
 import sys,os; sys.path.insert(0,os.path.dirname(os.path.abspath(__file__))); from hilfe import *
 from playwright.sync_api import sync_playwright
 srv=server()
@@ -9,8 +9,13 @@ try:
   pg.evaluate("()=>{for(const h of document.querySelectorAll('.gh')) if(h.getAttribute('aria-expanded')==='false') h.click()}")
   pg.click('.pal[data-kind="paper"]'); pg.wait_for_timeout(300)
   it=pg.evaluate(READ)['items'][0]; check('Notizblatt aus der Formenleiste',it['kind']=='paper' and it.get('fs')==20)
+  import re as _re; L=it['text'].split('\n')
+  check('Kopf: oben Datum, darunter fette Überschrift',_re.search(r'\d\d\.\d\d\.20\d\d',L[0]) and L[1]=='Überschrift' and it.get('pf',[])[:2]==['','b'],str(it))
+  pg.keyboard.type('Mathe'); pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
+  t2=pg.evaluate(READ)['items'][0]['text'].split('\n')
+  check('Tippen ersetzt nur den Platzhalter, Datum bleibt',t2[0]==L[0] and t2[1]=='Mathe',str(t2))
   bb=pg.locator('#items > [data-id]').first.bounding_box(); pg.mouse.dblclick(bb['x']+bb['width']/2,bb['y']+bb['height']/2); pg.wait_for_timeout(200)
-  pg.keyboard.type('Erste Zeile'); pg.keyboard.press('Enter'); pg.keyboard.type('Zweite Zeile'); pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
+  pg.keyboard.press('Control+a'); pg.keyboard.type('Erste Zeile'); pg.keyboard.press('Enter'); pg.keyboard.type('Zweite Zeile'); pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
   # Grundlinie der Schrift liegt knapp über einer Papierlinie
   r=pg.evaluate("""()=>{const g=document.querySelector('#items > [data-id]'); const ys=[...g.querySelectorAll('path')].map(p=>/^M6 ([\\d.]+)H/.exec(p.getAttribute('d'))).filter(Boolean).map(m=>+m[1]);
      const ts=[...g.querySelectorAll('tspan')].map(t=>+t.getAttribute('y')); return {ys:ys.slice(0,4),ts}}""")
@@ -26,9 +31,8 @@ try:
   check('PDF-Export mit Notizblatt',os.path.getsize(d.value.path())>2000)
   openFile(pg) if False else None
   pg.evaluate("()=>document.querySelector('.pal[data-tpl]').click()"); pg.wait_for_timeout(300)
-  pg.evaluate("()=>[...document.querySelectorAll('#tplGrid .tc')].find(b=>b.textContent.includes('Notizseite')).click()"); pg.wait_for_timeout(400)
-  ps=[i for i in pg.evaluate(READ)['items'] if i.get('kind')=='paper']
-  check('Vorlage „Notizseite“: zwei Blätter mit Titel',len(ps)==3 and any(i['text'].startswith('Notizen\n') for i in ps))
+  check('Vorlage „Notizseite“ ist entfernt',pg.evaluate("()=>document.querySelectorAll('#tplGrid .tc').length>5&&![...document.querySelectorAll('#tplGrid .tc')].some(b=>b.textContent.includes('Notizseite'))"))
+  pg.keyboard.press('Escape')
   # Inhalt wandert mit: Text und Stiftstrich auf dem Blatt, Form daneben bleibt
   pg.evaluate(LOAD,{'items':[{'id':'x','type':'shape','kind':'rect','x':-300,'y':0,'w':80,'h':60,'text':'','fill':'#fff','stroke':'#1c2a2e','sw':2},
      {'id':'p','type':'shape','kind':'paper','x':0,'y':0,'w':300,'h':400,'text':'','fill':'#fdfcf6','stroke':'#1c2a2e','sw':2,'fs':20},

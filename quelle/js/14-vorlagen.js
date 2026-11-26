@@ -36,10 +36,6 @@ const TEMPLATES=[
    tplCard(K,0,84,280,250,'Heute',TC.orange,['Arzttermin vereinbaren','+Wäsche waschen','Einkauf erledigen']);
    tplCard(K,300,84,280,250,'Diese Woche',TC.blue,['Rechnung bezahlen','Auto zum TÜV','Bewerbung abschicken']);
    tplCard(K,600,84,280,250,'Irgendwann',TC.violet,['Keller aufräumen','Fotobuch gestalten','Fahrrad reparieren']); }},
- {name:'Notizseite',info:'Liniertes Notizblatt mit Titel und Datum – Text sitzt auf den Linien',make(K){ const {B}=K;
-   const d=new Date(), dt=d.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-   B('paper',0,0,520,680,'Notizen\n'+dt+'\n\n',{fill:'#fdfcf6',fs:22,pf:['b','',''],tc:CARD_INK});
-   B('paper',560,0,520,680,'Ideen',{fill:'#f1ebdd',pp:'linen',fs:34,pf:['b'],tc:CARD_INK,ff:'hand'}); }},
  {name:'SWOT-Analyse',info:'Stärken, Schwächen, Chancen und Risiken auf einen Blick',make(K){ const {H,X,Q}=K; H(0,0,700,'SWOT-Analyse',26);
    X(90,56,380,'hilfreich',14,{al:'center',tc:'#5b6870'}); X(490,56,380,'schädlich',14,{al:'center',tc:'#5b6870'}); X(0,170,80,'intern',14,{tc:'#5b6870'}); X(0,440,80,'extern',14,{tc:'#5b6870'});
    Q(90,84,380,250,'Stärken','Was können wir besonders gut?',TC.green); Q(490,84,380,250,'Schwächen','Wo haben wir Nachholbedarf?',TC.orange);
@@ -123,7 +119,7 @@ const TEMPLATES=[
  {name:'Scrum-Board',info:'Backlog, Sprint, Review',kind:'scrum'},
  {name:'Mindmap',info:'Thema mit Zweigen, per „+ Zweig“ erweiterbar',kind:'mindmap'}
 ];
-const TKAT={'Notizseite':'Alltag','Einkaufsliste':'Alltag','Wochenplaner':'Alltag','To-do-Liste':'Alltag','Mindmap':'Unterricht','Zahlenstrahl 0–20':'Unterricht','Zahlenstrahl 0–100':'Unterricht','Zeitstrahl':'Unterricht','Zeitstrahl senkrecht':'Unterricht','PDCA-Zyklus':'Unterricht','5-Why-Analyse':'Unterricht','Ishikawa-Diagramm':'Unterricht'};
+const TKAT={'Einkaufsliste':'Alltag','Wochenplaner':'Alltag','To-do-Liste':'Alltag','Mindmap':'Unterricht','Zahlenstrahl 0–20':'Unterricht','Zahlenstrahl 0–100':'Unterricht','Zeitstrahl':'Unterricht','Zeitstrahl senkrecht':'Unterricht','PDCA-Zyklus':'Unterricht','5-Why-Analyse':'Unterricht','Ishikawa-Diagramm':'Unterricht'};
 const TKAT_FARBE={Alltag:'coral',Unterricht:'blue',Beruf:'violet'};
 let tplKat='*';
 function tplFilter(k){ tplKat=k; document.querySelectorAll('#tplFilt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k)); document.querySelectorAll('#tplGrid .tc').forEach(b=>b.hidden=k!=='*'&&b.dataset.kat!==k); }
