@@ -25,7 +25,7 @@ try:
   pg.keyboard.press('Control+z'); pg.wait_for_timeout(300); pg.click('#startArea .saLink[data-sa="tpl"]'); pg.wait_for_timeout(300)
   check('Vorlagen-Galerie mit Filtern',pg.is_visible('#tplDlg') and pg.locator('#tplFilt .chip').count()==4)
   pg.click('#tplFilt [data-k="Alltag"]'); n=pg.locator('#tplGrid .tc:visible').count()
-  check('Filter „Alltag“ zeigt nur Alltag',n==3,str(n))
+  check('Filter „Alltag“ zeigt nur Alltag',n==4,str(n))
   pg.click('#tplFilt [data-k="*"]'); check('Filter „Alle“',pg.locator('#tplGrid .tc:visible').count()>20)
   pg.click('#tplX'); check('✕ schließt die Galerie',pg.is_hidden('#tplDlg'))
   # neue Folie umschließt die Auswahl

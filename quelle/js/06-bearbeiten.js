@@ -3,7 +3,7 @@ function mkShape(kind,cx,cy){
   const d=KINDS[kind];
   if(kind==='frame') return {id:nid(),type:'shape',kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:'',fill:'none',stroke:INK,sw:2,ord:frames().reduce((m,f)=>Math.max(m,f.ord||0),0)+1};
   /* Neue Elemente: gut lesbare Schrift (Text 24 px, Formen 18 px, Listen 20 px); ältere Boards behalten ihre Größen */
-  const fs=kind==='text'?24:(d.list||d.chk)?20:18;
+  const fs=kind==='text'?24:(d.list||d.chk||kind==='paper')?20:18;
   return {id:nid(),type:'shape',kind:d.as||kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:d.text||'',fill:d.fill||'#ffffff',stroke:INK,sw:2,fs,...(d.list?{list:true}:{}),...(d.chk?{pf:String(d.text).split('\n').map(()=>'c')}:{})};
 }
 function mkTable(colW,rowH,heads){
@@ -255,7 +255,7 @@ function placeEditor(){
     else n=wrap(T,tb.maxW).length;
     n=Math.max(1,n);
     let base0;   /* Grundlinie der ersten Zeile, wie beim Zeichnen */
-    if(tb.mode==='below') base0=it.h+LH; else base0=it.h/2+(tb.dy||0)-(n-1)*LH/2+FS*0.35;
+    if(tb.mode==='below') base0=it.h+LH; else base0=yMid(it,tb,n)+FS*0.35;
     const top=base0-FS*0.35-LH/2;
     let x0, w, al;
     if(ind){ x0=(tb.mode==='left'?tb.pad:Math.max(6,it.w/2-tb.maxW/2))+ind; w=Math.max(20,tb.maxW-ind); al='left'; }

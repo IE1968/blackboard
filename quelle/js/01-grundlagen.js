@@ -12,6 +12,8 @@ const FONT="'Roboto Mono',ui-monospace,Menlo,Consolas,monospace", HAND="'Caveat'
 const FONTS={mono:['Standard',FONT],sans:['Klar',"'Plus Jakarta Sans',system-ui,sans-serif"],serif:['Serifen',"'Lora',Georgia,serif"],
   school:['Schulschrift',"'Andika',sans-serif"],display:['Plakativ',"'Archivo Black',Impact,sans-serif"],hand:['Handschrift',HAND]};
 const FS_STUFEN=[10,12,14,16,18,20,24,28,32,40,48,64,80,96,128];
+/* Notizblatt: Papierarten */
+const PAPER={lined:['Liniert','#fdfcf6'],grid:['Kariert','#fdfdfb'],dots:['Gepunktet','#fdfdfb'],plain:['Blanko','#fdfcf6'],linen:['Leinen','#f1ebdd'],kraft:['Recycling','#e6dcc6']};
 const LH_STUFEN=[[1,'1,0'],[1.3,'1,3'],[1.6,'1,6'],[2,'2,0']];
 let FAM=FONT, ITAL=false, FX='';   /* Schrift des gerade gezeichneten Elements; FX = zusätzliche SVG-Angaben (kursiv, Linien) */
 let FS=14, LH=18, BOLD=false, lastCell=null;
@@ -34,6 +36,7 @@ const KINDS={
   ellipse:{label:'Ellipse',w:130,h:80},
   text:{label:'Text',w:160,h:30,fill:'none',text:'Text'},
   note:{label:'Notiz',w:150,h:110,fill:'#fff3b0'},
+  paper:{label:'Notizblatt',w:380,h:480,fill:'#fdfcf6'},
   bullets:{label:'Aufzählung',as:'text',w:320,h:90,fill:'none',text:'Erster Punkt\nZweiter Punkt\nDritter Punkt',list:1},
   checklist:{label:'Checkliste',as:'text',w:320,h:90,fill:'none',text:'Erste Aufgabe\nZweite Aufgabe\nDritte Aufgabe',chk:1},
   lineArrow:{label:'Pfeil',line:'arrow',w:140,h:40},
@@ -127,7 +130,7 @@ const KINDS={
   netcloud:{label:'Internet',as:'cloud',w:150,h:95,text:'Internet'},
   netdb:{label:'Speicher',as:'db',w:80,h:80}
 };
-const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','trap','para','star','arrowr','arrowlr','bubble','cloud','cross','note','bullets','checklist','image','table','card']],
+const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','trap','para','star','arrowr','arrowlr','bubble','cloud','cross','note','paper','bullets','checklist','image','table','card']],
   ['Vorlagen',['kanban','scrum','mindmap']],
   ['Präsentation',['frame','quiz','check']],
   ['Flussdiagramm',['term','diamond','io','doc','db']],

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-4NQq+psK7gQBE59qx0ZmVAPhA4FZML5QZo4MSLiUQRU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://127.0.0.1:* ws://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-yBkckNsOEMw9YMBdxVGGVyuFm0n23I6STY7bfL4PSuM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://127.0.0.1:* ws://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Skizix</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#18181A">
@@ -1084,6 +1084,8 @@ const FONT="'Roboto Mono',ui-monospace,Menlo,Consolas,monospace", HAND="'Caveat'
 const FONTS={mono:['Standard',FONT],sans:['Klar',"'Plus Jakarta Sans',system-ui,sans-serif"],serif:['Serifen',"'Lora',Georgia,serif"],
   school:['Schulschrift',"'Andika',sans-serif"],display:['Plakativ',"'Archivo Black',Impact,sans-serif"],hand:['Handschrift',HAND]};
 const FS_STUFEN=[10,12,14,16,18,20,24,28,32,40,48,64,80,96,128];
+/* Notizblatt: Papierarten */
+const PAPER={lined:['Liniert','#fdfcf6'],grid:['Kariert','#fdfdfb'],dots:['Gepunktet','#fdfdfb'],plain:['Blanko','#fdfcf6'],linen:['Leinen','#f1ebdd'],kraft:['Recycling','#e6dcc6']};
 const LH_STUFEN=[[1,'1,0'],[1.3,'1,3'],[1.6,'1,6'],[2,'2,0']];
 let FAM=FONT, ITAL=false, FX='';   /* Schrift des gerade gezeichneten Elements; FX = zusätzliche SVG-Angaben (kursiv, Linien) */
 let FS=14, LH=18, BOLD=false, lastCell=null;
@@ -1106,6 +1108,7 @@ const KINDS={
   ellipse:{label:'Ellipse',w:130,h:80},
   text:{label:'Text',w:160,h:30,fill:'none',text:'Text'},
   note:{label:'Notiz',w:150,h:110,fill:'#fff3b0'},
+  paper:{label:'Notizblatt',w:380,h:480,fill:'#fdfcf6'},
   bullets:{label:'Aufzählung',as:'text',w:320,h:90,fill:'none',text:'Erster Punkt\nZweiter Punkt\nDritter Punkt',list:1},
   checklist:{label:'Checkliste',as:'text',w:320,h:90,fill:'none',text:'Erste Aufgabe\nZweite Aufgabe\nDritte Aufgabe',chk:1},
   lineArrow:{label:'Pfeil',line:'arrow',w:140,h:40},
@@ -1199,7 +1202,7 @@ const KINDS={
   netcloud:{label:'Internet',as:'cloud',w:150,h:95,text:'Internet'},
   netdb:{label:'Speicher',as:'db',w:80,h:80}
 };
-const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','trap','para','star','arrowr','arrowlr','bubble','cloud','cross','note','bullets','checklist','image','table','card']],
+const GROUPS=[['Allgemein',['lineArrow','linePlain','rect','gSquare','gRound','ellipse','gCircle','tri','gDia','hex','trap','para','star','arrowr','arrowlr','bubble','cloud','cross','note','paper','bullets','checklist','image','table','card']],
   ['Vorlagen',['kanban','scrum','mindmap']],
   ['Präsentation',['frame','quiz','check']],
   ['Flussdiagramm',['term','diamond','io','doc','db']],
@@ -1320,6 +1323,17 @@ function shapeBody(s){
     case 'pool': { const hd=Math.min(30,w*0.2);
       return `<rect width="${w}" height="${h}" fill="none" stroke="${s.stroke}" stroke-width="${sw}" pointer-events="stroke"/><rect width="${hd}" height="${h}" fill="${s.fill==='none'?'transparent':s.fill}" stroke="${s.stroke}" stroke-width="${sw}"/>`; }
     case 'annot': return `<rect width="${w}" height="${h}" fill="${s.fill==='none'?'transparent':s.fill}"/><path d="M${Math.min(10,w*0.25)} 0H0V${h}H${Math.min(10,w*0.25)}" ${ln}/>`;
+    case 'paper': { useFont(s); const pp=s.pp||'lined', bg=s.fill==='none'?'transparent':s.fill, top=paperTop(s), lm=Math.max(36,w*0.12);
+      let o=`<rect width="${w}" height="${h}" rx="3" fill="${bg}" stroke="rgba(0,0,0,.14)" stroke-width="1"/>`;
+      const base=top+LH/2+FS*0.35+FS*0.2, ink=pp==='kraft'?'rgba(90,70,40,.28)':'rgba(70,110,190,.32)';
+      if(pp==='lined'){ for(let y=base;y<h-6;y+=LH) o+=`<path d="M6 ${r(y)}H${w-6}" stroke="${ink}" stroke-width="1"/>`;
+        o+=`<path d="M${r(lm)} 4V${h-4}" stroke="rgba(220,70,70,.45)" stroke-width="1.2"/>`; }
+      if(pp==='grid'){ const q=Math.max(10,LH/2); for(let y=base%q;y<h;y+=q) o+=`<path d="M0 ${r(y)}H${w}" stroke="${ink}" stroke-width=".7"/>`; for(let x=q*0.5;x<w;x+=q) o+=`<path d="M${r(x)} 0V${h}" stroke="${ink}" stroke-width=".7"/>`; }
+      if(pp==='dots'){ const q=Math.max(12,LH/2); let d=''; for(let y=base%q;y<h;y+=q) for(let x=q;x<w-2;x+=q) d+=`M${r(x)} ${r(y)}h.01`; o+=`<path d="${d}" stroke="rgba(60,60,70,.35)" stroke-width="2.4" stroke-linecap="round"/>`; }
+      if(pp==='linen'||pp==='kraft'){ let d=''; for(let y=2;y<h;y+=3) d+=`M0 ${y}H${w}`; let e=''; for(let x=2;x<w;x+=3) e+=`M${x} 0V${h}`;
+        o+=`<path d="${d}" stroke="rgba(120,100,60,.07)" stroke-width="1"/><path d="${e}" stroke="rgba(120,100,60,.06)" stroke-width="1"/>`;
+        if(pp==='kraft') for(let i=0;i<Math.round(w*h/2500);i++){ const x=(i*97.13)%w, y=(i*53.71+i*i*.37)%h; o+=`<circle cx="${r(x)}" cy="${r(y)}" r="${.6+(i%3)*.35}" fill="rgba(80,60,30,.18)"/>`; } }
+      return o; }
     case 'note': { const c=Math.min(16,m*0.25); return `<rect width="${w}" height="${h}" fill="${s.fill==='none'?'transparent':s.fill}"/><path d="M${w-c} ${h}H${w}V${h-c}Z" fill="rgba(0,0,0,.16)"/>`; }
     case 'text': return `<rect width="${w}" height="${h}" fill="${s.fill==='none'?'transparent':s.fill}"/>`;
     case 'tri': return `<polygon points="${cx},0 ${w},${h} 0,${h}" ${f}/>`;
@@ -1367,6 +1381,9 @@ function shapeBody(s){
   }
   return '';
 }
+/* Mitte der ersten Textzeile; beim Notizblatt beginnt der Text oben auf der ersten Linie */
+function paperTop(s){ return Math.round(LH*1.15); }
+function yMid(s,tb,n){ return tb.top!=null?tb.top+LH/2:s.h/2+(tb.dy||0)-(n-1)*LH/2; }
 function textBox(s){
   const k=s.kind;
   if(k==='pool') return {mode:'pool',maxW:Math.max(40,s.h-12)};
@@ -1380,6 +1397,7 @@ function textBox(s){
   if(k==='io') return {mode:'center',maxW:s.w*0.7};
   if(k==='annot') return {mode:'left',maxW:s.w-22,pad:16};
   if(k==='text') return {mode:'left',maxW:s.w-15,pad:8};
+  if(k==='paper'){ const lm=s.pp==='lined'||!s.pp?Math.max(36,s.w*0.12):22; return {mode:'left',maxW:s.w-lm-18,pad:lm+6,top:paperTop(s)}; }
   if(k==='tri') return {mode:'center',maxW:s.w*0.5,dy:s.h*0.16,grow:1.4};
   if(k==='hex') return {mode:'center',maxW:s.w*0.7};
   if(k==='star') return {mode:'center',maxW:s.w*0.4,dy:s.h*0.04};
@@ -1467,7 +1485,7 @@ function checkHit(s,w){
   const tb=textBox(s); if(tb.mode==='pool'||tb.mode==='below') return -1;
   let p=w; if(s.rot) p=rotP(w,{x:s.x+s.w/2,y:s.y+s.h/2},-s.rot);
   const lx=p.x-s.x, ly=p.y-s.y; useFont(s);
-  const Q=paraLines(s,s.text,tb.maxW), n=Q.out.length, y0=s.h/2+(tb.dy||0)-(n-1)*LH/2, x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
+  const Q=paraLines(s,s.text,tb.maxW), n=Q.out.length, y0=yMid(s,tb,n), x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
   for(let i=0;i<n;i++){ const o=Q.out[i]; if(!o.bul||!o.c) continue; const cy=y0+i*LH;
     if(Math.abs(ly-cy)<=Math.max(LH/2,11)&&lx>=x0-8&&lx<=x0+Q.ind+2) return o.pi; }
   return -1;
@@ -1489,7 +1507,7 @@ function shapeText(s){
   let x=s.w/2,y0,anchor='middle',fill=tink(),extra='';
   if(tb.mode==='below'){ y0=s.h+LH; }
   else if(tb.mode==='pool'){ const hd=Math.min(30,s.w*0.2); x=0; y0=-(n-1)*LH/2+FS*0.35; extra=` transform="translate(${hd/2} ${s.h/2}) rotate(-90)"`; fill=onFill(s.fill); }
-  else { y0=s.h/2+(tb.dy||0)-(n-1)*LH/2+FS*0.35;
+  else { y0=yMid(s,tb,n)+FS*0.35;
     if(tb.mode==='left'){ x=tb.pad; anchor='start'; }
     fill=onFill(s.fill);
     if(s.kind==='text') fill=s.stroke==='none'?onFill(s.fill):mapC(s.stroke); }
@@ -1498,7 +1516,7 @@ function shapeText(s){
     const x0=tb.mode==='left'?tb.pad:s.w/2-tb.maxW/2, x1=tb.mode==='left'?Math.min(s.w-6,tb.pad+tb.maxW):s.w/2+tb.maxW/2;
     if(s.al==='left'){ x=x0; anchor='start'; } else if(s.al==='right'){ x=x1; anchor='end'; } else { x=(x0+x1)/2; anchor='middle'; } }
   if(s.pf&&tb.mode!=='pool'&&tb.mode!=='below'){   /* einzelne Absätze fett oder als Aufzählung */
-    const Q=paraLines(s,s.text,tb.maxW), n2=Q.out.length; y0=s.h/2+(tb.dy||0)-(n2-1)*LH/2+FS*0.35;
+    const Q=paraLines(s,s.text,tb.maxW), n2=Q.out.length; y0=yMid(s,tb,n2)+FS*0.35;
     const fw=o=>o.w?' font-weight="600"':'';
     if(Q.anyL){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2), bx=Math.round(FS*0.9);
       const box=Q.out.map((o,i)=>{ if(!o.bul||!o.c) return ''; const by=y0+i*LH-FS*0.35-bx/2+FS*0.02;
@@ -1537,7 +1555,7 @@ function autosize(s){
       BOLD=B0; s.w=Math.max(60,up10(mw+16)); delete s.fresh; }
     s.h=Math.max(30,up10(lineCount(s,s.text||' ',s.w-15)*LH+10));
   } else if(tb.mode==='center'||tb.mode==='left'){
-    const need=(lineCount(s,s.text||'',tb.maxW)*LH+14)*(tb.grow||1)+Math.abs(tb.dy||0)*2;
+    const need=tb.top!=null?lineCount(s,s.text||'',tb.maxW)*LH+tb.top*2:(lineCount(s,s.text||'',tb.maxW)*LH+14)*(tb.grow||1)+Math.abs(tb.dy||0)*2;
     if(need>s.h) s.h=up10(need);
   }
 }
@@ -1950,7 +1968,7 @@ function cleanDoc(d){
     }
     if(!o){ if(s.type&&!['shape','path','conn'].includes(s.type)&&extra.length<2000){ try{ const j=JSON.stringify(s); if(j.length<=20000) extra.push(JSON.parse(j)); }catch(e){} } continue; }
     keepExtra(s,o);
-    if(o.type!=='path'){ if(s.fs) o.fs=num(s.fs,14,6,200); if(s.bold) o.bold=true; if(typeof s.ff==='string'&&FONTS[s.ff]&&s.ff!=='mono') o.ff=s.ff; if(s.it) o.it=true; if(s.ul) o.ul=true; if(s.st) o.st=true; if(LH_STUFEN.some(x=>x[0]===s.lh)&&s.lh!==1.3) o.lh=s.lh; if(s.list) o.list=true; if(Array.isArray(s.pf)&&s.pf.length<=5000&&s.pf.some(v=>/[blcx]/.test(v))) o.pf=s.pf.map(v=>(/b/.test(v)?'b':'')+(/x/.test(v)?'x':/c/.test(v)?'c':/l/.test(v)?'l':'')); if(['left','center','right'].includes(s.al)) o.al=s.al; if(s.mm==='root'||s.mm==='node') o.mm=s.mm; if(Number.isInteger(s.mc)&&s.mc>=0&&s.mc<6) o.mc=s.mc; const tc=col(s.tc,null); if(tc&&tc!=='none') o.tc=tc; }
+    if(o.type!=='path'){ if(s.fs) o.fs=num(s.fs,14,6,200); if(s.bold) o.bold=true; if(typeof s.ff==='string'&&FONTS[s.ff]&&s.ff!=='mono') o.ff=s.ff; if(s.it) o.it=true; if(o.kind==='paper'&&PAPER[s.pp]&&s.pp!=='lined') o.pp=s.pp; if(s.ul) o.ul=true; if(s.st) o.st=true; if(LH_STUFEN.some(x=>x[0]===s.lh)&&s.lh!==1.3) o.lh=s.lh; if(s.list) o.list=true; if(Array.isArray(s.pf)&&s.pf.length<=5000&&s.pf.some(v=>/[blcx]/.test(v))) o.pf=s.pf.map(v=>(/b/.test(v)?'b':'')+(/x/.test(v)?'x':/c/.test(v)?'c':/l/.test(v)?'l':'')); if(['left','center','right'].includes(s.al)) o.al=s.al; if(s.mm==='root'||s.mm==='node') o.mm=s.mm; if(Number.isInteger(s.mc)&&s.mc>=0&&s.mc<6) o.mc=s.mc; const tc=col(s.tc,null); if(tc&&tc!=='none') o.tc=tc; }
     if(o.type==='shape'&&Number.isFinite(+s.rot)){ const a=((Math.round(+s.rot*100)/100)%360+360)%360; if(a) o.rot=a; }   /* Drehwinkel in Grad */
     const g=sid(s.g); if(g) o.g=g; if(s.lock) o.lock=true; if(Number.isInteger(s.ap)&&s.ap>0&&s.ap<1000&&o.kind!=='frame') o.ap=s.ap;   /* Einblendschritt in der Präsentation */
      const fr=sid(s.fr); if(fr) o.fr=fr;
@@ -2238,7 +2256,7 @@ function mkShape(kind,cx,cy){
   const d=KINDS[kind];
   if(kind==='frame') return {id:nid(),type:'shape',kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:'',fill:'none',stroke:INK,sw:2,ord:frames().reduce((m,f)=>Math.max(m,f.ord||0),0)+1};
   /* Neue Elemente: gut lesbare Schrift (Text 24 px, Formen 18 px, Listen 20 px); ältere Boards behalten ihre Größen */
-  const fs=kind==='text'?24:(d.list||d.chk)?20:18;
+  const fs=kind==='text'?24:(d.list||d.chk||kind==='paper')?20:18;
   return {id:nid(),type:'shape',kind:d.as||kind,x:snap(cx-d.w/2),y:snap(cy-d.h/2),w:d.w,h:d.h,text:d.text||'',fill:d.fill||'#ffffff',stroke:INK,sw:2,fs,...(d.list?{list:true}:{}),...(d.chk?{pf:String(d.text).split('\n').map(()=>'c')}:{})};
 }
 function mkTable(colW,rowH,heads){
@@ -2490,7 +2508,7 @@ function placeEditor(){
     else n=wrap(T,tb.maxW).length;
     n=Math.max(1,n);
     let base0;   /* Grundlinie der ersten Zeile, wie beim Zeichnen */
-    if(tb.mode==='below') base0=it.h+LH; else base0=it.h/2+(tb.dy||0)-(n-1)*LH/2+FS*0.35;
+    if(tb.mode==='below') base0=it.h+LH; else base0=yMid(it,tb,n)+FS*0.35;
     const top=base0-FS*0.35-LH/2;
     let x0, w, al;
     if(ind){ x0=(tb.mode==='left'?tb.pad:Math.max(6,it.w/2-tb.maxW/2))+ind; w=Math.max(20,tb.maxW-ind); al='left'; }
@@ -2596,6 +2614,8 @@ function updateProps_(){
   if(tm) h+=`<div class="pg"><b>Text</b>${md('text','Text',tm.replace('<div class="pg"><b>Text</b>','').replace(/<\/div>$/,''),'Aa')}</div>`;
   const onlyText=items.length>0&&items.every(i=>i.type==='shape'&&i.kind==='text');
   if(texty.length){ const t0=texty[0]; h+=`<div class="pg"><b>Schrift</b>${cd('tc',t0.tc||(t0.kind==='text'?t0.stroke:''),false,'Schriftfarbe')}</div>`; }
+  const papers=items.filter(i=>i.kind==='paper');
+  if(papers.length){ const p0=papers[0].pp||'lined'; h+=`<div class="pg"><b>Papier</b>${md('paper','Papier',Object.entries(PAPER).map(([k,[n]])=>`<button data-act="pp" data-val="${k}" aria-pressed="${k===p0}">${n}</button>`).join(''),PAPER[p0][0])}</div>`; }
   if(hasShape) h+=`<div class="pg"><b>${onlyText?'Hintergrund':'Füllung'}</b>${cd('fill',(items.find(i=>i.type==='shape')||{}).fill,true,'Füllung')}</div>`;
   if(!onlyText) h+=`<div class="pg"><b>${penMode?(drawTool==='smart'?'Farbe':DRAW[drawTool]+'farbe'):'Linie'}</b>${cd('stroke',cur.stroke,hasShape&&!conns.length&&!paths.length,penMode?DRAW[drawTool]+'farbe':'Linie')}</div>`;
   const wl=penMode?WIDTHS[drawTool]:(cur.type==='path'?WIDTHS[cur.tool||'pen']:WIDTHS.shape);
@@ -2694,6 +2714,7 @@ function propsAct(b){
     if(it.type!=='path'&&(act==='fsup'||act==='fsdown'||act==='bold')){
       if(act==='bold'){ if(it.pf){ const n=String(it.text||'').split('\n').length-1; setParaFmt(it,it.text||'',0,n,'b'); } else it.bold=!it.bold; } else { const f=it.fs||14; it.fs=act==='fsup'?(FS_STUFEN.find(v=>v>f)||Math.min(160,f+16)):([...FS_STUFEN].reverse().find(v=>v<f)||Math.max(8,f-2)); }
       if(it.kind==='text') it.fresh=true; autosize(it); }
+    if(act==='pp'&&it.kind==='paper'){ if(val==='lined') delete it.pp; else it.pp=val; it.fill=PAPER[val][1]; }
     if(act==='fill'&&it.type==='shape') it.fill=val;
     if(act==='stroke'&&(val!=='none'||it.type==='shape')) it.stroke=val;
     if(act==='tip'&&it.type==='path') it.tip=val;
@@ -3099,6 +3120,7 @@ function iconFor(kind,W,H){
   if(kind==='quiz') return `<svg viewBox="0 0 ${W} ${H}"><rect x="3" y="2" width="${W-6}" height="${H-4}" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="4 3"/><path d="M9 8h${W-18}" stroke="currentColor" stroke-width="2.2" fill="none"/>${[13,18,23].map(y=>`<rect x="9" y="${y-2}" width="4" height="4" fill="none" stroke="currentColor" stroke-width="1"/><path d="M16 ${y}h${W-30}" stroke="currentColor" stroke-width="1.2" fill="none"/>`).join('')}</svg>`;
   if(kind==='check') return `<svg viewBox="0 0 ${W} ${H}"><rect x="5" y="${H/2-6}" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 ${H/2}l3 3 5-7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M22 ${H/2}h${W-28}" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>`;
   if(kind==='poollanes') return `<svg viewBox="0 0 ${W} ${H}"><rect x="2" y="3" width="${W-4}" height="${H-6}" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 3v${H-6}M14 3v${H-6}M14 ${H/2}H${W-2}" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>`;
+  if(kind==='paper') return `<svg viewBox="0 0 ${W} ${H}"><rect x="${W/2-9}" y="1.5" width="18" height="${H-3}" rx="1.5" fill="#fdfcf6" stroke="currentColor" stroke-width="1.2"/>${[8,12.5,17,21.5].map(y=>`<path d="M${W/2-7} ${y}h14" stroke="#7a9bd6" stroke-width=".9"/>`).join('')}<path d="M${W/2-4.5} 3v${H-6}" stroke="#e07a7a" stroke-width=".9"/></svg>`;
   if(kind==='checklist') return `<svg viewBox="0 0 ${W} ${H}">${[7,14,21].map((y,i)=>`<rect x="4" y="${y-2.6}" width="5.2" height="5.2" rx="1.2" fill="${i===0?'currentColor':'none'}" stroke="currentColor" stroke-width="1.4"/><path d="M13 ${y}h${W-20}" stroke="currentColor" stroke-width="1.800" fill="none"${i===0?' opacity=".45"':''}/>`).join('')}</svg>`;
   if(kind==='bullets') return `<svg viewBox="0 0 ${W} ${H}">${[7,14,21].map(y=>`<circle cx="7" cy="${y}" r="1.900" fill="currentColor"/><path d="M13 ${y}h${W-20}" stroke="currentColor" stroke-width="1.800" fill="none"/>`).join('')}</svg>`;
   if(kind==='image') return `<svg viewBox="0 0 ${W} ${H}"><rect x="6" y="3" width="${W-12}" height="${H-6}" rx="2" fill="none" stroke="currentColor" stroke-width="1.600"/><circle cx="${W*0.36}" cy="${H*0.36}" r="2.600" fill="currentColor"/><path d="M8 ${H-5}l${W*0.22} -${H*0.38} ${W*0.14} ${H*0.2} ${W*0.12} -${H*0.12} ${W*0.2} ${H*0.3}" fill="none" stroke="currentColor" stroke-width="1.600" stroke-linejoin="round"/></svg>`;
@@ -3907,6 +3929,10 @@ const TEMPLATES=[
    tplCard(K,0,84,280,250,'Heute',TC.orange,['Arzttermin vereinbaren','+Wäsche waschen','Einkauf erledigen']);
    tplCard(K,300,84,280,250,'Diese Woche',TC.blue,['Rechnung bezahlen','Auto zum TÜV','Bewerbung abschicken']);
    tplCard(K,600,84,280,250,'Irgendwann',TC.violet,['Keller aufräumen','Fotobuch gestalten','Fahrrad reparieren']); }},
+ {name:'Notizseite',info:'Liniertes Notizblatt mit Titel und Datum – Text sitzt auf den Linien',make(K){ const {B}=K;
+   const d=new Date(), dt=d.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+   B('paper',0,0,520,680,'Notizen\n'+dt+'\n\n',{fill:'#fdfcf6',fs:22,pf:['b','',''],tc:CARD_INK});
+   B('paper',560,0,520,680,'Ideen',{fill:'#f1ebdd',pp:'linen',fs:34,pf:['b'],tc:CARD_INK,ff:'hand'}); }},
  {name:'SWOT-Analyse',info:'Stärken, Schwächen, Chancen und Risiken auf einen Blick',make(K){ const {H,X,Q}=K; H(0,0,700,'SWOT-Analyse',26);
    X(90,56,380,'hilfreich',14,{al:'center',tc:'#5b6870'}); X(490,56,380,'schädlich',14,{al:'center',tc:'#5b6870'}); X(0,170,80,'intern',14,{tc:'#5b6870'}); X(0,440,80,'extern',14,{tc:'#5b6870'});
    Q(90,84,380,250,'Stärken','Was können wir besonders gut?',TC.green); Q(490,84,380,250,'Schwächen','Wo haben wir Nachholbedarf?',TC.orange);
@@ -3990,7 +4016,7 @@ const TEMPLATES=[
  {name:'Scrum-Board',info:'Backlog, Sprint, Review',kind:'scrum'},
  {name:'Mindmap',info:'Thema mit Zweigen, per „+ Zweig“ erweiterbar',kind:'mindmap'}
 ];
-const TKAT={'Einkaufsliste':'Alltag','Wochenplaner':'Alltag','To-do-Liste':'Alltag','Mindmap':'Unterricht','Zahlenstrahl 0–20':'Unterricht','Zahlenstrahl 0–100':'Unterricht','Zeitstrahl':'Unterricht','Zeitstrahl senkrecht':'Unterricht','PDCA-Zyklus':'Unterricht','5-Why-Analyse':'Unterricht','Ishikawa-Diagramm':'Unterricht'};
+const TKAT={'Notizseite':'Alltag','Einkaufsliste':'Alltag','Wochenplaner':'Alltag','To-do-Liste':'Alltag','Mindmap':'Unterricht','Zahlenstrahl 0–20':'Unterricht','Zahlenstrahl 0–100':'Unterricht','Zeitstrahl':'Unterricht','Zeitstrahl senkrecht':'Unterricht','PDCA-Zyklus':'Unterricht','5-Why-Analyse':'Unterricht','Ishikawa-Diagramm':'Unterricht'};
 const TKAT_FARBE={Alltag:'coral',Unterricht:'blue',Beruf:'violet'};
 let tplKat='*';
 function tplFilter(k){ tplKat=k; document.querySelectorAll('#tplFilt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k)); document.querySelectorAll('#tplGrid .tc').forEach(b=>b.hidden=k!=='*'&&b.dataset.kat!==k); }

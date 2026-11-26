@@ -58,6 +58,17 @@ function shapeBody(s){
     case 'pool': { const hd=Math.min(30,w*0.2);
       return `<rect width="${w}" height="${h}" fill="none" stroke="${s.stroke}" stroke-width="${sw}" pointer-events="stroke"/><rect width="${hd}" height="${h}" fill="${s.fill==='none'?'transparent':s.fill}" stroke="${s.stroke}" stroke-width="${sw}"/>`; }
     case 'annot': return `<rect width="${w}" height="${h}" fill="${s.fill==='none'?'transparent':s.fill}"/><path d="M${Math.min(10,w*0.25)} 0H0V${h}H${Math.min(10,w*0.25)}" ${ln}/>`;
+    case 'paper': { useFont(s); const pp=s.pp||'lined', bg=s.fill==='none'?'transparent':s.fill, top=paperTop(s), lm=Math.max(36,w*0.12);
+      let o=`<rect width="${w}" height="${h}" rx="3" fill="${bg}" stroke="rgba(0,0,0,.14)" stroke-width="1"/>`;
+      const base=top+LH/2+FS*0.35+FS*0.2, ink=pp==='kraft'?'rgba(90,70,40,.28)':'rgba(70,110,190,.32)';
+      if(pp==='lined'){ for(let y=base;y<h-6;y+=LH) o+=`<path d="M6 ${r(y)}H${w-6}" stroke="${ink}" stroke-width="1"/>`;
+        o+=`<path d="M${r(lm)} 4V${h-4}" stroke="rgba(220,70,70,.45)" stroke-width="1.2"/>`; }
+      if(pp==='grid'){ const q=Math.max(10,LH/2); for(let y=base%q;y<h;y+=q) o+=`<path d="M0 ${r(y)}H${w}" stroke="${ink}" stroke-width=".7"/>`; for(let x=q*0.5;x<w;x+=q) o+=`<path d="M${r(x)} 0V${h}" stroke="${ink}" stroke-width=".7"/>`; }
+      if(pp==='dots'){ const q=Math.max(12,LH/2); let d=''; for(let y=base%q;y<h;y+=q) for(let x=q;x<w-2;x+=q) d+=`M${r(x)} ${r(y)}h.01`; o+=`<path d="${d}" stroke="rgba(60,60,70,.35)" stroke-width="2.4" stroke-linecap="round"/>`; }
+      if(pp==='linen'||pp==='kraft'){ let d=''; for(let y=2;y<h;y+=3) d+=`M0 ${y}H${w}`; let e=''; for(let x=2;x<w;x+=3) e+=`M${x} 0V${h}`;
+        o+=`<path d="${d}" stroke="rgba(120,100,60,.07)" stroke-width="1"/><path d="${e}" stroke="rgba(120,100,60,.06)" stroke-width="1"/>`;
+        if(pp==='kraft') for(let i=0;i<Math.round(w*h/2500);i++){ const x=(i*97.13)%w, y=(i*53.71+i*i*.37)%h; o+=`<circle cx="${r(x)}" cy="${r(y)}" r="${.6+(i%3)*.35}" fill="rgba(80,60,30,.18)"/>`; } }
+      return o; }
     case 'note': { const c=Math.min(16,m*0.25); return `<rect width="${w}" height="${h}" fill="${s.fill==='none'?'transparent':s.fill}"/><path d="M${w-c} ${h}H${w}V${h-c}Z" fill="rgba(0,0,0,.16)"/>`; }
     case 'text': return `<rect width="${w}" height="${h}" fill="${s.fill==='none'?'transparent':s.fill}"/>`;
     case 'tri': return `<polygon points="${cx},0 ${w},${h} 0,${h}" ${f}/>`;
@@ -105,6 +116,9 @@ function shapeBody(s){
   }
   return '';
 }
+/* Mitte der ersten Textzeile; beim Notizblatt beginnt der Text oben auf der ersten Linie */
+function paperTop(s){ return Math.round(LH*1.15); }
+function yMid(s,tb,n){ return tb.top!=null?tb.top+LH/2:s.h/2+(tb.dy||0)-(n-1)*LH/2; }
 function textBox(s){
   const k=s.kind;
   if(k==='pool') return {mode:'pool',maxW:Math.max(40,s.h-12)};
@@ -118,6 +132,7 @@ function textBox(s){
   if(k==='io') return {mode:'center',maxW:s.w*0.7};
   if(k==='annot') return {mode:'left',maxW:s.w-22,pad:16};
   if(k==='text') return {mode:'left',maxW:s.w-15,pad:8};
+  if(k==='paper'){ const lm=s.pp==='lined'||!s.pp?Math.max(36,s.w*0.12):22; return {mode:'left',maxW:s.w-lm-18,pad:lm+6,top:paperTop(s)}; }
   if(k==='tri') return {mode:'center',maxW:s.w*0.5,dy:s.h*0.16,grow:1.4};
   if(k==='hex') return {mode:'center',maxW:s.w*0.7};
   if(k==='star') return {mode:'center',maxW:s.w*0.4,dy:s.h*0.04};
@@ -205,7 +220,7 @@ function checkHit(s,w){
   const tb=textBox(s); if(tb.mode==='pool'||tb.mode==='below') return -1;
   let p=w; if(s.rot) p=rotP(w,{x:s.x+s.w/2,y:s.y+s.h/2},-s.rot);
   const lx=p.x-s.x, ly=p.y-s.y; useFont(s);
-  const Q=paraLines(s,s.text,tb.maxW), n=Q.out.length, y0=s.h/2+(tb.dy||0)-(n-1)*LH/2, x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
+  const Q=paraLines(s,s.text,tb.maxW), n=Q.out.length, y0=yMid(s,tb,n), x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);
   for(let i=0;i<n;i++){ const o=Q.out[i]; if(!o.bul||!o.c) continue; const cy=y0+i*LH;
     if(Math.abs(ly-cy)<=Math.max(LH/2,11)&&lx>=x0-8&&lx<=x0+Q.ind+2) return o.pi; }
   return -1;
@@ -227,7 +242,7 @@ function shapeText(s){
   let x=s.w/2,y0,anchor='middle',fill=tink(),extra='';
   if(tb.mode==='below'){ y0=s.h+LH; }
   else if(tb.mode==='pool'){ const hd=Math.min(30,s.w*0.2); x=0; y0=-(n-1)*LH/2+FS*0.35; extra=` transform="translate(${hd/2} ${s.h/2}) rotate(-90)"`; fill=onFill(s.fill); }
-  else { y0=s.h/2+(tb.dy||0)-(n-1)*LH/2+FS*0.35;
+  else { y0=yMid(s,tb,n)+FS*0.35;
     if(tb.mode==='left'){ x=tb.pad; anchor='start'; }
     fill=onFill(s.fill);
     if(s.kind==='text') fill=s.stroke==='none'?onFill(s.fill):mapC(s.stroke); }
@@ -236,7 +251,7 @@ function shapeText(s){
     const x0=tb.mode==='left'?tb.pad:s.w/2-tb.maxW/2, x1=tb.mode==='left'?Math.min(s.w-6,tb.pad+tb.maxW):s.w/2+tb.maxW/2;
     if(s.al==='left'){ x=x0; anchor='start'; } else if(s.al==='right'){ x=x1; anchor='end'; } else { x=(x0+x1)/2; anchor='middle'; } }
   if(s.pf&&tb.mode!=='pool'&&tb.mode!=='below'){   /* einzelne Absätze fett oder als Aufzählung */
-    const Q=paraLines(s,s.text,tb.maxW), n2=Q.out.length; y0=s.h/2+(tb.dy||0)-(n2-1)*LH/2+FS*0.35;
+    const Q=paraLines(s,s.text,tb.maxW), n2=Q.out.length; y0=yMid(s,tb,n2)+FS*0.35;
     const fw=o=>o.w?' font-weight="600"':'';
     if(Q.anyL){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2), bx=Math.round(FS*0.9);
       const box=Q.out.map((o,i)=>{ if(!o.bul||!o.c) return ''; const by=y0+i*LH-FS*0.35-bx/2+FS*0.02;
@@ -275,7 +290,7 @@ function autosize(s){
       BOLD=B0; s.w=Math.max(60,up10(mw+16)); delete s.fresh; }
     s.h=Math.max(30,up10(lineCount(s,s.text||' ',s.w-15)*LH+10));
   } else if(tb.mode==='center'||tb.mode==='left'){
-    const need=(lineCount(s,s.text||'',tb.maxW)*LH+14)*(tb.grow||1)+Math.abs(tb.dy||0)*2;
+    const need=tb.top!=null?lineCount(s,s.text||'',tb.maxW)*LH+tb.top*2:(lineCount(s,s.text||'',tb.maxW)*LH+14)*(tb.grow||1)+Math.abs(tb.dy||0)*2;
     if(need>s.h) s.h=up10(need);
   }
 }

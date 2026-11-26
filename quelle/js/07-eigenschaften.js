@@ -34,6 +34,8 @@ function updateProps_(){
   if(tm) h+=`<div class="pg"><b>Text</b>${md('text','Text',tm.replace('<div class="pg"><b>Text</b>','').replace(/<\/div>$/,''),'Aa')}</div>`;
   const onlyText=items.length>0&&items.every(i=>i.type==='shape'&&i.kind==='text');
   if(texty.length){ const t0=texty[0]; h+=`<div class="pg"><b>Schrift</b>${cd('tc',t0.tc||(t0.kind==='text'?t0.stroke:''),false,'Schriftfarbe')}</div>`; }
+  const papers=items.filter(i=>i.kind==='paper');
+  if(papers.length){ const p0=papers[0].pp||'lined'; h+=`<div class="pg"><b>Papier</b>${md('paper','Papier',Object.entries(PAPER).map(([k,[n]])=>`<button data-act="pp" data-val="${k}" aria-pressed="${k===p0}">${n}</button>`).join(''),PAPER[p0][0])}</div>`; }
   if(hasShape) h+=`<div class="pg"><b>${onlyText?'Hintergrund':'Füllung'}</b>${cd('fill',(items.find(i=>i.type==='shape')||{}).fill,true,'Füllung')}</div>`;
   if(!onlyText) h+=`<div class="pg"><b>${penMode?(drawTool==='smart'?'Farbe':DRAW[drawTool]+'farbe'):'Linie'}</b>${cd('stroke',cur.stroke,hasShape&&!conns.length&&!paths.length,penMode?DRAW[drawTool]+'farbe':'Linie')}</div>`;
   const wl=penMode?WIDTHS[drawTool]:(cur.type==='path'?WIDTHS[cur.tool||'pen']:WIDTHS.shape);
@@ -132,6 +134,7 @@ function propsAct(b){
     if(it.type!=='path'&&(act==='fsup'||act==='fsdown'||act==='bold')){
       if(act==='bold'){ if(it.pf){ const n=String(it.text||'').split('\n').length-1; setParaFmt(it,it.text||'',0,n,'b'); } else it.bold=!it.bold; } else { const f=it.fs||14; it.fs=act==='fsup'?(FS_STUFEN.find(v=>v>f)||Math.min(160,f+16)):([...FS_STUFEN].reverse().find(v=>v<f)||Math.max(8,f-2)); }
       if(it.kind==='text') it.fresh=true; autosize(it); }
+    if(act==='pp'&&it.kind==='paper'){ if(val==='lined') delete it.pp; else it.pp=val; it.fill=PAPER[val][1]; }
     if(act==='fill'&&it.type==='shape') it.fill=val;
     if(act==='stroke'&&(val!=='none'||it.type==='shape')) it.stroke=val;
     if(act==='tip'&&it.type==='path') it.tip=val;
