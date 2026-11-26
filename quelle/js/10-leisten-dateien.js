@@ -1,5 +1,5 @@
 /* ---------- Leisten, Menü, Tastatur ---------- */
-$('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); if(palState.optsClosed){ palState.optsClosed=false; savePal(); } setTool(b.dataset.tool); updateProps(); } });
+$('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); if(palState.optsClosed){ palState.optsClosed=false; savePal(); } setTool(b.dataset.tool); updateProps(); if(GROUPS_DRAW[b.dataset.tool]) openDrawPop(b.dataset.tool,b); else closeDrawPop(); } });
 $('undo').onclick=undo; $('redo').onclick=redo; $('keysBtn').onclick=()=>{ closeHdrPops(); openKeys(); };
 function zoomStep(d){ const p=Math.round(view.k*100), n=d>0?Math.floor(p/10)*10+10:Math.ceil(p/10)*10-10; zoomCenter(clamp(n,20,400)/100/view.k); }   /* immer auf volle 10 % */
 $('zoomIn').onclick=()=>zoomStep(1); $('zoomOut').onclick=()=>zoomStep(-1); $('zoomLabel').onclick=()=>zoomCenter(1/view.k);

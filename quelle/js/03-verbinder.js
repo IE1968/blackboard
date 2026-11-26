@@ -102,19 +102,66 @@ function smoothOutline(Q){
   for(let i=1;i<=n;i++){ const a=Q[i%n], b=Q[(i+1)%n]; d+='Q'+r(a[0])+' '+r(a[1])+' '+r((a[0]+b[0])/2)+' '+r((a[1]+b[1])/2); }
   return d+'Z';
 }
+/* ---------- Striche: Stifte und Pinsel ---------- */
+function strRng(pts){ let h=2166136261; for(const q of pts.slice(0,3)){ h=Math.imul(h^Math.round(q[0]*7),16777619); h=Math.imul(h^Math.round(q[1]*7),16777619); }
+  let x=h>>>0||9; return ()=>{ x^=x<<13; x>>>=0; x^=x>>>17; x^=x<<5; x>>>=0; return x/4294967296; }; }   /* gleicher Strich, gleiche Zufallswerte */
+function mixC(c,to,t){ const m=/^#([0-9a-f]{6})$/i.exec(c||''); if(!m) return c; const v=parseInt(m[1],16), w=to==='w'?255:0;
+  return '#'+[16,8,0].map(k=>Math.round(((v>>k)&255)*(1-t)+w*t).toString(16).padStart(2,'0')).join(''); }
+function strDir(P,i){ const m=P.length, a=P[Math.max(0,i-2)], b=P[Math.min(m-1,i+2)], dx=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dx,dy)||1; return [dx/l,dy/l]; }
+function strOutline(P,hw,calli){   /* Umriss aus Mittellinie und halber Breite je Punkt */
+  const L=[],B=[], m=P.length;
+  for(let i=0;i<m;i++){ const p=P[i], h=hw(i); let ox,oy;
+    if(calli){ ox=h*0.7071; oy=-h*0.7071; } else { const [dx,dy]=strDir(P,i); ox=-dy*h; oy=dx*h; }
+    L.push([p[0]+ox,p[1]+oy]); B.unshift([p[0]-ox,p[1]-oy]); }
+  return smoothOutline(L.concat(B)); }
+function strOffset(P,f){   /* Linie parallel zur Mittellinie, Abstand f(i) */
+  let d=''; for(let i=0;i<P.length;i++){ const [dx,dy]=strDir(P,i), o=f(i); d+=(i?'L':'M')+r(P[i][0]-dy*o)+' '+r(P[i][1]+dx*o); } return d; }
+function strDash(rnd,a,b,n){ const v=[]; for(let i=0;i<(n||6);i++) v.push(r(a+rnd()*(b-a))); return v.join(' '); }
+function strTaper(P){   /* Anfang und Ende spitz zulaufen lassen (Kalligrafie) */
+  const m=P.length, acc=[0]; for(let i=1;i<m;i++) acc.push(acc[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));
+  const T=acc[m-1]||1, e=Math.min(T*0.25,40); return i=>Math.min(1,0.25+0.75*Math.min(acc[i],T-acc[i])/(e||1)); }
 function strokeSVG(it){
-  const pts=it.pts, tl=it.tool||'pen', tip=it.tip||'round', col=mapC(it.stroke), n=pts.length;
+  const pts=it.pts, tl=it.tool||'pen', tip=it.tip||'round', col=mapC(it.stroke), n=pts.length, sw=it.sw;
   let o='';
-  if(n<2){ const q=it.sw/2; o=tip==='round'?`<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="${q}" fill="${col}"/>`:`<rect x="${pts[0][0]-q}" y="${pts[0][1]-q}" width="${it.sw}" height="${it.sw}" fill="${col}"/>`; }
-  else if(tl!=='brush'&&tip!=='calli'&&!(tl==='pen'&&it.ws&&it.ws.length===n)){
-    o=`<path d="${pathD(pts)}" fill="none" stroke="${col}" stroke-width="${it.sw}" stroke-linecap="${tip==='flat'?'square':'round'}" stroke-linejoin="${tip==='flat'?'bevel':'round'}"/>`;
+  if(n<2){ const q=sw/2; o=tl==='spray'?'':tip==='round'||tl!=='bristle'&&tl!=='brush'&&tl!=='marker'?`<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="${q}" fill="${col}"${tl==='water'?' opacity=".35"':''}/>`:`<rect x="${pts[0][0]-q}" y="${pts[0][1]-q}" width="${sw}" height="${sw}" fill="${col}"/>`;
+    if(tl!=='spray') return tl==='marker'?`<g opacity="0.45">${o}</g>`:o; }
+  const ws=it.ws&&it.ws.length===n?it.ws:null, rnd=strRng(pts);
+  if(tl==='pencil'){   /* Bleistift: Graphit, leicht körnig; fester Druck macht dunkler */
+    const S=smoothStroke(pts,ws), P=S.p, avg=ws?S.w.reduce((a,b)=>a+b,0)/S.w.length:1, op=clamp(0.55+0.35*avg,0.6,1);
+    o=ws?`<path d="${strOutline(P,i=>sw*S.w[i]/2)}" fill="${col}" opacity="${r2(op*0.75)}"/>`:`<path d="${pathD(pts)}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" opacity="${r2(op*0.75)}"/>`;
+    for(const k of [-0.28,0,0.28]) o+=`<path d="${strOffset(P,()=>k*sw)}" fill="none" stroke="${col}" stroke-width="${r2(sw*0.42)}" stroke-linecap="round" stroke-dasharray="${strDash(rnd,0.5,3*Math.max(1,sw/2))}" opacity="${r2(op*0.8)}"/>`;
+    return o; }
+  if(tl==='chalk'){   /* Kreide: rau, mit kleinen Lücken und körnigen Rändern */
+    const P=smoothStroke(pts,null).p;
+    o=`<path d="${pathD(pts)}" fill="none" stroke="${col}" stroke-width="${r2(sw*0.8)}" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="${strDash(rnd,sw*0.6,sw*2.4,4)} ${r2(sw*0.3)}" opacity=".78"/>`;
+    for(const k of [-0.42,-0.2,0.05,0.25,0.44]) o+=`<path d="${strOffset(P,()=>k*sw)}" fill="none" stroke="${col}" stroke-width="${r2(sw*0.22)}" stroke-linecap="round" stroke-dasharray="${strDash(rnd,0.3,sw*0.5,8)}" opacity=".7"/>`;
+    return o; }
+  if(tl==='spray'){   /* Sprühpinsel: viele feine Tröpfchen, zur Mitte hin dichter */
+    const R=sw/2, D=[[],[]]; let cnt=0;   /* Tröpfchen je Punkt plus je Wegstück */
+    for(let i=0;i<n&&cnt<4000;i++){ const p=pts[i], q=pts[Math.max(0,i-1)], k=Math.round(4+Math.hypot(p[0]-q[0],p[1]-q[1])*sw*0.08);
+      for(let j=0;j<k;j++,cnt++){ const a=rnd()*6.2832, d=R*Math.pow(rnd(),0.75); D[rnd()<0.3?1:0].push(`M${r(p[0]+Math.cos(a)*d)} ${r(p[1]+Math.sin(a)*d)}h.01`); } }
+    return `<g fill="none" stroke="${col}" stroke-linecap="round" opacity=".85"><path d="${D[0].join('')}" stroke-width="${r2(Math.max(1.4,sw*0.065))}"/><path d="${D[1].join('')}" stroke-width="${r2(Math.max(2.2,sw*0.11))}"/></g>`; }
+  if(tl==='water'){   /* Aquarell: durchscheinend, weicher Rand, dunklere Kante; Überlagerungen werden kräftiger */
+    const S=smoothStroke(pts,ws), P=S.p, hw=i=>sw*S.w[i]/2;
+    const j=()=>{ const a=rnd()*6.28, b=0.85+rnd()*0.3; return i=>hw(i)*(b+0.12*Math.sin(i*0.21+a)); };   /* unregelmäßige Ränder wie verlaufene Farbe */
+    return `<g fill="${col}"><path d="${strOutline(P,j())}" opacity=".16"/><path d="${strOutline(P,j())}" opacity=".16"/><path d="${strOutline(P,i=>hw(i)*0.7)}" opacity=".14"/><path d="${strOutline(P,hw)}" fill="none" stroke="${col}" stroke-width="${r2(Math.max(0.8,sw*0.05))}" opacity=".4"/></g>`; }
+  if(tl==='callig'||tl==='fountain'){   /* Kalligrafie und Füller: schräge Feder, Abstriche breiter als Querstriche */
+    const S=smoothStroke(pts,ws), P=S.p, nib=-0.7854, lo=tl==='callig'?0.12:0.25, tp=tl==='callig'?strTaper(P):()=>1;
+    const hw=i=>{ const [dx,dy]=strDir(P,i), sn=Math.abs(Math.sin(Math.atan2(dy,dx)-nib)); return sw/2*(lo+(1-lo)*sn)*S.w[i]*tp(i); };
+    return `<path d="${strOutline(P,hw)}" fill="${col}" stroke="${col}" stroke-width="0.4" stroke-linejoin="round"/>`; }
+  if(tl==='bristle'){   /* Borstenpinsel: deckend, feine Borstenspuren im Strich */
+    const S=smoothStroke(pts,ws), P=S.p, m=P.length, hw=i=>sw*S.w[i]/2;
+    o=`<path d="${strOutline(P,hw,tip==='calli')}" fill="${col}" stroke="${col}" stroke-width="${tip==='calli'?Math.max(1,sw*0.12):0.5}" stroke-linejoin="round"/>`;
+    if(tip==='round') o+=`<circle cx="${r(P[0][0])}" cy="${r(P[0][1])}" r="${r(hw(0))}" fill="${col}"/><circle cx="${r(P[m-1][0])}" cy="${r(P[m-1][1])}" r="${r(hw(m-1))}" fill="${col}"/>`;
+    if(tip!=='calli'){ const k=clamp(Math.round(sw/2.5),3,9), dk=mixC(col,'b',0.35), lt=mixC(col,'w',0.35);
+      for(let j=0;j<k;j++){ const f=-0.78+1.56*(j+0.5)/k+(rnd()-0.5)*0.08;
+        o+=`<path d="${strOffset(P,i=>f*hw(i))}" fill="none" stroke="${j%2?lt:dk}" stroke-width="${r2(Math.max(0.5,sw*0.06))}" stroke-dasharray="${strDash(rnd,sw*2,sw*7,4)} ${r2(sw*0.6)}" stroke-dashoffset="${r(rnd()*sw*4)}" opacity=".45"/>`; } }
+    return o; }
+  if(tl!=='brush'&&tip!=='calli'&&!(tl==='pen'&&ws)){
+    o=`<path d="${pathD(pts)}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="${tip==='flat'?'square':'round'}" stroke-linejoin="${tip==='flat'?'bevel':'round'}"/>`;
   } else {
-    const S=smoothStroke(pts,it.ws&&tl!=='marker'?it.ws:null), P=S.p, m=P.length, hwAt=i=>it.sw*S.w[i]/2, L=[],B=[];
-    for(let i=0;i<m;i++){ const p=P[i], hw=hwAt(i); let ox,oy;
-      if(tip==='calli'){ ox=hw*0.7071; oy=-hw*0.7071; }
-      else { const a=P[Math.max(0,i-2)], b=P[Math.min(m-1,i+2)], dx=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dx,dy)||1; ox=-dy/l*hw; oy=dx/l*hw; }
-      L.push([p[0]+ox,p[1]+oy]); B.unshift([p[0]-ox,p[1]-oy]); }
-    o=`<path d="${smoothOutline(L.concat(B))}" fill="${col}" stroke="${col}" stroke-width="${tip==='calli'?Math.max(1,it.sw*0.12):0.5}" stroke-linejoin="round"/>`;
+    const S=smoothStroke(pts,ws&&tl!=='marker'?ws:null), P=S.p, m=P.length, hwAt=i=>sw*S.w[i]/2;
+    o=`<path d="${strOutline(P,hwAt,tip==='calli')}" fill="${col}" stroke="${col}" stroke-width="${tip==='calli'?Math.max(1,sw*0.12):0.5}" stroke-linejoin="round"/>`;
     if(tip==='round') o+=`<circle cx="${r(P[0][0])}" cy="${r(P[0][1])}" r="${r(hwAt(0))}" fill="${col}"/><circle cx="${r(P[m-1][0])}" cy="${r(P[m-1][1])}" r="${r(hwAt(m-1))}" fill="${col}"/>`;
   }
   return tl==='marker'?`<g opacity="0.45">${o}</g>`:o;

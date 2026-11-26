@@ -21,14 +21,32 @@ const GRID=20, KEY='blackboard-v1';
 function useFont(it){ FS=(it&&it.fs)||14; LH=Math.round(FS*((it&&it.lh)||1.3)); BOLD=!!(it&&it.bold); FAM=(it&&FONTS[it.ff]||FONTS.mono)[1]; ITAL=!!(it&&it.it);
   const dc=[it&&it.ul&&'underline',it&&it.st&&'line-through'].filter(Boolean).join(' '); FX=(ITAL?' font-style="italic"':'')+(dc?` text-decoration="${dc}"`:''); }
 const COLORS=['none','#1c2a2e','#ffffff','#7a8790','#c8321f','#d97a00','#f2c200','#1f8a4c','#1e63d0','#7446c9','#fff3b0','#ffd9c7','#cfe8ff','#d3f0dc','#e6dcff','#e3e8ea'];
-const WIDTHS={shape:[1,2,3,5,8],pen:[1.5,3,5,8,12],brush:[4,8,12,18,26],marker:[8,14,20,28,40],smart:[1.5,2,3,5,8]};
-const DRAW={pen:'Stift',brush:'Pinsel',marker:'Marker',smart:'Formstift'};
+/* Zeichenwerkzeuge: Name, Gruppe (Stifte/Pinsel), Startfarbe und -stärke, die fünf Stärken */
+const PENS={
+  pencil:{n:'Bleistift',g:'stifte',ps:{stroke:'#7a8790',sw:2.5,tip:'round'},W:[1.5,2.5,3.5,5,7]},
+  pen:{n:'Kugelschreiber',g:'stifte',ps:{stroke:INK,sw:3,tip:'round'},W:[1.5,3,5,8,12]},
+  fountain:{n:'Füller',g:'stifte',ps:{stroke:'#1e63d0',sw:3.5,tip:'round'},W:[2,3.5,5,7,10]},
+  smart:{n:'Formstift',g:'stifte',ps:{stroke:INK,sw:3,tip:'round'},W:[1.5,2,3,5,8]},
+  water:{n:'Aquarell',g:'pinsel',ps:{stroke:'#1e63d0',sw:20,tip:'round'},W:[8,14,20,28,40]},
+  bristle:{n:'Borstenpinsel',g:'pinsel',ps:{stroke:INK,sw:12,tip:'round'},W:[4,8,12,18,26]},
+  chalk:{n:'Kreide',g:'pinsel',ps:{stroke:INK,sw:7,tip:'round'},W:[3,5,7,10,15]},
+  callig:{n:'Kalligrafie',g:'pinsel',ps:{stroke:INK,sw:12,tip:'round'},W:[5,8,12,16,22]},
+  spray:{n:'Sprühpinsel',g:'pinsel',ps:{stroke:'#c8321f',sw:26,tip:'round'},W:[12,18,26,36,50]},
+  marker:{n:'Marker',g:null,ps:{stroke:'#f2c200',sw:20,tip:'flat'},W:[8,14,20,28,40]},
+  brush:{n:'Pinsel',g:null,ps:{stroke:INK,sw:12,tip:'round'},W:[4,8,12,18,26]}   /* älterer Pinsel: alte Striche und Live-Partner mit älterer Version */
+};
+const GROUPS_DRAW={stifte:['pencil','pen','fountain','smart'],pinsel:['water','bristle','chalk','callig','spray']};
+const PATH_TOOLS=Object.keys(PENS).filter(k=>k!=='smart');
+const WIDTHS={shape:[1,2,3,5,8]}; for(const k in PENS) WIDTHS[k]=PENS[k].W;
+const DRAW={}; for(const k in PENS) if(k!=='brush') DRAW[k]=PENS[k].n;
+const VARW=new Set(['brush','bristle','water','callig','fountain']);   /* Breite folgt dem Tempo, wenn kein Druck gemessen wird */
+const toolGrp=t=>GROUPS_DRAW[t]?t:(PENS[t]&&PENS[t].g)||null;
 const r2=v=>Math.round(v*100)/100;
 /* Stiftdruck (0 bis 1) in einen Breitenfaktor umrechnen; Stufen unter „Ansicht“. Beim Pinsel macht ein schräg gehaltener Stift breitere Striche. */
 const PRESS={soft:[0.72,1.3,0.85],normal:[0.35,1.6,0.9],strong:[0.12,2.1,1.1]};
 function pressW(p,e){
   const c=PRESS[uiCfg.press]||PRESS.normal; let f=c[0]+(c[1]-c[0])*Math.pow(Math.min(1,Math.max(0,p)),c[2]);
-  if(tool==='brush'&&e&&typeof e.altitudeAngle==='number'&&e.altitudeAngle<1.2) f*=1+(1.2-e.altitudeAngle)*0.9;
+  if(toolGrp(tool)==='pinsel'&&e&&typeof e.altitudeAngle==='number'&&e.altitudeAngle<1.2) f*=1+(1.2-e.altitudeAngle)*0.9;
   return f;
 }
 const KINDS={
@@ -150,7 +168,7 @@ let view={x:0,y:0,k:1};
 let sel=new Set();
 let tool='select';
 let drawTool='pen';
-const penStyles={pen:{stroke:INK,sw:3,tip:'round'},brush:{stroke:INK,sw:12,tip:'round'},marker:{stroke:'#f2c200',sw:20,tip:'flat'},smart:{stroke:INK,sw:3,tip:'round'}};
+const penStyles={}; for(const k in PENS) penStyles[k]=Object.assign({},PENS[k].ps);
 let hist=[],hi=-1;
 let editCell=null;
 let palState={closed:false,open:{Allgemein:true}};

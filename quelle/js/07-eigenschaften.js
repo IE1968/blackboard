@@ -37,12 +37,13 @@ function updateProps_(){
   const papers=items.filter(i=>i.kind==='paper');
   if(papers.length){ const p0=papers[0].pp||'lined'; h+=`<div class="pg"><b>Papier</b>${md('paper','Papier',Object.entries(PAPER).map(([k,[n]])=>`<button data-act="pp" data-val="${k}" aria-pressed="${k===p0}">${n}</button>`).join(''),PAPER[p0][0])}</div>`; }
   if(hasShape) h+=`<div class="pg"><b>${onlyText?'Hintergrund':'Füllung'}</b>${cd('fill',(items.find(i=>i.type==='shape')||{}).fill,true,'Füllung')}</div>`;
-  if(!onlyText) h+=`<div class="pg"><b>${penMode?(drawTool==='smart'?'Farbe':DRAW[drawTool]+'farbe'):'Linie'}</b>${cd('stroke',cur.stroke,hasShape&&!conns.length&&!paths.length,penMode?DRAW[drawTool]+'farbe':'Linie')}</div>`;
+  if(!onlyText) h+=`<div class="pg"><b>${penMode?'Farbe':'Linie'}</b>${cd('stroke',cur.stroke,hasShape&&!conns.length&&!paths.length,penMode?DRAW[drawTool]+'farbe':'Linie')}</div>`;
   const wl=penMode?WIDTHS[drawTool]:(cur.type==='path'?WIDTHS[cur.tool||'pen']:WIDTHS.shape);
   let near=0; wl.forEach((v,i)=>{ if(Math.abs(v-cur.sw)<Math.abs(wl[near]-cur.sw)) near=i; });
   if(!onlyText) h+=`<div class="pg"><b>Stärke</b>${md('sw','Stärke',wl.map((v,i)=>`<button class="pb wbtn" data-act="sw" data-val="${v}" aria-pressed="${i===near}" title="Stärke ${i+1} von 5"><i class="lw" style="height:${1.5+i*2.5}px"></i></button>`).join(''),`<span class="lw mlw" style="height:${1.5+near*2.5}px"></span>`)}</div>`;
-  if(penMode||paths.length){ const tip=(paths[0]||ps).tip||'round';
-    h+=`<div class="pg"><b>Pinselform</b>`+[['round','Rund'],['flat','Flach'],['calli','Schräg']].map(([v,t])=>`<button class="pb" data-act="tip" data-val="${v}" aria-pressed="${tip===v}">${t}</button>`).join('')+`</div>`; }
+  const TIPPED=['pen','brush','bristle','marker'];   /* Form der Spitze: nur wo sie den Strich verändert */
+  if(penMode?TIPPED.includes(drawTool):paths.length&&paths.every(p=>TIPPED.includes(p.tool||'pen'))){ const tip=(paths[0]||ps).tip||'round';
+    h+=`<div class="pg"><b>Spitze</b>`+[['round','Rund'],['flat','Flach'],['calli','Schräg']].map(([v,t])=>`<button class="pb" data-act="tip" data-val="${v}" aria-pressed="${tip===v}">${t}</button>`).join('')+`</div>`; }
   if(conns.length){ const c=conns[0];
     h+=`<div class="pg"><b>Pfeil</b><button class="pb" data-act="style" aria-pressed="${c.style==='straight'}">Gerade</button><button class="pb" data-act="dash" aria-pressed="${!!c.dash}" >Gestrichelt</button></div><div class="pg"><b>Spitze</b><button class="pb" data-act="head" title="Pfeilspitze wechseln">${HEADS.find(x=>x[0]===headOf(c))[1]}</button></div>`; }
   if(items.length===1&&items[0].kind==='table') h+=`<div class="pg"><b>Tabelle</b><button class="pb" data-act="addcol" title="Neue Spalte rechts neben der markierten Zelle">+ Spalte</button><button class="pb" data-act="delcol" title="Spalte der markierten Zelle löschen">− Spalte</button><button class="pb" data-act="addrow" title="Neue Zeile unter der markierten Zelle">+ Zeile</button><button class="pb" data-act="delrow" title="Zeile der markierten Zelle löschen">− Zeile</button></div>`;

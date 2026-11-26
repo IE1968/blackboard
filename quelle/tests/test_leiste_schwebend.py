@@ -21,7 +21,7 @@ try:
   check('Bleibt in der Tafel',pb[0]>=box('#stage')[0]-1 and pb[2]<=box('#stage')[2]+1)
   y0=box('#props')[1]; pg.mouse.wheel(0,120); pg.wait_for_timeout(250); y1=box('#props')[1]
   check('Wandert beim Verschieben der Tafel mit',abs(y1-y0)>5,f'{y0} {y1}')
-  pg.keyboard.press('Escape'); pg.wait_for_timeout(100); pg.click('#tools [data-tool="pen"]'); pg.wait_for_timeout(200)
+  pg.keyboard.press('Escape'); pg.wait_for_timeout(100); pg.click('#tools [data-tool="stifte"]'); pg.wait_for_timeout(200)
   pb=box('#props'); st=box('#stage')
   check('Stift: Leiste oben in der Mitte der Tafel',shown() and abs(pb[1]-st[1])<30 and abs((pb[0]+pb[2])/2-(st[0]+st[2])/2)<4,f'{pb} {st}')
   pg.click('#tools [data-tool="select"]'); pg.wait_for_timeout(150)

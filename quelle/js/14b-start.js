@@ -30,7 +30,7 @@ $('startArea').addEventListener('click',e=>{
   switch(b.dataset.sa){
     case 'tpl': openTpl(); break;
     case 'shape': palState.closed=false; savePal(); renderPal(); setTool('select'); { const q=$('palQ'); if(q&&isPC) q.focus(); } break;
-    case 'pen': setTool('pen'); $('startArea').hidden=true; svg.focus(); break;
+    case 'pen': setTool('stifte'); $('startArea').hidden=true; svg.focus(); break;
     case 'tipsoff': try{ localStorage.setItem('skizix-starttipps','aus'); }catch(_){} b.parentNode.hidden=true; break;
   }
 });

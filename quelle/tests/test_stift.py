@@ -11,7 +11,7 @@ try:
   pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.goto(URL); pg.wait_for_timeout(800)
   leeren(pg); pg.wait_for_timeout(200)
-  pg.click('#tools [data-tool="pen"]')
+  pg.click('#tools [data-tool="stifte"]')
   ramp=[0.05+0.9*i/40 for i in range(41)]
   pg.evaluate(DRAW,['pen',ramp,300]); pg.wait_for_timeout(400)
   paths=[i for i in pg.evaluate(READ)['items'] if i['type']=='path']

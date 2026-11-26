@@ -335,9 +335,12 @@ function newTextAt(w){
   const s=mkShape('text',w.x+80,w.y); s.text=''; s.fresh=true; doc.items.push(s); startEdit(s.id);
 }
 function setTool(t){
+  if(t==='brush') t='pinsel';   /* ältere Aufrufe */
+  if(t==='stifte') t=uiCfg.penVar||'pen'; else if(t==='pinsel') t=uiCfg.brushVar||'bristle';
   if(liveRO()&&t!=='pan') t='pan';
-  tool=t; if(DRAW[t]) drawTool=t; svg.setAttribute('class','t-'+t);
-  document.querySelectorAll('#tools .tb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t)); if(typeof phoneSync==='function') try{ phoneSync(); }catch(e){}
+  const g=toolGrp(t); if(g==='stifte'&&uiCfg.penVar!==t) setUi({penVar:t}); if(g==='pinsel'&&uiCfg.brushVar!==t) setUi({brushVar:t});
+  tool=t; if(DRAW[t]) drawTool=t; svg.setAttribute('class','t-'+t+(g?' t-'+g:''));
+  document.querySelectorAll('#tools .tb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t||!!g&&b.dataset.tool===g)); drawBtnSync(); if(typeof phoneSync==='function') try{ phoneSync(); }catch(e){}
   if(t!=='select'&&t!=='shape'&&sel.size){ sel.clear(); render(); }
   else if(t==='shape'&&sel.size){ for(const id of [...sel]){ const i=byId(id); if(!i||i.type!=='shape') sel.delete(id); } render(); } else updateProps();
 }

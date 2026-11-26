@@ -55,7 +55,7 @@ function penMe(){ if(typeof ktOn!=='function'||!ktOn()||!KT.s.uid) return ''; le
 function penPush(){ const c=liveCur(), u=penMe(); if(!c||!c.own||!u||!penTs) return; liveSend({t:'pen',u,ts:penTs,cfg:penStyles}); }
 function penIn(m){
   const c=liveCur(), u=penMe(); if(!c||!c.own||!u||m.u!==u||!m.cfg||!(m.ts>penTs)) return;
-  for(const k of ['pen','brush','marker']){ const x=m.cfg[k]; if(!x) continue; const ps=penStyles[k];
+  for(const k of PATH_TOOLS.concat('smart')){ const x=m.cfg[k]; if(!x) continue; const ps=penStyles[k];
     if(typeof x.stroke==='string'&&/^(#[0-9a-fA-F]{3,8}|rgba?\([0-9.,%\s]+\)|none|transparent)$/.test(x.stroke)) ps.stroke=x.stroke;
     if(isFinite(+x.sw)&&+x.sw>0&&+x.sw<=200) ps.sw=+x.sw;
     if(x.tip==='round'||x.tip==='flat') ps.tip=x.tip; }
@@ -99,7 +99,7 @@ function liveDraftIn(m){
   d.pts.length=i; d.pts.push(...pts.map(q=>[q[0],q[1]]));
   if(Array.isArray(m.w)){ d.ws.length=i; d.ws.push(...m.w.map(v=>Number.isFinite(+v)?+v:1)); }
   const s=m.s||{}, col=(typeof s.stroke==='string'&&/^#[0-9a-f]{6}$/i.test(s.stroke))?s.stroke:INK;
-  const it={pts:d.pts,ws:d.ws.length===d.pts.length?d.ws:null,stroke:col,sw:clamp(+s.sw||3,0.5,100),tool:['pen','brush','marker'].includes(s.tool)?s.tool:'pen',tip:['round','flat','calli'].includes(s.tip)?s.tip:'round'};
+  const it={pts:d.pts,ws:d.ws.length===d.pts.length?d.ws:null,stroke:col,sw:clamp(+s.sw||3,0.5,100),tool:PATH_TOOLS.includes(s.tool)?s.tool:'pen',tip:['round','flat','calli'].includes(s.tip)?s.tip:'round'};
   if(d.pts.length) d.el.innerHTML=strokeSVG(it);
   clearTimeout(d.t); d.t=setTimeout(()=>liveDraftEnd(m.dev),4000);
 }

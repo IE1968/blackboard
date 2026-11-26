@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-yK1ARHQTK7hz6UfhNosyJaL05uqXQPRMyXGQk4jWGF8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://127.0.0.1:* ws://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-bDn7Vx0brNLqSQN4lOfj2ouk0FXlbp4IL9vPIZuGvPU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://127.0.0.1:* ws://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Skizix</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#18181A">
@@ -887,6 +887,16 @@ body.eng3:not(.nolabels) #boardName{width:96px;min-width:70px}
 
 /* Board-Schrift: kein nachgeahmtes Fett (Plakativ hat nur einen Schnitt) – so sehen Bildschirm und PDF gleich aus */
 #items text{font-synthesis-weight:none}
+
+/* Auswahl Stifte und Pinsel */
+#drawPop{position:fixed;z-index:60;display:flex;flex-direction:column;gap:2px;min-width:200px;padding:6px;background:var(--panel,#fff);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+#drawPop .dpH{font-size:12px;font-weight:700;opacity:.7;padding:4px 10px 6px}
+#drawPop button{display:flex;align-items:center;gap:12px;min-height:44px;padding:6px 12px;border:0;border-radius:8px;background:none;color:inherit;font:inherit;font-size:15px;text-align:left;cursor:pointer}
+#drawPop button:hover{background:var(--acc-soft)}
+#drawPop button[aria-checked="true"]{background:var(--acc-soft);color:var(--accent);font-weight:700}
+#drawPop svg{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#tools [data-tool="stifte"] svg{color:var(--ink)}
+#tools [data-tool="pinsel"] svg{color:var(--c-coral)}
 </style>
 </head>
 <body>
@@ -897,9 +907,9 @@ body.eng3:not(.nolabels) #boardName{width:96px;min-width:70px}
     <div class="grp" id="tools" role="toolbar" aria-label="Werkzeuge">
       <button class="tb" data-tool="select" title="Auswählen und verschieben (V)"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 2-2 6z"/></svg><span>Auswahl</span></button>
       <button class="tb" data-tool="shape" title="Form: nur Formen auswählen und bearbeiten (Farbe, Reihenfolge, Gruppe) (F)"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="11" height="9" rx="1.500"/><circle cx="15.500" cy="15.500" r="4.500"/></svg><span>Form</span></button>
-      <button class="tb" data-tool="pen" title="Freihand zeichnen (P)"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span>Stift</span></button>
-      <button class="tb" data-tool="brush" title="Pinsel: Strich wird je nach Tempo oder Stiftdruck dicker und dünner (B)"><svg viewBox="0 0 24 24"><path d="M19 4l1.5 1.5-8 9-2.5 1 1-2.5zM9.5 16.5c-2 0-3 1.2-3 2.3S5.500 20 4 20c2.500 1 6.500.500 6.500-2.500"/></svg><span>Pinsel</span></button>
-      <button class="tb" data-tool="marker" title="Marker: breit und durchscheinend (M)"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-8 8H7v-5zM4 21h9"/></svg><span>Marker</span></button><button class="tb" data-tool="smart" title="Formstift: gerade Linien, Kreise, Rechtecke, Dreiecke und Rauten werden automatisch sauber (S)"><svg viewBox="0 0 24 24"><path d="M3 21l3-1 8-8-2-2-8 8z"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><path d="M15 17a3 3 0 106 0 3 3 0 00-6 0"/></svg><span>Formstift</span></button>
+      <button class="tb" data-tool="stifte" title="Stifte: Bleistift, Kugelschreiber, Füller, Formstift (Taste S)" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span>Stift</span></button>
+      <button class="tb" data-tool="pinsel" title="Pinsel: Aquarell, Borstenpinsel, Kreide, Kalligrafie, Sprühpinsel (Taste P)" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M19 4l1.5 1.5-8 9-2.5 1 1-2.5zM9.5 16.5c-2 0-3 1.2-3 2.3S5.5 20 4 20c2.5 1 6.5.5 6.5-2.5"/></svg><span>Pinsel</span></button>
+      <button class="tb" data-tool="marker" title="Marker: breit und durchscheinend (Taste M)"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-8 8H7v-5zM4 21h9"/></svg><span>Marker</span></button>
       <button class="tb" data-tool="text" title="Text setzen (T)"><svg viewBox="0 0 24 24"><path d="M5 6h14M12 6v13M9 19h6"/></svg><span>Text</span></button>
       <button class="tb" data-tool="erase" title="Radieren (E)"><svg viewBox="0 0 24 24"><path d="M9 19h11M4 14l9-9 6 6-8 8H8z"/></svg><span>Radierer</span></button>
       <button class="tb" data-tool="pan" title="Tafel verschieben (H oder Leertaste halten)"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg><span>Bewegen</span></button>
@@ -991,9 +1001,10 @@ body.eng3:not(.nolabels) #boardName{width:96px;min-width:70px}
   <button id="propsToggle" aria-controls="menu"></button>
   <button id="optsToggle" aria-controls="props"><i></i></button>
 </main>
+<div id="drawPop" hidden role="menu" aria-label="Stift wählen"></div>
 <nav id="phoneBar" aria-label="Werkzeuge">
   <button type="button" data-tool="select"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3l14 8-6 2-2 6z"/></svg><span>Auswahl</span></button>
-  <button type="button" data-tool="pen" id="pbDraw"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span>Stift</span></button>
+  <button type="button" data-tool="stifte" id="pbDraw" aria-haspopup="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span>Stift</span></button>
   <button type="button" id="pbPlus" aria-label="Formen und Vorlagen" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <button type="button" data-tool="text"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M12 6v13M9 19h6"/></svg><span>Text</span></button>
   <button type="button" id="pbMore" aria-expanded="false" aria-controls="moreSheet"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>Mehr</span></button>
@@ -1002,10 +1013,9 @@ body.eng3:not(.nolabels) #boardName{width:96px;min-width:70px}
   <div class="msGrip" aria-hidden="true"></div>
   <div class="msH">Werkzeuge</div>
   <div class="msGrid">
-    <button type="button" data-tool="pen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span>Stift</span></button>
-    <button type="button" data-tool="brush"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 4l1.5 1.5-8 9-2.5 1 1-2.5zM9.5 16.5c-2 0-3 1.2-3 2.3S5.5 20 4 20c2.5 1 6.5.5 6.5-2.5"/></svg><span>Pinsel</span></button>
+    <button type="button" data-tool="stifte" aria-haspopup="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span>Stift</span></button>
+    <button type="button" data-tool="pinsel" aria-haspopup="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 4l1.5 1.5-8 9-2.5 1 1-2.5zM9.5 16.5c-2 0-3 1.2-3 2.3S5.5 20 4 20c2.5 1 6.5.5 6.5-2.5"/></svg><span>Pinsel</span></button>
     <button type="button" data-tool="marker"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4l6 6-8 8H7v-5zM4 21h9"/></svg><span>Marker</span></button>
-    <button type="button" data-tool="smart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21l3-1 8-8-2-2-8 8z"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><path d="M15 17a3 3 0 106 0 3 3 0 00-6 0"/></svg><span>Formstift</span></button>
     <button type="button" data-tool="erase"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19h11M4 14l9-9 6 6-8 8H8z"/></svg><span>Radierer</span></button>
     <button type="button" data-tool="pan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg><span>Bewegen</span></button>
     <button type="button" data-tool="shape"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="11" height="9" rx="1.5"/><circle cx="15.5" cy="15.5" r="4.5"/></svg><span>Form wählen</span></button>
@@ -1061,7 +1071,7 @@ body.eng3:not(.nolabels) #boardName{width:96px;min-width:70px}
   </form>
 </div>
 <div id="tplDlg" hidden role="dialog" aria-modal="true" aria-labelledby="tplTitle"><div id="tplBox" tabindex="-1"><div class="tplHead"><h2 id="tplTitle">Vorlage einfügen</h2><button type="button" id="tplX" class="dlgX" aria-label="Schließen">✕</button></div><div id="tplFilt" role="group" aria-label="Vorlagen filtern"></div><div id="tplGrid"></div><div class="dlgBtns"><button type="button" class="pb" id="tplClose">Schließen</button></div></div></div>
-<div id="keysDlg" hidden role="dialog" aria-modal="true" aria-labelledby="keysTitle"><div id="keysBox" tabindex="-1"><div class="tplHead"><h2 id="keysTitle">Hilfe</h2><button type="button" id="keysX" class="dlgX" aria-label="Schließen">✕</button></div><div class="vpTabs" role="tablist" aria-label="Hilfe"><button type="button" role="tab" data-kt="start" aria-selected="true">Erste Schritte</button><button type="button" role="tab" data-kt="keys" aria-selected="false">Tastenkürzel</button></div><div class="kPane" data-kp="start" role="tabpanel" id="helpStart"></div><div class="kPane" data-kp="keys" role="tabpanel" hidden><h3>Werkzeuge</h3><dl><dt><kbd>V</kbd></dt><dd>Auswählen</dd><dt><kbd>P</kbd></dt><dd>Stift</dd><dt><kbd>B</kbd></dt><dd>Pinsel</dd><dt><kbd>M</kbd></dt><dd>Marker</dd><dt><kbd>S</kbd></dt><dd>Formstift</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>E</kbd></dt><dd>Radierer</dd><dt><kbd>H</kbd> oder <kbd>Leertaste</kbd> halten</dt><dd>Tafel verschieben</dd><dt><kbd>0</kbd></dt><dd>Zoom 100 %</dd><dt><kbd>Umschalt</kbd>+<kbd>1</kbd></dt><dd>Alles einpassen</dd></dl><h3>Bearbeiten</h3><dl><dt><kbd>Strg</kbd>+<kbd>Z</kbd> / <kbd>Strg</kbd>+<kbd>Y</kbd></dt><dd>Rückgängig / Wiederholen</dd><dt><kbd>Strg</kbd>+<kbd>C</kbd> <kbd>Strg</kbd>+<kbd>X</kbd> <kbd>Strg</kbd>+<kbd>V</kbd></dt><dd>Kopieren, Ausschneiden, Einfügen</dd><dt><kbd>Strg</kbd>+<kbd>D</kbd></dt><dd>Duplizieren</dd><dt><kbd>Strg</kbd>+<kbd>A</kbd></dt><dd>Alles auswählen</dd><dt><kbd>Strg</kbd>+<kbd>G</kbd> / <kbd>Strg</kbd>+<kbd>⇧</kbd>+<kbd>G</kbd></dt><dd>Gruppieren / Gruppe lösen</dd><dt><kbd>Entf</kbd></dt><dd>Löschen</dd><dt><kbd>Enter</kbd> oder <kbd>F2</kbd></dt><dd>Text der Auswahl bearbeiten</dd><dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Verschieben (mit <kbd>⇧</kbd> pixelgenau)</dd><dt><kbd>Esc</kbd></dt><dd>Auswahl aufheben, Aktion abbrechen</dd></dl><h3>Beim Ziehen</h3><dl><dt><kbd>⇧</kbd></dt><dd>Ecken: frei verformen · Pfeilende: in 45°-Schritten</dd><dt><kbd>Alt</kbd></dt><dd>Ohne Einrasten und Hilfslinien</dd><dt><kbd>Strg</kbd> + Mausrad</dt><dd>Zoomen</dd></dl><h3>Beim Schreiben</h3><dl><dt><kbd>Enter</kbd></dt><dd>Neuer Absatz</dd><dt><kbd>Strg</kbd>+<kbd>Enter</kbd> / <kbd>Esc</kbd></dt><dd>Fertig</dd><dt><kbd>Enter</kbd> in der Mindmap</dt><dd>Fertig (⇧+Enter: neue Zeile)</dd><dt><kbd>Tab</kbd></dt><dd>Tabelle: nächste Zelle · Mindmap: neuer Zweig</dd></dl><h3>Präsentation</h3><dl><dt><kbd>→</kbd> <kbd>Leertaste</kbd></dt><dd>Weiter</dd><dt><kbd>←</kbd></dt><dd>Zurück</dd><dt><kbd>L</kbd></dt><dd>Laserpointer</dd><dt><kbd>A</kbd></dt><dd>Quiz-Lösung zeigen</dd><dt><kbd>Esc</kbd></dt><dd>Beenden</dd></dl><h3>Hilfe</h3><dl><dt><kbd>?</kbd></dt><dd>Diese Übersicht</dd></dl></div><div class="dlgBtns"><button type="button" class="pb" id="keysClose">Schließen</button></div></div></div>
+<div id="keysDlg" hidden role="dialog" aria-modal="true" aria-labelledby="keysTitle"><div id="keysBox" tabindex="-1"><div class="tplHead"><h2 id="keysTitle">Hilfe</h2><button type="button" id="keysX" class="dlgX" aria-label="Schließen">✕</button></div><div class="vpTabs" role="tablist" aria-label="Hilfe"><button type="button" role="tab" data-kt="start" aria-selected="true">Erste Schritte</button><button type="button" role="tab" data-kt="keys" aria-selected="false">Tastenkürzel</button></div><div class="kPane" data-kp="start" role="tabpanel" id="helpStart"></div><div class="kPane" data-kp="keys" role="tabpanel" hidden><h3>Werkzeuge</h3><dl><dt><kbd>V</kbd></dt><dd>Auswählen</dd><dt><kbd>S</kbd></dt><dd>Stifte: Bleistift, Kugelschreiber, Füller, Formstift. Nochmal drücken wechselt zum nächsten Stift.</dd><dt><kbd>P</kbd></dt><dd>Pinsel: Aquarell, Borstenpinsel, Kreide, Kalligrafie, Sprühpinsel. Nochmal drücken wechselt zum nächsten Pinsel.</dd><dt><kbd>M</kbd></dt><dd>Marker</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>E</kbd></dt><dd>Radierer</dd><dt><kbd>H</kbd> oder <kbd>Leertaste</kbd> halten</dt><dd>Tafel verschieben</dd><dt><kbd>0</kbd></dt><dd>Zoom 100 %</dd><dt><kbd>Umschalt</kbd>+<kbd>1</kbd></dt><dd>Alles einpassen</dd></dl><h3>Bearbeiten</h3><dl><dt><kbd>Strg</kbd>+<kbd>Z</kbd> / <kbd>Strg</kbd>+<kbd>Y</kbd></dt><dd>Rückgängig / Wiederholen</dd><dt><kbd>Strg</kbd>+<kbd>C</kbd> <kbd>Strg</kbd>+<kbd>X</kbd> <kbd>Strg</kbd>+<kbd>V</kbd></dt><dd>Kopieren, Ausschneiden, Einfügen</dd><dt><kbd>Strg</kbd>+<kbd>D</kbd></dt><dd>Duplizieren</dd><dt><kbd>Strg</kbd>+<kbd>A</kbd></dt><dd>Alles auswählen</dd><dt><kbd>Strg</kbd>+<kbd>G</kbd> / <kbd>Strg</kbd>+<kbd>⇧</kbd>+<kbd>G</kbd></dt><dd>Gruppieren / Gruppe lösen</dd><dt><kbd>Entf</kbd></dt><dd>Löschen</dd><dt><kbd>Enter</kbd> oder <kbd>F2</kbd></dt><dd>Text der Auswahl bearbeiten</dd><dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Verschieben (mit <kbd>⇧</kbd> pixelgenau)</dd><dt><kbd>Esc</kbd></dt><dd>Auswahl aufheben, Aktion abbrechen</dd></dl><h3>Beim Ziehen</h3><dl><dt><kbd>⇧</kbd></dt><dd>Ecken: frei verformen · Pfeilende: in 45°-Schritten</dd><dt><kbd>Alt</kbd></dt><dd>Ohne Einrasten und Hilfslinien</dd><dt><kbd>Strg</kbd> + Mausrad</dt><dd>Zoomen</dd></dl><h3>Beim Schreiben</h3><dl><dt><kbd>Enter</kbd></dt><dd>Neuer Absatz</dd><dt><kbd>Strg</kbd>+<kbd>Enter</kbd> / <kbd>Esc</kbd></dt><dd>Fertig</dd><dt><kbd>Enter</kbd> in der Mindmap</dt><dd>Fertig (⇧+Enter: neue Zeile)</dd><dt><kbd>Tab</kbd></dt><dd>Tabelle: nächste Zelle · Mindmap: neuer Zweig</dd></dl><h3>Präsentation</h3><dl><dt><kbd>→</kbd> <kbd>Leertaste</kbd></dt><dd>Weiter</dd><dt><kbd>←</kbd></dt><dd>Zurück</dd><dt><kbd>L</kbd></dt><dd>Laserpointer</dd><dt><kbd>A</kbd></dt><dd>Quiz-Lösung zeigen</dd><dt><kbd>Esc</kbd></dt><dd>Beenden</dd></dl><h3>Hilfe</h3><dl><dt><kbd>?</kbd></dt><dd>Diese Übersicht</dd></dl></div><div class="dlgBtns"><button type="button" class="pb" id="keysClose">Schließen</button></div></div></div>
 <div id="pres" hidden tabindex="-1" role="dialog" aria-modal="true" aria-label="Präsentation">
   <svg id="presSvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
   <svg id="laserSvg" xmlns="http://www.w3.org/2000/svg"><polyline id="laserTrail" fill="none" stroke="#2f8fff" stroke-opacity=".5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1102,14 +1112,32 @@ const GRID=20, KEY='blackboard-v1';
 function useFont(it){ FS=(it&&it.fs)||14; LH=Math.round(FS*((it&&it.lh)||1.3)); BOLD=!!(it&&it.bold); FAM=(it&&FONTS[it.ff]||FONTS.mono)[1]; ITAL=!!(it&&it.it);
   const dc=[it&&it.ul&&'underline',it&&it.st&&'line-through'].filter(Boolean).join(' '); FX=(ITAL?' font-style="italic"':'')+(dc?` text-decoration="${dc}"`:''); }
 const COLORS=['none','#1c2a2e','#ffffff','#7a8790','#c8321f','#d97a00','#f2c200','#1f8a4c','#1e63d0','#7446c9','#fff3b0','#ffd9c7','#cfe8ff','#d3f0dc','#e6dcff','#e3e8ea'];
-const WIDTHS={shape:[1,2,3,5,8],pen:[1.5,3,5,8,12],brush:[4,8,12,18,26],marker:[8,14,20,28,40],smart:[1.5,2,3,5,8]};
-const DRAW={pen:'Stift',brush:'Pinsel',marker:'Marker',smart:'Formstift'};
+/* Zeichenwerkzeuge: Name, Gruppe (Stifte/Pinsel), Startfarbe und -stärke, die fünf Stärken */
+const PENS={
+  pencil:{n:'Bleistift',g:'stifte',ps:{stroke:'#7a8790',sw:2.5,tip:'round'},W:[1.5,2.5,3.5,5,7]},
+  pen:{n:'Kugelschreiber',g:'stifte',ps:{stroke:INK,sw:3,tip:'round'},W:[1.5,3,5,8,12]},
+  fountain:{n:'Füller',g:'stifte',ps:{stroke:'#1e63d0',sw:3.5,tip:'round'},W:[2,3.5,5,7,10]},
+  smart:{n:'Formstift',g:'stifte',ps:{stroke:INK,sw:3,tip:'round'},W:[1.5,2,3,5,8]},
+  water:{n:'Aquarell',g:'pinsel',ps:{stroke:'#1e63d0',sw:20,tip:'round'},W:[8,14,20,28,40]},
+  bristle:{n:'Borstenpinsel',g:'pinsel',ps:{stroke:INK,sw:12,tip:'round'},W:[4,8,12,18,26]},
+  chalk:{n:'Kreide',g:'pinsel',ps:{stroke:INK,sw:7,tip:'round'},W:[3,5,7,10,15]},
+  callig:{n:'Kalligrafie',g:'pinsel',ps:{stroke:INK,sw:12,tip:'round'},W:[5,8,12,16,22]},
+  spray:{n:'Sprühpinsel',g:'pinsel',ps:{stroke:'#c8321f',sw:26,tip:'round'},W:[12,18,26,36,50]},
+  marker:{n:'Marker',g:null,ps:{stroke:'#f2c200',sw:20,tip:'flat'},W:[8,14,20,28,40]},
+  brush:{n:'Pinsel',g:null,ps:{stroke:INK,sw:12,tip:'round'},W:[4,8,12,18,26]}   /* älterer Pinsel: alte Striche und Live-Partner mit älterer Version */
+};
+const GROUPS_DRAW={stifte:['pencil','pen','fountain','smart'],pinsel:['water','bristle','chalk','callig','spray']};
+const PATH_TOOLS=Object.keys(PENS).filter(k=>k!=='smart');
+const WIDTHS={shape:[1,2,3,5,8]}; for(const k in PENS) WIDTHS[k]=PENS[k].W;
+const DRAW={}; for(const k in PENS) if(k!=='brush') DRAW[k]=PENS[k].n;
+const VARW=new Set(['brush','bristle','water','callig','fountain']);   /* Breite folgt dem Tempo, wenn kein Druck gemessen wird */
+const toolGrp=t=>GROUPS_DRAW[t]?t:(PENS[t]&&PENS[t].g)||null;
 const r2=v=>Math.round(v*100)/100;
 /* Stiftdruck (0 bis 1) in einen Breitenfaktor umrechnen; Stufen unter „Ansicht“. Beim Pinsel macht ein schräg gehaltener Stift breitere Striche. */
 const PRESS={soft:[0.72,1.3,0.85],normal:[0.35,1.6,0.9],strong:[0.12,2.1,1.1]};
 function pressW(p,e){
   const c=PRESS[uiCfg.press]||PRESS.normal; let f=c[0]+(c[1]-c[0])*Math.pow(Math.min(1,Math.max(0,p)),c[2]);
-  if(tool==='brush'&&e&&typeof e.altitudeAngle==='number'&&e.altitudeAngle<1.2) f*=1+(1.2-e.altitudeAngle)*0.9;
+  if(toolGrp(tool)==='pinsel'&&e&&typeof e.altitudeAngle==='number'&&e.altitudeAngle<1.2) f*=1+(1.2-e.altitudeAngle)*0.9;
   return f;
 }
 const KINDS={
@@ -1231,7 +1259,7 @@ let view={x:0,y:0,k:1};
 let sel=new Set();
 let tool='select';
 let drawTool='pen';
-const penStyles={pen:{stroke:INK,sw:3,tip:'round'},brush:{stroke:INK,sw:12,tip:'round'},marker:{stroke:'#f2c200',sw:20,tip:'flat'},smart:{stroke:INK,sw:3,tip:'round'}};
+const penStyles={}; for(const k in PENS) penStyles[k]=Object.assign({},PENS[k].ps);
 let hist=[],hi=-1;
 let editCell=null;
 let palState={closed:false,open:{Allgemein:true}};
@@ -1676,19 +1704,66 @@ function smoothOutline(Q){
   for(let i=1;i<=n;i++){ const a=Q[i%n], b=Q[(i+1)%n]; d+='Q'+r(a[0])+' '+r(a[1])+' '+r((a[0]+b[0])/2)+' '+r((a[1]+b[1])/2); }
   return d+'Z';
 }
+/* ---------- Striche: Stifte und Pinsel ---------- */
+function strRng(pts){ let h=2166136261; for(const q of pts.slice(0,3)){ h=Math.imul(h^Math.round(q[0]*7),16777619); h=Math.imul(h^Math.round(q[1]*7),16777619); }
+  let x=h>>>0||9; return ()=>{ x^=x<<13; x>>>=0; x^=x>>>17; x^=x<<5; x>>>=0; return x/4294967296; }; }   /* gleicher Strich, gleiche Zufallswerte */
+function mixC(c,to,t){ const m=/^#([0-9a-f]{6})$/i.exec(c||''); if(!m) return c; const v=parseInt(m[1],16), w=to==='w'?255:0;
+  return '#'+[16,8,0].map(k=>Math.round(((v>>k)&255)*(1-t)+w*t).toString(16).padStart(2,'0')).join(''); }
+function strDir(P,i){ const m=P.length, a=P[Math.max(0,i-2)], b=P[Math.min(m-1,i+2)], dx=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dx,dy)||1; return [dx/l,dy/l]; }
+function strOutline(P,hw,calli){   /* Umriss aus Mittellinie und halber Breite je Punkt */
+  const L=[],B=[], m=P.length;
+  for(let i=0;i<m;i++){ const p=P[i], h=hw(i); let ox,oy;
+    if(calli){ ox=h*0.7071; oy=-h*0.7071; } else { const [dx,dy]=strDir(P,i); ox=-dy*h; oy=dx*h; }
+    L.push([p[0]+ox,p[1]+oy]); B.unshift([p[0]-ox,p[1]-oy]); }
+  return smoothOutline(L.concat(B)); }
+function strOffset(P,f){   /* Linie parallel zur Mittellinie, Abstand f(i) */
+  let d=''; for(let i=0;i<P.length;i++){ const [dx,dy]=strDir(P,i), o=f(i); d+=(i?'L':'M')+r(P[i][0]-dy*o)+' '+r(P[i][1]+dx*o); } return d; }
+function strDash(rnd,a,b,n){ const v=[]; for(let i=0;i<(n||6);i++) v.push(r(a+rnd()*(b-a))); return v.join(' '); }
+function strTaper(P){   /* Anfang und Ende spitz zulaufen lassen (Kalligrafie) */
+  const m=P.length, acc=[0]; for(let i=1;i<m;i++) acc.push(acc[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));
+  const T=acc[m-1]||1, e=Math.min(T*0.25,40); return i=>Math.min(1,0.25+0.75*Math.min(acc[i],T-acc[i])/(e||1)); }
 function strokeSVG(it){
-  const pts=it.pts, tl=it.tool||'pen', tip=it.tip||'round', col=mapC(it.stroke), n=pts.length;
+  const pts=it.pts, tl=it.tool||'pen', tip=it.tip||'round', col=mapC(it.stroke), n=pts.length, sw=it.sw;
   let o='';
-  if(n<2){ const q=it.sw/2; o=tip==='round'?`<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="${q}" fill="${col}"/>`:`<rect x="${pts[0][0]-q}" y="${pts[0][1]-q}" width="${it.sw}" height="${it.sw}" fill="${col}"/>`; }
-  else if(tl!=='brush'&&tip!=='calli'&&!(tl==='pen'&&it.ws&&it.ws.length===n)){
-    o=`<path d="${pathD(pts)}" fill="none" stroke="${col}" stroke-width="${it.sw}" stroke-linecap="${tip==='flat'?'square':'round'}" stroke-linejoin="${tip==='flat'?'bevel':'round'}"/>`;
+  if(n<2){ const q=sw/2; o=tl==='spray'?'':tip==='round'||tl!=='bristle'&&tl!=='brush'&&tl!=='marker'?`<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="${q}" fill="${col}"${tl==='water'?' opacity=".35"':''}/>`:`<rect x="${pts[0][0]-q}" y="${pts[0][1]-q}" width="${sw}" height="${sw}" fill="${col}"/>`;
+    if(tl!=='spray') return tl==='marker'?`<g opacity="0.45">${o}</g>`:o; }
+  const ws=it.ws&&it.ws.length===n?it.ws:null, rnd=strRng(pts);
+  if(tl==='pencil'){   /* Bleistift: Graphit, leicht körnig; fester Druck macht dunkler */
+    const S=smoothStroke(pts,ws), P=S.p, avg=ws?S.w.reduce((a,b)=>a+b,0)/S.w.length:1, op=clamp(0.55+0.35*avg,0.6,1);
+    o=ws?`<path d="${strOutline(P,i=>sw*S.w[i]/2)}" fill="${col}" opacity="${r2(op*0.75)}"/>`:`<path d="${pathD(pts)}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" opacity="${r2(op*0.75)}"/>`;
+    for(const k of [-0.28,0,0.28]) o+=`<path d="${strOffset(P,()=>k*sw)}" fill="none" stroke="${col}" stroke-width="${r2(sw*0.42)}" stroke-linecap="round" stroke-dasharray="${strDash(rnd,0.5,3*Math.max(1,sw/2))}" opacity="${r2(op*0.8)}"/>`;
+    return o; }
+  if(tl==='chalk'){   /* Kreide: rau, mit kleinen Lücken und körnigen Rändern */
+    const P=smoothStroke(pts,null).p;
+    o=`<path d="${pathD(pts)}" fill="none" stroke="${col}" stroke-width="${r2(sw*0.8)}" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="${strDash(rnd,sw*0.6,sw*2.4,4)} ${r2(sw*0.3)}" opacity=".78"/>`;
+    for(const k of [-0.42,-0.2,0.05,0.25,0.44]) o+=`<path d="${strOffset(P,()=>k*sw)}" fill="none" stroke="${col}" stroke-width="${r2(sw*0.22)}" stroke-linecap="round" stroke-dasharray="${strDash(rnd,0.3,sw*0.5,8)}" opacity=".7"/>`;
+    return o; }
+  if(tl==='spray'){   /* Sprühpinsel: viele feine Tröpfchen, zur Mitte hin dichter */
+    const R=sw/2, D=[[],[]]; let cnt=0;   /* Tröpfchen je Punkt plus je Wegstück */
+    for(let i=0;i<n&&cnt<4000;i++){ const p=pts[i], q=pts[Math.max(0,i-1)], k=Math.round(4+Math.hypot(p[0]-q[0],p[1]-q[1])*sw*0.08);
+      for(let j=0;j<k;j++,cnt++){ const a=rnd()*6.2832, d=R*Math.pow(rnd(),0.75); D[rnd()<0.3?1:0].push(`M${r(p[0]+Math.cos(a)*d)} ${r(p[1]+Math.sin(a)*d)}h.01`); } }
+    return `<g fill="none" stroke="${col}" stroke-linecap="round" opacity=".85"><path d="${D[0].join('')}" stroke-width="${r2(Math.max(1.4,sw*0.065))}"/><path d="${D[1].join('')}" stroke-width="${r2(Math.max(2.2,sw*0.11))}"/></g>`; }
+  if(tl==='water'){   /* Aquarell: durchscheinend, weicher Rand, dunklere Kante; Überlagerungen werden kräftiger */
+    const S=smoothStroke(pts,ws), P=S.p, hw=i=>sw*S.w[i]/2;
+    const j=()=>{ const a=rnd()*6.28, b=0.85+rnd()*0.3; return i=>hw(i)*(b+0.12*Math.sin(i*0.21+a)); };   /* unregelmäßige Ränder wie verlaufene Farbe */
+    return `<g fill="${col}"><path d="${strOutline(P,j())}" opacity=".16"/><path d="${strOutline(P,j())}" opacity=".16"/><path d="${strOutline(P,i=>hw(i)*0.7)}" opacity=".14"/><path d="${strOutline(P,hw)}" fill="none" stroke="${col}" stroke-width="${r2(Math.max(0.8,sw*0.05))}" opacity=".4"/></g>`; }
+  if(tl==='callig'||tl==='fountain'){   /* Kalligrafie und Füller: schräge Feder, Abstriche breiter als Querstriche */
+    const S=smoothStroke(pts,ws), P=S.p, nib=-0.7854, lo=tl==='callig'?0.12:0.25, tp=tl==='callig'?strTaper(P):()=>1;
+    const hw=i=>{ const [dx,dy]=strDir(P,i), sn=Math.abs(Math.sin(Math.atan2(dy,dx)-nib)); return sw/2*(lo+(1-lo)*sn)*S.w[i]*tp(i); };
+    return `<path d="${strOutline(P,hw)}" fill="${col}" stroke="${col}" stroke-width="0.4" stroke-linejoin="round"/>`; }
+  if(tl==='bristle'){   /* Borstenpinsel: deckend, feine Borstenspuren im Strich */
+    const S=smoothStroke(pts,ws), P=S.p, m=P.length, hw=i=>sw*S.w[i]/2;
+    o=`<path d="${strOutline(P,hw,tip==='calli')}" fill="${col}" stroke="${col}" stroke-width="${tip==='calli'?Math.max(1,sw*0.12):0.5}" stroke-linejoin="round"/>`;
+    if(tip==='round') o+=`<circle cx="${r(P[0][0])}" cy="${r(P[0][1])}" r="${r(hw(0))}" fill="${col}"/><circle cx="${r(P[m-1][0])}" cy="${r(P[m-1][1])}" r="${r(hw(m-1))}" fill="${col}"/>`;
+    if(tip!=='calli'){ const k=clamp(Math.round(sw/2.5),3,9), dk=mixC(col,'b',0.35), lt=mixC(col,'w',0.35);
+      for(let j=0;j<k;j++){ const f=-0.78+1.56*(j+0.5)/k+(rnd()-0.5)*0.08;
+        o+=`<path d="${strOffset(P,i=>f*hw(i))}" fill="none" stroke="${j%2?lt:dk}" stroke-width="${r2(Math.max(0.5,sw*0.06))}" stroke-dasharray="${strDash(rnd,sw*2,sw*7,4)} ${r2(sw*0.6)}" stroke-dashoffset="${r(rnd()*sw*4)}" opacity=".45"/>`; } }
+    return o; }
+  if(tl!=='brush'&&tip!=='calli'&&!(tl==='pen'&&ws)){
+    o=`<path d="${pathD(pts)}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="${tip==='flat'?'square':'round'}" stroke-linejoin="${tip==='flat'?'bevel':'round'}"/>`;
   } else {
-    const S=smoothStroke(pts,it.ws&&tl!=='marker'?it.ws:null), P=S.p, m=P.length, hwAt=i=>it.sw*S.w[i]/2, L=[],B=[];
-    for(let i=0;i<m;i++){ const p=P[i], hw=hwAt(i); let ox,oy;
-      if(tip==='calli'){ ox=hw*0.7071; oy=-hw*0.7071; }
-      else { const a=P[Math.max(0,i-2)], b=P[Math.min(m-1,i+2)], dx=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dx,dy)||1; ox=-dy/l*hw; oy=dx/l*hw; }
-      L.push([p[0]+ox,p[1]+oy]); B.unshift([p[0]-ox,p[1]-oy]); }
-    o=`<path d="${smoothOutline(L.concat(B))}" fill="${col}" stroke="${col}" stroke-width="${tip==='calli'?Math.max(1,it.sw*0.12):0.5}" stroke-linejoin="round"/>`;
+    const S=smoothStroke(pts,ws&&tl!=='marker'?ws:null), P=S.p, m=P.length, hwAt=i=>sw*S.w[i]/2;
+    o=`<path d="${strOutline(P,hwAt,tip==='calli')}" fill="${col}" stroke="${col}" stroke-width="${tip==='calli'?Math.max(1,sw*0.12):0.5}" stroke-linejoin="round"/>`;
     if(tip==='round') o+=`<circle cx="${r(P[0][0])}" cy="${r(P[0][1])}" r="${r(hwAt(0))}" fill="${col}"/><circle cx="${r(P[m-1][0])}" cy="${r(P[m-1][1])}" r="${r(hwAt(m-1))}" fill="${col}"/>`;
   }
   return tl==='marker'?`<g opacity="0.45">${o}</g>`:o;
@@ -1971,7 +2046,7 @@ function cleanDoc(d){
       if(s.kind==='image'&&typeof s.src==='string'&&s.src.length<8e6&&/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s.src)) o.src=s.src;
     } else if(s.type==='path'&&Array.isArray(s.pts)){
       const ok=s.pts.length<=20000&&s.pts.every(q=>Array.isArray(q)&&Number.isFinite(q[0])&&Number.isFinite(q[1])); if(!ok||!s.pts.length) continue;
-      o={id,type:'path',pts:s.pts.map(q=>[q[0],q[1]]),stroke:line(s.stroke),sw:num(s.sw,3,0.5,100),tool:['pen','brush','marker'].includes(s.tool)?s.tool:'pen',tip:['round','flat','calli'].includes(s.tip)?s.tip:'round'};
+      o={id,type:'path',pts:s.pts.map(q=>[q[0],q[1]]),stroke:line(s.stroke),sw:num(s.sw,3,0.5,100),tool:PATH_TOOLS.includes(s.tool)?s.tool:'pen',tip:['round','flat','calli'].includes(s.tip)?s.tip:'round'};
       if(Array.isArray(s.ws)&&s.ws.length===s.pts.length) o.ws=s.ws.map(v=>num(v,1,0.05,5));
     } else if(s.type==='conn'){
       const pt=q=>({x:num(q&&q.x,0,-1e6,1e6),y:num(q&&q.y,0,-1e6,1e6)});
@@ -2673,13 +2748,51 @@ function newTextAt(w){
   const s=mkShape('text',w.x+80,w.y); s.text=''; s.fresh=true; doc.items.push(s); startEdit(s.id);
 }
 function setTool(t){
+  if(t==='brush') t='pinsel';   /* ältere Aufrufe */
+  if(t==='stifte') t=uiCfg.penVar||'pen'; else if(t==='pinsel') t=uiCfg.brushVar||'bristle';
   if(liveRO()&&t!=='pan') t='pan';
-  tool=t; if(DRAW[t]) drawTool=t; svg.setAttribute('class','t-'+t);
-  document.querySelectorAll('#tools .tb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t)); if(typeof phoneSync==='function') try{ phoneSync(); }catch(e){}
+  const g=toolGrp(t); if(g==='stifte'&&uiCfg.penVar!==t) setUi({penVar:t}); if(g==='pinsel'&&uiCfg.brushVar!==t) setUi({brushVar:t});
+  tool=t; if(DRAW[t]) drawTool=t; svg.setAttribute('class','t-'+t+(g?' t-'+g:''));
+  document.querySelectorAll('#tools .tb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t||!!g&&b.dataset.tool===g)); drawBtnSync(); if(typeof phoneSync==='function') try{ phoneSync(); }catch(e){}
   if(t!=='select'&&t!=='shape'&&sel.size){ sel.clear(); render(); }
   else if(t==='shape'&&sel.size){ for(const id of [...sel]){ const i=byId(id); if(!i||i.type!=='shape') sel.delete(id); } render(); } else updateProps();
 }
 
+/* ---------- Auswahl der Stifte und Pinsel ----------
+   Klick auf „Stift“ oder „Pinsel“: Das Werkzeug zeichnet sofort mit dem zuletzt gewählten Stift bzw. Pinsel,
+   darunter öffnet sich die Auswahl. Der Knopf zeigt das Bild des gewählten Werkzeugs. */
+const PEN_ICON={
+  pencil:'<path d="M4 20l1.2-4.2L16 5l3 3L8.2 18.8z"/><path d="M5.2 15.8l3 3M14 7l3 3"/><path d="M4 20l2-.6-1.4-1.4z" fill="currentColor"/>',
+  pen:'<path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/>',
+  fountain:'<path d="M12 3l5 7-5 11-5-11z"/><path d="M12 10v6"/><circle cx="12" cy="10" r="1.2"/>',
+  smart:'<path d="M3 21l3-1 8-8-2-2-8 8z"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><path d="M15 17a3 3 0 106 0 3 3 0 00-6 0"/>',
+  water:'<path d="M12 3c3.2 4.2 6 7.6 6 11a6 6 0 01-12 0c0-3.4 2.8-6.8 6-11z"/><path d="M9.5 14.5a2.5 2.5 0 002.5 2.5"/>',
+  bristle:'<path d="M19 4l1.5 1.5-8 9-2.5 1 1-2.5zM9.5 16.5c-2 0-3 1.2-3 2.3S5.5 20 4 20c2.5 1 6.5.5 6.5-2.5"/>',
+  chalk:'<path d="M4 15.5l9.5-9.5 4.5 4.5L8.5 20z"/><path d="M15.5 18.5h.01M19 15h.01M19.5 19.5h.01" stroke-width="2.4"/>',
+  callig:'<path d="M4 19c4.5 0 5-4.5 7-7.5s3.5-5 6-5.5"/><path d="M15.5 4.5l4 4-2.5 1-2.5-2.5z"/>',
+  spray:'<rect x="6" y="9" width="8" height="12" rx="1.5"/><path d="M8 9V6h4v3"/><path d="M17 5h.01M19.5 7.5h.01M19.5 3h.01M22 5.5h.01" stroke-width="2.2"/>'
+};
+function drawBtnSync(){   /* Knopfbild und -titel folgen dem gewählten Stift bzw. Pinsel */
+  for(const [g,v] of [['stifte',uiCfg.penVar||'pen'],['pinsel',uiCfg.brushVar||'bristle']])
+    document.querySelectorAll(`#tools [data-tool="${g}"], #phoneBar [data-tool="${g}"], #moreSheet [data-tool="${g}"]`).forEach(b=>{
+      const s=b.querySelector('svg'); if(s&&s.dataset.v!==v){ s.innerHTML=PEN_ICON[v]; s.dataset.v=v; }
+      b.setAttribute('aria-label',(g==='stifte'?'Stift':'Pinsel')+': '+DRAW[v]); });
+}
+function closeDrawPop(){ const p=$('drawPop'); if(p.hidden) return; p.hidden=true; document.querySelectorAll('[aria-haspopup][aria-expanded="true"]').forEach(b=>b.setAttribute('aria-expanded','false')); }
+function openDrawPop(g,anchor){
+  const p=$('drawPop'); if(!p.hidden&&p.dataset.g===g){ closeDrawPop(); return; }
+  closeDrawPop(); p.dataset.g=g; p.setAttribute('aria-label',g==='stifte'?'Stift wählen':'Pinsel wählen');
+  p.innerHTML=`<div class="dpH">${g==='stifte'?'Stifte':'Pinsel'}</div>`+GROUPS_DRAW[g].map(v=>`<button type="button" role="menuitemradio" data-var="${v}" aria-checked="${tool===v}"><svg viewBox="0 0 24 24" aria-hidden="true">${PEN_ICON[v]}</svg><span>${DRAW[v]}</span></button>`).join('');
+  p.hidden=false; anchor.setAttribute('aria-expanded','true');
+  const a=anchor.getBoundingClientRect(), w=p.offsetWidth, h=p.offsetHeight, up=a.top>innerHeight/2;
+  p.style.left=Math.round(clamp(a.left+a.width/2-w/2,8,innerWidth-w-8))+'px';
+  p.style.top=Math.round(up?a.top-h-8:a.bottom+8)+'px';
+}
+$('drawPop').addEventListener('click',e=>{ const b=e.target.closest('[data-var]'); if(!b) return;
+  finishEdit(); setTool(b.dataset.var); updateProps(); closeDrawPop(); });
+document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#drawPop,[aria-haspopup][data-tool]')) closeDrawPop(); },true);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('drawPop').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeDrawPop(); } },true);
+addEventListener('resize',closeDrawPop);
 /* ---------- Eigenschaftenleiste ---------- */
 const CNAMES={none:'Ohne','#1c2a2e':'Schwarz','#ffffff':'Weiß','#7a8790':'Grau','#c8321f':'Rot','#d97a00':'Orange','#f2c200':'Gelb','#1f8a4c':'Grün','#1e63d0':'Blau','#7446c9':'Violett','#fff3b0':'Hellgelb','#ffd9c7':'Apricot','#cfe8ff':'Hellblau','#d3f0dc':'Hellgrün','#e6dcff':'Flieder','#e3e8ea':'Hellgrau'};
 function cname(c){ if(darkBoard){ if(c==='#1c2a2e') return 'Weiß'; if(c==='#ffffff') return 'Dunkel'; } return CNAMES[c]||c; }
@@ -2719,12 +2832,13 @@ function updateProps_(){
   const papers=items.filter(i=>i.kind==='paper');
   if(papers.length){ const p0=papers[0].pp||'lined'; h+=`<div class="pg"><b>Papier</b>${md('paper','Papier',Object.entries(PAPER).map(([k,[n]])=>`<button data-act="pp" data-val="${k}" aria-pressed="${k===p0}">${n}</button>`).join(''),PAPER[p0][0])}</div>`; }
   if(hasShape) h+=`<div class="pg"><b>${onlyText?'Hintergrund':'Füllung'}</b>${cd('fill',(items.find(i=>i.type==='shape')||{}).fill,true,'Füllung')}</div>`;
-  if(!onlyText) h+=`<div class="pg"><b>${penMode?(drawTool==='smart'?'Farbe':DRAW[drawTool]+'farbe'):'Linie'}</b>${cd('stroke',cur.stroke,hasShape&&!conns.length&&!paths.length,penMode?DRAW[drawTool]+'farbe':'Linie')}</div>`;
+  if(!onlyText) h+=`<div class="pg"><b>${penMode?'Farbe':'Linie'}</b>${cd('stroke',cur.stroke,hasShape&&!conns.length&&!paths.length,penMode?DRAW[drawTool]+'farbe':'Linie')}</div>`;
   const wl=penMode?WIDTHS[drawTool]:(cur.type==='path'?WIDTHS[cur.tool||'pen']:WIDTHS.shape);
   let near=0; wl.forEach((v,i)=>{ if(Math.abs(v-cur.sw)<Math.abs(wl[near]-cur.sw)) near=i; });
   if(!onlyText) h+=`<div class="pg"><b>Stärke</b>${md('sw','Stärke',wl.map((v,i)=>`<button class="pb wbtn" data-act="sw" data-val="${v}" aria-pressed="${i===near}" title="Stärke ${i+1} von 5"><i class="lw" style="height:${1.5+i*2.5}px"></i></button>`).join(''),`<span class="lw mlw" style="height:${1.5+near*2.5}px"></span>`)}</div>`;
-  if(penMode||paths.length){ const tip=(paths[0]||ps).tip||'round';
-    h+=`<div class="pg"><b>Pinselform</b>`+[['round','Rund'],['flat','Flach'],['calli','Schräg']].map(([v,t])=>`<button class="pb" data-act="tip" data-val="${v}" aria-pressed="${tip===v}">${t}</button>`).join('')+`</div>`; }
+  const TIPPED=['pen','brush','bristle','marker'];   /* Form der Spitze: nur wo sie den Strich verändert */
+  if(penMode?TIPPED.includes(drawTool):paths.length&&paths.every(p=>TIPPED.includes(p.tool||'pen'))){ const tip=(paths[0]||ps).tip||'round';
+    h+=`<div class="pg"><b>Spitze</b>`+[['round','Rund'],['flat','Flach'],['calli','Schräg']].map(([v,t])=>`<button class="pb" data-act="tip" data-val="${v}" aria-pressed="${tip===v}">${t}</button>`).join('')+`</div>`; }
   if(conns.length){ const c=conns[0];
     h+=`<div class="pg"><b>Pfeil</b><button class="pb" data-act="style" aria-pressed="${c.style==='straight'}">Gerade</button><button class="pb" data-act="dash" aria-pressed="${!!c.dash}" >Gestrichelt</button></div><div class="pg"><b>Spitze</b><button class="pb" data-act="head" title="Pfeilspitze wechseln">${HEADS.find(x=>x[0]===headOf(c))[1]}</button></div>`; }
   if(items.length===1&&items[0].kind==='table') h+=`<div class="pg"><b>Tabelle</b><button class="pb" data-act="addcol" title="Neue Spalte rechts neben der markierten Zelle">+ Spalte</button><button class="pb" data-act="delcol" title="Spalte der markierten Zelle löschen">− Spalte</button><button class="pb" data-act="addrow" title="Neue Zeile unter der markierten Zelle">+ Zeile</button><button class="pb" data-act="delrow" title="Zeile der markierten Zelle löschen">− Zeile</button></div>`;
@@ -2959,7 +3073,7 @@ svg.addEventListener('pointerdown',e=>{
     const pr=e.pointerType==='pen'&&tool!=='marker'&&uiCfg.press!=='off', f0=pr?pressW(e.pressure||0.25,e):0.45;
     action={...base,type:'pen',tool,pr,pts:[[r(w.x),r(w.y)]],ws:[r2(f0)],f:f0,t:performance.now(),lx:e.clientX,ly:e.clientY};
     liveEl=document.createElementNS('http://www.w3.org/2000/svg','g'); liveEl.setAttribute('pointer-events','none');
-    liveEl.innerHTML=strokeSVG(Object.assign({pts:action.pts,ws:action.ws,tool},penStyles[tool]));
+    liveEl.innerHTML=strokeSVG(Object.assign({pts:action.pts,ws:action.ws},penStyles[tool],{tool:tool==='smart'?'pen':tool}));
     itemsG.appendChild(liveEl); return;
   }
   if(tool==='erase'){ action={...base,type:'erase',dirty:false}; eraseAt(e); return; }
@@ -3008,11 +3122,11 @@ svg.addEventListener('pointermove',e=>{
       const p=toWorld(ev.clientX,ev.clientY), l=a.pts[a.pts.length-1];
       if(Math.hypot(p.x-l[0],p.y-l[1])*view.k<(a.pr?1.4:2)) continue;
       if(a.pr){ const target=pressW(ev.pressure>0?ev.pressure:a.lp||0.25,ev); a.lp=ev.pressure>0?ev.pressure:a.lp; a.f=a.f*0.62+target*0.38; a.ws.push(r2(a.f)); }
-      else if(a.tool==='brush'){ const now=performance.now(), v=Math.hypot(ev.clientX-a.lx,ev.clientY-a.ly)/Math.max(1,now-a.t);
+      else if(VARW.has(a.tool)){ const now=performance.now(), v=Math.hypot(ev.clientX-a.lx,ev.clientY-a.ly)/Math.max(1,now-a.t);
         a.f=a.f*0.65+clamp(1.45-v*0.55,0.35,1.45)*0.35; a.ws.push(r2(a.f)); a.t=now; a.lx=ev.clientX; a.ly=ev.clientY; }
       a.pts.push([r(p.x),r(p.y)]); added=true;
     }
-    if(added){ liveEl.innerHTML=strokeSVG(Object.assign({pts:a.pts,ws:(a.pr||a.tool==='brush')?a.ws:null,tool:a.tool},penStyles[a.tool])); liveDraft(a); }
+    if(added){ liveEl.innerHTML=strokeSVG(Object.assign({pts:a.pts,ws:(a.pr||VARW.has(a.tool))?a.ws:null},penStyles[a.tool],{tool:a.tool==='smart'?'pen':a.tool})); liveDraft(a); }
     return; }
   if(a.type==='erase'){ eraseAt(e); return; }
   if(!a.moved&&Math.hypot(e.clientX-a.sx,e.clientY-a.sy)<4) return;
@@ -3114,8 +3228,8 @@ function onUp(e){
     case 'pen': if(liveEl){ liveEl.remove(); liveEl=null; }
       if(a.tool==='smart'&&formstift(a.pts)) break;   /* Formstift: Linie oder Form erkannt */
       { const ps=penStyles[a.tool], it={id:nid(),type:'path',pts:a.pts,stroke:ps.stroke,sw:ps.sw,tool:a.tool==='smart'?'pen':a.tool,tip:ps.tip};
-        if(a.tool==='brush'&&!a.pr){ const n=a.ws.length; [0.45,0.7,0.88].forEach((q,k)=>{ if(n-1-k>0) a.ws[n-1-k]=r2(a.ws[n-1-k]*q); }); }
-        if((a.pr||a.tool==='brush')&&a.ws.length===a.pts.length) it.ws=a.ws;
+        if(VARW.has(a.tool)&&!a.pr){ const n=a.ws.length; [0.45,0.7,0.88].forEach((q,k)=>{ if(n-1-k>0) a.ws[n-1-k]=r2(a.ws[n-1-k]*q); }); }
+        if((a.pr||VARW.has(a.tool))&&a.ws.length===a.pts.length) it.ws=a.ws;
         doc.items.push(it); commit(); }
       break;
     case 'erase': if(a.dirty) commit(); break;
@@ -3262,8 +3376,8 @@ function iconFor(kind,W,H){
 /* PC = Maus als Hauptzeiger; Smartphones und Tablets werden mit dem Finger bedient */
 const isPC=!!(window.matchMedia&&matchMedia('(pointer:fine)').matches&&matchMedia('(hover:hover)').matches);
 const pcScale=()=>isPC&&innerWidth/1.25>1000&&innerHeight/1.25>500?1.25:1;   /* am PC 125 %, sofern der Bildschirm groß genug ist */
-let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true,theme:'blue',app:'dark',bar:'float',press:'normal',finger:true,fingerSet:false};
-try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false,theme:'blue',app:['dark','light','auto'].includes(u.app)?u.app:'dark',bar:u.bar==='top'?'top':'float',barSet:!!u.barSet,press:['off','soft','normal','strong'].includes(u.press)?u.press:'normal',finger:u.finger!==false,fingerSet:!!u.fingerSet}; }catch(e){}
+let uiCfg={scale:pcScale(),hc:false,snap:true,grid:true,theme:'blue',app:'dark',bar:'float',press:'normal',finger:true,fingerSet:false,penVar:'pen',brushVar:'bristle'};
+try{ const u=JSON.parse(localStorage.getItem('blackboard-ui')); if(u) uiCfg={scale:u.scaleSet&&[1,1.25,1.5].includes(u.scale)?u.scale:pcScale(),scaleSet:!!u.scaleSet&&[1,1.25,1.5].includes(u.scale),hc:!!u.hc,snap:u.snap!==false,grid:u.grid!==false,theme:'blue',app:['dark','light','auto'].includes(u.app)?u.app:'dark',bar:u.bar==='top'?'top':'float',barSet:!!u.barSet,press:['off','soft','normal','strong'].includes(u.press)?u.press:'normal',finger:u.finger!==false,fingerSet:!!u.fingerSet,penVar:GROUPS_DRAW.stifte.includes(u.penVar)?u.penVar:'pen',brushVar:GROUPS_DRAW.pinsel.includes(u.brushVar)?u.brushVar:'bristle'}; }catch(e){}
 /* Oberfläche hell oder dunkel (pro Gerät); „auto“ folgt der Einstellung des Betriebssystems */
 const mqLight=window.matchMedia?matchMedia('(prefers-color-scheme: light)'):null;
 function appLight(){ return uiCfg.app==='light'||(uiCfg.app==='auto'&&!!(mqLight&&mqLight.matches)); }
@@ -3378,7 +3492,7 @@ palEl.addEventListener('pointerdown',e=>{
 });
 
 /* ---------- Leisten, Menü, Tastatur ---------- */
-$('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); if(palState.optsClosed){ palState.optsClosed=false; savePal(); } setTool(b.dataset.tool); updateProps(); } });
+$('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-tool]'); if(b){ finishEdit(); if(palState.optsClosed){ palState.optsClosed=false; savePal(); } setTool(b.dataset.tool); updateProps(); if(GROUPS_DRAW[b.dataset.tool]) openDrawPop(b.dataset.tool,b); else closeDrawPop(); } });
 $('undo').onclick=undo; $('redo').onclick=redo; $('keysBtn').onclick=()=>{ closeHdrPops(); openKeys(); };
 function zoomStep(d){ const p=Math.round(view.k*100), n=d>0?Math.floor(p/10)*10+10:Math.ceil(p/10)*10-10; zoomCenter(clamp(n,20,400)/100/view.k); }   /* immer auf volle 10 % */
 $('zoomIn').onclick=()=>zoomStep(1); $('zoomOut').onclick=()=>zoomStep(-1); $('zoomLabel').onclick=()=>zoomCenter(1/view.k);
@@ -3913,7 +4027,8 @@ document.addEventListener('keydown',e=>{
   /* Genau eine Form ausgewählt und einfach lostippen: der Buchstabe ersetzt ihren Text (wie in Präsentationsprogrammen) */
   if(sel.size===1&&e.key.length===1&&e.key!==' '&&!e.altKey&&!liveRO()&&!(t&&t.tagName==='BUTTON')){ const it=byId([...sel][0]);
     if(it&&it.type==='shape'&&it.kind!=='frame'&&!it.lock){ e.preventDefault(); startEdit(it.id); if(it.kind==='paper'){ editor.setRangeText(e.key,editor.selectionStart,editor.selectionEnd,'end'); } else { editor.value=e.key; editor.setSelectionRange(1,1); } placeEditor(); if(it.pf||it.list) render(); return; } }
-  const map={v:'select',f:'shape',p:'pen',b:'brush',m:'marker',s:'smart',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
+  const map={v:'select',f:'shape',s:'stifte',p:'pinsel',m:'marker',t:'text',e:'erase',h:'pan'};   /* S = Stifte, P = Pinsel; nochmal drücken: nächster Stift bzw. Pinsel */
+  if(map[k]){ const G=GROUPS_DRAW[map[k]]; if(G&&toolGrp(tool)===map[k]) setTool(G[(G.indexOf(tool)+1)%G.length]); else setTool(map[k]); if(G) toast(DRAW[tool]); }
 });
 document.addEventListener('keyup',e=>{ if(e.key===' ') spaceDown=false; });
 let keysTab=null;
@@ -4215,7 +4330,7 @@ $('startArea').addEventListener('click',e=>{
   switch(b.dataset.sa){
     case 'tpl': openTpl(); break;
     case 'shape': palState.closed=false; savePal(); renderPal(); setTool('select'); { const q=$('palQ'); if(q&&isPC) q.focus(); } break;
-    case 'pen': setTool('pen'); $('startArea').hidden=true; svg.focus(); break;
+    case 'pen': setTool('stifte'); $('startArea').hidden=true; svg.focus(); break;
     case 'tipsoff': try{ localStorage.setItem('skizix-starttipps','aus'); }catch(_){} b.parentNode.hidden=true; break;
   }
 });
@@ -4355,9 +4470,9 @@ try{ localStorage.removeItem('blackboard-sync'); }catch(e){}
 /* ---------- Handy: Werkzeuge unten in Daumennähe, Formen und „Mehr“ als Blatt von unten ---------- */
 function isPhone(){ return document.body.classList.contains('phone'); }
 function phoneSync(){
-  const t=tool, more=['brush','marker','smart','erase','pan','shape'];
-  document.querySelectorAll('#phoneBar [data-tool],#moreSheet [data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t));
-  $('pbMore').classList.toggle('on',more.includes(t));
+  const t=tool, g=toolGrp(t), more=['pinsel','marker','erase','pan','shape'];
+  document.querySelectorAll('#phoneBar [data-tool],#moreSheet [data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t||!!g&&b.dataset.tool===g));
+  $('pbMore').classList.toggle('on',more.includes(g||t));
   $('pbPlus').setAttribute('aria-expanded',isPhone()&&!palState.closed);
 }
 function closeMore(){ const m=$('moreSheet'); if(m.hidden) return; m.hidden=true; $('pbMore').setAttribute('aria-expanded','false'); }
@@ -4365,14 +4480,14 @@ function openMore(){ closeHdrPops(); closeViewPop(); closeKtPop(); closeMenu(); 
 function pickTool(t){ finishEdit(); if(palState.optsClosed){ palState.optsClosed=false; savePal(); } setTool(t); updateProps(); }
 $('phoneBar').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
-  if(b.dataset.tool){ closeMore(); if(!palState.closed){ palState.closed=true; renderPal(); } pickTool(b.dataset.tool); }
+  if(b.dataset.tool){ closeMore(); if(!palState.closed){ palState.closed=true; renderPal(); } pickTool(b.dataset.tool); if(GROUPS_DRAW[b.dataset.tool]) openDrawPop(b.dataset.tool,b); }
   else if(b.id==='pbPlus'){ closeMore(); closeMenu(); palState.closed=!palState.closed; savePal(); renderPal(); }
   else if(b.id==='pbMore'){ if($('moreSheet').hidden) openMore(); else closeMore(); }
   phoneSync();
 });
 $('moreSheet').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
-  if(b.dataset.tool){ closeMore(); pickTool(b.dataset.tool); phoneSync(); return; }
+  if(b.dataset.tool){ closeMore(); pickTool(b.dataset.tool); phoneSync(); if(GROUPS_DRAW[b.dataset.tool]) openDrawPop(b.dataset.tool,$('pbMore')); return; }
   closeMore();
   switch(b.dataset.ms){
     case 'files': palState.propsClosed=false; savePal(); applySides(); break;
@@ -4391,6 +4506,8 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('moreSheet').hi
 palEl.addEventListener('pointerup',()=>{ if(isPhone()&&!palState.closed) setTimeout(()=>{ if(sel.size){ palState.closed=true; renderPal(); phoneSync(); } },60); });
 const _renderPalH=renderPal; renderPal=function(){ _renderPalH(); if(typeof phoneSync==='function') try{ phoneSync(); }catch(e){} };
 phoneSync();
+
+drawBtnSync();
 /* ---------- Live: dasselbe Board auf mehreren Geräten gleichzeitig (über Supabase) ----------
    Besitzer: kennt den geheimen Board-Schlüssel (b.live) und verwaltet die Freigabe-Links. Der Schlüssel wird nie als Link weitergegeben;
    eigene Geräte bekommen ihn über das Konto (18-konto.js).
@@ -4448,7 +4565,7 @@ function penMe(){ if(typeof ktOn!=='function'||!ktOn()||!KT.s.uid) return ''; le
 function penPush(){ const c=liveCur(), u=penMe(); if(!c||!c.own||!u||!penTs) return; liveSend({t:'pen',u,ts:penTs,cfg:penStyles}); }
 function penIn(m){
   const c=liveCur(), u=penMe(); if(!c||!c.own||!u||m.u!==u||!m.cfg||!(m.ts>penTs)) return;
-  for(const k of ['pen','brush','marker']){ const x=m.cfg[k]; if(!x) continue; const ps=penStyles[k];
+  for(const k of PATH_TOOLS.concat('smart')){ const x=m.cfg[k]; if(!x) continue; const ps=penStyles[k];
     if(typeof x.stroke==='string'&&/^(#[0-9a-fA-F]{3,8}|rgba?\([0-9.,%\s]+\)|none|transparent)$/.test(x.stroke)) ps.stroke=x.stroke;
     if(isFinite(+x.sw)&&+x.sw>0&&+x.sw<=200) ps.sw=+x.sw;
     if(x.tip==='round'||x.tip==='flat') ps.tip=x.tip; }
@@ -4492,7 +4609,7 @@ function liveDraftIn(m){
   d.pts.length=i; d.pts.push(...pts.map(q=>[q[0],q[1]]));
   if(Array.isArray(m.w)){ d.ws.length=i; d.ws.push(...m.w.map(v=>Number.isFinite(+v)?+v:1)); }
   const s=m.s||{}, col=(typeof s.stroke==='string'&&/^#[0-9a-f]{6}$/i.test(s.stroke))?s.stroke:INK;
-  const it={pts:d.pts,ws:d.ws.length===d.pts.length?d.ws:null,stroke:col,sw:clamp(+s.sw||3,0.5,100),tool:['pen','brush','marker'].includes(s.tool)?s.tool:'pen',tip:['round','flat','calli'].includes(s.tip)?s.tip:'round'};
+  const it={pts:d.pts,ws:d.ws.length===d.pts.length?d.ws:null,stroke:col,sw:clamp(+s.sw||3,0.5,100),tool:PATH_TOOLS.includes(s.tool)?s.tool:'pen',tip:['round','flat','calli'].includes(s.tip)?s.tip:'round'};
   if(d.pts.length) d.el.innerHTML=strokeSVG(it);
   clearTimeout(d.t); d.t=setTimeout(()=>liveDraftEnd(m.dev),4000);
 }

@@ -84,17 +84,17 @@ def checkliste():
 @film
 def zeichnen():
     with Film('zeichnen',leer(0)) as f:
-        f.cap('<b>Stift</b> für feine Linien'); f.klick('#tools [data-tool="pen"]',danach=400)
+        f.cap('<b>Stift:</b> Bleistift, Kugelschreiber, Füller oder Formstift'); f.klick('#tools [data-tool="stifte"]',danach=700); f.klick('#drawPop [data-var="pen"]',danach=400)
         f.pfad([(450,300),(500,250),(560,320),(620,250),(680,320),(740,260)],1300,500)
         f.cap('Farbe und Stärke oben in der <b>Optionsleiste</b>'); f.klick('#props [data-drop="stroke"]',danach=600); f.klick('#colorPop [data-act="stroke"] >> nth=6',danach=500)
         f.pfad([(450,400),(540,360),(640,420),(740,380)],1100,500)
-        f.cap('<b>Pinsel</b> für kräftige Striche'); f.klick('#tools [data-tool="brush"]',danach=400)
+        f.cap('<b>Pinsel:</b> Aquarell, Borstenpinsel, Kreide, Kalligrafie, Sprühpinsel'); f.klick('#tools [data-tool="pinsel"]',danach=700); f.klick('#drawPop [data-var="callig"]',danach=400)
         f.pfad([(860,280),(930,350),(1000,300),(1080,380),(1150,320)],1300,600)
         f.cap('<b>Marker</b> zum Hervorheben'); f.klick('#tools [data-tool="marker"]',danach=400)
         f.pfad([(440,520),(760,520)],1000,600); f.bild()
         f.cap('Der <b>Radierer</b> löscht alles, worüber du wischst'); f.klick('#tools [data-tool="erase"]',danach=400)
         f.pfad([(500,420),(540,380),(600,430),(660,380)],1200,800)
-        f.cap('<b>Formstift:</b> Linien und Formen werden automatisch sauber'); f.klick('#tools [data-tool="smart"]',danach=400)
+        f.cap('<b>Formstift:</b> Linien und Formen werden automatisch sauber'); f.klick('#tools [data-tool="stifte"]',danach=600); f.klick('#drawPop [data-var="smart"]',danach=400)
         import math
         f.pfad([(860,470),(1180,478)],900,700)
         f.pfad([(960+90*math.cos(t/36*2*math.pi)+(3 if t%2 else -3),620+55*math.sin(t/36*2*math.pi)) for t in range(38)],1300,800)

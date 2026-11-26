@@ -1,9 +1,9 @@
 /* ---------- Handy: Werkzeuge unten in Daumennähe, Formen und „Mehr“ als Blatt von unten ---------- */
 function isPhone(){ return document.body.classList.contains('phone'); }
 function phoneSync(){
-  const t=tool, more=['brush','marker','smart','erase','pan','shape'];
-  document.querySelectorAll('#phoneBar [data-tool],#moreSheet [data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t));
-  $('pbMore').classList.toggle('on',more.includes(t));
+  const t=tool, g=toolGrp(t), more=['pinsel','marker','erase','pan','shape'];
+  document.querySelectorAll('#phoneBar [data-tool],#moreSheet [data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t||!!g&&b.dataset.tool===g));
+  $('pbMore').classList.toggle('on',more.includes(g||t));
   $('pbPlus').setAttribute('aria-expanded',isPhone()&&!palState.closed);
 }
 function closeMore(){ const m=$('moreSheet'); if(m.hidden) return; m.hidden=true; $('pbMore').setAttribute('aria-expanded','false'); }
@@ -11,14 +11,14 @@ function openMore(){ closeHdrPops(); closeViewPop(); closeKtPop(); closeMenu(); 
 function pickTool(t){ finishEdit(); if(palState.optsClosed){ palState.optsClosed=false; savePal(); } setTool(t); updateProps(); }
 $('phoneBar').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
-  if(b.dataset.tool){ closeMore(); if(!palState.closed){ palState.closed=true; renderPal(); } pickTool(b.dataset.tool); }
+  if(b.dataset.tool){ closeMore(); if(!palState.closed){ palState.closed=true; renderPal(); } pickTool(b.dataset.tool); if(GROUPS_DRAW[b.dataset.tool]) openDrawPop(b.dataset.tool,b); }
   else if(b.id==='pbPlus'){ closeMore(); closeMenu(); palState.closed=!palState.closed; savePal(); renderPal(); }
   else if(b.id==='pbMore'){ if($('moreSheet').hidden) openMore(); else closeMore(); }
   phoneSync();
 });
 $('moreSheet').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
-  if(b.dataset.tool){ closeMore(); pickTool(b.dataset.tool); phoneSync(); return; }
+  if(b.dataset.tool){ closeMore(); pickTool(b.dataset.tool); phoneSync(); if(GROUPS_DRAW[b.dataset.tool]) openDrawPop(b.dataset.tool,$('pbMore')); return; }
   closeMore();
   switch(b.dataset.ms){
     case 'files': palState.propsClosed=false; savePal(); applySides(); break;
@@ -37,3 +37,5 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('moreSheet').hi
 palEl.addEventListener('pointerup',()=>{ if(isPhone()&&!palState.closed) setTimeout(()=>{ if(sel.size){ palState.closed=true; renderPal(); phoneSync(); } },60); });
 const _renderPalH=renderPal; renderPal=function(){ _renderPalH(); if(typeof phoneSync==='function') try{ phoneSync(); }catch(e){} };
 phoneSync();
+
+drawBtnSync();

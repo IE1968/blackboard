@@ -36,13 +36,13 @@ try:
       pg.reload(); pages.append(pg); pump(1200); return pg
   A=geraet('u1'); B=geraet('u1'); C=geraet('u2')
   # Gerät A: Pinsel wählen, Farbe und Stärke über die Eigenschaften ändern
-  A.click('#tools [data-tool="brush"]'); A.wait_for_timeout(200)
+  A.click('#tools [data-tool="pinsel"]'); A.wait_for_timeout(200)
   A.click('#props [data-drop="stroke"]'); A.wait_for_timeout(200)
   sent=A.evaluate("""()=>{ const b=[...document.querySelectorAll('[data-act="stroke"][data-val^="#"]')].find(x=>x.getAttribute('aria-pressed')!=='true'&&x.dataset.val!=='#ffffff'); if(!b) return null; b.click(); return b.title; }""")
   pump(800)
   check('Farbknopf für den Pinsel gefunden',bool(sent),str(sent))
   def col(pg):
-      pg.click('#tools [data-tool="brush"]'); pg.wait_for_timeout(150)
+      pg.click('#tools [data-tool="pinsel"]'); pg.wait_for_timeout(150)
       return pg.get_attribute('#props [data-drop="stroke"]','title')
   vb=col(B); vc=col(C)
   check('Gerät B (gleiches Konto) übernimmt die Pinselfarbe',vb.endswith(': '+sent),str(vb))

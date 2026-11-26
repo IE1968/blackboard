@@ -16,8 +16,8 @@ try:
   check('Oben Neues Board, Boards verwalten, Board laden (ohne Symbole) – Leeren und Löschen im „⋯“ der Boards',pg.evaluate("()=>{const k=[...document.querySelectorAll('#menu > *')]; const i=k.findIndex(e=>e.dataset.m==='new'); return k[i+1].id==='manageBtn'&&k[i+2].dataset.m==='open'&&k[i+3].tagName==='HR'&&!k[i+1].querySelector('svg')&&!k[i+2].querySelector('svg')&&!document.getElementById('delBoard')&&document.querySelectorAll('#boardList .bM').length>0}"))
   check('Kein Hinweistext auf der Tafel',pg.locator('#hint').count()==0)
   # Optionsleiste je Werkzeug
-  pg.click('#tools [data-tool="pen"]'); pg.wait_for_timeout(150)
-  check('Stift: Farbe, Stärke, Pinselform oben',pg.locator('#props .pg>b').all_inner_texts()[:3]==['STIFTFARBE','STÄRKE','PINSELFORM'] or [t.upper() for t in pg.locator('#props .pg>b').all_inner_texts()][:3]==['STIFTFARBE','STÄRKE','PINSELFORM'])
+  pg.click('#tools [data-tool="stifte"]'); pg.wait_for_timeout(150)
+  check('Stift: Farbe, Stärke, Spitze oben',pg.locator('#props .pg>b').all_inner_texts()[:3]==['FARBE','STÄRKE','SPITZE'] or [t.upper() for t in pg.locator('#props .pg>b').all_inner_texts()][:3]==['STIFTFARBE','STÄRKE','PINSELFORM'])
   pg.click('#tools [data-tool="shape"]'); pg.wait_for_timeout(150)
   check('Form ohne Auswahl: Hinweis',pg.locator('#props .optHint').count()==1)
   # Werkzeug Form wählt nur Formen

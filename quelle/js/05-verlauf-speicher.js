@@ -116,7 +116,7 @@ function cleanDoc(d){
       if(s.kind==='image'&&typeof s.src==='string'&&s.src.length<8e6&&/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s.src)) o.src=s.src;
     } else if(s.type==='path'&&Array.isArray(s.pts)){
       const ok=s.pts.length<=20000&&s.pts.every(q=>Array.isArray(q)&&Number.isFinite(q[0])&&Number.isFinite(q[1])); if(!ok||!s.pts.length) continue;
-      o={id,type:'path',pts:s.pts.map(q=>[q[0],q[1]]),stroke:line(s.stroke),sw:num(s.sw,3,0.5,100),tool:['pen','brush','marker'].includes(s.tool)?s.tool:'pen',tip:['round','flat','calli'].includes(s.tip)?s.tip:'round'};
+      o={id,type:'path',pts:s.pts.map(q=>[q[0],q[1]]),stroke:line(s.stroke),sw:num(s.sw,3,0.5,100),tool:PATH_TOOLS.includes(s.tool)?s.tool:'pen',tip:['round','flat','calli'].includes(s.tip)?s.tip:'round'};
       if(Array.isArray(s.ws)&&s.ws.length===s.pts.length) o.ws=s.ws.map(v=>num(v,1,0.05,5));
     } else if(s.type==='conn'){
       const pt=q=>({x:num(q&&q.x,0,-1e6,1e6),y:num(q&&q.y,0,-1e6,1e6)});

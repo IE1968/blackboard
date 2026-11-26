@@ -58,7 +58,7 @@ svg.addEventListener('pointerdown',e=>{
     const pr=e.pointerType==='pen'&&tool!=='marker'&&uiCfg.press!=='off', f0=pr?pressW(e.pressure||0.25,e):0.45;
     action={...base,type:'pen',tool,pr,pts:[[r(w.x),r(w.y)]],ws:[r2(f0)],f:f0,t:performance.now(),lx:e.clientX,ly:e.clientY};
     liveEl=document.createElementNS('http://www.w3.org/2000/svg','g'); liveEl.setAttribute('pointer-events','none');
-    liveEl.innerHTML=strokeSVG(Object.assign({pts:action.pts,ws:action.ws,tool},penStyles[tool]));
+    liveEl.innerHTML=strokeSVG(Object.assign({pts:action.pts,ws:action.ws},penStyles[tool],{tool:tool==='smart'?'pen':tool}));
     itemsG.appendChild(liveEl); return;
   }
   if(tool==='erase'){ action={...base,type:'erase',dirty:false}; eraseAt(e); return; }
@@ -107,11 +107,11 @@ svg.addEventListener('pointermove',e=>{
       const p=toWorld(ev.clientX,ev.clientY), l=a.pts[a.pts.length-1];
       if(Math.hypot(p.x-l[0],p.y-l[1])*view.k<(a.pr?1.4:2)) continue;
       if(a.pr){ const target=pressW(ev.pressure>0?ev.pressure:a.lp||0.25,ev); a.lp=ev.pressure>0?ev.pressure:a.lp; a.f=a.f*0.62+target*0.38; a.ws.push(r2(a.f)); }
-      else if(a.tool==='brush'){ const now=performance.now(), v=Math.hypot(ev.clientX-a.lx,ev.clientY-a.ly)/Math.max(1,now-a.t);
+      else if(VARW.has(a.tool)){ const now=performance.now(), v=Math.hypot(ev.clientX-a.lx,ev.clientY-a.ly)/Math.max(1,now-a.t);
         a.f=a.f*0.65+clamp(1.45-v*0.55,0.35,1.45)*0.35; a.ws.push(r2(a.f)); a.t=now; a.lx=ev.clientX; a.ly=ev.clientY; }
       a.pts.push([r(p.x),r(p.y)]); added=true;
     }
-    if(added){ liveEl.innerHTML=strokeSVG(Object.assign({pts:a.pts,ws:(a.pr||a.tool==='brush')?a.ws:null,tool:a.tool},penStyles[a.tool])); liveDraft(a); }
+    if(added){ liveEl.innerHTML=strokeSVG(Object.assign({pts:a.pts,ws:(a.pr||VARW.has(a.tool))?a.ws:null},penStyles[a.tool],{tool:a.tool==='smart'?'pen':a.tool})); liveDraft(a); }
     return; }
   if(a.type==='erase'){ eraseAt(e); return; }
   if(!a.moved&&Math.hypot(e.clientX-a.sx,e.clientY-a.sy)<4) return;
@@ -213,8 +213,8 @@ function onUp(e){
     case 'pen': if(liveEl){ liveEl.remove(); liveEl=null; }
       if(a.tool==='smart'&&formstift(a.pts)) break;   /* Formstift: Linie oder Form erkannt */
       { const ps=penStyles[a.tool], it={id:nid(),type:'path',pts:a.pts,stroke:ps.stroke,sw:ps.sw,tool:a.tool==='smart'?'pen':a.tool,tip:ps.tip};
-        if(a.tool==='brush'&&!a.pr){ const n=a.ws.length; [0.45,0.7,0.88].forEach((q,k)=>{ if(n-1-k>0) a.ws[n-1-k]=r2(a.ws[n-1-k]*q); }); }
-        if((a.pr||a.tool==='brush')&&a.ws.length===a.pts.length) it.ws=a.ws;
+        if(VARW.has(a.tool)&&!a.pr){ const n=a.ws.length; [0.45,0.7,0.88].forEach((q,k)=>{ if(n-1-k>0) a.ws[n-1-k]=r2(a.ws[n-1-k]*q); }); }
+        if((a.pr||VARW.has(a.tool))&&a.ws.length===a.pts.length) it.ws=a.ws;
         doc.items.push(it); commit(); }
       break;
     case 'erase': if(a.dirty) commit(); break;

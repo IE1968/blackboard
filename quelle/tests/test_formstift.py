@@ -19,7 +19,8 @@ try:
   br=p.chromium.launch(executable_path=CHROME); pg=br.new_page(viewport={'width':1440,'height':900},accept_downloads=True); errs=[]; pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.goto(URL); pg.wait_for_timeout(700); leeren(pg); pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
   pg.evaluate("()=>{ if(!document.querySelector('main').classList.contains('props-closed')) document.getElementById('propsToggle').click() }")
-  pg.click('#tools [data-tool="smart"]'); check('Formstift in der Werkzeugleiste',pg.get_attribute('#tools [data-tool="smart"]','aria-pressed')=='true')
+  pg.click('#tools [data-tool="stifte"]'); pg.wait_for_timeout(100); pg.click('#drawPop [data-var="smart"]'); pg.wait_for_timeout(100)
+  check('Formstift in der Auswahl „Stift“',pg.get_attribute('#tools [data-tool="stifte"]','aria-pressed')=='true' and pg.get_attribute('#tools [data-tool="stifte"]','aria-label')=='Stift: Formstift' and pg.is_hidden('#drawPop'))
   strich(pg,[j((350+i*15,200+i*1.5),2) for i in range(20)])
   strich(pg,[j((560+80*math.cos(t/40*2*math.pi),280+50*math.sin(t/40*2*math.pi)),3) for t in range(42)])
   strich(pg,poly([(720,180),(880,180),(880,300),(720,300)]))
@@ -33,7 +34,7 @@ try:
   check('Dreieck erkannt',k[3]==('shape','tri'),str(k))
   check('Raute erkannt',k[4]==('shape','diamond'),str(k))
   check('Welle bleibt ein Strich',k[5]==('path',None),str(k))
-  check('Formen ohne Füllung, Werkzeug bleibt Formstift',it[2]['fill']=='none' and pg.get_attribute('#tools [data-tool="smart"]','aria-pressed')=='true')
+  check('Formen ohne Füllung, Werkzeug bleibt Formstift',it[2]['fill']=='none' and pg.get_attribute('#tools [data-tool="stifte"]','aria-label')=='Stift: Formstift')
   pg.keyboard.press('Control+z'); pg.wait_for_timeout(200)
   check('Rückgängig nimmt die letzte Erkennung zurück',len(pg.evaluate(READ)['items'])==5)
   pg.keyboard.press('s') if False else None

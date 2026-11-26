@@ -9,7 +9,7 @@ try:
   errs=[]; pg.on('pageerror',lambda e: errs.append(str(e)))
   pg.goto(URL); pg.wait_for_timeout(900)
   check('CSP ist gesetzt',pg.evaluate("()=>!!document.querySelector('meta[http-equiv=\"Content-Security-Policy\"]')"))
-  pg.click('#tools [data-tool="pen"]'); pg.mouse.move(500,400); pg.mouse.down(); pg.mouse.move(650,450,steps=8); pg.mouse.up()
+  pg.click('#tools [data-tool="stifte"]'); pg.mouse.move(500,400); pg.mouse.down(); pg.mouse.move(650,450,steps=8); pg.mouse.up()
   pg.click('.pal[data-kind="rect"]'); pg.keyboard.press('Escape')
   for f in ('png','svg','pdf'):
     with pg.expect_download(timeout=30000) as d: exportiere(pg,f)

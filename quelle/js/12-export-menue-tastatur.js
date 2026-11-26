@@ -80,7 +80,8 @@ document.addEventListener('keydown',e=>{
   /* Genau eine Form ausgewählt und einfach lostippen: der Buchstabe ersetzt ihren Text (wie in Präsentationsprogrammen) */
   if(sel.size===1&&e.key.length===1&&e.key!==' '&&!e.altKey&&!liveRO()&&!(t&&t.tagName==='BUTTON')){ const it=byId([...sel][0]);
     if(it&&it.type==='shape'&&it.kind!=='frame'&&!it.lock){ e.preventDefault(); startEdit(it.id); if(it.kind==='paper'){ editor.setRangeText(e.key,editor.selectionStart,editor.selectionEnd,'end'); } else { editor.value=e.key; editor.setSelectionRange(1,1); } placeEditor(); if(it.pf||it.list) render(); return; } }
-  const map={v:'select',f:'shape',p:'pen',b:'brush',m:'marker',s:'smart',t:'text',e:'erase',h:'pan'}; if(map[k]) setTool(map[k]);
+  const map={v:'select',f:'shape',s:'stifte',p:'pinsel',m:'marker',t:'text',e:'erase',h:'pan'};   /* S = Stifte, P = Pinsel; nochmal drücken: nächster Stift bzw. Pinsel */
+  if(map[k]){ const G=GROUPS_DRAW[map[k]]; if(G&&toolGrp(tool)===map[k]) setTool(G[(G.indexOf(tool)+1)%G.length]); else setTool(map[k]); if(G) toast(DRAW[tool]); }
 });
 document.addEventListener('keyup',e=>{ if(e.key===' ') spaceDown=false; });
 let keysTab=null;

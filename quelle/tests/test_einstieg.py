@@ -14,7 +14,7 @@ try:
   pg.evaluate("()=>localStorage.setItem('skizix-test-start','1')"); openFile(pg); pg.click('#menu [data-m="new"]'); pg.wait_for_timeout(400)
   check('Startbereich auf neuem, leerem Board',pg.is_visible('#startArea .saCard[data-sa="tpl"]') and pg.locator('#startArea .saTpl').count()==4)
   pg.click('#startArea .saCard[data-sa="pen"]'); pg.wait_for_timeout(150)
-  check('„Frei zeichnen“ wählt den Stift',pg.evaluate("document.querySelector('[data-tool=pen]').getAttribute('aria-pressed')")=='true' and pg.is_hidden('#startArea'))
+  check('„Frei zeichnen“ wählt den Stift',pg.evaluate("document.querySelector('#tools [data-tool=stifte]').getAttribute('aria-pressed')")=='true' and pg.is_hidden('#startArea'))
   pg.mouse.move(700,500); pg.mouse.down(); pg.mouse.move(760,540,steps=5); pg.mouse.up(); pg.wait_for_timeout(200)
   check('Nach dem ersten Strich bleibt er weg',pg.is_hidden('#startArea') and len(pg.evaluate(READ)['items'])==1)
   pg.keyboard.press('Control+z'); pg.wait_for_timeout(250)
