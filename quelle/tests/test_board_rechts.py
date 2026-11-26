@@ -1,5 +1,6 @@
 import sys,os; sys.path.insert(0,os.path.dirname(os.path.abspath(__file__))); from hilfe import *
 """Rechte Leiste: Board leeren, Board verschieben (auch in neuen Ordner) und Board löschen mit Rückfrage."""
+from playwright.sync_api import sync_playwright
 srv=server(); errs=[]
 try:
  with sync_playwright() as p:
