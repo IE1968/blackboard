@@ -61,12 +61,12 @@ function shapeBody(s){
     case 'paper': { useFont(s); const pp=s.pp||'lined', bg=s.fill==='none'?'transparent':s.fill, top=paperTop(s), lm=Math.max(36,w*0.12);
       let o=`<rect width="${w}" height="${h}" rx="3" fill="${bg}" stroke="rgba(0,0,0,.14)" stroke-width="1"/>`;
       const base=top+LH/2+FS*0.35+FS*0.2, ink=pp==='kraft'?'rgba(90,70,40,.28)':'rgba(70,110,190,.32)';
-      if(pp==='lined'){ for(let y=base;y<h-6;y+=LH) o+=`<path d="M6 ${r(y)}H${w-6}" stroke="${ink}" stroke-width="1"/>`;
-        o+=`<path d="M${r(lm)} 4V${h-4}" stroke="rgba(220,70,70,.45)" stroke-width="1.2"/>`; }
-      if(pp==='grid'){ const q=Math.max(10,LH/2); for(let y=base%q;y<h;y+=q) o+=`<path d="M0 ${r(y)}H${w}" stroke="${ink}" stroke-width=".7"/>`; for(let x=q*0.5;x<w;x+=q) o+=`<path d="M${r(x)} 0V${h}" stroke="${ink}" stroke-width=".7"/>`; }
-      if(pp==='dots'){ const q=Math.max(12,LH/2); let d=''; for(let y=base%q;y<h;y+=q) for(let x=q;x<w-2;x+=q) d+=`M${r(x)} ${r(y)}h.01`; o+=`<path d="${d}" stroke="rgba(60,60,70,.35)" stroke-width="2.4" stroke-linecap="round"/>`; }
+      if(pp==='lined'){ for(let y=base;y<h-6;y+=LH) o+=`<path fill="none" d="M6 ${r(y)}H${w-6}" stroke="${ink}" stroke-width="1"/>`;
+        o+=`<path fill="none" d="M${r(lm)} 4V${h-4}" stroke="rgba(220,70,70,.45)" stroke-width="1.2"/>`; }
+      if(pp==='grid'){ const q=Math.max(10,LH/2); for(let y=base%q;y<h;y+=q) o+=`<path fill="none" d="M0 ${r(y)}H${w}" stroke="${ink}" stroke-width=".7"/>`; for(let x=q*0.5;x<w;x+=q) o+=`<path fill="none" d="M${r(x)} 0V${h}" stroke="${ink}" stroke-width=".7"/>`; }
+      if(pp==='dots'){ const q=Math.max(12,LH/2); let d=''; for(let y=base%q;y<h;y+=q) for(let x=q;x<w-2;x+=q) d+=`M${r(x)} ${r(y)}h.01`; o+=`<path fill="none" d="${d}" stroke="rgba(60,60,70,.35)" stroke-width="2.4" stroke-linecap="round"/>`; }
       if(pp==='linen'||pp==='kraft'){ let d=''; for(let y=2;y<h;y+=3) d+=`M0 ${y}H${w}`; let e=''; for(let x=2;x<w;x+=3) e+=`M${x} 0V${h}`;
-        o+=`<path d="${d}" stroke="rgba(120,100,60,.07)" stroke-width="1"/><path d="${e}" stroke="rgba(120,100,60,.06)" stroke-width="1"/>`;
+        o+=`<path fill="none" d="${d}" stroke="rgba(120,100,60,.07)" stroke-width="1"/><path fill="none" d="${e}" stroke="rgba(120,100,60,.06)" stroke-width="1"/>`;
         if(pp==='kraft') for(let i=0;i<Math.round(w*h/2500);i++){ const x=(i*97.13)%w, y=(i*53.71+i*i*.37)%h; o+=`<circle cx="${r(x)}" cy="${r(y)}" r="${.6+(i%3)*.35}" fill="rgba(80,60,30,.18)"/>`; } }
       return o; }
     case 'note': { const c=Math.min(16,m*0.25); return `<rect width="${w}" height="${h}" fill="${s.fill==='none'?'transparent':s.fill}"/><path d="M${w-c} ${h}H${w}V${h-c}Z" fill="rgba(0,0,0,.16)"/>`; }

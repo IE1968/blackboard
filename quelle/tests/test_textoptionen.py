@@ -15,7 +15,7 @@ try:
     if pg.is_hidden('#colorPop'): pg.click('#props [data-drop="text"]'); pg.wait_for_timeout(150)
   waehle()
   check('Feld „Aa“: 6 Schriftarten, Größen, Stil, Zeilenabstand',pg.locator('#colorPop [data-act="ff"]').count()==6 and pg.locator('#colorPop [data-act="fs"]').count()==8 and pg.locator('#colorPop [data-act="lh"]').count()==4)
-  for k,fam in (('serif','Lora'),('school','Andika'),('display','Archivo Black'),('sans','Plus Jakarta Sans')):
+  for k,fam in (('serif','Lora'),('school','Andika'),('display','Archivo Black'),('sans','Skizix Klar')):
     pg.click(f'#colorPop [data-act="ff"][data-val="{k}"]'); pg.wait_for_timeout(100)
     f=pg.evaluate("()=>document.querySelector('#items > [data-id] text').getAttribute('font-family')")
     check(f'Schriftart {k} wird angezeigt',fam in f and pg.evaluate(f"()=>document.fonts.check(\"16px '{fam}'\")"),f)

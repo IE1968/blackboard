@@ -1,4 +1,4 @@
-/* ---------- Vektor-PDF: Formen bleiben scharf, Text ist echter, durchsuchbarer Text (Roboto Mono eingebettet) ---------- */
+/* ---------- Vektor-PDF: Formen bleiben scharf, Text ist echter, durchsuchbarer Text (alle Board-Schriften eingebettet) ---------- */
 const PDFX={fonts:null,cc:new Map()};
 const pdN=v=>{ const t=Math.round(v*100)/100; return Object.is(t,-0)?'0':String(t); };
 async function pdPipe(u8,st){ return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(st)).arrayBuffer()); }
@@ -26,15 +26,17 @@ function ttInfo(b){
     for(let i=0;i<sx/2;i++){ const e=dv.getUint16(ends+i*2), a=dv.getUint16(starts+i*2), d=dv.getInt16(dels+i*2), ro=dv.getUint16(ros+i*2);
       for(let c=a;c<=e&&c!==0xFFFF;c++){ let g; if(!ro) g=(c+d)&0xFFFF; else { g=dv.getUint16(ros+i*2+ro+(c-a)*2); if(g) g=(g+d)&0xFFFF; } if(g) cm.set(c,g); } } }
   const gA=cm.get(65)||0, adv=dv.getUint16(T.hmtx+Math.min(gA,nhm-1)*4);
-  return {bytes:b,upm,bb,asc,desc,adv,cm};
+  const aw=g=>dv.getUint16(T.hmtx+Math.min(g,nhm-1)*4);   /* Vorschubbreite je Glyphe (proportionale Schriften) */
+  return {bytes:b,upm,bb,asc,desc,adv,cm,aw};
 }
-async function pdfFonts(){
+async function pdfFonts(){   /* alle eingebetteten Board-Schriften: Familie → Gewicht → Schriftdaten */
   if(PDFX.fonts) return PDFX.fonts;
-  const css=$('fontBoard').textContent, F={};
-  for(const m of css.matchAll(/font-weight:(\d+);[^}]*?base64,([A-Za-z0-9+\/=]+)/g)){
-    const bin=atob(m[2]), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
-    F[m[1]]=ttInfo(await woffToSfnt(u)); }
-  if(!F['400']) throw 'font';
+  const F={};
+  for(const id of ['fontBoard','fontHand','fontPlus']){ const el=$(id); if(!el) continue;
+    for(const m of el.textContent.matchAll(/@font-face\{font-family:'([^']+)';[^}]*?font-weight:(\d+);[^}]*?base64,([A-Za-z0-9+\/=]+)/g)){
+      const bin=atob(m[3]), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+      try{ (F[m[1]]||(F[m[1]]={}))[m[2]]=ttInfo(await woffToSfnt(u)); }catch(e){} } }
+  if(!F['Roboto Mono']||!F['Roboto Mono']['400']) throw 'font';
   return PDFX.fonts=F;
 }
 const pdCtx=document.createElement('canvas').getContext('2d');
@@ -100,7 +102,10 @@ async function pdfVector(boxes){
   const F=await pdfFonts(), objs=[], enc=new TextEncoder(), alloc=()=>{ objs.push(null); return objs.length; };
   const gsK=new Map(), imgs=new Map(), usedF={}, fontUse={};
   const gs=(ca,CA)=>{ const k=pdN(ca)+'/'+pdN(CA); if(!gsK.has(k)) gsK.set(k,'G'+gsK.size); return '/'+gsK.get(k)+' gs'; };
-  const wOf=st=>{ const w=String(st['font-weight']||'400'); const v=w==='bold'?700:parseInt(w)||400; return v>=550&&F['600']?'600':v>=450&&F['500']?'500':'400'; };
+  const fam1=f=>{ const m=/^\s*['"]?([^'",]+)/.exec(f||''); return m&&F[m[1].trim()]?m[1].trim():'Roboto Mono'; };
+  /* passender Schnitt: gewünschtes Gewicht oder das nächstliegende; fehlt Fett, wird es nachgeahmt (wie im Browser) */
+  const pick=(fam,st)=>{ const w=String(st['font-weight']||'400'), v=w==='bold'?700:parseInt(w)||400, W=Object.keys(F[fam]).map(Number).sort((a,b)=>a-b);
+    const k=String(W.reduce((b,x)=>Math.abs(x-v)<Math.abs(b-v)?x:b,W[0])); return {key:fam+'|'+k,fo:F[fam][k],fake:v>=550&&+k<550}; };
   async function img(key,make){ if(!imgs.has(key)) imgs.set(key,Object.assign({name:'I'+imgs.size},await make())); return imgs.get(key); }
   const decode=src=>new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=src; });
   function rgba(cv){ const {width:w,height:h}=cv, d=cv.getContext('2d').getImageData(0,0,w,h).data, rgb=new Uint8Array(w*h*3), al=new Uint8Array(w*h); let A=false;
@@ -131,17 +136,18 @@ async function pdfVector(boxes){
       if(ax!=null) px=+ax; if(ay!=null) py=+ay;
       const txt=raw.replace(/\s+/g,' ').trim(); if(!txt) continue;
       const col=pdCol(s2.fill==null?'#000':s2.fill); if(!col) continue;
-      const fs=+(s2['font-size']||16), wt=wOf(s2), fo=F[wt], al=col[3]*(s2.op??1), anc=s2['text-anchor']||'start', cw=fo.adv*fs/fo.upm;
-      const fam=el.getAttribute('font-family')||'', ital=el.getAttribute('font-style')==='italic', eigen=!fam||/Roboto Mono/.test(fam);
-      const segs=[]; if(!eigen||ital) segs.push({t:txt,ok:false}); else for(const c of txt){ const ok=fo.cm.has(c.codePointAt(0)), L=segs[segs.length-1]; if(L&&L.ok===ok) L.t+=c; else segs.push({t:c,ok}); }
-      for(const g of segs){ if(g.ok) g.w=[...g.t].length*cw; else { g.R=rasterText(g.t,fs,wt,col,eigen?null:fam,ital); g.w=g.R.w; } }
+      const fs=+(s2['font-size']||16), fam=fam1(el.getAttribute('font-family')), P=pick(fam,s2), fo=P.fo, al=col[3]*(s2.op??1), anc=s2['text-anchor']||'start';
+      const ital=el.getAttribute('font-style')==='italic', sk=ital?0.25:0;   /* Kursiv: schräg gestellt wie im Browser */
+      const segs=[]; for(const c of txt){ const ok=fo.cm.has(c.codePointAt(0)), L=segs[segs.length-1]; if(L&&L.ok===ok) L.t+=c; else segs.push({t:c,ok}); }
+      for(const g of segs){ if(g.ok){ let a=0; for(const c of g.t) a+=fo.aw(fo.cm.get(c.codePointAt(0))); g.w=a*fs/fo.upm; } else { g.R=rasterText(g.t,fs,P.key.split('|')[1],col,fam==='Roboto Mono'?null:el.getAttribute('font-family'),ital); g.w=g.R.w; } }
       const w=segs.reduce((a,g)=>a+g.w,0); let x0=anc==='middle'?px-w/2:anc==='end'?px-w:px, cx=x0;
       for(const g of segs){
         if(g.R){ const R=g.R, im=await img('t'+imgs.size,async()=>R.data); o.push('q',...(al<1?[gs(al,al)]:[]),`${pdN(R.w)} 0 0 ${pdN(-R.h)} ${pdN(cx)} ${pdN(py-R.asc+R.h)} cm /${im.name} Do`,'Q'); }
-        else { const u=usedF[wt]||(usedF[wt]=new Map()); let hex='';
-          for(const c of g.t){ const cp=c.codePointAt(0), gi=fo.cm.get(cp); u.set(gi,cp); hex+=gi.toString(16).padStart(4,'0'); }
+        else { const U=usedF[P.key]||(usedF[P.key]={fo,fam,wt:P.key.split('|')[1],n:Object.keys(usedF).length,g:new Map()}); let hex='';
+          for(const c of g.t){ const cp=c.codePointAt(0), gi=fo.cm.get(cp); U.g.set(gi,cp); hex+=gi.toString(16).padStart(4,'0'); }
           o.push('q'); if(al<1) o.push(gs(al,al));
-          o.push(`${pdN(col[0])} ${pdN(col[1])} ${pdN(col[2])} rg`,`BT /F${wt} ${pdN(fs)} Tf 1 0 0 -1 ${pdN(cx)} ${pdN(py)} Tm <${hex}> Tj ET`,'Q'); }
+          const rgb=`${pdN(col[0])} ${pdN(col[1])} ${pdN(col[2])}`;
+          o.push(`${rgb} rg`,`BT /F${U.n} ${pdN(fs)} Tf 1 0 ${pdN(sk)} -1 ${pdN(cx)} ${pdN(py)} Tm <${hex}> Tj ET`,'Q'); }
         cx+=g.w; }
       if(/underline/.test(s2['text-decoration']||'')) paint(o,{fill:s2.fill,op:s2.op},[`${pdN(x0)} ${pdN(py+fs*0.12)} ${pdN(w)} ${pdN(Math.max(0.8,fs*0.07))} re`]);
       if(/line-through/.test(s2['text-decoration']||'')) paint(o,{fill:s2.fill,op:s2.op},[`${pdN(x0)} ${pdN(py-fs*0.32)} ${pdN(w)} ${pdN(Math.max(0.8,fs*0.07))} re`]);
@@ -190,11 +196,12 @@ async function pdfVector(boxes){
     put(pn,`<< /Type /Page /Parent ${pagesN} 0 R /MediaBox [0 0 ${pg.PW} ${pg.PH}] /Resources ${resN} 0 R /Contents ${cn} 0 R >>`); await stream(cn,'',pg.data); }
   put(cat,`<< /Type /Catalog /Pages ${pagesN} 0 R >>`); put(pagesN,`<< /Type /Pages /Kids [${kids.map(k=>k+' 0 R').join(' ')}] /Count ${kids.length} >>`);
   const fontRes=[];
-  for(const wt of Object.keys(usedF)){ const fo=F[wt], u=usedF[wt], K=1000/fo.upm, nm='/RobotoMono-'+({'400':'Regular','500':'Medium','600':'SemiBold'}[wt]||wt);
-    const t0=alloc(), cid=alloc(), fd=alloc(), ff=alloc(), tu=alloc(); fontRes.push(`/F${wt} ${t0} 0 R`);
+  for(const U of Object.values(usedF)){ const fo=U.fo, u=U.g, K=1000/fo.upm, nm='/'+String.fromCharCode(65+U.n%26).repeat(6)+'+'+U.fam.replace(/[^A-Za-z0-9]/g,'')+'-'+U.wt;
+    const t0=alloc(), cid=alloc(), fd=alloc(), ff=alloc(), tu=alloc(); fontRes.push(`/F${U.n} ${t0} 0 R`);
+    const Wd=[...u.keys()].sort((a,b)=>a-b).map(g=>`${g} [${Math.round(fo.aw(g)*K)}]`).join(' ');
     put(t0,`<< /Type /Font /Subtype /Type0 /BaseFont ${nm} /Encoding /Identity-H /DescendantFonts [${cid} 0 R] /ToUnicode ${tu} 0 R >>`);
-    put(cid,`<< /Type /Font /Subtype /CIDFontType2 /BaseFont ${nm} /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor ${fd} 0 R /DW ${Math.round(fo.adv*K)} /CIDToGIDMap /Identity >>`);
-    put(fd,`<< /Type /FontDescriptor /FontName ${nm} /Flags 33 /FontBBox [${fo.bb.map(v=>Math.round(v*K)).join(' ')}] /ItalicAngle 0 /Ascent ${Math.round(fo.asc*K)} /Descent ${Math.round(fo.desc*K)} /CapHeight ${Math.round(fo.asc*K*0.7)} /StemV ${wt==='400'?80:120} /FontFile2 ${ff} 0 R >>`);
+    put(cid,`<< /Type /Font /Subtype /CIDFontType2 /BaseFont ${nm} /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor ${fd} 0 R /DW ${Math.round(fo.adv*K)} /W [${Wd}] /CIDToGIDMap /Identity >>`);
+    put(fd,`<< /Type /FontDescriptor /FontName ${nm} /Flags ${U.fam==='Roboto Mono'?33:32} /FontBBox [${fo.bb.map(v=>Math.round(v*K)).join(' ')}] /ItalicAngle 0 /Ascent ${Math.round(fo.asc*K)} /Descent ${Math.round(fo.desc*K)} /CapHeight ${Math.round(fo.asc*K*0.7)} /StemV ${+U.wt>=550?120:80} /FontFile2 ${ff} 0 R >>`);
     await stream(ff,`/Length1 ${fo.bytes.length}`,fo.bytes);
     const ent=[...u].map(([g,cp])=>{ const s=String.fromCodePoint(cp); let h=''; for(let i=0;i<s.length;i++) h+=s.charCodeAt(i).toString(16).padStart(4,'0'); return `<${g.toString(16).padStart(4,'0')}> <${h}>`; });
     let cm='/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def\n/CMapName /Adobe-Identity-UCS def\n/CMapType 2 def\n1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n';

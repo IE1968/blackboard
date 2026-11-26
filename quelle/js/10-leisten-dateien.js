@@ -22,7 +22,7 @@ document.addEventListener('pointerdown',e=>{ if(document.body.classList.contains
 function buildSVG(box){
   const b=box||contentBox(30,true); if(!b) return null;
   const ed=editing, nt=noText; editing=null; noText=false; plainOut=true; const body=doc.items.filter(i=>i.kind!=='frame').map(itemSVG).join(''); editing=ed; noText=nt; plainOut=false;
-  return {w:b.w,h:b.h,svg:`<svg xmlns="http://www.w3.org/2000/svg" width="${b.w}" height="${b.h}" viewBox="${b.x} ${b.y} ${b.w} ${b.h}"><rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="${darkBoard?paper():'#ffffff'}"/><style>${$('fontBoard').textContent}${/Caveat/.test(body)?$('fontHand').textContent:''}${/Lora|Andika|Archivo Black/.test(body)?$('fontPlus').textContent:''}${/Plus Jakarta Sans/.test(body)?document.querySelector('style[data-ui-font]').textContent:''}</style>${body}</svg>`};
+  return {w:b.w,h:b.h,svg:`<svg xmlns="http://www.w3.org/2000/svg" width="${b.w}" height="${b.h}" viewBox="${b.x} ${b.y} ${b.w} ${b.h}"><rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="${darkBoard?paper():'#ffffff'}"/><style>${$('fontBoard').textContent}${/Caveat/.test(body)?$('fontHand').textContent:''}${/Lora|Andika|Archivo Black|Skizix Klar/.test(body)?$('fontPlus').textContent:''}</style>${body}</svg>`};
 }
 async function getDl(){
   if(dl) return dl;

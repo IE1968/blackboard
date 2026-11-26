@@ -9,7 +9,7 @@ function onFill(f){ return f==='none'?tink():(isDark(mapC(f))?'#ffffff':INK); }
 function vis(it){ return Object.assign({},it,{fill:mapC(it.fill),stroke:mapC(it.stroke)}); }
 const FONT="'Roboto Mono',ui-monospace,Menlo,Consolas,monospace", HAND="'Caveat','Comic Sans MS',cursive";
 /* Schriftarten auf dem Board (alle in der App eingebettet, damit sie überall gleich aussehen) */
-const FONTS={mono:['Standard',FONT],sans:['Klar',"'Plus Jakarta Sans',system-ui,sans-serif"],serif:['Serifen',"'Lora',Georgia,serif"],
+const FONTS={mono:['Standard',FONT],sans:['Klar',"'Skizix Klar',system-ui,sans-serif"],serif:['Serifen',"'Lora',Georgia,serif"],
   school:['Schulschrift',"'Andika',sans-serif"],display:['Plakativ',"'Archivo Black',Impact,sans-serif"],hand:['Handschrift',HAND]};
 const FS_STUFEN=[10,12,14,16,18,20,24,28,32,40,48,64,80,96,128];
 /* Notizblatt: Papierarten */

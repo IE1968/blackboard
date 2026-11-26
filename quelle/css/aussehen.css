@@ -852,3 +852,6 @@ body.eng3:not(.nolabels) #boardName{width:96px;min-width:70px}
 #colorPop .sws.four{grid-template-columns:repeat(4,1fr)}
 #colorPop .sws.four .pb{font-size:15px}
 #colorPop{overflow-y:auto;overscroll-behavior:contain}
+
+/* Board-Schrift: kein nachgeahmtes Fett (Plakativ hat nur einen Schnitt) – so sehen Bildschirm und PDF gleich aus */
+#items text{font-synthesis-weight:none}
