@@ -30,11 +30,14 @@ try:
   def sync(pg): pg.evaluate("()=>window.dispatchEvent(new Event('focus'))"); pg.wait_for_timeout(1000)
   def neuerOrdner(pg,name):
       openFile(pg); pg.click('#newFolder'); pg.wait_for_timeout(100); pg.keyboard.type(name); pg.keyboard.press('Enter'); pg.wait_for_timeout(200)
-  def verschiebe(pg,namen,wert):
+  def verschiebe(pg,namen,wert,neuName='Familie'):
       openFile(pg); pg.click('#manageBtn'); pg.wait_for_timeout(200)
       for b in boards(pg):
           if b['name'] in namen: pg.check(f'#bmList input[data-id="{b["id"]}"]')
-      pg.select_option('#bmMove',wert); pg.wait_for_timeout(200); msg=pg.inner_text('#bmMsg'); pg.click('#bmClose'); return msg
+      pg.click('#bmMoveBtn'); pg.wait_for_timeout(100)
+      if wert=='new': pg.click('#bmFold [data-to="new"]'); pg.fill('#bmNewF',neuName); pg.keyboard.press('Enter')
+      else: pg.click(f'#bmFold [data-to="{wert}"]')
+      pg.wait_for_timeout(200); msg=pg.inner_text('#bmMsg'); pg.click('#bmClose'); return msg
 
   A_ctx,A=geraet()
   menu(A,'new'); menu(A,'new'); pg=A
@@ -61,7 +64,6 @@ try:
   A.click(f'#boardList [data-b="{b1}"]'); A.wait_for_timeout(300)
   check('Board aus dem Ordner öffnen',idx(A)['cur']==b1)
   # neuer Ordner über „Boards verwalten“, dann zurück nach „Ohne Ordner“
-  A.on('dialog',lambda d: d.accept('Familie'))
   msg=verschiebe(A,['Board 3'],'new')
   check('Neuer Ordner direkt beim Verschieben','Familie' in msg and [b for b in boards(A) if b['name']=='Board 3'][0].get('f')=='Familie')
   check('Ordner-Reihenfolge',idx(A)['folders']==['Kurs Netzwerk','Familie'])

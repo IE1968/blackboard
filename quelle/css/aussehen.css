@@ -139,7 +139,6 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
 #bmSame:hover{background:var(--hover)}
 .bmAll{display:flex;align-items:center;gap:10px;padding:4px 9px;font-size:13px;cursor:pointer}
 #bmMsg{min-height:18px;font-size:13px}
-#bmDel:not(:disabled){background:#c94040;border-color:#c94040;color:#fff}
 #ktDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
 #ktDlg[hidden]{display:none}
 #ktForm{zoom:var(--ui);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:400px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
@@ -551,8 +550,28 @@ body.compact .pal{min-height:42px}
 .fRest{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:12px 10px 4px}
 .fNew{padding:4px 2px}
 .fNew input{width:100%;font:500 13px/1.2 var(--body);color:var(--ink);background:var(--hover);border:1px solid var(--accent);border-radius:9px;padding:8px 10px;outline:none}
-#bmMove{font:500 13px/1.2 var(--body);color:var(--ink);background:var(--chrome);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-right:auto;max-width:100%}
-#bmMove:disabled{opacity:.45}
+#bmCount{font-size:12px;color:var(--muted);margin-top:6px}
+.bmActs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bmActs button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--chrome);color:var(--ink);font:500 13.5px/1.2 var(--body)}
+.bmActs button svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bmActs button:not(:disabled):hover{background:var(--hover)}
+.bmActs button:disabled{opacity:.4;cursor:default}
+#bmMoveBtn[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}
+#bmClear[data-sure]{background:#e8a23a;border-color:#e8a23a;color:#18181a}
+#bmDel:not(:disabled){color:#e06060;border-color:rgba(201,64,64,.55)}
+#bmDel[data-sure]{background:#c94040;border-color:#c94040;color:#fff}
+#bmFold{border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto}
+#bmFold[hidden]{display:none}
+.bmFH{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.bmFL{display:flex;flex-wrap:wrap;gap:6px}
+.bmFL button{display:flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid var(--line);border-radius:999px;font:500 13px/1.2 var(--body);color:var(--ink)}
+.bmFL button:hover{background:var(--hover)}
+.bmFL button[aria-pressed="true"]{border-color:var(--fc,var(--accent));background:var(--hover)}
+.bmFL .bDot{width:9px;height:9px;border-radius:50%;margin:0;background:var(--fc,var(--accent))}
+.bmFL .bAdd{color:var(--accent);border-style:dashed}
+.bmFNew{display:flex;gap:6px;flex-wrap:wrap}
+.bmFNew input{flex:1 1 160px;font:500 13px/1.2 var(--body);color:var(--ink);background:var(--hover);border:1px solid var(--accent);border-radius:9px;padding:8px 10px;outline:none}
+#bmBox .dlgBtns{justify-content:flex-end}
 #boardList .fh button::before{content:none!important;display:none!important}
 #boardList [data-b] .bn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #boardList [data-b]{width:100%}

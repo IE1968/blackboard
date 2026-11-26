@@ -2,7 +2,7 @@
    Ein Ordner ist ein Name am Board (b.f). Die Reihenfolge der Ordner steht in boards.folders, auch leere Ordner.
    Mit Konto wird der Ordner jedes Boards mit abgeglichen (Spalte „folder“, siehe quelle/supabase/02-ordner.sql). */
 const FOLD_C=['var(--c-blue)','var(--c-mint)','var(--c-gold)','var(--c-coral)','var(--c-violet)'];
-var fUi={adding:false,edit:null,menu:null,bm:null,bmF:false,bmDel:false};
+var fUi={adding:false,edit:null,menu:null,bm:null,bmF:false,bmDel:false,bmClr:false};
 function fClean(n){ return String(n==null?'':n).replace(/\s+/g,' ').trim().slice(0,40); }
 function fOpenSet(){ try{ const v=JSON.parse(lsGet('skizix-ordner-offen')||'{}'); return v&&typeof v==='object'?v:{}; }catch(e){ return {}; } }
 function fSetOpen(n,o){ const v=fOpenSet(); v[n]=o; lsSet('skizix-ordner-offen',JSON.stringify(v)); }
@@ -27,12 +27,12 @@ function moveBoards(ids,f){
 }
 function boardBtn(b){
   const cur=b.id===boards.cur, nm=esc(b.name);
-  let h=`<div class="bRow${fUi.bm===b.id?' open':''}"><button data-b="${b.id}" aria-current="${cur}" title="${nm}">${thHTML(b)}<span class="bn">${cur?'✓ ':''}${nm}</span></button><button type="button" class="bM" data-bm="${b.id}" aria-expanded="${fUi.bm===b.id}" title="Umbenennen, Ordner, Duplizieren, Löschen" aria-label="Board ${nm}: weitere Befehle">⋯</button></div>`;
+  let h=`<div class="bRow${fUi.bm===b.id?' open':''}"><button data-b="${b.id}" aria-current="${cur}" title="${nm}">${thHTML(b)}<span class="bn">${cur?'✓ ':''}${nm}</span></button><button type="button" class="bM" data-bm="${b.id}" aria-expanded="${fUi.bm===b.id}" title="Umbenennen, Ordner, Duplizieren, Leeren, Löschen" aria-label="Board ${nm}: weitere Befehle">⋯</button></div>`;
   if(fUi.bm!==b.id) return h;
   if(fUi.bmF){ const F=folderList(), here=fClean(b.f);
     return h+`<div class="fAct bAct"><div class="bActH">In Ordner verschieben</div>`+F.map(f=>`<button type="button" data-bto="${esc(f)}" style="--fc:${fColor(f)}" aria-pressed="${f===here}"><i class="bDot"></i>${esc(f)}</button>`).join('')+`<button type="button" data-bto="" aria-pressed="${!here}">Ohne Ordner</button><button type="button" data-bnewf="1" class="bAdd">+ Neuer Ordner …</button><button type="button" data-bback="1" class="bBack">‹ Zurück</button></div>`; }
   return h+`<div class="fAct bAct"><button type="button" data-bact="ren">Umbenennen</button><button type="button" data-bact="fold">In Ordner verschieben ›</button><button type="button" data-bact="dup">Duplizieren</button>`
-    +(cur?`<button type="button" data-m="clear">Board leeren</button>`:'')
+    +(cur?`<button type="button" data-m="clear">Board leeren</button>`:`<button type="button" data-bact="clr">${fUi.bmClr?'Wirklich leeren? Alles darauf wird entfernt.':'Board leeren'}</button>`)
     +`<button type="button" data-bact="del" class="fDel">${fUi.bmDel?'Wirklich löschen? Das lässt sich nicht zurückholen.':'Board löschen'}</button></div>`;
 }
 function dupBoard(id){
@@ -66,7 +66,7 @@ $('newFolder').onclick=e=>{
 $('boardList').addEventListener('click',e=>{
   const q=e.target.closest('[data-bm],[data-bact],[data-bto],[data-bnewf],[data-bback]');
   if(q){ e.stopPropagation(); const id=fUi.bm;
-    if(q.dataset.bm!==undefined){ fUi.bm=fUi.bm===q.dataset.bm?null:q.dataset.bm; fUi.bmF=false; fUi.bmDel=false; fUi.menu=null; renderBoardList(); return; }
+    if(q.dataset.bm!==undefined){ fUi.bm=fUi.bm===q.dataset.bm?null:q.dataset.bm; fUi.bmF=false; fUi.bmDel=false; fUi.bmClr=false; fUi.menu=null; renderBoardList(); return; }
     if(q.dataset.bback!==undefined){ fUi.bmF=false; renderBoardList(); return; }
     if(q.dataset.bnewf!==undefined){ fUi.bm=null; fUi.bmF=false; fUi.adding=true; renderBoardList(); fFocus(); toast('Ordner anlegen, dann das Board über „⋯ → In Ordner verschieben“ hineinlegen.'); return; }
     if(q.dataset.bto!==undefined){ const n=moveBoards([id],q.dataset.bto); fUi.bm=null; fUi.bmF=false; renderBoardList(); if(n) toast(q.dataset.bto?'In „'+q.dataset.bto+'“ verschoben.':'Steht jetzt unter „Ohne Ordner“.'); return; }
@@ -74,6 +74,7 @@ $('boardList').addEventListener('click',e=>{
       case 'ren': fUi.bm=null; if(id!==boards.cur) openBoard(id); renderBoardList(); closeMenu(); { const i=$('boardName'); i.focus(); i.select(); } break;
       case 'fold': fUi.bmF=true; renderBoardList(); break;
       case 'dup': dupBoard(id); break;
+      case 'clr': if(!fUi.bmClr){ fUi.bmClr=true; renderBoardList(); return; } { const b=boards.list.find(x=>x.id===id), nm=b?b.name:''; fUi.bm=null; fUi.bmClr=false; clearBoards([id]); renderBoardList(); toast('„'+nm+'“ geleert.'); } break;
       case 'del': if(!fUi.bmDel){ fUi.bmDel=true; renderBoardList(); return; } { const b=boards.list.find(x=>x.id===id), nm=b?b.name:''; fUi.bm=null; fUi.bmDel=false; removeBoards([id]); renderBoardList(); toast('„'+nm+'“ gelöscht.'); } break;
     }
     return; }
@@ -95,18 +96,34 @@ function fCommit(form){
 $('boardList').addEventListener('submit',e=>{ const f=e.target.closest('.fNew'); if(!f) return; e.preventDefault(); fCommit(f); });
 $('boardList').addEventListener('focusout',e=>{ const f=e.target.closest&&e.target.closest('.fNew'); if(f&&(fUi.adding||fUi.edit!==null)) setTimeout(()=>{ if(f.isConnected) fCommit(f); },0); });
 $('boardList').addEventListener('keydown',e=>{ if(e.key==='Escape'&&e.target.closest('.fNew')){ e.preventDefault(); e.stopPropagation(); fUi.adding=false; fUi.edit=null; renderBoardList(); } });
-/* „Boards verwalten“: angekreuzte Boards in einen Ordner verschieben */
-function bmFolderOpts(){
-  const s=$('bmMove'); if(!s) return;
-  s.innerHTML='<option value="">In Ordner verschieben …</option>'+folderList().map(f=>`<option value="f:${esc(f)}">${esc(f)}</option>`).join('')+'<option value="none">Ohne Ordner</option><option value="new">+ Neuer Ordner …</option>';
-  s.value='';
+/* „Boards verwalten“: angekreuzte Boards in einen Ordner verschieben. Die Ordner erscheinen als Knöpfe unter „Verschieben“. */
+function bmFolderOpts(){ bmFoldClose(); }
+function bmFoldClose(){ const p=$('bmFold'); if(!p) return; p.hidden=true; p.innerHTML=''; $('bmMoveBtn').setAttribute('aria-expanded','false'); }
+function bmFoldRender(nw){
+  const p=$('bmFold'), ids=bmSel(), here=new Set(boards.list.filter(b=>ids.includes(b.id)).map(b=>fClean(b.f)));
+  const one=here.size===1?[...here][0]:null;
+  p.innerHTML='<div class="bmFH">In welchen Ordner?</div><div class="bmFL">'
+    +folderList().map(f=>`<button type="button" data-to="f:${esc(f)}" style="--fc:${fColor(f)}" aria-pressed="${one===f}"><i class="bDot"></i>${esc(f)}</button>`).join('')
+    +`<button type="button" data-to="none" aria-pressed="${one===''}">Ohne Ordner</button>`
+    +(nw?'':'<button type="button" data-to="new" class="bAdd">+ Neuer Ordner …</button>')+'</div>'
+    +(nw?'<form class="bmFNew"><input id="bmNewF" placeholder="Name des neuen Ordners" maxlength="40" aria-label="Name des neuen Ordners" enterkeyhint="done"><button type="submit" class="pb">Anlegen und verschieben</button></form>':'');
+  p.hidden=false; $('bmMoveBtn').setAttribute('aria-expanded','true');
+  if(nw) $('bmNewF').focus();
 }
-$('bmMove').addEventListener('change',e=>{
-  const v=e.target.value, ids=bmSel(); if(!v||!ids.length){ e.target.value=''; return; }
-  let f='';
-  if(v==='new'){ f=fClean(prompt('Name des neuen Ordners')||''); if(!f){ e.target.value=''; return; } }
-  else if(v.startsWith('f:')) f=v.slice(2);
+function bmMoveTo(f){
+  const ids=bmSel(); if(!ids.length) return; f=fClean(f);
   const n=moveBoards(ids,f); bmRender();
-  const w=(ids.length===1?'1 Board':ids.length+' Boards'); $('bmMsg').textContent=f?w+' liegen jetzt im Ordner „'+f+'“.':w+' liegen jetzt ohne Ordner.';
+  const w=bmN(ids.length); $('bmMsg').textContent=f?w+' liegen jetzt im Ordner „'+f+'“.':w+' liegen jetzt ohne Ordner.';
   if(n) toast($('bmMsg').textContent);
+}
+$('bmMoveBtn').onclick=()=>{
+  if(!bmSel().length) return;
+  for(const o of ['bmClear','bmDel']) if($(o).dataset.sure){ delete $(o).dataset.sure; bmLbl(o,o==='bmDel'?'Löschen':'Leeren'); $('bmMsg').textContent=''; }
+  if($('bmFold').hidden) bmFoldRender(); else bmFoldClose();
+};
+$('bmFold').addEventListener('click',e=>{
+  const q=e.target.closest('[data-to]'); if(!q) return; const v=q.dataset.to;
+  if(v==='new') return bmFoldRender(true);
+  bmMoveTo(v.startsWith('f:')?v.slice(2):'');
 });
+$('bmFold').addEventListener('submit',e=>{ e.preventDefault(); const f=fClean($('bmNewF').value); if(!f){ $('bmNewF').focus(); return; } bmMoveTo(f); });

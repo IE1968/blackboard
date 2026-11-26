@@ -218,19 +218,45 @@ function bmRender(){
   $('bmAll').checked=false; bmFolderOpts(); bmUpd(); thFill();
 }
 function bmSel(){ return [...$('bmList').querySelectorAll('input:checked')].map(i=>i.dataset.id); }
+function bmN(n){ return n===1?'1 Board':n+' Boards'; }
+function bmLbl(id,t){ $(id).querySelector('span').textContent=t; }
+/* Knöpfe unter der Liste: Verschieben, Leeren, Löschen – gesperrt, solange nichts angekreuzt ist */
 function bmUpd(){
-  const n=bmSel().length, d=$('bmDel'); d.disabled=!n; delete d.dataset.sure; $('bmMove').disabled=!n;
-  d.textContent=n?(n===1?'1 Board löschen':n+' Boards löschen'):'Löschen'; $('bmMsg').textContent='';
+  const n=bmSel().length;
+  for(const id of ['bmMoveBtn','bmClear','bmDel']){ const b=$(id); b.disabled=!n; delete b.dataset.sure; }
+  bmLbl('bmMoveBtn','Verschieben'); bmLbl('bmClear','Leeren'); bmLbl('bmDel','Löschen');
+  $('bmCount').textContent=n?bmN(n)+' angekreuzt':'Noch kein Board angekreuzt';
+  if(!n) bmFoldClose(); else if(!$('bmFold').hidden) bmFoldRender();
+  $('bmMsg').textContent='';
   const all=$('bmList').querySelectorAll('input'); $('bmAll').checked=!!all.length&&n===all.length;
 }
 function openBmDlg(){ bmRender(); $('bmDlg').hidden=false; $('bmClose').focus(); }
-function closeBmDlg(){ if(!$('bmDlg').hidden) $('bmDlg').hidden=true; }
+function closeBmDlg(){ if(!$('bmDlg').hidden){ bmFoldClose(); $('bmDlg').hidden=true; } }
 $('bmList').addEventListener('change',bmUpd);
 $('bmAll').addEventListener('change',e=>{ $('bmList').querySelectorAll('input').forEach(i=>i.checked=e.target.checked); bmUpd(); });
+/* Erster Druck fragt nach, zweiter führt aus; der jeweils andere Knopf vergisst seine Rückfrage */
+function bmAsk(id,txt,msg){ const b=$(id); if(b.dataset.sure) return true;
+  for(const o of ['bmClear','bmDel']) if(o!==id&&$(o).dataset.sure){ delete $(o).dataset.sure; bmLbl(o,o==='bmDel'?'Löschen':'Leeren'); }
+  bmFoldClose(); b.dataset.sure='1'; bmLbl(id,txt); $('bmMsg').textContent=msg; return false; }
 $('bmDel').onclick=()=>{
-  const ids=bmSel(), d=$('bmDel'); if(!ids.length) return;
-  if(!d.dataset.sure){ d.dataset.sure='1'; d.textContent='Wirklich '+(ids.length===1?'1 Board':ids.length+' Boards')+' löschen?'; $('bmMsg').textContent=ktOn()?'Sie verschwinden auch auf deinen anderen angemeldeten Geräten. Das lässt sich nicht zurückholen.':'Das lässt sich nicht zurückholen.'; return; }
-  finishEdit(); const n=removeBoards(ids); bmRender(); $('bmMsg').textContent=(n===1?'1 Board':n+' Boards')+' gelöscht.'; toast((n===1?'1 Board':n+' Boards')+' gelöscht.');
+  const ids=bmSel(); if(!ids.length) return;
+  if(!bmAsk('bmDel','Wirklich löschen?',bmN(ids.length)+' löschen? '+(ktOn()?'Sie verschwinden auch auf deinen anderen angemeldeten Geräten. ':'')+'Das lässt sich nicht zurückholen. Zum Bestätigen nochmal auf „Wirklich löschen?“ tippen.')) return;
+  finishEdit(); const n=removeBoards(ids); bmRender(); $('bmMsg').textContent=bmN(n)+' gelöscht.'; toast(bmN(n)+' gelöscht.');
+};
+/* Leeren: Inhalt weg, Board mit Name, Ordner und Freigaben bleibt. Das geöffnete Board lässt sich danach mit „Rückgängig“ zurückholen. */
+function clearBoards(ids){
+  const set=new Set(ids); let n=0;
+  for(const b of boards.list){ if(!set.has(b.id)) continue; n++;
+    if(b.id===boards.cur){ doc={items:[],n:doc.n}; sel.clear(); commit(); render(); }
+    else { const d=storedDoc(b.id); if(d&&!d.items.length) continue; docSet(b.id,JSON.stringify({items:[],n:d?d.n||0:0,fmt:DOC_FMT})); markDirty(b); } }
+  if(n) ktSoon(500); return n;
+}
+$('bmClear').onclick=()=>{
+  const ids=bmSel(); if(!ids.length) return;
+  if(!bmAsk('bmClear','Wirklich leeren?',bmN(ids.length)+' leeren? Alles darauf wird entfernt, '+(ids.length===1?'das Board selbst bleibt':'die Boards selbst bleiben')+' mit Namen und Ordner erhalten. Zum Bestätigen nochmal auf „Wirklich leeren?“ tippen.')) return;
+  finishEdit(); const n=clearBoards(ids), keep=new Set(ids); bmRender();
+  $('bmList').querySelectorAll('input').forEach(i=>i.checked=keep.has(i.dataset.id)); bmUpd();
+  const t=bmN(n)+' geleert.'+(keep.has(boards.cur)?' Das geöffnete Board holst du mit „Rückgängig“ zurück.':''); $('bmMsg').textContent=t; toast(t,keep.has(boards.cur)?{undo:true}:{});
 };
 /* Boards mit gleichem Namen und gleichem Inhalt: alle bis auf eins ankreuzen (behalten wird das geöffnete, sonst das zuletzt geänderte) */
 /* Inhalt für den Vergleich: nur Art und Texte der Elemente, ohne Kennungen, Position und Größe
@@ -249,4 +275,4 @@ $('bmSame').onclick=()=>{
 };
 $('bmClose').onclick=closeBmDlg;
 $('bmDlg').addEventListener('pointerdown',e=>{ if(e.target===$('bmDlg')) closeBmDlg(); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('bmDlg').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeBmDlg(); } },true);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('bmDlg').hidden){ if(e.target&&e.target.id==='bmNewF'){ e.preventDefault(); e.stopImmediatePropagation(); bmFoldRender(); return; } e.preventDefault(); e.stopImmediatePropagation(); closeBmDlg(); } },true);

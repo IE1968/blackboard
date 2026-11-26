@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-bDn7Vx0brNLqSQN4lOfj2ouk0FXlbp4IL9vPIZuGvPU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://127.0.0.1:* ws://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-3IeNCaExUhXS4pxVX/HhUFssXIq8D6kQp2Z2VozwDxg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://127.0.0.1:* ws://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Skizix</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#18181A">
@@ -169,7 +169,6 @@ main.pal-closed #palette .gh:not(#palToggle),main.pal-closed #palette .palgrid{d
 #bmSame:hover{background:var(--hover)}
 .bmAll{display:flex;align-items:center;gap:10px;padding:4px 9px;font-size:13px;cursor:pointer}
 #bmMsg{min-height:18px;font-size:13px}
-#bmDel:not(:disabled){background:#c94040;border-color:#c94040;color:#fff}
 #ktDlg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
 #ktDlg[hidden]{display:none}
 #ktForm{zoom:var(--ui);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:400px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
@@ -581,8 +580,28 @@ body.compact .pal{min-height:42px}
 .fRest{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:12px 10px 4px}
 .fNew{padding:4px 2px}
 .fNew input{width:100%;font:500 13px/1.2 var(--body);color:var(--ink);background:var(--hover);border:1px solid var(--accent);border-radius:9px;padding:8px 10px;outline:none}
-#bmMove{font:500 13px/1.2 var(--body);color:var(--ink);background:var(--chrome);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-right:auto;max-width:100%}
-#bmMove:disabled{opacity:.45}
+#bmCount{font-size:12px;color:var(--muted);margin-top:6px}
+.bmActs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bmActs button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--chrome);color:var(--ink);font:500 13.5px/1.2 var(--body)}
+.bmActs button svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bmActs button:not(:disabled):hover{background:var(--hover)}
+.bmActs button:disabled{opacity:.4;cursor:default}
+#bmMoveBtn[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}
+#bmClear[data-sure]{background:#e8a23a;border-color:#e8a23a;color:#18181a}
+#bmDel:not(:disabled){color:#e06060;border-color:rgba(201,64,64,.55)}
+#bmDel[data-sure]{background:#c94040;border-color:#c94040;color:#fff}
+#bmFold{border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto}
+#bmFold[hidden]{display:none}
+.bmFH{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.bmFL{display:flex;flex-wrap:wrap;gap:6px}
+.bmFL button{display:flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid var(--line);border-radius:999px;font:500 13px/1.2 var(--body);color:var(--ink)}
+.bmFL button:hover{background:var(--hover)}
+.bmFL button[aria-pressed="true"]{border-color:var(--fc,var(--accent));background:var(--hover)}
+.bmFL .bDot{width:9px;height:9px;border-radius:50%;margin:0;background:var(--fc,var(--accent))}
+.bmFL .bAdd{color:var(--accent);border-style:dashed}
+.bmFNew{display:flex;gap:6px;flex-wrap:wrap}
+.bmFNew input{flex:1 1 160px;font:500 13px/1.2 var(--body);color:var(--ink);background:var(--hover);border:1px solid var(--accent);border-radius:9px;padding:8px 10px;outline:none}
+#bmBox .dlgBtns{justify-content:flex-end}
 #boardList .fh button::before{content:none!important;display:none!important}
 #boardList [data-b] .bn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #boardList [data-b]{width:100%}
@@ -1051,11 +1070,18 @@ body.eng3:not(.nolabels) #boardName{width:96px;min-width:70px}
 <div id="bmDlg" hidden role="dialog" aria-modal="true" aria-labelledby="bmTitle">
   <div id="bmBox">
     <h2 id="bmTitle">Boards verwalten</h2>
-    <p>Kreuze Boards an, um sie in einen Ordner zu verschieben oder zu löschen. Gleiche Namen stehen untereinander, so findest du doppelte Boards schnell.</p>
+    <p>Kreuze Boards an und wähle darunter, was mit ihnen passieren soll: verschieben, leeren oder löschen. Gleiche Namen stehen untereinander, so findest du doppelte Boards schnell.</p>
     <div class="bmTop"><label class="bmAll"><input type="checkbox" id="bmAll"> Alle auswählen</label><button type="button" id="bmSame" title="Kreuzt Boards an, die es mit gleichem Namen und gleichem Inhalt mehrfach gibt. Je eins bleibt übrig.">Gleiche ankreuzen</button></div>
     <div id="bmList" role="group" aria-label="Boards"></div>
+    <div id="bmCount" aria-live="polite">Noch kein Board angekreuzt</div>
+    <div class="bmActs" role="group" aria-label="Mit den angekreuzten Boards">
+      <button type="button" id="bmMoveBtn" disabled aria-expanded="false" aria-controls="bmFold"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 014.5 5h4.6l2 2h8.4A1.5 1.5 0 0121 8.5v9a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 17.5z"/><path d="M10 13h6M13.5 10.5L16 13l-2.5 2.5"/></svg><span>Verschieben</span></button>
+      <button type="button" id="bmClear" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M9.5 8.5l5 5M14.5 8.5l-5 5"/></svg><span>Leeren</span></button>
+      <button type="button" id="bmDel" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3"/></svg><span>Löschen</span></button>
+    </div>
+    <div id="bmFold" hidden role="group" aria-label="Ziel-Ordner"></div>
     <div id="bmMsg" role="status"></div>
-    <div class="dlgBtns"><select id="bmMove" disabled aria-label="Angekreuzte Boards in einen Ordner verschieben"></select><button type="button" class="pb danger" id="bmDel" disabled>Löschen</button><button type="button" class="pb" id="bmClose">Schließen</button></div>
+    <div class="dlgBtns"><button type="button" class="pb" id="bmClose">Schließen</button></div>
   </div>
 </div>
 <div id="colorPop" hidden role="dialog" aria-label="Farbe wählen"></div>
@@ -2148,19 +2174,45 @@ function bmRender(){
   $('bmAll').checked=false; bmFolderOpts(); bmUpd(); thFill();
 }
 function bmSel(){ return [...$('bmList').querySelectorAll('input:checked')].map(i=>i.dataset.id); }
+function bmN(n){ return n===1?'1 Board':n+' Boards'; }
+function bmLbl(id,t){ $(id).querySelector('span').textContent=t; }
+/* Knöpfe unter der Liste: Verschieben, Leeren, Löschen – gesperrt, solange nichts angekreuzt ist */
 function bmUpd(){
-  const n=bmSel().length, d=$('bmDel'); d.disabled=!n; delete d.dataset.sure; $('bmMove').disabled=!n;
-  d.textContent=n?(n===1?'1 Board löschen':n+' Boards löschen'):'Löschen'; $('bmMsg').textContent='';
+  const n=bmSel().length;
+  for(const id of ['bmMoveBtn','bmClear','bmDel']){ const b=$(id); b.disabled=!n; delete b.dataset.sure; }
+  bmLbl('bmMoveBtn','Verschieben'); bmLbl('bmClear','Leeren'); bmLbl('bmDel','Löschen');
+  $('bmCount').textContent=n?bmN(n)+' angekreuzt':'Noch kein Board angekreuzt';
+  if(!n) bmFoldClose(); else if(!$('bmFold').hidden) bmFoldRender();
+  $('bmMsg').textContent='';
   const all=$('bmList').querySelectorAll('input'); $('bmAll').checked=!!all.length&&n===all.length;
 }
 function openBmDlg(){ bmRender(); $('bmDlg').hidden=false; $('bmClose').focus(); }
-function closeBmDlg(){ if(!$('bmDlg').hidden) $('bmDlg').hidden=true; }
+function closeBmDlg(){ if(!$('bmDlg').hidden){ bmFoldClose(); $('bmDlg').hidden=true; } }
 $('bmList').addEventListener('change',bmUpd);
 $('bmAll').addEventListener('change',e=>{ $('bmList').querySelectorAll('input').forEach(i=>i.checked=e.target.checked); bmUpd(); });
+/* Erster Druck fragt nach, zweiter führt aus; der jeweils andere Knopf vergisst seine Rückfrage */
+function bmAsk(id,txt,msg){ const b=$(id); if(b.dataset.sure) return true;
+  for(const o of ['bmClear','bmDel']) if(o!==id&&$(o).dataset.sure){ delete $(o).dataset.sure; bmLbl(o,o==='bmDel'?'Löschen':'Leeren'); }
+  bmFoldClose(); b.dataset.sure='1'; bmLbl(id,txt); $('bmMsg').textContent=msg; return false; }
 $('bmDel').onclick=()=>{
-  const ids=bmSel(), d=$('bmDel'); if(!ids.length) return;
-  if(!d.dataset.sure){ d.dataset.sure='1'; d.textContent='Wirklich '+(ids.length===1?'1 Board':ids.length+' Boards')+' löschen?'; $('bmMsg').textContent=ktOn()?'Sie verschwinden auch auf deinen anderen angemeldeten Geräten. Das lässt sich nicht zurückholen.':'Das lässt sich nicht zurückholen.'; return; }
-  finishEdit(); const n=removeBoards(ids); bmRender(); $('bmMsg').textContent=(n===1?'1 Board':n+' Boards')+' gelöscht.'; toast((n===1?'1 Board':n+' Boards')+' gelöscht.');
+  const ids=bmSel(); if(!ids.length) return;
+  if(!bmAsk('bmDel','Wirklich löschen?',bmN(ids.length)+' löschen? '+(ktOn()?'Sie verschwinden auch auf deinen anderen angemeldeten Geräten. ':'')+'Das lässt sich nicht zurückholen. Zum Bestätigen nochmal auf „Wirklich löschen?“ tippen.')) return;
+  finishEdit(); const n=removeBoards(ids); bmRender(); $('bmMsg').textContent=bmN(n)+' gelöscht.'; toast(bmN(n)+' gelöscht.');
+};
+/* Leeren: Inhalt weg, Board mit Name, Ordner und Freigaben bleibt. Das geöffnete Board lässt sich danach mit „Rückgängig“ zurückholen. */
+function clearBoards(ids){
+  const set=new Set(ids); let n=0;
+  for(const b of boards.list){ if(!set.has(b.id)) continue; n++;
+    if(b.id===boards.cur){ doc={items:[],n:doc.n}; sel.clear(); commit(); render(); }
+    else { const d=storedDoc(b.id); if(d&&!d.items.length) continue; docSet(b.id,JSON.stringify({items:[],n:d?d.n||0:0,fmt:DOC_FMT})); markDirty(b); } }
+  if(n) ktSoon(500); return n;
+}
+$('bmClear').onclick=()=>{
+  const ids=bmSel(); if(!ids.length) return;
+  if(!bmAsk('bmClear','Wirklich leeren?',bmN(ids.length)+' leeren? Alles darauf wird entfernt, '+(ids.length===1?'das Board selbst bleibt':'die Boards selbst bleiben')+' mit Namen und Ordner erhalten. Zum Bestätigen nochmal auf „Wirklich leeren?“ tippen.')) return;
+  finishEdit(); const n=clearBoards(ids), keep=new Set(ids); bmRender();
+  $('bmList').querySelectorAll('input').forEach(i=>i.checked=keep.has(i.dataset.id)); bmUpd();
+  const t=bmN(n)+' geleert.'+(keep.has(boards.cur)?' Das geöffnete Board holst du mit „Rückgängig“ zurück.':''); $('bmMsg').textContent=t; toast(t,keep.has(boards.cur)?{undo:true}:{});
 };
 /* Boards mit gleichem Namen und gleichem Inhalt: alle bis auf eins ankreuzen (behalten wird das geöffnete, sonst das zuletzt geänderte) */
 /* Inhalt für den Vergleich: nur Art und Texte der Elemente, ohne Kennungen, Position und Größe
@@ -2179,12 +2231,12 @@ $('bmSame').onclick=()=>{
 };
 $('bmClose').onclick=closeBmDlg;
 $('bmDlg').addEventListener('pointerdown',e=>{ if(e.target===$('bmDlg')) closeBmDlg(); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('bmDlg').hidden){ e.preventDefault(); e.stopImmediatePropagation(); closeBmDlg(); } },true);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('bmDlg').hidden){ if(e.target&&e.target.id==='bmNewF'){ e.preventDefault(); e.stopImmediatePropagation(); bmFoldRender(); return; } e.preventDefault(); e.stopImmediatePropagation(); closeBmDlg(); } },true);
 /* ---------- Ordner für Boards (eine Ebene) ----------
    Ein Ordner ist ein Name am Board (b.f). Die Reihenfolge der Ordner steht in boards.folders, auch leere Ordner.
    Mit Konto wird der Ordner jedes Boards mit abgeglichen (Spalte „folder“, siehe quelle/supabase/02-ordner.sql). */
 const FOLD_C=['var(--c-blue)','var(--c-mint)','var(--c-gold)','var(--c-coral)','var(--c-violet)'];
-var fUi={adding:false,edit:null,menu:null,bm:null,bmF:false,bmDel:false};
+var fUi={adding:false,edit:null,menu:null,bm:null,bmF:false,bmDel:false,bmClr:false};
 function fClean(n){ return String(n==null?'':n).replace(/\s+/g,' ').trim().slice(0,40); }
 function fOpenSet(){ try{ const v=JSON.parse(lsGet('skizix-ordner-offen')||'{}'); return v&&typeof v==='object'?v:{}; }catch(e){ return {}; } }
 function fSetOpen(n,o){ const v=fOpenSet(); v[n]=o; lsSet('skizix-ordner-offen',JSON.stringify(v)); }
@@ -2209,12 +2261,12 @@ function moveBoards(ids,f){
 }
 function boardBtn(b){
   const cur=b.id===boards.cur, nm=esc(b.name);
-  let h=`<div class="bRow${fUi.bm===b.id?' open':''}"><button data-b="${b.id}" aria-current="${cur}" title="${nm}">${thHTML(b)}<span class="bn">${cur?'✓ ':''}${nm}</span></button><button type="button" class="bM" data-bm="${b.id}" aria-expanded="${fUi.bm===b.id}" title="Umbenennen, Ordner, Duplizieren, Löschen" aria-label="Board ${nm}: weitere Befehle">⋯</button></div>`;
+  let h=`<div class="bRow${fUi.bm===b.id?' open':''}"><button data-b="${b.id}" aria-current="${cur}" title="${nm}">${thHTML(b)}<span class="bn">${cur?'✓ ':''}${nm}</span></button><button type="button" class="bM" data-bm="${b.id}" aria-expanded="${fUi.bm===b.id}" title="Umbenennen, Ordner, Duplizieren, Leeren, Löschen" aria-label="Board ${nm}: weitere Befehle">⋯</button></div>`;
   if(fUi.bm!==b.id) return h;
   if(fUi.bmF){ const F=folderList(), here=fClean(b.f);
     return h+`<div class="fAct bAct"><div class="bActH">In Ordner verschieben</div>`+F.map(f=>`<button type="button" data-bto="${esc(f)}" style="--fc:${fColor(f)}" aria-pressed="${f===here}"><i class="bDot"></i>${esc(f)}</button>`).join('')+`<button type="button" data-bto="" aria-pressed="${!here}">Ohne Ordner</button><button type="button" data-bnewf="1" class="bAdd">+ Neuer Ordner …</button><button type="button" data-bback="1" class="bBack">‹ Zurück</button></div>`; }
   return h+`<div class="fAct bAct"><button type="button" data-bact="ren">Umbenennen</button><button type="button" data-bact="fold">In Ordner verschieben ›</button><button type="button" data-bact="dup">Duplizieren</button>`
-    +(cur?`<button type="button" data-m="clear">Board leeren</button>`:'')
+    +(cur?`<button type="button" data-m="clear">Board leeren</button>`:`<button type="button" data-bact="clr">${fUi.bmClr?'Wirklich leeren? Alles darauf wird entfernt.':'Board leeren'}</button>`)
     +`<button type="button" data-bact="del" class="fDel">${fUi.bmDel?'Wirklich löschen? Das lässt sich nicht zurückholen.':'Board löschen'}</button></div>`;
 }
 function dupBoard(id){
@@ -2248,7 +2300,7 @@ $('newFolder').onclick=e=>{
 $('boardList').addEventListener('click',e=>{
   const q=e.target.closest('[data-bm],[data-bact],[data-bto],[data-bnewf],[data-bback]');
   if(q){ e.stopPropagation(); const id=fUi.bm;
-    if(q.dataset.bm!==undefined){ fUi.bm=fUi.bm===q.dataset.bm?null:q.dataset.bm; fUi.bmF=false; fUi.bmDel=false; fUi.menu=null; renderBoardList(); return; }
+    if(q.dataset.bm!==undefined){ fUi.bm=fUi.bm===q.dataset.bm?null:q.dataset.bm; fUi.bmF=false; fUi.bmDel=false; fUi.bmClr=false; fUi.menu=null; renderBoardList(); return; }
     if(q.dataset.bback!==undefined){ fUi.bmF=false; renderBoardList(); return; }
     if(q.dataset.bnewf!==undefined){ fUi.bm=null; fUi.bmF=false; fUi.adding=true; renderBoardList(); fFocus(); toast('Ordner anlegen, dann das Board über „⋯ → In Ordner verschieben“ hineinlegen.'); return; }
     if(q.dataset.bto!==undefined){ const n=moveBoards([id],q.dataset.bto); fUi.bm=null; fUi.bmF=false; renderBoardList(); if(n) toast(q.dataset.bto?'In „'+q.dataset.bto+'“ verschoben.':'Steht jetzt unter „Ohne Ordner“.'); return; }
@@ -2256,6 +2308,7 @@ $('boardList').addEventListener('click',e=>{
       case 'ren': fUi.bm=null; if(id!==boards.cur) openBoard(id); renderBoardList(); closeMenu(); { const i=$('boardName'); i.focus(); i.select(); } break;
       case 'fold': fUi.bmF=true; renderBoardList(); break;
       case 'dup': dupBoard(id); break;
+      case 'clr': if(!fUi.bmClr){ fUi.bmClr=true; renderBoardList(); return; } { const b=boards.list.find(x=>x.id===id), nm=b?b.name:''; fUi.bm=null; fUi.bmClr=false; clearBoards([id]); renderBoardList(); toast('„'+nm+'“ geleert.'); } break;
       case 'del': if(!fUi.bmDel){ fUi.bmDel=true; renderBoardList(); return; } { const b=boards.list.find(x=>x.id===id), nm=b?b.name:''; fUi.bm=null; fUi.bmDel=false; removeBoards([id]); renderBoardList(); toast('„'+nm+'“ gelöscht.'); } break;
     }
     return; }
@@ -2277,21 +2330,37 @@ function fCommit(form){
 $('boardList').addEventListener('submit',e=>{ const f=e.target.closest('.fNew'); if(!f) return; e.preventDefault(); fCommit(f); });
 $('boardList').addEventListener('focusout',e=>{ const f=e.target.closest&&e.target.closest('.fNew'); if(f&&(fUi.adding||fUi.edit!==null)) setTimeout(()=>{ if(f.isConnected) fCommit(f); },0); });
 $('boardList').addEventListener('keydown',e=>{ if(e.key==='Escape'&&e.target.closest('.fNew')){ e.preventDefault(); e.stopPropagation(); fUi.adding=false; fUi.edit=null; renderBoardList(); } });
-/* „Boards verwalten“: angekreuzte Boards in einen Ordner verschieben */
-function bmFolderOpts(){
-  const s=$('bmMove'); if(!s) return;
-  s.innerHTML='<option value="">In Ordner verschieben …</option>'+folderList().map(f=>`<option value="f:${esc(f)}">${esc(f)}</option>`).join('')+'<option value="none">Ohne Ordner</option><option value="new">+ Neuer Ordner …</option>';
-  s.value='';
+/* „Boards verwalten“: angekreuzte Boards in einen Ordner verschieben. Die Ordner erscheinen als Knöpfe unter „Verschieben“. */
+function bmFolderOpts(){ bmFoldClose(); }
+function bmFoldClose(){ const p=$('bmFold'); if(!p) return; p.hidden=true; p.innerHTML=''; $('bmMoveBtn').setAttribute('aria-expanded','false'); }
+function bmFoldRender(nw){
+  const p=$('bmFold'), ids=bmSel(), here=new Set(boards.list.filter(b=>ids.includes(b.id)).map(b=>fClean(b.f)));
+  const one=here.size===1?[...here][0]:null;
+  p.innerHTML='<div class="bmFH">In welchen Ordner?</div><div class="bmFL">'
+    +folderList().map(f=>`<button type="button" data-to="f:${esc(f)}" style="--fc:${fColor(f)}" aria-pressed="${one===f}"><i class="bDot"></i>${esc(f)}</button>`).join('')
+    +`<button type="button" data-to="none" aria-pressed="${one===''}">Ohne Ordner</button>`
+    +(nw?'':'<button type="button" data-to="new" class="bAdd">+ Neuer Ordner …</button>')+'</div>'
+    +(nw?'<form class="bmFNew"><input id="bmNewF" placeholder="Name des neuen Ordners" maxlength="40" aria-label="Name des neuen Ordners" enterkeyhint="done"><button type="submit" class="pb">Anlegen und verschieben</button></form>':'');
+  p.hidden=false; $('bmMoveBtn').setAttribute('aria-expanded','true');
+  if(nw) $('bmNewF').focus();
 }
-$('bmMove').addEventListener('change',e=>{
-  const v=e.target.value, ids=bmSel(); if(!v||!ids.length){ e.target.value=''; return; }
-  let f='';
-  if(v==='new'){ f=fClean(prompt('Name des neuen Ordners')||''); if(!f){ e.target.value=''; return; } }
-  else if(v.startsWith('f:')) f=v.slice(2);
+function bmMoveTo(f){
+  const ids=bmSel(); if(!ids.length) return; f=fClean(f);
   const n=moveBoards(ids,f); bmRender();
-  const w=(ids.length===1?'1 Board':ids.length+' Boards'); $('bmMsg').textContent=f?w+' liegen jetzt im Ordner „'+f+'“.':w+' liegen jetzt ohne Ordner.';
+  const w=bmN(ids.length); $('bmMsg').textContent=f?w+' liegen jetzt im Ordner „'+f+'“.':w+' liegen jetzt ohne Ordner.';
   if(n) toast($('bmMsg').textContent);
+}
+$('bmMoveBtn').onclick=()=>{
+  if(!bmSel().length) return;
+  for(const o of ['bmClear','bmDel']) if($(o).dataset.sure){ delete $(o).dataset.sure; bmLbl(o,o==='bmDel'?'Löschen':'Leeren'); $('bmMsg').textContent=''; }
+  if($('bmFold').hidden) bmFoldRender(); else bmFoldClose();
+};
+$('bmFold').addEventListener('click',e=>{
+  const q=e.target.closest('[data-to]'); if(!q) return; const v=q.dataset.to;
+  if(v==='new') return bmFoldRender(true);
+  bmMoveTo(v.startsWith('f:')?v.slice(2):'');
 });
+$('bmFold').addEventListener('submit',e=>{ e.preventDefault(); const f=fClean($('bmNewF').value); if(!f){ $('bmNewF').focus(); return; } bmMoveTo(f); });
 /* ---------- Schreibfeld ----------
    Das Eingabefeld ist ein bearbeitbarer Bereich mit einem Block je Absatz. So sind Fett, Kursiv,
    Unterstrichen, Durchgestrichen und Einrückung schon beim Tippen zu sehen.
