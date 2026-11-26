@@ -177,17 +177,19 @@ function listLines(text,maxW){   /* jeder Absatz bekommt ein Aufzählungszeichen
     wrap(para.replace(/^\s*[•\-–]\s+/,''),Math.max(20,maxW-ind)).forEach((t,i)=>out.push({t,b:i===0})); }
   return {ind,out};
 }
-/* Absatzformate: s.pf = je Absatz 'b' (fett) und eins von 'l' (Aufzählung), 'c' (Kästchen zum Abhaken), 'x' (abgehakt).
-   Ohne pf gelten bold/list für den ganzen Text. l = eingerückt (Punkt oder Kästchen), u = Aufzählungspunkt. */
-function pfOf(s,i){ if(s.pf){ const v=s.pf[i]||'', ok=canList(s), c=ok&&/[cx]/.test(v), u=ok&&v.includes('l'); return {b:v.includes('b'),l:u||c,u,c,x:c&&v.includes('x')}; }
-  const u=!!s.list&&canList(s); return {b:!!s.bold,l:u,u,c:false,x:false}; }
-function pfStr(f){ return (f.b?'b':'')+(f.x?'x':f.c?'c':f.u?'l':''); }
+/* Absatzformate: s.pf = je Absatz 'b' (fett), 'i' (kursiv), 'n' (unterstrichen), 's' (durchgestrichen)
+   und eins von 'l' (Aufzählung), 'c' (Kästchen zum Abhaken), 'x' (abgehakt).
+   Ohne pf gelten bold/it/ul/st/list für den ganzen Text. l = eingerückt (Punkt oder Kästchen), u = Aufzählungspunkt. */
+function pfOf(s,i){ const g={i:!!s.it,n:!!s.ul,s:!!s.st};
+  if(s.pf){ const v=s.pf[i]||'', ok=canList(s), c=ok&&/[cx]/.test(v), u=ok&&v.includes('l'); return {b:v.includes('b')||!!s.bold,i:g.i||v.includes('i'),n:g.n||v.includes('n'),s:g.s||v.includes('s'),l:u||c,u,c,x:c&&v.includes('x')}; }
+  const u=!!s.list&&canList(s); return {b:!!s.bold,...g,l:u,u,c:false,x:false}; }
+function pfStr(f){ return (f.b?'b':'')+(f.i?'i':'')+(f.n?'n':'')+(f.s?'s':'')+(f.x?'x':f.c?'c':f.u?'l':''); }
 function paraLines(s,text,maxW){
-  const ind=Math.round(FS*1.25), out=[], B0=BOLD; let anyL=false;
-  String(text).split('\n').forEach((para,pi)=>{ const f=pfOf(s,pi); BOLD=f.b; if(f.l) anyL=true;
-    if(f.l&&para.trim()) wrap(para.replace(/^\s*[•\-–]\s+/,''),Math.max(20,maxW-ind)).forEach((t,i)=>out.push({t,bul:i===0,l:true,w:f.b,c:f.c,x:f.x,pi}));
-    else wrap(para,maxW).forEach(t=>out.push({t,bul:false,l:f.l,w:f.b,c:f.c,x:f.x,pi})); });
-  BOLD=B0; return {ind,out,anyL};
+  const ind=Math.round(FS*1.25), out=[], B0=BOLD, I0=ITAL; let anyL=false;
+  String(text).split('\n').forEach((para,pi)=>{ const f=pfOf(s,pi); BOLD=f.b; ITAL=f.i; if(f.l) anyL=true; const o={w:f.b,i:f.i,n:f.n,s:f.s,c:f.c,x:f.x,pi};
+    if(f.l&&para.trim()) wrap(para.replace(/^\s*[•\-–]\s+/,''),Math.max(20,maxW-ind)).forEach((t,i)=>out.push({...o,t,bul:i===0,l:true}));
+    else wrap(para,maxW).forEach(t=>out.push({...o,t,bul:false,l:f.l})); });
+  BOLD=B0; ITAL=I0; return {ind,out,anyL};
 }
 function lineCount(s,T,W){ return s.pf?paraLines(s,T,W).out.length:(s.list?listLines(T,W).out:wrap(T,W)).length; }
 function remapPf(oldT,newT,pf){   /* Absatzformate beim Bearbeiten mitführen: neue Absätze erben vom Absatz davor */
@@ -198,22 +200,22 @@ function remapPf(oldT,newT,pf){   /* Absatzformate beim Bearbeiten mitführen: n
   for(let i=O.length-m;i<O.length;i++) res.push(pf[i]||'');
   return res;
 }
-function setParaFmt(it,text,i0,i1,flag){   /* flag 'b' (fett), 'l' (Aufzählung) oder 'c' (Checkliste) für die Absätze i0..i1 umschalten */
+function setParaFmt(it,text,i0,i1,flag){   /* flag 'b' (fett), 'i' (kursiv), 'n' (unterstrichen), 's' (durchgestrichen), 'l' (Aufzählung) oder 'c' (Checkliste) für die Absätze i0..i1 umschalten */
   const P=String(text).split('\n'); i1=Math.min(i1,P.length-1);
   const F=P.map((_,i)=>pfOf(it,i)), key=flag==='l'?'u':flag;
   const on=!F.slice(i0,i1+1).every(f=>f[key]);
   for(let i=i0;i<=i1;i++){ const f=F[i];
-    if(flag==='b') f.b=on;
+    if('bins'.includes(flag)) f[flag]=on;
     else if(flag==='l'){ f.u=on; if(on){ f.c=f.x=false; } }
     else { f.c=on; f.x=on&&f.x; if(on) f.u=false; } }
   const pf=F.map(pfStr);
-  delete it.bold; delete it.list;
+  delete it.bold; delete it.list; delete it.it; delete it.ul; delete it.st;
   if(pf.some(v=>v)) it.pf=pf; else delete it.pf;
   if(flag!=='b'&&on) it.text=P.map((l,i)=>i>=i0&&i<=i1?l.replace(/^\s*(?:[•\-–]|\[[ xX]?\])\s+/,''):l).join('\n');
 }
 /* Kästchen einer Checkliste antippen: Absatz pi umschalten (abgehakt ↔ offen) */
 function toggleCheckPara(it,pi){ const pf=String(it.text||'').split('\n').map((_,i)=>pfStr(pfOf(it,i))), f=pfOf(it,pi); if(!f.c) return false;
-  pf[pi]=pfStr(Object.assign(f,{x:!f.x})); delete it.bold; delete it.list; it.pf=pf; return true; }
+  pf[pi]=pfStr(Object.assign(f,{x:!f.x})); delete it.bold; delete it.list; delete it.it; delete it.ul; delete it.st; it.pf=pf; return true; }
 /* Welcher Absatz hat an der Stelle w (Weltkoordinaten) sein Kästchen? -1 = keins. Getroffen wird das Kästchen samt etwas Rand. */
 function checkHit(s,w){
   if(!s||s.type!=='shape'||!s.pf||!s.pf.some(v=>/[cx]/.test(v))||!canList(s)) return -1;
@@ -252,14 +254,15 @@ function shapeText(s){
     if(s.al==='left'){ x=x0; anchor='start'; } else if(s.al==='right'){ x=x1; anchor='end'; } else { x=(x0+x1)/2; anchor='middle'; } }
   if(s.pf&&tb.mode!=='pool'&&tb.mode!=='below'){   /* einzelne Absätze fett oder als Aufzählung */
     const Q=paraLines(s,s.text,tb.maxW), n2=Q.out.length; y0=yMid(s,tb,n2)+FS*0.35;
-    const fw=o=>o.w?' font-weight="600"':'';
+    const fwB=o=>o.w?' font-weight="600"':'', dc=o=>[o.n&&'underline',(o.s||o.x)&&'line-through'].filter(Boolean).join(' ');
+    const fw=o=>fwB(o)+(o.i?' font-style="italic"':'')+(dc(o)?` text-decoration="${dc(o)}"`:'');
     if(Q.anyL){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2), bx=Math.round(FS*0.9);
       const box=Q.out.map((o,i)=>{ if(!o.bul||!o.c) return ''; const by=y0+i*LH-FS*0.35-bx/2+FS*0.02;
         return o.x?`<rect class="ckBox" x="${r(x0)}" y="${r(by)}" width="${bx}" height="${bx}" rx="${r(bx*0.22)}" fill="#22a88c"/><path d="M${r(x0+bx*0.24)} ${r(by+bx*0.52)}l${r(bx*0.18)} ${r(bx*0.18)}l${r(bx*0.36)} -${r(bx*0.4)}" fill="none" stroke="#fff" stroke-width="${r(Math.max(1.6,bx*0.14))}" stroke-linecap="round" stroke-linejoin="round"/>`
           :`<rect class="ckBox" x="${r(x0+0.75)}" y="${r(by+0.75)}" width="${bx-1.5}" height="${bx-1.5}" rx="${r(bx*0.22)}" fill="none" stroke="${fill}" stroke-width="1.5"/>`; }).join('');
-      const dec=o=>o.x?' text-decoration="line-through" opacity=".55"':'';
+      const dec=o=>o.x?' opacity=".55"':'';
       return `<g pointer-events="none">${box}<text font-family="${FAM}"${FX} font-size="${FS}" fill="${fill}">`+
-        Q.out.map((o,i)=>(o.bul&&!o.c?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}"${fw(o)}>${BUL}</tspan>`:'')+(o.t&&!edMarks?`<tspan x="${r(x0+(o.l?Q.ind:0))}" y="${r(y0+i*LH)}"${fw(o)}${dec(o)}>${esc(o.t)}</tspan>`:'')).join('')+`</text></g>`; }
+        Q.out.map((o,i)=>(o.bul&&!o.c?`<tspan x="${r(x0)}" y="${r(y0+i*LH)}"${fwB(o)}>${BUL}</tspan>`:'')+(o.t&&!edMarks?`<tspan x="${r(x0+(o.l?Q.ind:0))}" y="${r(y0+i*LH)}"${fw(o)}${dec(o)}>${esc(o.t)}</tspan>`:'')).join('')+`</text></g>`; }
     return `<text${s.kind==='erkey'?' text-decoration="underline"':''} text-anchor="${anchor}" font-family="${FAM}"${FX} font-size="${FS}" fill="${fill}" pointer-events="none">`+
       Q.out.map((o,i)=>`<tspan x="${r(x)}" y="${r(y0+i*LH)}"${fw(o)}>${esc(o.t)}</tspan>`).join('')+`</text>`; }
   if(L){ const x0=tb.mode==='left'?tb.pad:Math.max(6,s.w/2-tb.maxW/2);

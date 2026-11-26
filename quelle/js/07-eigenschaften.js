@@ -26,7 +26,7 @@ function updateProps_(){
     +`<div class="txH">Schriftart</div><div class="ffList">`+Object.entries(FONTS).map(([k,[n,f]])=>`<button class="pb ff" data-act="ff" data-val="${k}" aria-pressed="${k===cur}" style="font-family:${f.replace(/"/g,'&quot;')}">${n}</button>`).join('')+`</div>`
     +`<div class="txH">Größe</div><div class="fsRow"><button class="pb" data-act="fsdown" title="Schrift kleiner">A−</button><span class="fsVal" aria-live="polite">${fs0} px</span><button class="pb" data-act="fsup" title="Schrift größer">A+</button></div>`
     +`<div class="fsGrid">`+[12,14,18,24,32,48,64,96].map(v=>`<button class="pb" data-act="fs" data-val="${v}" aria-pressed="${v===fs0}">${v}</button>`).join('')+`</div>`
-    +`<div class="txH">Stil</div><div class="sws four"><button class="pb" data-act="bold" aria-pressed="${allF(t0,'b')}" title="Fett" aria-label="Fett"><b>F</b></button><button class="pb" data-act="ital" aria-pressed="${on('it')}" title="Kursiv" aria-label="Kursiv"><i style="font-family:serif">K</i></button><button class="pb" data-act="ul" aria-pressed="${on('ul')}" title="Unterstrichen" aria-label="Unterstrichen"><u>U</u></button><button class="pb" data-act="strike" aria-pressed="${on('st')}" title="Durchgestrichen" aria-label="Durchgestrichen"><s>S</s></button></div>`
+    +`<div class="txH">Stil</div><div class="sws four"><button class="pb" data-act="bold" aria-pressed="${allF(t0,'b')}" title="Fett" aria-label="Fett"><b>F</b></button><button class="pb" data-act="ital" aria-pressed="${allF(t0,'i')}" title="Kursiv" aria-label="Kursiv"><i style="font-family:serif">K</i></button><button class="pb" data-act="ul" aria-pressed="${allF(t0,'n')}" title="Unterstrichen" aria-label="Unterstrichen"><u>U</u></button><button class="pb" data-act="strike" aria-pressed="${allF(t0,'s')}" title="Durchgestrichen" aria-label="Durchgestrichen"><s>S</s></button></div>`
     +`<div class="sws two"><button class="pb" data-act="list" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>allF(i,'u'))}" title="Aufzählung: jeder Absatz beginnt mit einem Punkt" aria-label="Aufzählung"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.600" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.600" fill="currentColor" stroke="none"/><path d="M10 7h10M10 12h10M10 17h10" stroke-linecap="round"/></svg></button><button class="pb" data-act="chk" aria-pressed="${texty.some(canList)&&texty.filter(canList).every(i=>allF(i,'c'))}" title="Checkliste: jede Zeile mit Kästchen zum Abhaken" aria-label="Checkliste"${texty.some(canList)?'':' disabled'}><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="5" height="5" rx="1.2"/><path d="M3.8 15.8l1.4 1.4 2.6-3"/><path d="M11 7h10M11 16h10"/></svg></button></div>`
     +`<div class="txH">Zeilenabstand</div><div class="sws four">`+LH_STUFEN.map(([v,n])=>`<button class="pb" data-act="lh" data-val="${v}" aria-pressed="${v===lh0}">${n}</button>`).join('')+`</div>`; }
   const alable=texty.filter(i=>i.type==='shape'&&i.kind!=='pool'&&i.kind!=='frame');
@@ -63,7 +63,21 @@ function updateProps_(){
   propsEl.innerHTML=h; propsEl.querySelectorAll('.pg').forEach(g=>{ const b=g.querySelector(':scope>b'); if(b) g.setAttribute('aria-label',b.textContent); g.setAttribute('role','group'); }); refreshPop();
 }
 const CDROP={}; let paraSel=null;   /* zuletzt markierte Absätze (Fett/Aufzählung) */
-function allF(i,f){ if(paraSel&&paraSel.id===i.id){ const R=[]; for(let k=paraSel.i0;k<=paraSel.i1;k++) R.push(pfOf(i,k)[f]); return R.every(Boolean); } if(!i.pf) return f==='b'?!!i.bold:f==='c'?false:!!i.list; return String(i.text||'').split('\n').every((_,k)=>pfOf(i,k)[f]); }
+function allF(i,f){   /* gilt f für alle betroffenen Absätze? Beim Schreiben: die markierten, sonst alle */
+  let s=i, a=0, b=String(i.text||'').split('\n').length-1;
+  if(editing===i.id&&!editCell){ const T=editor.value; s=Object.assign({},i,{text:T}); if(i.pf) s.pf=remapPf(i.text||'',T,i.pf); [a,b]=editParas(); }
+  else if(paraSel&&paraSel.id===i.id){ a=paraSel.i0; b=paraSel.i1; }
+  for(let k=a;k<=b;k++) if(!pfOf(s,k)[f]) return false; return true; }
+const PFLAG={bold:'b',ital:'i',ul:'n',strike:'s',list:'l',chk:'c'};
+/* Absatzformat beim Schreiben: gilt für die markierten Absätze, das Schreibfeld bleibt offen und zeigt es sofort */
+function edFormat(act){
+  const pt=editing!=null?byId(editing):null, flag=PFLAG[act];
+  if(!pt||!flag||editCell||pt.lock||!inlineEd(pt)||((flag==='l'||flag==='c')&&!canList(pt))) return false;
+  const v=editor.value, [a,b]=edSel||[editor.selectionStart,editor.selectionEnd], [i0,i1]=editParas();
+  if(pt.pf) pt.pf=remapPf(pt.text||'',v,pt.pf); pt.text=v;
+  setParaFmt(pt,v,i0,i1,flag); paraSel={id:pt.id,i0,i1};
+  if(pt.text!==v){ editor.value=pt.text; const d=v.length-pt.text.length; edSel=[Math.max(0,a-d),Math.max(0,b-d)]; } else edSel=[a,b];
+  editor.setSelectionRange(edSel[0],edSel[1]); placeEditor(); edStyle(); commit(); render(); setTimeout(backToEdit,0); return true; }
 function refreshPop(){ const p=$('colorPop'); if(!p||p.hidden) return; const info=CDROP[p.dataset.for]; if(!info||!$('props').querySelector(`[data-drop="${p.dataset.for}"]`)){ closeColorPop(); return; } p.classList.toggle('menu',!!info.menu); p.innerHTML=`<div class="mh">${esc(info.lab)}</div>`+info.html; }
 function closeColorPop(){ paraSel=null; const p=$('colorPop'); if(p&&!p.hidden){ p.hidden=true; p.innerHTML=''; } }
 propsEl.addEventListener('click',e=>{
@@ -84,9 +98,10 @@ function propsAct(b){
   /* Fett/Aufzählung beim Schreiben: nur für die markierten Absätze. Danach ist das Ergebnis sichtbar,
      und weitere Klicks im offenen Textfeld gelten weiter für dieselben Absätze. */
   const pt=editing!=null?byId(editing):(paraSel&&sel.size===1&&sel.has(paraSel.id)&&!$('colorPop').hidden?byId(paraSel.id):null);
-  if(pt&&(act==='bold'||act==='list'||act==='chk')&&pt.kind!=='table'&&!pt.lock&&(act==='bold'||canList(pt))){
-    let i0,i1; if(editing!=null){ [i0,i1]=editParas(); pt.text=editor.value; finishEdit(); sel=new Set([pt.id]); } else ({i0,i1}=paraSel);
-    setParaFmt(pt,pt.text||'',i0,i1,act==='bold'?'b':act==='chk'?'c':'l'); paraSel={id:pt.id,i0,i1};
+  if(editing!=null&&PFLAG[act]&&edFormat(act)) return;
+  if(pt&&editing==null&&PFLAG[act]&&pt.kind!=='table'&&!pt.lock&&(!'lc'.includes(PFLAG[act])||canList(pt))){
+    const {i0,i1}=paraSel;
+    setParaFmt(pt,pt.text||'',i0,i1,PFLAG[act]); paraSel={id:pt.id,i0,i1};
     if(pt.kind==='text') pt.fresh=true; autosize(pt); commit(); render(); return; }
   if(editing!=null&&!['edit','del','dup','copy','paste'].includes(act)) setTimeout(backToEdit,0);
   if(act==='front') return reorder(true);
@@ -129,7 +144,8 @@ function propsAct(b){
       if(act==='ff'){ if(val==='mono') delete it.ff; else it.ff=val; }
       if(act==='lh'){ const v=+val; if(v===1.3) delete it.lh; else it.lh=v; }
       if(act==='fs') it.fs=clamp(+val,8,160);
-      if(FLAG[act]){ if(fOn) it[FLAG[act]]=true; else delete it[FLAG[act]]; }
+      if(FLAG[act]){ if(it.pf&&it.type==='shape') setParaFmt(it,it.text||'',0,String(it.text||'').split('\n').length-1,PFLAG[act]);   /* mit Absatzformaten: für alle Absätze */
+        else if(fOn) it[FLAG[act]]=true; else delete it[FLAG[act]]; }
       if(it.kind==='text') it.fresh=true; autosize(it); }
     if(it.type!=='path'&&(act==='fsup'||act==='fsdown'||act==='bold')){
       if(act==='bold'){ if(it.pf){ const n=String(it.text||'').split('\n').length-1; setParaFmt(it,it.text||'',0,n,'b'); } else it.bold=!it.bold; } else { const f=it.fs||14; it.fs=act==='fsup'?(FS_STUFEN.find(v=>v>f)||Math.min(160,f+16)):([...FS_STUFEN].reverse().find(v=>v<f)||Math.max(8,f-2)); }

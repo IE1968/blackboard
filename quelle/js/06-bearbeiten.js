@@ -103,7 +103,7 @@ async function addImage(blob,c){
 $('imgFile').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) addImage(f,imgAt); imgAt=null; });
 let pastePending=0;
 document.addEventListener('paste',e=>{   /* Bild aus der Zwischenablage */
-  if(editing||(e.target&&e.target.closest&&e.target.closest('input,textarea'))) return;
+  if(editing||(e.target&&e.target.closest&&e.target.closest('input,textarea,[contenteditable]'))) return;
   const fl=[...((e.clipboardData&&e.clipboardData.items)||[])].find(i=>i.kind==='file'&&/^image\//.test(i.type)), f=fl&&fl.getAsFile();
   if(!f) return; e.preventDefault(); clearTimeout(pastePending); pastePending=0; addImage(f);
 });
@@ -271,17 +271,17 @@ function placeEditor(){
     if(tb.mode==='below') base0=it.h+LH; else base0=yMid(it,tb,n)+FS*0.35;
     const top=base0-FS*0.35-LH/2;
     let x0, w, al;
-    if(ind){ x0=(tb.mode==='left'?tb.pad:Math.max(6,it.w/2-tb.maxW/2))+ind; w=Math.max(20,tb.maxW-ind); al='left'; }
+    if(ind){ x0=tb.mode==='left'?tb.pad:Math.max(6,it.w/2-tb.maxW/2); w=tb.maxW; al='left'; }   /* Einrückung je Absatz (edStyle) */
     else if(tb.mode==='left'){ x0=tb.pad; w=tb.maxW; al=it.al||'left'; }
     else { x0=it.w/2-tb.maxW/2; w=tb.maxW; al=it.al||'center'; }
     editor.classList.add('inl');
     editor.style.left=(view.x+(it.x+x0)*k)+'px'; editor.style.top=(view.y+(it.y+top)*k)+'px';
     editor.style.width=(w*k+2)+'px'; editor.style.height=(n*LH*k+2)+'px';
     editor.style.fontSize=(FS*k)+'px'; editor.style.lineHeight=(LH*k)+'px'; editor.style.padding='0'; editor.style.fontFamily=FAM; editor.style.fontStyle=ITAL?'italic':'normal';
-    editor.style.textAlign=al; editor.style.color=edTextColor(it); editor.style.caretColor=edTextColor(it);
+    editor.style.textAlign=al; editor.style.textDecoration='none'; editor.style.color=edTextColor(it); editor.style.caretColor=edTextColor(it);
     if(editor.scrollHeight>editor.clientHeight+1) editor.style.height=(editor.scrollHeight+2)+'px';   /* falls das Feld anders umbricht: nichts abschneiden */
     if(it.rot){ editor.style.transformOrigin=((it.w/2-x0)*k)+'px '+((it.h/2-top)*k)+'px'; editor.style.transform='rotate('+it.rot+'deg)'; } else editor.style.transform='';
-    return;
+    edStyle(); return;
   }
   editor.classList.remove('inl'); editor.style.color=editor.style.caretColor=editor.style.transform='';
   const R=editRect(it);
@@ -318,11 +318,13 @@ function holdEdit(e){ if(editing==null||!e.target.closest('button,.pg,.pmenu,#co
 for(const el of [propsEl,$('colorPop')]){ el.addEventListener('pointerdown',holdEdit,true); el.addEventListener('mousedown',holdEdit,true); }
 function backToEdit(){ if(editing==null) return; editor.focus({preventScroll:true}); if(edSel) editor.setSelectionRange(edSel[0],edSel[1]); }
 function editParas(){ const v=editor.value, [a,b]=edSel||[editor.selectionStart,editor.selectionEnd], cnt=p=>(v.slice(0,p).match(/\n/g)||[]).length; return [cnt(a),cnt(b>a?b-1:b)]; }
-editor.addEventListener('input',()=>{ placeEditor(); const it=byId(editing); if(it&&(it.pf||it.list)) render(); });   /* Punkte und Kästchen wandern mit */
+editor.addEventListener('input',()=>{ placeEditor(); edStyle(); const it=byId(editing); if(it&&(it.pf||it.list)) render(); });   /* Punkte und Kästchen wandern mit */
+document.addEventListener('selectionchange',()=>{ if(editing!=null&&document.activeElement===editor) edSel=null; });
 editor.addEventListener('keydown',e=>{
   /* Enter = neuer Absatz; fertig mit Strg+Enter, Esc oder Tippen daneben. Mindmap-Knoten: Enter = fertig (Umschalt+Enter = neue Zeile) */
   if(e.key==='Enter'&&(e.ctrlKey||e.metaKey||(!e.shiftKey&&!editCell&&(byId(editing)||{}).mm))){ e.preventDefault(); finishEdit(); }
   else if(e.key==='Escape'){ e.preventDefault(); finishEdit(); }
+  else if((e.ctrlKey||e.metaKey)&&!e.altKey&&/^[biu]$/i.test(e.key)){ e.preventDefault(); edFormat({b:'bold',i:'ital',u:'ul'}[e.key.toLowerCase()]); }   /* Strg+B/I/U: Absatz fett, kursiv, unterstrichen */
   else if(e.key==='Tab'&&!editCell&&(byId(editing)||{}).mm){ e.preventDefault(); const id=editing; finishEdit(); addBranch(id); }   /* Mindmap: Tab hängt direkt einen neuen Zweig an */
   else if(e.key==='Tab'&&editCell){ e.preventDefault(); const id=editing,t=byId(id); let {r:rr,c}=editCell;
     c+=e.shiftKey?-1:1; if(c>=t.colW.length){ c=0; rr++; } if(c<0){ c=t.colW.length-1; rr--; }

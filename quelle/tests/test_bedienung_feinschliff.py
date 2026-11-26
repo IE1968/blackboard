@@ -11,7 +11,7 @@ try:
   pg.evaluate(LOAD,{'items':[S('a','rect',100,100,160,80,'Alt')],'n':5}); pg.reload(); pg.wait_for_timeout(800); einpassen(pg); pg.wait_for_timeout(200)
   b=pg.locator('#items [data-id="a"]').bounding_box(); pg.mouse.click(b['x']+20,b['y']+20); pg.wait_for_timeout(150)
   pg.keyboard.type('Neu'); pg.wait_for_timeout(100)
-  check('Lostippen öffnet das Schreiben',pg.is_visible('#editor') and pg.input_value('#editor')=='Neu',pg.input_value('#editor'))
+  check('Lostippen öffnet das Schreiben',pg.is_visible('#editor') and pg.evaluate("()=>editor.value")=='Neu',pg.evaluate("()=>editor.value"))
   pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
   check('… und ersetzt den Text',[i for i in pg.evaluate(READ)['items'] if i['id']=='a'][0]['text']=='Neu')
   check('Werkzeug unverändert (kein Radierer o. Ä.)',pg.get_attribute('#board','class')=='t-select')

@@ -654,7 +654,9 @@ body.floatbar #props .pg>b{font-size:10px;letter-spacing:.02em;text-transform:no
 #qzPlay .qpOff{background:#e9b52f;color:#18181a;text-align:center;font-size:13px;font-weight:600;padding:6px}
 @media (prefers-reduced-motion: reduce){ #qzPlay .qpSpin{animation:none} }
 #editor.inl{background:transparent;border:0;border-radius:2px;outline:1px dashed var(--sel,#1763cf);outline-offset:3px;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;font-family:'Roboto Mono',ui-monospace,Menlo,Consolas,monospace;box-sizing:border-box}
-#editor.inl::selection{background:rgba(91,140,245,.38)}
+#editor{white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;-webkit-user-select:text;user-select:text}
+#editor>div{min-height:1em}
+#editor.inl ::selection{background:rgba(91,140,245,.38)}
 
 /* Bedienelemente mit sichtbarem Rahmen: Kontrast mind. 3 : 1 */
 #ktForm input[type=email],#ktForm input[type=password],#liveJoinForm input,.fNew input,#qzPlay input{border-color:var(--ctl-line)}

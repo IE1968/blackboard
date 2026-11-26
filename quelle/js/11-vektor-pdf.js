@@ -95,7 +95,7 @@ function pdPath(d,o){
 function pdEll(cx,cy,rx,ry,o){ const k=0.5522847, P=(a,b)=>pdN(a)+' '+pdN(b);
   o.push(P(cx+rx,cy)+' m',P(cx+rx,cy+ry*k)+' '+P(cx+rx*k,cy+ry)+' '+P(cx,cy+ry)+' c',P(cx-rx*k,cy+ry)+' '+P(cx-rx,cy+ry*k)+' '+P(cx-rx,cy)+' c',
     P(cx-rx,cy-ry*k)+' '+P(cx-rx*k,cy-ry)+' '+P(cx,cy-ry)+' c',P(cx+rx*k,cy-ry)+' '+P(cx+rx,cy-ry*k)+' '+P(cx+rx,cy)+' c','h'); }
-const PD_INH=['fill','stroke','stroke-width','stroke-linecap','stroke-linejoin','stroke-dasharray','fill-opacity','stroke-opacity','font-size','font-weight','text-anchor','text-decoration'];
+const PD_INH=['fill','stroke','stroke-width','stroke-linecap','stroke-linejoin','stroke-dasharray','fill-opacity','stroke-opacity','font-size','font-weight','text-anchor','text-decoration','font-style'];
 function pdSty(el,st){ const o=Object.assign({},st); for(const a of PD_INH){ const v=el.getAttribute(a); if(v!=null&&v!=='inherit') o[a]=v; }
   const op=el.getAttribute('opacity'); if(op!=null) o.op=(o.op??1)*(+op||0); return o; }
 async function pdfVector(boxes){
@@ -137,7 +137,7 @@ async function pdfVector(boxes){
       const txt=raw.replace(/\s+/g,' ').trim(); if(!txt) continue;
       const col=pdCol(s2.fill==null?'#000':s2.fill); if(!col) continue;
       const fs=+(s2['font-size']||16), fam=fam1(el.getAttribute('font-family')), P=pick(fam,s2), fo=P.fo, al=col[3]*(s2.op??1), anc=s2['text-anchor']||'start';
-      const ital=el.getAttribute('font-style')==='italic', sk=ital?0.25:0;   /* Kursiv: schräg gestellt wie im Browser */
+      const ital=(s2['font-style']||el.getAttribute('font-style'))==='italic', sk=ital?0.25:0;   /* Kursiv: schräg gestellt wie im Browser */
       const segs=[]; for(const c of txt){ const ok=fo.cm.has(c.codePointAt(0)), L=segs[segs.length-1]; if(L&&L.ok===ok) L.t+=c; else segs.push({t:c,ok}); }
       for(const g of segs){ if(g.ok){ let a=0; for(const c of g.t) a+=fo.aw(fo.cm.get(c.codePointAt(0))); g.w=a*fs/fo.upm; } else { g.R=rasterText(g.t,fs,P.key.split('|')[1],col,fam==='Roboto Mono'?null:el.getAttribute('font-family'),ital); g.w=g.R.w; } }
       const w=segs.reduce((a,g)=>a+g.w,0); let x0=anc==='middle'?px-w/2:anc==='end'?px-w:px, cx=x0;

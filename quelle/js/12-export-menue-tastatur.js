@@ -56,7 +56,7 @@ $('file').addEventListener('change',async e=>{
   finishEdit(); doc=d; fitTexts(); sel.clear(); commit(); render(); fit(); if(isNewer(doc)) newerWarn();
 });
 document.addEventListener('keydown',e=>{
-  const t=e.target; if(t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT')) return;
+  const t=e.target; if(t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT'||t.isContentEditable)) return;
   const mod=e.ctrlKey||e.metaKey, k=e.key.toLowerCase();
   if(e.key===' '&&!(t&&t.tagName==='BUTTON')){ spaceDown=true; e.preventDefault(); return; }
   if(mod&&k==='z'){ e.preventDefault(); e.shiftKey?redo():undo(); return; }
