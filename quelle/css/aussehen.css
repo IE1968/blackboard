@@ -480,6 +480,13 @@ body.light .sw.none,body.light .cdot.none{border-color:rgba(24,24,26,.3)}
 #menu [data-m="open"] svg{color:var(--c-gold)}
 #menu [data-m="clear"] svg{color:var(--c-violet)}
 #menu [data-m="delboard"] svg{color:var(--c-coral)}
+#menu #curMove svg{color:var(--c-gold)}
+#menu #curMove[aria-expanded="true"]{color:var(--accent)}
+#curFold[hidden]{display:none}
+#curFold{display:flex}
+#menu #delBoard[data-sure]{background:#c94040;color:#fff}
+#menu #curFold button[aria-pressed="true"]{background:none;color:var(--accent);border-color:var(--accent)}
+#menu #delBoard[data-sure] svg{color:#fff}
 #boardList [data-b]{display:flex;align-items:center;gap:7px}
 #boardList [data-b][aria-current="true"]{background:var(--acc-soft);color:var(--accent)}
 

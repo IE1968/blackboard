@@ -150,7 +150,7 @@ function newBoard(){
   const id=genId(); let n=boards.list.length+1; while(boards.list.some(b=>b.name==='Board '+n)) n++;
   const nb={id,name:'Board '+n}; boards.list.push(nb); docSet(id,JSON.stringify({items:[],n:0,fmt:DOC_FMT})); openBoard(id); markDirty(nb); ktSoon(500);
 }
-function deleteBoard(){ if(boards.list.length<2) return; removeBoards([boards.cur]); }
+function deleteBoard(){ const nm=curBoard().name; removeBoards([boards.cur]); toast('„'+nm+'“ gelöscht.'); }
 /* Boards löschen (auch mehrere). Bleibt keins übrig, entsteht ein leeres neues. Löschen wird ans Konto weitergegeben. */
 function removeBoards(ids){
   const set=new Set(ids), gone=boards.list.filter(b=>set.has(b.id)); if(!gone.length) return 0;

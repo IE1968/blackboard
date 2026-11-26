@@ -127,3 +127,19 @@ $('bmFold').addEventListener('click',e=>{
   bmMoveTo(v.startsWith('f:')?v.slice(2):'');
 });
 $('bmFold').addEventListener('submit',e=>{ e.preventDefault(); const f=fClean($('bmNewF').value); if(!f){ $('bmNewF').focus(); return; } bmMoveTo(f); });
+/* Rechte Leiste: „Board verschieben“ legt das geöffnete Board in einen Ordner */
+function curFoldClose(){ const p=$('curFold'); p.hidden=true; p.innerHTML=''; $('curMove').setAttribute('aria-expanded','false'); }
+function curFoldRender(nw){
+  const p=$('curFold'), here=fClean(curBoard().f);
+  p.innerHTML='<div class="bActH">In Ordner verschieben</div>'+folderList().map(f=>`<button type="button" data-cto="f:${esc(f)}" style="--fc:${fColor(f)}" aria-pressed="${f===here}"><i class="bDot"></i>${esc(f)}</button>`).join('')
+    +`<button type="button" data-cto="none" aria-pressed="${!here}">Ohne Ordner</button>`
+    +(nw?'<form class="fNew" id="curNewF"><input placeholder="Name des Ordners" maxlength="40" aria-label="Name des neuen Ordners" enterkeyhint="done"></form>':'<button type="button" data-cto="new" class="bAdd">+ Neuer Ordner …</button>');
+  p.hidden=false; $('curMove').setAttribute('aria-expanded','true');
+  if(nw) p.querySelector('input').focus();
+}
+function curMoveTo(f){ const n=moveBoards([boards.cur],f); curFoldClose(); renderBoardList(); if(n) toast(f?'„'+curBoard().name+'“ liegt jetzt im Ordner „'+f+'“.':'„'+curBoard().name+'“ steht jetzt unter „Ohne Ordner“.'); }
+$('curMove').addEventListener('click',e=>{ e.stopPropagation(); delSure(); if($('curFold').hidden) curFoldRender(); else curFoldClose(); });
+$('curFold').addEventListener('click',e=>{ e.stopPropagation(); const q=e.target.closest('[data-cto]'); if(!q) return; const v=q.dataset.cto;
+  if(v==='new') return curFoldRender(true); curMoveTo(v.startsWith('f:')?v.slice(2):''); });
+$('curFold').addEventListener('submit',e=>{ e.preventDefault(); const f=fClean(e.target.querySelector('input').value); if(!f) return; curMoveTo(f); });
+$('curFold').addEventListener('keydown',e=>{ if(e.key==='Escape'&&e.target.tagName==='INPUT'){ e.preventDefault(); e.stopPropagation(); curFoldRender(); } });

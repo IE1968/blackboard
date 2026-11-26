@@ -116,6 +116,10 @@
     <button data-m="new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Neues Board</button>
     <button data-m="manage" id="manageBtn">Boards verwalten …</button>
         <button data-m="open">Board laden …</button>
+    <button data-m="clear"><span class="t">Board leeren</span></button>
+    <button type="button" id="curMove" aria-expanded="false" aria-controls="curFold"><span class="t">Board verschieben</span></button>
+    <div id="curFold" class="fAct bAct" hidden role="group" aria-label="Geöffnetes Board in einen Ordner verschieben"></div>
+    <button data-m="delboard" id="delBoard"><span class="t">Board löschen</span></button>
     <hr>
     <div class="mh mhRow"><span>Boards</span><button type="button" id="newFolder" title="Neuen Ordner anlegen">+ Ordner</button></div>
     <div id="boardList"></div>

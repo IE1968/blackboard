@@ -13,7 +13,7 @@ try:
   w=pg.evaluate("()=>[document.getElementById('palette').getBoundingClientRect().width,document.getElementById('menu').getBoundingClientRect().width]")
   check('Rechte Leiste so breit wie die linke',abs(w[0]-w[1])<1.5,str(w))
   check('Rechts: Datei-Inhalte ohne Export',pg.locator('main #menu #boardList').count()==1 and pg.locator('main #menu [data-m="pdf"]').count()==0)
-  check('Oben Neues Board, Boards verwalten, Board laden (ohne Symbole) – Leeren und Löschen im „⋯“ der Boards',pg.evaluate("()=>{const k=[...document.querySelectorAll('#menu > *')]; const i=k.findIndex(e=>e.dataset.m==='new'); return k[i+1].id==='manageBtn'&&k[i+2].dataset.m==='open'&&k[i+3].tagName==='HR'&&!k[i+1].querySelector('svg')&&!k[i+2].querySelector('svg')&&!document.getElementById('delBoard')&&document.querySelectorAll('#boardList .bM').length>0}"))
+  check('Oben Neues Board, Boards verwalten, Board laden, Board leeren, Board verschieben, Board löschen (ohne Symbole), dazu „⋯“ an jedem Board',pg.evaluate("()=>{const k=[...document.querySelectorAll('#menu > *')].filter(e=>e.id!=='curFold'); const i=k.findIndex(e=>e.dataset.m==='new'); return k[i+1].id==='manageBtn'&&k[i+2].dataset.m==='open'&&k[i+3].dataset.m==='clear'&&k[i+4].id==='curMove'&&k[i+5].id==='delBoard'&&k[i+6].tagName==='HR'&&[1,2,3,4,5].every(j=>!k[i+j].querySelector('svg'))&&document.querySelectorAll('#boardList .bM').length>0}"))
   check('Kein Hinweistext auf der Tafel',pg.locator('#hint').count()==0)
   # Optionsleiste je Werkzeug
   pg.click('#tools [data-tool="stifte"]'); pg.wait_for_timeout(150)

@@ -11,6 +11,8 @@ async function exportAs(kind){
   }catch(e){ toast(e==='empty'?'Das Board ist leer.':'Der Export hat nicht geklappt. Bitte noch einmal versuchen.'); }
 }
 function saveJSON(){ saveFile(fileBase()+'.json',JSON.stringify(Object.assign({},doc,{fmt:Math.max(doc.fmt||0,DOC_FMT)}))); }
+/* „Board löschen“ fragt erst nach; ohne zweiten Druck geht der Knopf nach ein paar Sekunden zurück */
+function delSure(){ const d=$('delBoard'); if(!d) return; clearTimeout(delSure.t); delete d.dataset.sure; d.querySelector('.t').textContent='Board löschen'; }
 menu.addEventListener('click',e=>{
   const bb=e.target.closest('[data-b]');
   if(bb){ closeMenu(); if(bb.dataset.b!==boards.cur) openBoard(bb.dataset.b); renderBoardList(); return; }
@@ -19,7 +21,8 @@ menu.addEventListener('click',e=>{
   if(b.dataset.m==='hc'){ setUi({hc:!uiCfg.hc}); return; }
   if(b.dataset.m==='snap'){ setUi({snap:!uiCfg.snap}); return; }
   if(b.dataset.m==='gridv'){ setUi({grid:!uiCfg.grid}); return; }
-  if(b.dataset.m==='delboard'&&!b.dataset.sure){ b.dataset.sure='1'; (b.querySelector('.t')||b).textContent='Wirklich löschen? Das lässt sich nicht zurückholen.'; e.stopPropagation(); return; }
+  if(b.dataset.m==='delboard'&&!b.dataset.sure){ b.dataset.sure='1'; (b.querySelector('.t')||b).textContent='Wirklich löschen?'; toast('Nochmal auf „Wirklich löschen?“ tippen, um „'+curBoard().name+'“ zu löschen. Das lässt sich nicht zurückholen.'); clearTimeout(delSure.t); delSure.t=setTimeout(delSure,6000); e.stopPropagation(); return; }
+  if(b.dataset.m==='delboard') delSure();
   closeMenu(); menuDo(b.dataset.m);
 });
 function menuDo(m){
