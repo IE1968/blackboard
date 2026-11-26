@@ -168,7 +168,7 @@ const byId=id=>doc.items.find(i=>i.id===id);
 const DEV=(()=>{ let d=null; try{ d=localStorage.getItem('skizix-dev'); }catch(e){} if(!d||!/^[a-z0-9]{4}$/.test(d)){ d=Math.random().toString(36).slice(2,6).padEnd(4,'0'); try{ localStorage.setItem('skizix-dev',d); }catch(e){} } return d; })();
 const nid=()=>'i'+(++doc.n)+'_'+DEV;   /* Gerätekennung im Namen: zwei Geräte am selben Live-Board vergeben nie dieselbe ID */
 const isSq=k=>k.startsWith('ev')||k.startsWith('gw');
-const isBox=k=>k==='pool'||k==='table'||k==='nsloop'||k==='nsloopf'||k==='frame';
+const isBox=k=>k==='pool'||k==='table'||k==='nsloop'||k==='nsloopf'||k==='frame'||k==='paper';
 const noDock=k=>k==='pool'||k==='table'||k==='frame'||k==='bgroup'||k==='check';
 function isDark(c){ if(!/^#[0-9a-f]{6}$/i.test(c))return false; const n=parseInt(c.slice(1),16); return (0.299*(n>>16)+0.587*((n>>8)&255)+0.114*(n&255))/255<0.45; }
 function measure(t){ mctx.font=(ITAL?'italic ':'')+(BOLD?'600 ':'')+FS+'px '+FAM; return mctx.measureText(t).width; }

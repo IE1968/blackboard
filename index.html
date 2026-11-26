@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-7cr24+qnTrl3d3wsbys5SGZavSapTFNl0bEe6HZHOkU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://127.0.0.1:* ws://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-9pmFjyvK26ySia/unSrR1n/XuaW6A3SfS0MBTMY/g3s='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://127.0.0.1:* ws://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Skizix</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#18181A">
@@ -1247,7 +1247,7 @@ const byId=id=>doc.items.find(i=>i.id===id);
 const DEV=(()=>{ let d=null; try{ d=localStorage.getItem('skizix-dev'); }catch(e){} if(!d||!/^[a-z0-9]{4}$/.test(d)){ d=Math.random().toString(36).slice(2,6).padEnd(4,'0'); try{ localStorage.setItem('skizix-dev',d); }catch(e){} } return d; })();
 const nid=()=>'i'+(++doc.n)+'_'+DEV;   /* Gerätekennung im Namen: zwei Geräte am selben Live-Board vergeben nie dieselbe ID */
 const isSq=k=>k.startsWith('ev')||k.startsWith('gw');
-const isBox=k=>k==='pool'||k==='table'||k==='nsloop'||k==='nsloopf'||k==='frame';
+const isBox=k=>k==='pool'||k==='table'||k==='nsloop'||k==='nsloopf'||k==='frame'||k==='paper';
 const noDock=k=>k==='pool'||k==='table'||k==='frame'||k==='bgroup'||k==='check';
 function isDark(c){ if(!/^#[0-9a-f]{6}$/i.test(c))return false; const n=parseInt(c.slice(1),16); return (0.299*(n>>16)+0.587*((n>>8)&255)+0.114*(n&255))/255<0.45; }
 function measure(t){ mctx.font=(ITAL?'italic ':'')+(BOLD?'600 ':'')+FS+'px '+FAM; return mctx.measureText(t).width; }
@@ -2803,7 +2803,10 @@ function movers(){
   const ids=new Set(sel);
   if([...sel].some(id=>(byId(id)||{}).kind==='frame')) assignFrames();
   for(const id of sel){ const p=byId(id); if(!p||p.type!=='shape'||!isBox(p.kind)) continue;
-    for(const o of doc.items){ if(o.id===p.id||o.type==='conn'||o.lock||o.kind==='frame') continue; const b=bbox(o),cx=b.x+b.w/2,cy=b.y+b.h/2;
+    const pi=doc.items.indexOf(p);
+    for(const o of doc.items){ if(o.id===p.id||o.type==='conn'||o.lock||o.kind==='frame') continue;
+      if(p.kind==='paper'&&doc.items.indexOf(o)<pi) continue;   /* Notizblatt: nur was darauf liegt (darüber gezeichnet), wandert mit */
+      const b=bbox(o),cx=b.x+b.w/2,cy=b.y+b.h/2;
       if(p.kind==='frame'?o.fr===p.id:(cx>p.x&&cx<p.x+p.w&&cy>p.y&&cy<p.y+p.h)) ids.add(o.id); } }
   return [...ids].map(byId).filter(it=>it&&!it.lock).map(it=>({id:it.id,d:JSON.parse(JSON.stringify(it))}));
 }

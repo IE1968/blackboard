@@ -29,6 +29,18 @@ try:
   pg.evaluate("()=>[...document.querySelectorAll('#tplGrid .tc')].find(b=>b.textContent.includes('Notizseite')).click()"); pg.wait_for_timeout(400)
   ps=[i for i in pg.evaluate(READ)['items'] if i.get('kind')=='paper']
   check('Vorlage „Notizseite“: zwei Blätter mit Titel',len(ps)==3 and any(i['text'].startswith('Notizen\n') for i in ps))
+  # Inhalt wandert mit: Text und Stiftstrich auf dem Blatt, Form daneben bleibt
+  pg.evaluate(LOAD,{'items':[{'id':'x','type':'shape','kind':'rect','x':-300,'y':0,'w':80,'h':60,'text':'','fill':'#fff','stroke':'#1c2a2e','sw':2},
+     {'id':'p','type':'shape','kind':'paper','x':0,'y':0,'w':300,'h':400,'text':'','fill':'#fdfcf6','stroke':'#1c2a2e','sw':2,'fs':20},
+     {'id':'t','type':'shape','kind':'text','x':40,'y':60,'w':200,'h':40,'text':'Darauf','fill':'none','stroke':'#1c2a2e','sw':2,'fs':20},
+     {'id':'s','type':'path','pts':[[50,200],[120,240],[200,210]],'stroke':'#1c2a2e','sw':3,'tool':'pen','tip':'round'}],'n':9,'fmt':2})
+  pg.reload(); pg.wait_for_timeout(700); pg.keyboard.press('Shift+Digit1'); pg.wait_for_timeout(300)
+  b=pg.locator('#items > [data-id="p"]').bounding_box(); x,y=b['x']+b['width']*0.8,b['y']+b['height']*0.9
+  pg.mouse.move(x,y); pg.mouse.down(); pg.mouse.move(x+120,y+40,steps=8); pg.mouse.up(); pg.wait_for_timeout(300)
+  d={i['id']:i for i in pg.evaluate(READ)['items']}
+  dx=d['p']['x']
+  check('Blatt verschoben, Text und Strich darauf wandern mit',dx>20 and d['t']['x']==40+dx and abs(d['s']['pts'][0][0]-(50+dx))<0.01,str((dx,d['t']['x'],d['s']['pts'][0])))
+  check('Form neben dem Blatt bleibt liegen',d['x']['x']==-300)
   check('Keine Fehler',not errs,str(errs))
   br.close()
 finally: srv.terminate()

@@ -13,7 +13,10 @@ function movers(){
   const ids=new Set(sel);
   if([...sel].some(id=>(byId(id)||{}).kind==='frame')) assignFrames();
   for(const id of sel){ const p=byId(id); if(!p||p.type!=='shape'||!isBox(p.kind)) continue;
-    for(const o of doc.items){ if(o.id===p.id||o.type==='conn'||o.lock||o.kind==='frame') continue; const b=bbox(o),cx=b.x+b.w/2,cy=b.y+b.h/2;
+    const pi=doc.items.indexOf(p);
+    for(const o of doc.items){ if(o.id===p.id||o.type==='conn'||o.lock||o.kind==='frame') continue;
+      if(p.kind==='paper'&&doc.items.indexOf(o)<pi) continue;   /* Notizblatt: nur was darauf liegt (darüber gezeichnet), wandert mit */
+      const b=bbox(o),cx=b.x+b.w/2,cy=b.y+b.h/2;
       if(p.kind==='frame'?o.fr===p.id:(cx>p.x&&cx<p.x+p.w&&cy>p.y&&cy<p.y+p.h)) ids.add(o.id); } }
   return [...ids].map(byId).filter(it=>it&&!it.lock).map(it=>({id:it.id,d:JSON.parse(JSON.stringify(it))}));
 }
